@@ -1,0 +1,235 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "System user with role and permissions",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "role": { "type": "string", "enum": ["ADMIN", "STAFF"] },
+        "permissions": { "type": "array", "items": { "type": "string" } },
+        "avatar": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "name", "email", "role", "permissions", "createdAt"]
+    },
+    "Product": {
+      "title": "Product",
+      "description": "Inventory item for sale or rent",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "sku": { "type": "string" },
+        "barcode": { "type": "string" },
+        "category": { "type": "string" },
+        "brand": { "type": "string" },
+        "color": { "type": "string" },
+        "material": { "type": "string" },
+        "sizes": { "type": "array", "items": { "type": "string" } },
+        "purchasePrice": { "type": "number" },
+        "sellingPrice": { "type": "number" },
+        "rentalPrice": { "type": "number" },
+        "taxPercent": { "type": "number" },
+        "saleStock": { "type": "number" },
+        "rentalStock": { "type": "number" },
+        "minStockAlert": { "type": "number" },
+        "supplierId": { "type": "string" },
+        "description": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "name", "sku", "purchasePrice", "sellingPrice", "rentalPrice", "saleStock", "rentalStock", "createdAt"]
+    },
+    "Customer": {
+      "title": "Customer",
+      "description": "Customer information",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "phone": { "type": "string" },
+        "email": { "type": "string" },
+        "address": { "type": "string" },
+        "gstin": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "name", "phone", "createdAt"]
+    },
+    "Supplier": {
+      "title": "Supplier",
+      "description": "Vendor information",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "contactPerson": { "type": "string" },
+        "phone": { "type": "string" },
+        "email": { "type": "string" },
+        "address": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "name", "phone", "createdAt"]
+    },
+    "Sale": {
+      "title": "Sale",
+      "description": "Sales transaction record",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "invoiceNumber": { "type": "string" },
+        "externalOrderId": { "type": "string" },
+        "channel": { "type": "string" },
+        "customerId": { "type": "string" },
+        "items": { "type": "array", "items": { "$ref": "InvoiceItem" } },
+        "totalAmount": { "type": "number" },
+        "marketplaceFees": { "type": "number" },
+        "netPayout": { "type": "number" },
+        "taxTotal": { "type": "number" },
+        "discount": { "type": "number" },
+        "paidAmount": { "type": "number" },
+        "paymentStatus": { "type": "string" },
+        "paymentMethod": { "type": "string" },
+        "orderStatus": { "type": "string" },
+        "date": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "invoiceNumber", "channel", "customerId", "items", "totalAmount", "paymentStatus", "paymentMethod", "orderStatus", "date"]
+    },
+    "InvoiceItem": {
+      "title": "InvoiceItem",
+      "type": "object",
+      "properties": {
+        "productId": { "type": "string" },
+        "name": { "type": "string" },
+        "quantity": { "type": "number" },
+        "unitPrice": { "type": "number" },
+        "taxAmount": { "type": "number" },
+        "total": { "type": "number" }
+      }
+    },
+    "Rental": {
+      "title": "Rental",
+      "description": "Rental transaction record",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "invoiceNumber": { "type": "string" },
+        "customerId": { "type": "string" },
+        "productId": { "type": "string" },
+        "quantity": { "type": "number" },
+        "startDate": { "type": "string", "format": "date-time" },
+        "expectedReturnDate": { "type": "string", "format": "date-time" },
+        "actualReturnDate": { "type": "string", "format": "date-time" },
+        "dailyRate": { "type": "number" },
+        "securityDeposit": { "type": "number" },
+        "totalRentAmount": { "type": "number" },
+        "lateFee": { "type": "number" },
+        "paidAmount": { "type": "number" },
+        "status": { "type": "string" },
+        "paymentStatus": { "type": "string" },
+        "images": { "type": "array", "items": { "type": "string" } },
+        "date": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "invoiceNumber", "customerId", "productId", "quantity", "startDate", "expectedReturnDate", "dailyRate", "totalRentAmount", "status", "paymentStatus", "date"]
+    },
+    "StockLog": {
+      "title": "StockLog",
+      "description": "Inventory movement log",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "productId": { "type": "string" },
+        "pool": { "type": "string", "enum": ["SALE", "RENTAL"] },
+        "type": { "type": "string", "enum": ["IN", "OUT"] },
+        "quantity": { "type": "number" },
+        "reason": { "type": "string" },
+        "date": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "productId", "pool", "type", "quantity", "reason", "date"]
+    },
+    "Notification": {
+      "title": "Notification",
+      "description": "App notification",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "type": { "type": "string" },
+        "category": { "type": "string" },
+        "title": { "type": "string" },
+        "message": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "isRead": { "type": "boolean" },
+        "linkTo": { "type": "string" }
+      },
+      "required": ["id", "type", "category", "title", "message", "timestamp", "isRead"]
+    },
+    "StoreProfile": {
+      "title": "StoreProfile",
+      "type": "object",
+      "properties": {
+        "storeName": { "type": "string" },
+        "address": { "type": "string" },
+        "phone": { "type": "string" },
+        "email": { "type": "string" },
+        "gstin": { "type": "string" },
+        "website": { "type": "string" }
+      }
+    },
+    "AppSettings": {
+      "title": "AppSettings",
+      "type": "object",
+      "properties": {
+        "defaultTaxRate": { "type": "number" },
+        "currency": { "type": "string" },
+        "enableLowStockAlerts": { "type": "boolean" },
+        "lowStockThreshold": { "type": "number" },
+        "salesInvoicePrefix": { "type": "string" },
+        "rentalInvoicePrefix": { "type": "string" }
+      }
+    }
+  },
+  "firestore": {
+    "users": {
+      "schema": "User",
+      "description": "System users"
+    },
+    "products": {
+      "schema": "Product",
+      "description": "Inventory products"
+    },
+    "customers": {
+      "schema": "Customer",
+      "description": "Customers"
+    },
+    "suppliers": {
+      "schema": "Supplier",
+      "description": "Suppliers"
+    },
+    "sales": {
+      "schema": "Sale",
+      "description": "Sales transactions"
+    },
+    "rentals": {
+      "schema": "Rental",
+      "description": "Rental transactions"
+    },
+    "stockLogs": {
+      "schema": "StockLog",
+      "description": "Inventory logs"
+    },
+    "notifications": {
+      "schema": "Notification",
+      "description": "App notifications"
+    },
+    "config/storeProfile": {
+      "schema": "StoreProfile",
+      "description": "Store profile configuration"
+    },
+    "config/settings": {
+      "schema": "AppSettings",
+      "description": "App settings configuration"
+    }
+  }
+}

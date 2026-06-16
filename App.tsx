@@ -1,0 +1,471 @@
+
+import React, { useState, useRef, useEffect } from 'react';
+import { AppProvider, useApp } from './store/AppContext';
+import { NAVIGATION_ITEMS } from './constants';
+import Dashboard from './pages/Dashboard';
+import Inventory from './pages/Inventory';
+import Rentals from './pages/Rentals';
+import Customers from './pages/Customers';
+import Suppliers from './pages/Suppliers';
+import Sales from './pages/Sales';
+import Settings from './pages/Settings';
+import Reports from './pages/Reports';
+import Users from './pages/Users';
+import Login from './pages/Login';
+import More from './pages/More';
+import { motion, AnimatePresence } from 'motion/react';
+import { 
+  LayoutDashboard, 
+  Package, 
+  FileText, 
+  AlertTriangle, 
+  Clock, 
+  ShoppingBag, 
+  RefreshCcw, 
+  CheckCircle2, 
+  Bell, 
+  Info, 
+  Menu, 
+  Search, 
+  Settings as SettingsIcon, 
+  ChevronDown, 
+  ShieldCheck, 
+  User, 
+  LogOut, 
+  Trash2,
+  Heart,
+  Star,
+  Cloud
+} from 'lucide-react';
+import { UserRole } from './types';
+import { formatDistanceToNow, parseISO } from 'date-fns';
+
+// Helper to check permissions
+const canAccess = (user: any, moduleId: string) => {
+  if (!user) return false;
+  if (user.role === UserRole.ADMIN) return true; // Admins access everything
+  return user.permissions?.includes(moduleId) || false;
+};
+
+const Logo: React.FC<{ size?: 'sm' | 'md' | 'lg', onClick?: () => void }> = ({ size = 'md', onClick }) => {
+  const sizeClasses = {
+    sm: { text: 'text-xl', sub: 'text-[6px]', w: 'w-2' },
+    md: { text: 'text-2xl', sub: 'text-[7px]', w: 'w-3' },
+    lg: { text: 'text-3xl', sub: 'text-[8px]', w: 'w-4' }
+  };
+  
+  const current = sizeClasses[size];
+
+  return (
+    <div className={`flex flex-col items-center ${onClick ? 'cursor-pointer' : ''}`} onClick={onClick}>
+      <div className={`flex ${current.text} font-black tracking-tight mb-0.5`}>
+        <span className="text-[#FF7B7B]">k</span>
+        <span className="text-[#FFD93D]">i</span>
+        <span className="text-[#FF8AAE]">d</span>
+        <span className="text-[#A084E8]">d</span>
+        <span className="text-[#6AD4DD]">i</span>
+        <span className="text-[#F99417]">e</span>
+        <span className="text-[#F99417]">s</span>
+      </div>
+      <div className={`flex items-center gap-1.5 text-[#A084E8] ${current.sub} font-bold uppercase tracking-[0.3em]`}>
+        <div className={`h-[1px] ${current.w} bg-[#A084E8]/30`}></div>
+        kids wear
+        <div className={`h-[1px] ${current.w} bg-[#A084E8]/30`}></div>
+      </div>
+    </div>
+  );
+};
+
+const Sidebar: React.FC<{ activeTab: string; onTabChange: (id: string) => void }> = ({ activeTab, onTabChange }) => {
+  const { currentUser } = useApp();
+  
+  return (
+    <aside className="hidden md:flex flex-col w-64 bg-white h-screen border-r border-slate-100 shrink-0 relative">
+      {/* Branding Area */}
+      <div className="p-8 pb-6">
+        <Logo size="lg" onClick={() => onTabChange('dashboard')} />
+      </div>
+
+      {/* Navigation */}
+      <nav className="flex-1 px-4 space-y-1 overflow-y-auto hide-scrollbar mt-2 mb-4">
+        {NAVIGATION_ITEMS.filter(item => {
+          if (item.id === 'settings') return false;
+          return canAccess(currentUser, item.id);
+        }).map((item) => {
+          const isActive = activeTab === item.id;
+          return (
+            <button
+              key={item.id}
+              onClick={() => onTabChange(item.id)}
+              className={`
+                relative w-full flex items-center gap-3 px-4 py-3 rounded-xl text-[12px] font-bold transition-all duration-300 group
+                ${isActive 
+                  ? 'bg-[#8B5CF6]/10 text-[#8B5CF6]' 
+                  : 'text-slate-400 hover:text-slate-900 hover:bg-slate-50'
+                }
+              `}
+            >
+              <span className={`
+                ${isActive ? 'text-[#8B5CF6]' : 'text-slate-300 group-hover:text-slate-900'} 
+                transition-colors duration-200
+              `}>
+                {React.isValidElement(item.icon) 
+                  ? React.cloneElement(item.icon as React.ReactElement<any>, { 
+                      size: 16, 
+                      strokeWidth: isActive ? 2.5 : 2 
+                    })
+                  : item.icon
+                }
+              </span>
+              
+              <span className="tracking-widest uppercase text-[10px] font-bold">{item.label}</span>
+              {isActive && (
+                <div className="absolute right-2 w-1.5 h-1.5 bg-[#8B5CF6] rounded-full"></div>
+              )}
+            </button>
+          );
+        })}
+      </nav>
+
+      {/* Sidebar Banner */}
+      <div className="px-4 mb-6">
+        <div className="bg-[#F3E8FF] rounded-[2rem] p-6 relative overflow-hidden group">
+          <div className="absolute top-2 right-2 text-[#A084E8] opacity-20 group-hover:rotate-12 transition-transform">
+            <Heart size={20} fill="currentColor" />
+          </div>
+          <div className="relative z-10">
+            <p className="text-[10px] font-bold text-[#8B5CF6] uppercase tracking-widest mb-1">Make every day</p>
+            <p className="text-sm font-black text-[#2D3648] leading-tight">a little stylish!</p>
+            <div className="mt-4 flex justify-center">
+              <div className="text-[#FFD93D] animate-bounce">
+                <Star size={32} fill="currentColor" />
+              </div>
+            </div>
+          </div>
+          <div className="absolute -bottom-2 -left-2 text-[#6AD4DD] opacity-20">
+            <Cloud size={40} fill="currentColor" />
+          </div>
+        </div>
+      </div>
+    </aside>
+  );
+};
+
+const TopBar: React.FC<{ activeTab: string; onTabChange: (id: string) => void }> = ({ activeTab, onTabChange }) => {
+  const { products, rentals, notifications, currentUser, logout, markNotificationsAsRead, clearNotifications } = useApp();
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  
+  const unreadCount = notifications.filter(n => !n.isRead).length;
+
+  useEffect(() => {
+    if (isSearchOpen && searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  }, [isSearchOpen]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsNotificationsOpen(false);
+        setIsUserMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  return (
+    <header className="h-16 bg-white border-b border-slate-100 flex items-center justify-between px-4 md:px-6 sticky top-0 z-30">
+      <div className="flex items-center gap-4 flex-1">
+        {!isSearchOpen && (
+          <div className="md:hidden">
+            <Logo size="sm" onClick={() => onTabChange('dashboard')} />
+          </div>
+        )}
+        
+        <div className={`
+          ${isSearchOpen ? 'flex absolute inset-0 bg-white px-4' : 'hidden sm:flex'} 
+          items-center bg-slate-50 sm:bg-slate-50 rounded-none sm:rounded-xl px-4 py-2 w-full max-w-md focus-within:bg-white transition-all border-b sm:border border-slate-100 sm:border-transparent focus-within:border-[#8B5CF6]/20 group z-50
+        `}>
+          <Search size={16} className="text-slate-400 mr-3 group-focus-within:text-[#8B5CF6]" />
+          <input 
+            ref={searchInputRef}
+            type="text" 
+            placeholder="Search anything..." 
+            className="bg-transparent text-xs outline-none flex-1 placeholder:text-slate-400 text-slate-700 font-medium"
+          />
+          {isSearchOpen && (
+            <button 
+              onClick={(e) => { e.stopPropagation(); setIsSearchOpen(false); }} 
+              className="text-[10px] font-black text-[#8B5CF6] ml-4 uppercase tracking-widest"
+            >
+              Cancel
+            </button>
+          )}
+        </div>
+
+        {/* Small search trigger for mobile */}
+        {!isSearchOpen && (
+          <button 
+            onClick={() => setIsSearchOpen(true)}
+            className="sm:hidden p-2 text-slate-400 hover:bg-slate-50 rounded-xl transition-all"
+          >
+            <Search size={18} />
+          </button>
+        )}
+      </div>
+      
+      <div className="flex items-center gap-2 md:gap-4" ref={dropdownRef}>
+          <div className="relative">
+            <button 
+              onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
+              className={`p-2 rounded-xl transition-all relative ${isNotificationsOpen ? 'bg-[#8B5CF6]/10 text-[#8B5CF6]' : 'text-slate-400 hover:bg-slate-50'}`}
+            >
+              <Bell size={20} />
+              {unreadCount > 0 && (
+                <span className="absolute top-1 right-1 w-4 h-4 bg-[#FF7B7B] text-white text-[8px] font-bold flex items-center justify-center rounded-full border-2 border-white">
+                  {unreadCount}
+                </span>
+              )}
+            </button>
+
+            {isNotificationsOpen && (
+              <div className="fixed md:absolute left-4 md:left-auto right-4 md:right-0 top-16 md:top-full mt-2 w-auto md:w-80 bg-white shadow-2xl rounded-2xl border border-slate-100 overflow-hidden animate-in fade-in slide-in-from-top-2 origin-top-right z-50">
+                <div className="p-4 border-b border-slate-50 flex items-center justify-between bg-slate-50/50">
+                  <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-900">Notifications</h4>
+                  {unreadCount > 0 && (
+                    <button onClick={markNotificationsAsRead} className="text-[9px] font-bold text-[#8B5CF6] hover:underline">Mark all as read</button>
+                  )}
+                </div>
+                <div className="max-h-[300px] overflow-y-auto">
+                  {notifications.length > 0 ? (
+                    notifications.map((note) => (
+                      <div key={note.id} className={`p-4 border-b border-slate-50 hover:bg-slate-50 transition-colors cursor-pointer ${!note.isRead ? 'bg-[#8B5CF6]/5' : ''}`}>
+                        <h5 className="text-[11px] font-bold text-slate-900">{note.title}</h5>
+                        <p className="text-[10px] text-slate-500 mt-1 leading-relaxed">{note.message}</p>
+                        <p className="text-[8px] text-slate-400 mt-2 font-bold uppercase tracking-widest">
+                          {formatDistanceToNow(parseISO(note.timestamp), { addSuffix: true })}
+                        </p>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="p-8 text-center">
+                      <Bell size={32} className="mx-auto text-slate-200 mb-2" />
+                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">No notifications</p>
+                    </div>
+                  )}
+                </div>
+                {notifications.length > 0 && (
+                  <div className="p-3 bg-slate-50 text-center border-t border-slate-50">
+                    <button onClick={clearNotifications} className="text-[9px] font-bold text-slate-400 hover:text-rose-500 transition-colors uppercase tracking-widest">Clear All</button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+        <div className="h-8 w-[1px] bg-slate-100 mx-2"></div>
+
+        <div className="relative">
+          <button 
+            onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+            className="flex items-center gap-3 hover:bg-slate-50 p-1 rounded-xl transition-all"
+          >
+            <div className="text-right hidden sm:block">
+              <p className="text-[10px] font-bold text-slate-900">Hi, {currentUser?.name.split(' ')[0]}</p>
+              <p className="text-[8px] text-slate-400 font-bold uppercase tracking-widest">{currentUser?.role}</p>
+            </div>
+            <div className="w-8 h-8 rounded-full bg-[#8B5CF6] text-white flex items-center justify-center font-black text-xs shadow-sm">
+              {currentUser?.name.charAt(0)}
+            </div>
+            <ChevronDown size={14} className="text-slate-400" />
+          </button>
+          
+          {isUserMenuOpen && (
+            <div className="absolute right-0 top-full mt-2 w-48 bg-white shadow-xl rounded-2xl border border-slate-100 py-2 animate-in fade-in slide-in-from-top-2 origin-top-right">
+              <div className="px-4 py-2 border-b border-slate-50 mb-1">
+                <p className="text-[10px] font-black text-slate-900 uppercase tracking-tight">{currentUser?.name}</p>
+                <p className="text-[8px] text-slate-400 font-bold uppercase tracking-widest">{currentUser?.email}</p>
+              </div>
+              <button onClick={() => { onTabChange('settings'); setIsUserMenuOpen(false); }} className="w-full text-left px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-50 transition-colors">
+                Settings
+              </button>
+              <button onClick={() => logout()} className="w-full text-left px-4 py-2 text-xs font-bold text-rose-500 hover:bg-rose-50 transition-colors">
+                Logout
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    </header>
+  );
+};
+
+
+const BottomNav: React.FC<{ activeTab: string; onTabChange: (id: string) => void }> = ({ activeTab, onTabChange }) => {
+  const { currentUser } = useApp();
+  
+  const bottomNavItems = [
+    { id: 'dashboard', label: 'Home', icon: <LayoutDashboard size={20} /> },
+    { id: 'sales', label: 'Sales', icon: <ShoppingBag size={20} /> },
+    { id: 'rentals', label: 'Rentals', icon: <RefreshCcw size={20} /> },
+    { id: 'inventory', label: 'Inventory', icon: <Package size={20} /> },
+    { id: 'more', label: 'More', icon: <Menu size={20} /> },
+  ];
+
+  return (
+    <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-100 flex justify-around items-center h-16 z-40 pb-safe shadow-sm">
+      {bottomNavItems.map(item => {
+        const isActive = activeTab === item.id;
+        return (
+          <button
+            key={item.id}
+            onClick={() => onTabChange(item.id)}
+            className={`flex flex-col items-center justify-center w-full h-full space-y-1 transition-all ${isActive ? 'text-slate-900' : 'text-slate-400 hover:text-slate-600'}`}
+          >
+            <div className={`p-1 rounded-xl transition-all ${isActive ? 'bg-highlight' : ''}`}>
+              {React.cloneElement(item.icon as React.ReactElement<any>, { size: 18, className: isActive ? 'stroke-[3px]' : '' })}
+            </div>
+            <span className={`text-[8px] uppercase tracking-[0.2em] ${isActive ? 'font-black' : 'font-bold'}`}>{item.label}</span>
+          </button>
+        );
+      })}
+    </div>
+  );
+};
+
+const AppContent: React.FC = () => {
+  const { currentUser, isAuthReady } = useApp();
+  const [activeTab, setActiveTab] = useState('dashboard');
+
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.replace('#', '');
+      if (hash && NAVIGATION_ITEMS.some(item => item.id === hash)) {
+        setActiveTab(hash);
+      }
+    };
+    
+    window.addEventListener('hashchange', handleHashChange);
+    // Initial check
+    handleHashChange();
+    
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
+
+  // Update hash when activeTab changes
+  useEffect(() => {
+    if (window.location.hash !== `#${activeTab}`) {
+      window.history.pushState(null, '', `#${activeTab}`);
+    }
+  }, [activeTab]);
+
+  if (!isAuthReady) {
+    return (
+      <div className="h-screen w-screen flex flex-col items-center justify-center bg-white relative overflow-hidden">
+        {/* Abstract Background Elements */}
+        <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-highlight/5 rounded-full blur-[120px]"></div>
+        <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-highlight/5 rounded-full blur-[120px]"></div>
+        
+        <div className="relative z-10 flex flex-col items-center">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+            className="w-20 h-20 bg-highlight rounded-[2rem] shadow-banana flex items-center justify-center mb-8"
+          >
+             <div className="relative">
+                <div className="w-10 h-10 border-4 border-slate-900/10 rounded-full"></div>
+                <motion.div 
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+                  className="w-10 h-10 border-4 border-slate-900 border-t-transparent rounded-full absolute top-0 left-0"
+                ></motion.div>
+             </div>
+          </motion.div>
+          
+          <motion.h1 
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="text-4xl font-black tracking-tighter leading-none font-display text-slate-900 mb-2"
+          >
+            Kiddies<span className="text-highlight">.</span>
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.4 }}
+            className="text-[9px] font-black text-slate-400 uppercase tracking-[0.5em] mb-10"
+          >
+            Nano Banana OS
+          </motion.p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!currentUser) {
+    return <Login />;
+  }
+
+  const renderContent = () => {
+    const content = (() => {
+      switch (activeTab) {
+        case 'dashboard': return <Dashboard onTabChange={setActiveTab} />;
+        case 'inventory': return <Inventory />;
+        case 'rentals': return <Rentals />;
+        case 'customers': return <Customers />;
+        case 'suppliers': return <Suppliers />;
+        case 'sales': return <Sales />;
+        case 'reports': return <Reports />;
+        case 'users': return <Users />;
+        case 'settings': return <Settings />;
+        case 'more': return <More onTabChange={setActiveTab} />;
+        default: return <Dashboard />;
+      }
+    })();
+
+    return (
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={activeTab}
+          initial={{ opacity: 0, y: 5 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -5 }}
+          transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
+          className="h-full animate-nano"
+        >
+          {content}
+        </motion.div>
+      </AnimatePresence>
+    );
+  };
+
+  return (
+    <div className="flex h-screen bg-gray-50 font-sans text-gray-900">
+      <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
+      <div className="flex-1 flex flex-col h-screen overflow-hidden">
+        <TopBar activeTab={activeTab} onTabChange={setActiveTab} />
+        <main className="flex-1 overflow-y-auto p-3 md:p-6 custom-scrollbar pb-24 md:pb-6 relative">
+          {renderContent()}
+        </main>
+      </div>
+      <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
+    </div>
+  );
+};
+
+const App: React.FC = () => {
+  return (
+    <AppProvider>
+      <AppContent />
+    </AppProvider>
+  );
+};
+
+export default App;

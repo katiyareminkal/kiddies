@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>Kiddies | Premium Kids Wear Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1E293B', // Slate 800
+                        secondary: '#FACC15', // Yellow 400
+                        accent: '#0EA5E9', // Sky 500
+                        highlight: '#FACC15',
+                        surface: '#ffffff',
+                        background: '#F8FAFC', // Slate 50
+                    },
+                    borderRadius: {
+                        'brand': '0.5rem',
+                        'brand-lg': '0.75rem',
+                        'brand-xl': '1rem',
+                        'brand-2xl': '1.25rem',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    boxShadow: {
+                        'nano': '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+                        'banana': '0 4px 6px -1px rgba(250, 204, 21, 0.1), 0 2px 4px -1px rgba(250, 204, 21, 0.06)',
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --nano-primary: #1E293B;
+            --nano-banana: #FACC15;
+            --nano-bg: #F8FAFC;
+            --nano-surface: #FFFFFF;
+            --nano-line: #E2E8F0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--nano-bg);
+            color: var(--nano-primary);
+            -webkit-font-smoothing: antialiased;
+            font-size: 14px;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4 {
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+        }
+
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Nano Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #CBD5E1;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94A3B8;
+        }
+
+        /* Nano Banana Utilities */
+        .border-nano {
+            border: 1px solid var(--nano-line);
+        }
+
+        .bg-banana {
+            background-color: var(--nano-banana);
+        }
+
+        .text-banana {
+            color: var(--nano-banana);
+        }
+
+        .nano-card {
+            background: var(--nano-surface);
+            border: 1px solid var(--nano-line);
+            border-radius: 0.75rem;
+            transition: all 0.2s ease;
+        }
+
+        .nano-card:hover {
+            border-color: #CBD5E1;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+
+        .banana-btn {
+            background: var(--nano-banana);
+            color: var(--nano-primary);
+            font-weight: 600;
+            font-size: 13px;
+            padding: 8px 16px;
+            border-radius: 0.5rem;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .banana-btn:hover {
+            background: #EAB308;
+        }
+
+        /* Animation */
+        @keyframes nanoSlideUp {
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-nano {
+            animation: nanoSlideUp 0.4s ease-out forwards;
+        }
+
+        /* Compact spacing overrides */
+        .space-y-6> :not([hidden])~ :not([hidden]) {
+            margin-top: 1rem;
+        }
+
+        .p-10 {
+            padding: 1.5rem !important;
+        }
+
+        .p-8 {
+            padding: 1.25rem !important;
+        }
+
+        .p-6 {
+            padding: 1rem !important;
+        }
+
+        .gap-8 {
+            gap: 1.5rem !important;
+        }
+
+        .gap-6 {
+            gap: 1rem !important;
+        }
+
+        .mb-10 {
+            margin-bottom: 1.5rem !important;
+        }
+
+        .mb-8 {
+            margin-bottom: 1.25rem !important;
+        }
+
+        .mb-6 {
+            margin-bottom: 1rem !important;
+        }
+
+        .py-12 {
+            padding-top: 2rem !important;
+            padding-bottom: 2rem !important;
+        }
+
+        .py-10 {
+            padding-top: 1.5rem !important;
+            padding-bottom: 1.5rem !important;
+        }
+
+        .h-16 {
+            height: 3rem !important;
+        }
+
+        .w-16 {
+            width: 3rem !important;
+        }
+
+        .text-3xl {
+            font-size: 1.5rem !important;
+        }
+
+        .text-2xl {
+            font-size: 1.25rem !important;
+        }
+
+        .text-xl {
+            font-size: 1.125rem !important;
+        }
+    </style>
+    <script type="importmap">
+{
+  "imports": {
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "react": "https://esm.sh/react@^19.2.3",
+    "lucide-react": "https://esm.sh/lucide-react@^0.563.0",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "recharts": "https://esm.sh/recharts@^3.7.0",
+    "date-fns": "https://esm.sh/date-fns@^4.1.0",
+    "motion/react": "https://esm.sh/motion@^12.4.7/react"
+  }
+}
+</script>
+</head>
+
+<body class="bg-gray-50 text-gray-900">
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+</body>
+
+</html>
