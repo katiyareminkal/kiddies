@@ -82,6 +82,25 @@ const Logo: React.FC<{ size?: 'sm' | 'md' | 'lg', onClick?: () => void }> = ({ s
 
 const Sidebar: React.FC<{ activeTab: string; onTabChange: (id: string) => void }> = ({ activeTab, onTabChange }) => {
   const { currentUser } = useApp();
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (e: any) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+  }, []);
+
+  const handleInstallClick = async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted') {
+      setDeferredPrompt(null);
+    }
+  };
   
   return (
     <aside className="hidden md:flex flex-col w-64 bg-white h-screen border-r border-slate-100 shrink-0 relative">
@@ -131,25 +150,39 @@ const Sidebar: React.FC<{ activeTab: string; onTabChange: (id: string) => void }
         })}
       </nav>
 
-      {/* Sidebar Banner */}
+      {/* Sidebar Banner / Install App */}
       <div className="px-4 mb-6">
-        <div className="bg-[#F3E8FF] rounded-[2rem] p-6 relative overflow-hidden group">
-          <div className="absolute top-2 right-2 text-[#A084E8] opacity-20 group-hover:rotate-12 transition-transform">
-            <Heart size={20} fill="currentColor" />
-          </div>
-          <div className="relative z-10">
-            <p className="text-[10px] font-bold text-[#8B5CF6] uppercase tracking-widest mb-1">Make every day</p>
-            <p className="text-sm font-black text-[#2D3648] leading-tight">a little stylish!</p>
-            <div className="mt-4 flex justify-center">
-              <div className="text-[#FFD93D] animate-bounce">
-                <Star size={32} fill="currentColor" />
+        {deferredPrompt ? (
+          <button 
+            onClick={handleInstallClick}
+            className="w-full bg-[#8B5CF6] hover:bg-[#7C3AED] text-white rounded-[2rem] p-5 shadow-xl shadow-[#8B5CF6]/20 transition-all flex flex-col items-center justify-center gap-1 group relative overflow-hidden"
+          >
+            <div className="absolute top-2 right-2 text-white/20 group-hover:rotate-12 transition-transform">
+              <Star size={20} fill="currentColor" />
+            </div>
+            <Cloud size={24} className="mb-1 animate-pulse" />
+            <span className="text-[12px] font-black uppercase tracking-widest mt-1">Install App</span>
+            <span className="text-[8px] font-bold text-white/70 uppercase tracking-widest mt-1">Get the Desktop App</span>
+          </button>
+        ) : (
+          <div className="bg-[#F3E8FF] rounded-[2rem] p-6 relative overflow-hidden group">
+            <div className="absolute top-2 right-2 text-[#A084E8] opacity-20 group-hover:rotate-12 transition-transform">
+              <Heart size={20} fill="currentColor" />
+            </div>
+            <div className="relative z-10">
+              <p className="text-[10px] font-bold text-[#8B5CF6] uppercase tracking-widest mb-1">Make every day</p>
+              <p className="text-sm font-black text-[#2D3648] leading-tight">a little stylish!</p>
+              <div className="mt-4 flex justify-center">
+                <div className="text-[#FFD93D] animate-bounce">
+                  <Star size={32} fill="currentColor" />
+                </div>
               </div>
             </div>
+            <div className="absolute -bottom-2 -left-2 text-[#6AD4DD] opacity-20">
+              <Cloud size={40} fill="currentColor" />
+            </div>
           </div>
-          <div className="absolute -bottom-2 -left-2 text-[#6AD4DD] opacity-20">
-            <Cloud size={40} fill="currentColor" />
-          </div>
-        </div>
+        )}
       </div>
     </aside>
   );
