@@ -35,7 +35,11 @@ import {
   Trash2,
   Heart,
   Star,
-  Cloud
+  Cloud,
+  Lock,
+  Eye,
+  EyeOff,
+  Sun
 } from 'lucide-react';
 import { UserRole } from './types';
 import { formatDistanceToNow, parseISO } from 'date-fns';
@@ -338,8 +342,124 @@ const BottomNav: React.FC<{ activeTab: string; onTabChange: (id: string) => void
   );
 };
 
+const ResetPasswordScreen: React.FC = () => {
+  const { updatePassword } = useApp();
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState('');
+  const [isUpdating, setIsUpdating] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters long.');
+      return;
+    }
+    if (password !== confirmPassword) {
+      setError('Passwords do not match.');
+      return;
+    }
+
+    setIsUpdating(true);
+    const ok = await updatePassword(password);
+    setIsUpdating(false);
+    
+    if (ok) {
+      alert('Password reset successfully! You can now log in.');
+      window.location.hash = '#dashboard';
+      window.location.reload();
+    } else {
+      setError('Failed to reset password. The link may have expired.');
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-[#FFF9F0] flex items-center justify-center p-6 relative overflow-hidden font-sans">
+      <div className="absolute top-10 left-10 text-[#FFB7B7] opacity-40 animate-bounce" style={{ animationDuration: '3s' }}>
+        <Heart size={48} fill="currentColor" />
+      </div>
+      <div className="absolute top-20 right-20 text-[#FFD93D] opacity-60 animate-pulse">
+        <Sun size={80} strokeWidth={1.5} />
+      </div>
+      
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="w-full max-w-[440px] bg-white rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.05)] p-10 relative z-10 border border-white/50"
+      >
+        <div className="flex flex-col items-center mb-8">
+          <div className="flex text-5xl font-black tracking-tight mb-1">
+            <span className="text-[#FF7B7B]">k</span>
+            <span className="text-[#FFD93D]">i</span>
+            <span className="text-[#FF8AAE]">d</span>
+            <span className="text-[#A084E8]">d</span>
+            <span className="text-[#6AD4DD]">i</span>
+            <span className="text-[#F99417]">e</span>
+            <span className="text-[#F99417]">s</span>
+          </div>
+        </div>
+
+        <div className="text-center mb-8">
+          <h2 className="text-2xl font-bold text-[#2D3648] mb-1">Reset Password</h2>
+          <p className="text-[#718096] text-sm">Enter your new secure password below</p>
+        </div>
+
+        {error && (
+          <div className="mb-6 bg-red-50 text-red-500 p-4 rounded-2xl text-xs font-bold text-center border border-red-100 animate-nano">
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div className="relative">
+            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-[#A0AEC0]" size={20} />
+            <input
+              type={showPassword ? "text" : "password"}
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full pl-12 pr-12 py-4 bg-white border border-[#E2E8F0] rounded-2xl outline-none focus:border-[#A084E8] transition-all text-[#2D3648] placeholder-[#A0AEC0]"
+              placeholder="New Password"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-[#A0AEC0] hover:text-[#718096]"
+            >
+              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+            </button>
+          </div>
+
+          <div className="relative">
+            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-[#A0AEC0]" size={20} />
+            <input
+              type={showPassword ? "text" : "password"}
+              required
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              className="w-full pl-12 pr-12 py-4 bg-white border border-[#E2E8F0] rounded-2xl outline-none focus:border-[#A084E8] transition-all text-[#2D3648] placeholder-[#A0AEC0]"
+              placeholder="Confirm New Password"
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={isUpdating}
+            className="w-full py-4 bg-[#8B5CF6] text-white font-bold rounded-2xl shadow-[0_10px_20px_rgba(139,92,246,0.3)] hover:bg-[#7C3AED] transition-all active:scale-[0.98] disabled:opacity-50"
+          >
+            {isUpdating ? 'Updating...' : 'Update Password'}
+          </button>
+        </form>
+      </motion.div>
+    </div>
+  );
+};
+
 const AppContent: React.FC = () => {
-  const { currentUser, isAuthReady } = useApp();
+  const { currentUser, isAuthReady, isPasswordRecovery } = useApp();
   const [activeTab, setActiveTab] = useState('dashboard');
 
   useEffect(() => {
@@ -407,6 +527,10 @@ const AppContent: React.FC = () => {
         </div>
       </div>
     );
+  }
+
+  if (isPasswordRecovery) {
+    return <ResetPasswordScreen />;
   }
 
   if (!currentUser) {

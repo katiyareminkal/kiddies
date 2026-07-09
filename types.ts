@@ -8,7 +8,8 @@ export enum RentalStatus {
 export enum PaymentStatus {
   PAID = 'PAID',
   PARTIAL = 'PARTIAL',
-  UNPAID = 'UNPAID'
+  UNPAID = 'UNPAID',
+  REFUNDED = 'REFUNDED'
 }
 
 export enum PaymentMethod {
@@ -189,6 +190,27 @@ export interface AppNotification {
   linkTo?: string; // Tab ID
 }
 
+export interface CreditNote {
+  id: string;
+  customerId: string;
+  amount: number;
+  reason: string;
+  status: 'ACTIVE' | 'USED';
+  createdAt: string;
+  usedAt?: string;
+}
+
+export interface Expense {
+  id: string;
+  type: 'CASH_OUT' | 'GOODS_CONSUMPTION';
+  amount: number;
+  productId?: string;
+  quantity?: number;
+  reason: string;
+  paidTo?: string;
+  date: string;
+}
+
 export interface AppState {
   currentUser: User | null;
   users: User[];
@@ -201,4 +223,6 @@ export interface AppState {
   notifications: AppNotification[];
   storeProfile: StoreProfile;
   settings: AppSettings;
+  creditNotes: CreditNote[];
+  expenses: Expense[];
 }

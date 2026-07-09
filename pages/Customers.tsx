@@ -26,13 +26,14 @@ import { formatCurrency, getStatusColor } from '../utils/helpers';
 import { Sale, Rental, Customer, PaymentStatus } from '../types';
 
 const Customers: React.FC = () => {
-  const { customers, addCustomer, sales, rentals, products, addPaymentToSale } = useApp();
+  const { customers, addCustomer, sales, rentals, products, addPaymentToSale, creditNotes, addCreditNote } = useApp();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [isIssueCreditModalOpen, setIsIssueCreditModalOpen] = useState(false);
   const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
   const [selectedSaleForPayment, setSelectedSaleForPayment] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [transactionFilter, setTransactionFilter] = useState<'ALL' | 'SALE' | 'RENTAL'>('ALL');
+  const [transactionFilter, setTransactionFilter] = useState<'ALL' | 'SALE' | 'RENTAL' | 'CREDIT_NOTE'>('ALL');
 
   // Derived state for the selected customer's ledger
   const selectedCustomer = useMemo(() => 
@@ -54,16 +55,21 @@ const Customers: React.FC = () => {
       sortDate: new Date(r.date)
     }));
 
+    const customerCNs = creditNotes.filter(cn => cn.customerId === selectedCustomerId).map(cn => ({
+      ...cn,
+      type: 'CREDIT_NOTE' as const,
+      sortDate: new Date(cn.createdAt),
+      date: cn.createdAt,
+      invoiceNumber: `CN-${cn.id.slice(-6).toUpperCase()}`
+    }));
+
     // Merge and sort by date descending
-    const allTransactions = [...customerSales, ...customerRentals].sort((a, b) => 
+    const allTransactions = [...customerSales, ...customerRentals, ...customerCNs].sort((a, b) => 
       b.sortDate.getTime() - a.sortDate.getTime()
     );
 
-    const totalSpent = allTransactions.reduce((acc, t) => {
-      if (t.type === 'SALE') return acc + (t as Sale).totalAmount;
-      if (t.type === 'RENTAL') return acc + (t as Rental).totalRentAmount;
-      return acc;
-    }, 0);
+    const totalSpent = customerSales.reduce((acc, s) => acc + s.totalAmount, 0) + 
+                       customerRentals.reduce((acc, r) => acc + r.totalRentAmount, 0);
 
     const activeRentals = customerRentals.filter(r => r.status === 'ACTIVE').length;
 
@@ -78,10 +84,34 @@ const Customers: React.FC = () => {
       stats: {
         totalSpent,
         activeRentals,
-        totalOrders: allTransactions.length // Lifetime total orders
+        totalOrders: customerSales.length + customerRentals.length
       }
     };
-  }, [sales, rentals, selectedCustomerId, transactionFilter]);
+  }, [sales, rentals, creditNotes, selectedCustomerId, transactionFilter]);
+
+  const availableCredit = useMemo(() => {
+    if (!selectedCustomerId) return 0;
+    return creditNotes
+      .filter(cn => cn.customerId === selectedCustomerId && cn.status === 'ACTIVE')
+      .reduce((sum, cn) => sum + cn.amount, 0);
+  }, [creditNotes, selectedCustomerId]);
+
+  const handleIssueCreditNote = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!selectedCustomerId) return;
+    const formData = new FormData(e.currentTarget);
+    const amount = Number(formData.get('amount'));
+    const reason = formData.get('reason') as string;
+    
+    if (amount > 0 && reason.trim()) {
+      try {
+        await addCreditNote(selectedCustomerId, amount, reason);
+        setIsIssueCreditModalOpen(false);
+      } catch (err) {
+        alert('Failed to issue credit note.');
+      }
+    }
+  };
 
 
 
@@ -120,15 +150,19 @@ const Customers: React.FC = () => {
         
         const balance = cSales.reduce((acc, s) => acc + (s.totalAmount - s.paidAmount), 0) +
                         cRentals.reduce((acc, r) => acc + (r.totalRentAmount - r.paidAmount), 0);
+
+        const storeCredit = creditNotes
+          .filter(cn => cn.customerId === c.id && cn.status === 'ACTIVE')
+          .reduce((sum, cn) => sum + cn.amount, 0);
         
         // Find last activity
         const lastSale = cSales[cSales.length - 1]?.date;
         const lastRental = cRentals[cRentals.length - 1]?.date;
         const lastActive = [lastSale, lastRental].filter(Boolean).sort().pop();
 
-        return { ...c, totalSpent, balance, lastActive };
+        return { ...c, totalSpent, balance, storeCredit, lastActive };
       }).sort((a, b) => b.totalSpent - a.totalSpent); // Sort by highest spender
-  }, [customers, sales, rentals, searchTerm]);
+  }, [customers, sales, rentals, creditNotes, searchTerm]);
 
   const getVipBadge = (spent: number) => {
       if (spent > 50000) return <span className="flex items-center gap-1 bg-yellow-100 text-yellow-700 text-[10px] font-black px-2 py-0.5 rounded-full border border-yellow-200"><Star size={10} fill="currentColor" /> VIP GOLD</span>;
@@ -197,7 +231,7 @@ const Customers: React.FC = () => {
             </div>
           </div>
 
-          <div className="lg:col-span-8 grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="lg:col-span-8 grid grid-cols-1 sm:grid-cols-4 gap-4">
             <div className="nano-card p-5 bg-slate-900 text-white relative overflow-hidden group shadow-lg">
               <div className="relative z-10">
                 <div className="flex items-center gap-2 mb-4 text-slate-400 group-hover:text-highlight transition-colors">
@@ -212,6 +246,23 @@ const Customers: React.FC = () => {
                 </div>
               </div>
               <div className="absolute -right-8 -bottom-8 w-24 h-24 bg-slate-800/50 rounded-full blur-2xl group-hover:bg-highlight/10 transition-all"></div>
+            </div>
+
+            <div className="nano-card p-5 bg-emerald-950 text-white relative overflow-hidden group shadow-lg">
+              <div className="relative z-10">
+                <div className="flex items-center gap-2 mb-4 text-emerald-300">
+                  <Banknote size={14} strokeWidth={2.5} />
+                  <span className="text-[9px] font-bold uppercase tracking-widest">Store Credit</span>
+                </div>
+                <p className="text-2xl font-bold text-highlight tracking-tight">{formatCurrency(availableCredit)}</p>
+                <button 
+                  onClick={() => setIsIssueCreditModalOpen(true)}
+                  className="mt-3 px-3 py-1.5 bg-emerald-800 hover:bg-emerald-700 text-white rounded-lg text-[8px] font-black uppercase tracking-widest transition-all"
+                >
+                  Issue Credit
+                </button>
+              </div>
+              <div className="absolute -right-8 -bottom-8 w-24 h-24 bg-emerald-900/50 rounded-full blur-2xl group-hover:bg-highlight/10 transition-all"></div>
             </div>
 
             <div className="nano-card p-5 group hover:bg-slate-900 transition-all duration-500">
@@ -240,13 +291,13 @@ const Customers: React.FC = () => {
              <div className="flex items-center gap-6">
                <h3 className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-900">Transaction Ledger</h3>
                <div className="flex bg-slate-50 p-1 rounded-2xl border border-slate-100">
-                  {(['ALL', 'SALE', 'RENTAL'] as const).map(filter => (
+                  {(['ALL', 'SALE', 'RENTAL', 'CREDIT_NOTE'] as const).map(filter => (
                     <button 
                       key={filter}
                       onClick={() => setTransactionFilter(filter)} 
                       className={`px-6 py-2 text-[9px] font-black uppercase tracking-widest rounded-xl transition-all ${transactionFilter === filter ? 'bg-highlight text-slate-900 shadow-banana' : 'text-slate-400 hover:text-slate-600'}`}
                     >
-                      {filter === 'ALL' ? 'All' : filter === 'SALE' ? 'Sales' : 'Rentals'}
+                      {filter === 'ALL' ? 'All' : filter === 'SALE' ? 'Sales' : filter === 'RENTAL' ? 'Rentals' : 'Credits'}
                     </button>
                   ))}
                </div>
@@ -267,11 +318,16 @@ const Customers: React.FC = () => {
               <tbody className="divide-y divide-slate-50">
                 {customerHistory.transactions.map((t: any) => {
                   const isSale = t.type === 'SALE';
+                  const isRental = t.type === 'RENTAL';
+                  const isCreditNote = t.type === 'CREDIT_NOTE';
+
                   const productName = isSale 
                     ? `${t.items.length} Items` 
-                    : products.find(p => p.id === t.productId)?.name || 'Unknown Product';
+                    : isRental 
+                    ? products.find(p => p.id === t.productId)?.name || 'Unknown Product'
+                    : `Credit Voucher: ${t.reason}`;
                   
-                  const total = isSale ? t.totalAmount : t.totalRentAmount;
+                  const total = isSale ? t.totalAmount : isRental ? t.totalRentAmount : t.amount;
                   const paid = t.paidAmount || 0;
                   const balance = total - paid;
                   
@@ -279,7 +335,7 @@ const Customers: React.FC = () => {
                     <tr key={t.id} className="group hover:bg-slate-50/50 transition-colors">
                       <td className="px-6 py-5">
                         <div className="flex flex-col">
-                          <span className="font-black text-slate-900 text-[11px]">{format(new Date(t.date), 'dd MMM yyyy')}</span>
+                          <span className="font-black text-slate-900 text-[11px]">{format(new Date(t.date || t.createdAt), 'dd MMM yyyy')}</span>
                           <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1">{t.invoiceNumber}</span>
                         </div>
                       </td>
@@ -288,16 +344,20 @@ const Customers: React.FC = () => {
                            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-[9px] font-black tracking-widest bg-slate-50 text-slate-900 uppercase border border-slate-100 group-hover:bg-highlight transition-colors">
                              <ShoppingBag size={12} strokeWidth={3} /> Sale
                            </span>
-                         ) : (
+                         ) : isRental ? (
                            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-[9px] font-black tracking-widest bg-slate-900 text-highlight uppercase shadow-nano">
                              <RefreshCcw size={12} strokeWidth={3} /> Rental
+                           </span>
+                         ) : (
+                           <span className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-[9px] font-black tracking-widest bg-emerald-50 text-emerald-700 uppercase border border-emerald-100 group-hover:bg-emerald-100 transition-colors">
+                             <Banknote size={12} strokeWidth={3} /> Store Credit
                            </span>
                          )}
                       </td>
                       <td className="px-6 py-5">
                         <div className="flex flex-col">
                           <span className="font-black text-slate-800 text-[11px] uppercase tracking-tight">{productName}</span>
-                          {!isSale && (
+                          {!isSale && !isCreditNote && (
                             <div className="text-[9px] text-slate-400 mt-1.5 flex items-center gap-1.5 font-black uppercase tracking-widest">
                                <Calendar size={10} strokeWidth={3} />
                                Due: {format(new Date(t.expectedReturnDate), 'dd MMM')}
@@ -314,15 +374,24 @@ const Customers: React.FC = () => {
                                 </span>
                              )}
                              {isSale && balance <= 0 && (
-                                <span className="text-[9px] font-black text-highlight uppercase tracking-widest mt-1 bg-slate-900 px-2 py-0.5 rounded-full inline-block">
+                                <span className="text-[9px] font-black text-highlight uppercase tracking-widest mt-1 bg-slate-900 px-2 py-0.5 rounded-full inline-block w-fit ml-auto">
                                    Paid
+                                </span>
+                             )}
+                             {isCreditNote && (
+                                <span className="text-[10px] font-black text-emerald-600 font-mono">
+                                   {formatCurrency(t.amount)}
                                 </span>
                              )}
                          </div>
                       </td>
                       <td className="px-6 py-5 text-center">
-                         <span className={`px-4 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest ${isSale ? 'bg-slate-50 text-slate-400' : getStatusColor(t.status)}`}>
-                            {isSale ? t.paymentStatus : t.status}
+                         <span className={`px-4 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest ${
+                            isSale ? 'bg-slate-50 text-slate-400' : 
+                            isRental ? getStatusColor(t.status) : 
+                            t.status === 'ACTIVE' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-400'
+                         }`}>
+                            {isSale ? t.paymentStatus : isRental ? t.status : t.status}
                          </span>
                       </td>
                       <td className="px-6 py-5 text-right">
@@ -453,14 +522,18 @@ const Customers: React.FC = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 pt-3 border-t border-slate-100 mt-auto">
+            <div className="grid grid-cols-3 gap-3 pt-3 border-t border-slate-100 mt-auto">
               <div>
                 <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Spent</p>
                 <p className="text-[10px] font-black text-slate-900 font-mono tracking-tight">{formatCurrency(customer.totalSpent)}</p>
               </div>
-              <div className="text-right">
-                <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Balance</p>
+              <div>
+                <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Dues</p>
                 <p className={`text-[10px] font-black font-mono tracking-tight ${customer.balance > 0 ? 'text-rose-500' : 'text-slate-900'}`}>{formatCurrency(customer.balance)}</p>
+              </div>
+              <div className="text-right">
+                <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Store Credit</p>
+                <p className={`text-[10px] font-black font-mono tracking-tight ${customer.storeCredit > 0 ? 'text-emerald-600 font-bold' : 'text-slate-900'}`}>{formatCurrency(customer.storeCredit)}</p>
               </div>
             </div>
           </div>
@@ -477,6 +550,41 @@ const Customers: React.FC = () => {
         )}
 
       <CustomerFormModal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} />
+
+      {/* Issue Credit Note Modal */}
+      <Modal 
+         isOpen={isIssueCreditModalOpen} 
+         onClose={() => setIsIssueCreditModalOpen(false)} 
+         title={selectedCustomer ? `Issue Credit Note: ${selectedCustomer.name}` : 'Issue Credit Note'}
+      >
+         <form onSubmit={handleIssueCreditNote} className="space-y-6">
+            <div className="space-y-2">
+               <label className="text-[9px] font-black uppercase text-slate-400 tracking-widest ml-2">Credit Amount (₹)</label>
+               <input 
+                 name="amount" 
+                 type="number" 
+                 min={1}
+                 required 
+                 className="w-full px-4 py-3.5 bg-slate-50 border border-transparent focus:bg-white focus:border-highlight/30 rounded-2xl outline-none transition-all font-black text-slate-900 text-[11px]" 
+                 placeholder="e.g. 500" 
+               />
+            </div>
+            <div className="space-y-2">
+               <label className="text-[9px] font-black uppercase text-slate-400 tracking-widest ml-2">Reason / Description</label>
+               <textarea 
+                 name="reason" 
+                 required
+                 className="w-full px-4 py-3 bg-slate-50 border border-transparent focus:bg-white focus:border-highlight/30 rounded-2xl outline-none transition-all font-black text-slate-900 text-[10px] min-h-[80px] resize-none" 
+                 placeholder="e.g. Returned defect product" 
+               />
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-4 pt-4">
+               <button type="button" onClick={() => setIsIssueCreditModalOpen(false)} className="w-full sm:flex-1 h-14 rounded-2xl font-black uppercase tracking-widest text-[9px] border border-slate-100 text-slate-400">Cancel</button>
+               <button type="submit" className="banana-btn w-full sm:flex-1 h-14 text-[9px]">Issue Credit</button>
+            </div>
+         </form>
+      </Modal>
     </div>
   );
 };

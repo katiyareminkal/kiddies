@@ -23,15 +23,19 @@ import {
   List,
   XCircle,
   Hash,
-  ScanLine
+  ScanLine,
+  Printer,
+  Tag
 } from 'lucide-react';
 import { formatCurrency } from '../utils/helpers';
 import { CATEGORIES } from '../constants';
 import { Product } from '../types';
 import { auth } from '../firebase';
 import BarcodeScanner from '../components/BarcodeScanner';
+import { generateDynamicLabelPDF, DEFAULT_TEMPLATE_30x50 } from '../utils/pdfLabel';
 
 import { StockEntryModal } from '../components/forms/StockEntryModal';
+import LabelDesigner from '../components/forms/LabelDesigner';
 
 const Inventory: React.FC = () => {
   const { products, addProduct, updateProduct, deleteProduct, suppliers } = useApp();
@@ -41,6 +45,19 @@ const Inventory: React.FC = () => {
   
   const [selectedProduct, setSelectedProduct] = useState<string | null>(null);
   const [productToEdit, setProductToEdit] = useState<Product | null>(null);
+  const [printProduct, setPrintProduct] = useState<Product | null>(null);
+  const [lightboxImage, setLightboxImage] = useState<string | null>(null);
+
+  const handleQuickPrint = (product: Product) => {
+    try {
+      const saved = localStorage.getItem('kiddies_label_template_30x50');
+      if (saved) {
+        generateDynamicLabelPDF(product, JSON.parse(saved));
+        return;
+      }
+    } catch(e) {}
+    generateDynamicLabelPDF(product, DEFAULT_TEMPLATE_30x50);
+  };
 
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState<'ALL' | 'LOW' | 'OUT'>('ALL');
@@ -208,65 +225,96 @@ const Inventory: React.FC = () => {
           {filteredProducts.map(product => (
             <div 
               key={product.id} 
-              className="nano-card p-2 md:p-3 flex flex-col gap-2 group cursor-pointer transition-all duration-300"
+              className="bg-white border border-slate-200/60 rounded-[24px] p-2.5 flex flex-col gap-3 group cursor-pointer hover:border-[#8B5CF6]/40 hover:shadow-xl hover:shadow-[#8B5CF6]/5 transition-all duration-300"
               onClick={() => { 
                   setProductToEdit(product); 
                   setIsProductModalOpen(true); 
               }}
             >
               {/* Product Image Container */}
-              <div className="aspect-square bg-slate-50 rounded-xl md:rounded-2xl relative overflow-hidden group-hover:scale-[1.02] transition-transform duration-500 shadow-sm border border-slate-100">
+              <div className="aspect-[4/5] bg-slate-50/80 rounded-[18px] relative overflow-hidden transition-all duration-500 shadow-inner group/img">
                 {product.imageUrl ? (
                   <img 
                     src={product.imageUrl} 
                     alt={product.name} 
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" 
+                    className="w-full h-full object-contain p-1 group-hover:scale-105 transition-transform duration-500 ease-in-out" 
                     referrerPolicy="no-referrer" 
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-slate-200">
-                    <Package size={24} strokeWidth={1.5} />
+                  <div className="w-full h-full flex items-center justify-center text-slate-300 group-hover:text-[#8B5CF6] transition-colors duration-500">
+                    <Package size={32} strokeWidth={1} />
                   </div>
                 )}
                 
-                {/* Sale Stock Badge Overlay */}
-                <div className="absolute top-2 left-2 flex flex-col gap-1">
+                {/* View Details / Zoom Image Hover Overlay */}
+                <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover/img:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-2 pointer-events-none group-hover/img:pointer-events-auto">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setProductToEdit(product);
+                      setIsProductModalOpen(true);
+                    }}
+                    className="p-2.5 bg-white text-slate-900 rounded-xl shadow-lg transform translate-y-1.5 group-hover/img:translate-y-0 transition-all duration-300 hover:scale-110 active:scale-95 flex items-center justify-center pointer-events-auto"
+                    title="View Details"
+                  >
+                    <Eye size={12} strokeWidth={2.5} />
+                  </button>
+                  {product.imageUrl && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setLightboxImage(product.imageUrl || null);
+                      }}
+                      className="p-2.5 bg-white text-slate-900 rounded-xl shadow-lg transform translate-y-1.5 group-hover/img:translate-y-0 transition-all duration-300 hover:scale-110 active:scale-95 flex items-center justify-center pointer-events-auto"
+                      title="View Full Image"
+                    >
+                      <ImageIcon size={12} strokeWidth={2.5} />
+                    </button>
+                  )}
+                </div>
+                
+                {/* Stock Badges */}
+                <div className="absolute top-2 left-2 flex flex-col gap-1.5">
                   {product.saleStock <= product.minStockAlert && product.saleStock > 0 && (
-                    <span className="bg-orange-500 text-white text-[7px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded-md shadow-lg backdrop-blur-md">Low</span>
+                    <span className="bg-orange-500/90 backdrop-blur-sm text-white text-[8px] font-black uppercase tracking-widest px-2 py-1 rounded-lg shadow-sm border border-orange-400/50">Low Stock</span>
                   )}
                   {product.saleStock === 0 && (
-                    <span className="bg-rose-500 text-white text-[7px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded-md shadow-lg backdrop-blur-md">Out</span>
+                    <span className="bg-rose-500/90 backdrop-blur-sm text-white text-[8px] font-black uppercase tracking-widest px-2 py-1 rounded-lg shadow-sm border border-rose-400/50">Sold Out</span>
                   )}
                 </div>
               </div>
 
               {/* Product Details Area */}
-              <div className="flex flex-col flex-1 px-1">
-                <p className="text-[7px] font-black text-highlight uppercase tracking-widest mb-0.5">{product.category}</p>
-                <h4 className="text-[10px] md:text-xs font-black text-slate-900 uppercase tracking-tight line-clamp-1 mb-1 group-hover:text-highlight transition-colors">{product.name}</h4>
-                
-                <div className="flex items-center justify-between mt-auto">
-                  <p className="text-sm md:text-base font-black text-slate-900 font-mono tracking-tight">{formatCurrency(product.sellingPrice)}</p>
-                  <div className="flex -space-x-1">
-                    {(product.sizes || []).slice(0, 1).map(size => (
-                      <div key={size} className="w-5 h-5 rounded-md border border-slate-200 bg-white shadow-sm flex items-center justify-center text-[7px] font-black text-slate-600 uppercase z-10">
-                        {size}
-                      </div>
-                    ))}
-                    {(product.sizes || []).length > 1 && (
-                      <div className="w-5 h-5 rounded-md border border-slate-200 bg-slate-50 shadow-sm flex items-center justify-center text-[7px] font-black text-slate-400 uppercase z-0">
-                        +{(product.sizes || []).length - 1}
-                      </div>
-                    )}
-                  </div>
+              <div className="flex flex-col flex-1 px-1.5 pb-1">
+                <div className="flex items-center justify-between mb-1.5">
+                  <p className="text-[8px] font-black text-[#8B5CF6] uppercase tracking-widest">{product.category}</p>
+                  <span className="text-[8px] font-bold text-slate-400 tracking-wider truncate max-w-[50px]">{product.sku}</span>
                 </div>
-
-                <div className="mt-2 flex items-center justify-between pt-2 border-t border-slate-100">
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Qty</span>
-                    <span className={`text-[10px] font-black ${product.saleStock <= product.minStockAlert ? 'text-rose-500' : 'text-slate-900'}`}>{product.saleStock}</span>
+                
+                <h4 className="text-[11px] md:text-sm font-black text-slate-800 tracking-tight leading-tight line-clamp-2 mb-2 group-hover:text-[#8B5CF6] transition-colors">{product.name}</h4>
+                
+                <div className="mt-auto pt-3 border-t border-slate-100 flex items-center justify-between">
+                  <div className="flex flex-col">
+                    <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Price</p>
+                    <p className="text-sm font-black text-slate-900 tracking-tight">{formatCurrency(product.sellingPrice)}</p>
                   </div>
-                  <span className="text-[8px] font-bold text-slate-400 truncate tracking-widest max-w-[50px]">{product.sku}</span>
+                  
+                  <div className="flex items-center gap-2">
+                    <div className="flex flex-col items-end mr-2">
+                       <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Stock</span>
+                       <span className={`text-[11px] font-black ${product.saleStock <= product.minStockAlert ? 'text-rose-500' : 'text-slate-700'}`}>{product.saleStock}</span>
+                    </div>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setPrintProduct(product);
+                      }}
+                      className="p-2 bg-slate-50 hover:bg-[#8B5CF6] text-slate-400 hover:text-white rounded-xl transition-all shadow-sm border border-slate-200 hover:border-transparent group/btn"
+                      title="Design & Print Label"
+                    >
+                      <Tag size={12} strokeWidth={2.5} className="group-hover/btn:scale-110 transition-transform" />
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -351,8 +399,20 @@ const Inventory: React.FC = () => {
                       <span className="text-[9px] md:text-[10px] font-black text-slate-900 font-mono tracking-tight">{formatCurrency(product.sellingPrice)}</span>
                     </td>
                     <td className="px-3 md:px-4 py-1.5 md:py-2 text-right">
-                      <div className="w-5 h-5 md:w-6 md:h-6 rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-slate-900 group-hover:text-white transition-all text-slate-300">
-                        <ChevronRight size={10} strokeWidth={3} />
+                      <div className="flex items-center justify-end gap-1.5">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setPrintProduct(product);
+                          }}
+                          className="w-6 h-6 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-[#8B5CF6] hover:text-white transition-all"
+                          title="Design & Print Label"
+                        >
+                          <Tag size={10} strokeWidth={2.5} />
+                        </button>
+                        <div className="w-5 h-5 md:w-6 md:h-6 rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-slate-900 group-hover:text-white transition-all text-slate-300">
+                          <ChevronRight size={10} strokeWidth={3} />
+                        </div>
                       </div>
                     </td>
                   </tr>
@@ -373,16 +433,16 @@ const Inventory: React.FC = () => {
       )}
 
       {/* Floating Action Button */}
-      <div className="fixed bottom-24 md:bottom-8 left-0 right-0 flex justify-center pointer-events-none z-40">
+      <div className="fixed bottom-[80px] right-0 w-[20vw] md:w-auto md:bottom-8 md:left-0 md:right-0 flex justify-center pointer-events-none z-40">
         <button 
           onClick={() => { 
             setProductToEdit(null); 
             setIsProductModalOpen(true); 
           }}
-          className="pointer-events-auto bg-slate-900 text-white px-5 py-2.5 rounded-full shadow-2xl flex items-center gap-2 hover:scale-105 active:scale-95 transition-all group border border-white/10"
+          className="pointer-events-auto bg-slate-900 text-white p-4 md:px-5 md:py-2.5 rounded-full shadow-2xl flex items-center justify-center gap-2 hover:scale-105 active:scale-95 transition-all group border border-white/10"
         >
-          <Plus size={14} strokeWidth={3} />
-          <span className="text-[8px] font-black uppercase tracking-widest">Add New Product</span>
+          <Plus size={20} strokeWidth={3} className="md:w-[14px] md:h-[14px]" />
+          <span className="hidden md:inline text-[8px] font-black uppercase tracking-widest">Add New Product</span>
         </button>
       </div>
 
@@ -394,6 +454,44 @@ const Inventory: React.FC = () => {
         onClose={() => setIsStockModalOpen(false)} 
         product={products.find(p => p.id === selectedProduct) || null}
       />
+
+      {printProduct && (
+        <LabelDesigner 
+          labelData={{
+            name: printProduct.name,
+            sku: printProduct.sku,
+            barcode: printProduct.barcode || '',
+            sellingPrice: printProduct.sellingPrice,
+            purchasePrice: printProduct.purchasePrice,
+            color: printProduct.color || '',
+            styleCode: '',
+            labelSize: '30x50'
+          }}
+          allProductSizes={printProduct.sizes}
+          onClose={() => setPrintProduct(null)}
+          onPrint={(template, products) => {
+            generateDynamicLabelPDF(products, template);
+            setPrintProduct(null);
+          }}
+        />
+      )}
+
+      {lightboxImage && (
+        <Modal 
+          isOpen={!!lightboxImage} 
+          onClose={() => setLightboxImage(null)} 
+          title="Product Image Preview"
+        >
+          <div className="flex items-center justify-center p-2 bg-slate-50 rounded-3xl overflow-hidden max-h-[70vh]">
+            <img 
+              src={lightboxImage} 
+              alt="Full Preview" 
+              className="max-w-full max-h-[60vh] object-contain rounded-2xl shadow-md border border-slate-100" 
+              referrerPolicy="no-referrer"
+            />
+          </div>
+        </Modal>
+      )}
     </div>
   );
 };

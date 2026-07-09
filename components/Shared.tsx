@@ -8,9 +8,10 @@ interface ModalProps {
   onClose: () => void;
   title: string;
   children: React.ReactNode;
+  headerActions?: React.ReactNode;
 }
 
-export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }) => {
+export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children, headerActions }) => {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -39,9 +40,12 @@ export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }
           >
             <div className="flex items-center justify-between p-3 md:p-4 border-b border-slate-50 shrink-0 bg-white">
               <h2 className="text-sm md:text-base font-semibold text-slate-900 tracking-tight">{title}</h2>
-              <button onClick={onClose} className="p-1.5 hover:bg-slate-50 rounded-lg transition-all text-slate-400 hover:text-slate-600">
-                <X size={18} />
-              </button>
+              <div className="flex items-center gap-2">
+                {headerActions}
+                <button onClick={onClose} className="p-1.5 hover:bg-slate-50 rounded-lg transition-all text-slate-400 hover:text-slate-600">
+                  <X size={18} />
+                </button>
+              </div>
             </div>
             <div className="p-3 md:p-6 overflow-y-auto flex-1 hide-scrollbar pb-6 md:pb-6">
               {children}

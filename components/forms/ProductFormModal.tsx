@@ -1,10 +1,12 @@
 import React, { useState, useRef, useMemo } from 'react';
-import { Plus, X, Upload, ScanLine, Edit2, RefreshCcw, Image as ImageIcon } from 'lucide-react';
+import { Plus, X, Upload, ScanLine, Edit2, RefreshCcw, Image as ImageIcon, Palette, CheckCircle2 } from 'lucide-react';
 import { Modal } from '../Shared';
 import { useApp } from '../../store/AppContext';
 import { Product } from '../../types';
 import BarcodeScanner from '../BarcodeScanner';
 import { CATEGORIES } from '../../constants';
+import { generateDynamicLabelPDF } from '../../utils/pdfLabel';
+import LabelDesigner from './LabelDesigner';
 
 interface ProductFormModalProps {
   isOpen: boolean;
@@ -29,17 +31,29 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
   const [scannerTarget, setScannerTarget] = useState<'SKU' | 'BARCODE'>('SKU');
   const [skuValue, setSkuValue] = useState(productToEdit?.sku || '');
   const [barcodeValue, setBarcodeValue] = useState(productToEdit?.barcode || '');
+  
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   // Image Upload State
   const [previewImage, setPreviewImage] = useState<string | null>(productToEdit?.imageUrl || null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Label Printing State
+  const [printLabelSize, setPrintLabelSize] = useState<'50x30' | '30x50'>('30x50');
+  const [printGarmentSize, setPrintGarmentSize] = useState<string>('');
+  const [showLabelEditor, setShowLabelEditor] = useState(false);
+  const [labelData, setLabelData] = useState<any>(null);
+
   const SUGGESTED_SIZES = [
     'NB', '0-3M', '3-6M', '6-12M', '12-18M', '18-24M',
     '2-3Y', '3-4Y', '4-5Y', '5-6Y', '6-7Y', '7-8Y', '8-9Y', '9-10Y',
     '10-11Y', '11-12Y', '12-13Y', '13-14Y', '14-15Y',
-    'XS', 'S', 'M', 'L', 'XL'
+    'XS', 'S', 'M', 'L', 'XL',
+    '00', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20',
+    '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40',
+    '41', '42', '43', '44', '45', '46', '47', '48', '49', '50', '51', '52', '53', '54', '55', '56', '57', '58', '59', '60',
+    '30cm', '35cm', '40cm', '45cm', '50cm', '55cm', '60cm', '65cm', '70cm', '75cm', '80cm', '85cm', '90cm', '95cm', '100cm', '105cm', '110cm'
   ];
 
   // Initialize state when modal opens or productToEdit changes
@@ -140,18 +154,16 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
         await addProduct(productData, selectedFile || undefined, setSavingStatus);
       }
 
-      onClose();
-      // Only clear if successful
-      setPreviewImage(null);
-      setSelectedFile(null);
-      alert('Product saved successfully!');
-    } catch (error) {
+      setSuccessMessage(productToEdit ? 'Product updated successfully!' : 'Product added successfully!');
+      setTimeout(() => {
+        setSuccessMessage(null);
+        onClose();
+        setPreviewImage(null);
+        setSelectedFile(null);
+      }, 2000);
+    } catch (error: any) {
       console.error('Save error:', error);
-      let msg = error instanceof Error ? error.message : String(error);
-      try {
-        const parsed = JSON.parse(msg);
-        if (parsed.error) msg = parsed.error;
-      } catch (e) {}
+      let msg = error?.message || error?.details || (typeof error === 'object' ? JSON.stringify(error) : String(error));
       alert('Save Failed: ' + msg);
     } finally {
       setIsSaving(false);
@@ -159,13 +171,86 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
     }
   };
 
+  const handleOpenLabelEditor = () => {
+    if (!formRef.current) return;
+    const formData = new FormData(formRef.current);
+    
+    const name = formData.get('name') as string || 'Untitled Product';
+    const sku = skuValue || 'N/A';
+    const barcode = barcodeValue || '';
+    const sellingPrice = Number(formData.get('sellingPrice')) || 0;
+    const purchasePrice = Number(formData.get('purchasePrice')) || 0;
+    const color = formData.get('color') as string || '';
+    const size = printGarmentSize || (selectedSizes.length > 0 ? selectedSizes[0] : '');
+
+    setLabelData({
+      name,
+      sku,
+      barcode,
+      sellingPrice,
+      purchasePrice,
+      color,
+      styleCode: '',
+      sizesToPrint: selectedSizes.length > 0 ? [...selectedSizes] : [''], 
+      labelSize: printLabelSize,
+      fontFamily: 'helvetica',
+      isBold: true
+    });
+    setShowLabelEditor(true);
+  };
+
+
+  const headerActions = (
+    <div className="flex items-center gap-1.5 md:gap-2 mr-2">
+      {selectedSizes.length > 0 && (
+        <select 
+          value={printGarmentSize} 
+          onChange={e => setPrintGarmentSize(e.target.value)}
+          className="text-[9px] font-bold uppercase tracking-widest border border-slate-200 rounded-lg px-2 py-1.5 outline-none bg-slate-50 text-slate-700 max-w-[80px]"
+        >
+          <option value="">Size...</option>
+          {selectedSizes.map(s => <option key={s} value={s}>{s}</option>)}
+        </select>
+      )}
+      <select 
+        value={printLabelSize} 
+        onChange={e => setPrintLabelSize(e.target.value as '50x30' | '30x50')}
+        className="text-[9px] font-bold uppercase tracking-widest border border-slate-200 rounded-lg px-2 py-1.5 outline-none bg-slate-50 text-slate-700"
+      >
+        <option value="30x50">30x50mm</option>
+        <option value="50x30">50x30mm</option>
+      </select>
+      <button 
+        type="button" 
+        onClick={handleOpenLabelEditor}
+        className="px-3 py-1.5 bg-[#8B5CF6] text-white rounded-lg font-black uppercase tracking-widest text-[9px] flex items-center gap-1.5 shadow-sm hover:bg-[#7C3AED] transition-colors"
+        title="Create Thermal Label"
+      >
+        <Palette size={12} strokeWidth={2.5} />
+        <span className="hidden sm:inline">Create Label</span>
+      </button>
+    </div>
+  );
+
   return (
     <>
       <Modal 
         isOpen={isOpen} 
         onClose={onClose} 
         title={productToEdit ? "Edit Product" : "New Product"}
+        headerActions={headerActions}
       >
+        {successMessage && (
+          <div className="absolute inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-6 rounded-[2rem]">
+            <div className="bg-white rounded-3xl p-8 text-center shadow-2xl animate-nano max-w-[280px] w-full">
+              <div className="w-12 h-12 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-3">
+                <CheckCircle2 size={24} strokeWidth={2.5} />
+              </div>
+              <h3 className="text-sm font-black text-slate-900 mb-1 uppercase tracking-tight">Success!</h3>
+              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{successMessage}</p>
+            </div>
+          </div>
+        )}
         <form ref={formRef} onSubmit={handleSaveProduct} className="space-y-4 max-h-[70vh] overflow-y-auto px-1 scrollbar-hide">
           {/* Image Upload Section */}
           <div className="space-y-1.5">
@@ -209,7 +294,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
 
           <div className="space-y-1.5">
             <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Product Purpose</label>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
               {(['SALE', 'RENTAL', 'HYBRID'] as const).map(p => (
                 <button
                   key={p}
@@ -232,7 +317,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
             <input name="name" defaultValue={productToEdit?.name} required className="w-full px-4 py-3 bg-slate-50 border-slate-100 border focus:bg-white focus:border-[#8B5CF6]/30 rounded-2xl outline-none transition-all font-black uppercase tracking-widest text-slate-700 text-[10px]" placeholder="e.g. Designer Suit" />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1.5">
               <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">SKU</label>
               <div className="relative">
@@ -260,7 +345,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
             </div>
           </div>
 
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-1.5">
               <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Color</label>
               <input name="color" defaultValue={productToEdit?.color} className="w-full px-4 py-3 bg-slate-50 border-slate-100 border focus:bg-white focus:border-[#8B5CF6]/30 rounded-2xl outline-none transition-all font-black uppercase tracking-widest text-slate-700 text-[10px]" placeholder="Blue" />
@@ -336,7 +421,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4 border-t border-slate-50 pt-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-slate-50 pt-4">
             <div className="space-y-1.5">
               <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Category</label>
               <select name="category" defaultValue={productToEdit?.category} className="w-full px-4 py-3 bg-slate-50 border-slate-100 border focus:bg-white focus:border-[#8B5CF6]/30 rounded-2xl outline-none transition-all font-black uppercase tracking-widest text-slate-700 text-[10px] appearance-none">
@@ -353,7 +438,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
           </div>
 
           {(productPurpose === 'SALE' || productPurpose === 'HYBRID') && (
-            <div className="grid grid-cols-2 gap-4 animate-nano">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-nano">
               <div className="space-y-1.5">
                 <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Selling Price</label>
                 <input name="sellingPrice" type="number" step="0.01" defaultValue={productToEdit?.sellingPrice} className="w-full px-4 py-3 bg-slate-50 border-slate-100 border focus:bg-white focus:border-[#8B5CF6]/30 rounded-2xl outline-none transition-all font-black uppercase tracking-widest text-slate-700 text-[10px]" placeholder="0.00" />
@@ -366,7 +451,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
           )}
 
           {(productPurpose === 'RENTAL' || productPurpose === 'HYBRID') && (
-            <div className="grid grid-cols-2 gap-4 animate-nano">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-nano">
               <div className="space-y-1.5">
                 <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Rental Price (Daily)</label>
                 <input name="rentalPrice" type="number" step="0.01" defaultValue={productToEdit?.rentalPrice} className="w-full px-4 py-3 bg-slate-50 border-slate-100 border focus:bg-white focus:border-[#8B5CF6]/30 rounded-2xl outline-none transition-all font-black uppercase tracking-widest text-slate-700 text-[10px]" placeholder="0.00" />
@@ -378,7 +463,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
             </div>
           )}
 
-          <div className="grid grid-cols-3 gap-4 border-t border-slate-50 pt-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 border-t border-slate-50 pt-4">
             <div className="space-y-1.5">
               <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Purchase Price</label>
               <input name="purchasePrice" type="number" step="0.01" defaultValue={productToEdit?.purchasePrice || 0} className="w-full px-4 py-3 bg-slate-50 border-slate-100 border focus:bg-white focus:border-[#8B5CF6]/30 rounded-2xl outline-none transition-all font-black uppercase tracking-widest text-slate-700 text-[10px]" placeholder="0.00" />
@@ -427,6 +512,19 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
           </div>
         </form>
       </Modal>
+
+      {showLabelEditor && labelData && (
+        <LabelDesigner 
+          labelData={labelData}
+          allProductSizes={selectedSizes}
+          onClose={() => setShowLabelEditor(false)}
+          onPrint={(template, products) => {
+            generateDynamicLabelPDF(products, template);
+            setShowLabelEditor(false);
+          }}
+        />
+      )}
+
       {isScannerOpen && (
         <BarcodeScanner 
           onScanSuccess={(decodedText) => {

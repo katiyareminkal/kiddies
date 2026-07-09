@@ -1,23 +1,79 @@
 
 import React, { useState } from 'react';
 import { useApp } from '../store/AppContext';
-import { Lock, Mail, Eye, EyeOff, Shirt, Sun, Cloud, Heart, Star, Baby } from 'lucide-react';
+import { Lock, Mail, Eye, EyeOff, Shirt, Sun, Cloud, Heart, Star, Baby, User as UserIcon } from 'lucide-react';
 import { motion } from 'motion/react';
+import { supabase } from '../supabase';
 
 const Login: React.FC = () => {
   const { login, loginWithGoogle } = useApp();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [fullName, setFullName] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
+  const [isSignUp, setIsSignUp] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setSuccessMessage('');
     const success = await login(email, password);
     if (!success) {
       setError('Invalid email or password');
+    }
+  };
+
+  const handleSignUp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setSuccessMessage('');
+    
+    if (!fullName.trim()) {
+      setError('Full name is required');
+      return;
+    }
+
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            name: fullName.trim(),
+            role: 'STAFF' // Default role
+          }
+        }
+      });
+
+      if (error) throw error;
+      
+      setSuccessMessage('Registration successful! You can now log in.');
+      setIsSignUp(false);
+      setFullName('');
+    } catch (err: any) {
+      console.error(err);
+      setError(err.message || 'Failed to register account');
+    }
+  };
+
+  const handleForgotPassword = async () => {
+    setError('');
+    setSuccessMessage('');
+    if (!email.trim()) {
+      setError('Please enter your email address in the input field first.');
+      return;
+    }
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+        redirectTo: window.location.origin
+      });
+      if (error) throw error;
+      setSuccessMessage('A password reset link has been sent to your email.');
+    } catch (err: any) {
+      setError(err.message || 'Failed to send password reset link');
     }
   };
 
@@ -77,17 +133,41 @@ const Login: React.FC = () => {
         </div>
 
         <div className="text-center mb-8">
-          <h2 className="text-2xl font-bold text-[#2D3648] mb-1">Welcome Back!</h2>
-          <p className="text-[#718096] text-sm">Sign in to continue to your account</p>
+          <h2 className="text-2xl font-bold text-[#2D3648] mb-1">
+            {isSignUp ? 'Create Account' : 'Welcome Back!'}
+          </h2>
+          <p className="text-[#718096] text-sm">
+            {isSignUp ? 'Sign up for a new management account' : 'Sign in to continue to your account'}
+          </p>
         </div>
 
         {error && (
-          <div className="mb-6 bg-red-50 text-red-500 p-4 rounded-2xl text-xs font-bold text-center border border-red-100">
+          <div className="mb-6 bg-red-50 text-red-500 p-4 rounded-2xl text-xs font-bold text-center border border-red-100 animate-nano">
             {error}
           </div>
         )}
 
-        <form onSubmit={handleLogin} className="space-y-5">
+        {successMessage && (
+          <div className="mb-6 bg-emerald-50 text-emerald-600 p-4 rounded-2xl text-xs font-bold text-center border border-emerald-100 animate-nano">
+            {successMessage}
+          </div>
+        )}
+
+        <form onSubmit={isSignUp ? handleSignUp : handleLogin} className="space-y-5">
+          {isSignUp && (
+            <div className="relative animate-nano">
+              <UserIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-[#A0AEC0]" size={20} />
+              <input
+                type="text"
+                required
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                className="w-full pl-12 pr-4 py-4 bg-white border border-[#E2E8F0] rounded-2xl outline-none focus:border-[#A084E8] transition-all text-[#2D3648] placeholder-[#A0AEC0]"
+                placeholder="Full Name"
+              />
+            </div>
+          )}
+
           <div className="relative">
             <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-[#A0AEC0]" size={20} />
             <input
@@ -96,7 +176,7 @@ const Login: React.FC = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full pl-12 pr-4 py-4 bg-white border border-[#E2E8F0] rounded-2xl outline-none focus:border-[#A084E8] transition-all text-[#2D3648] placeholder-[#A0AEC0]"
-              placeholder="Email or Username"
+              placeholder="Email Address"
             />
           </div>
 
@@ -119,29 +199,35 @@ const Login: React.FC = () => {
             </button>
           </div>
 
-          <div className="flex items-center justify-between px-1">
-            <label className="flex items-center gap-2 cursor-pointer group">
-              <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all ${rememberMe ? 'bg-[#FF7B7B] border-[#FF7B7B]' : 'bg-white border-[#E2E8F0] group-hover:border-[#FF7B7B]'}`}>
-                <input
-                  type="checkbox"
-                  className="hidden"
-                  checked={rememberMe}
-                  onChange={() => setRememberMe(!rememberMe)}
-                />
-                {rememberMe && <div className="w-2 h-2 bg-white rounded-full"></div>}
-              </div>
-              <span className="text-sm text-[#4A5568] font-medium">Remember me</span>
-            </label>
-            <button type="button" className="text-sm text-[#A084E8] font-semibold hover:underline">
-              Forgot Password?
-            </button>
-          </div>
+          {!isSignUp && (
+            <div className="flex items-center justify-between px-1">
+              <label className="flex items-center gap-2 cursor-pointer group">
+                <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all ${rememberMe ? 'bg-[#FF7B7B] border-[#FF7B7B]' : 'bg-white border-[#E2E8F0] group-hover:border-[#FF7B7B]'}`}>
+                  <input
+                    type="checkbox"
+                    className="hidden"
+                    checked={rememberMe}
+                    onChange={() => setRememberMe(!rememberMe)}
+                  />
+                  {rememberMe && <div className="w-2 h-2 bg-white rounded-full"></div>}
+                </div>
+                <span className="text-sm text-[#4A5568] font-medium">Remember me</span>
+              </label>
+              <button 
+                type="button" 
+                onClick={handleForgotPassword} 
+                className="text-sm text-[#A084E8] font-semibold hover:underline"
+              >
+                Forgot Password?
+              </button>
+            </div>
+          )}
 
           <button
             type="submit"
             className="w-full py-4 bg-[#8B5CF6] text-white font-bold rounded-2xl shadow-[0_10px_20px_rgba(139,92,246,0.3)] hover:bg-[#7C3AED] transition-all active:scale-[0.98]"
           >
-            Login
+            {isSignUp ? 'Sign Up' : 'Login'}
           </button>
         </form>
 
@@ -164,7 +250,17 @@ const Login: React.FC = () => {
 
         <div className="mt-8 text-center">
           <p className="text-sm text-[#718096]">
-            Don't have an account? <button className="text-[#A084E8] font-bold hover:underline">Sign up</button>
+            {isSignUp ? 'Already have an account?' : "Don't have an account?"}{' '}
+            <button 
+              onClick={() => {
+                setIsSignUp(!isSignUp);
+                setError('');
+                setSuccessMessage('');
+              }} 
+              className="text-[#A084E8] font-bold hover:underline"
+            >
+              {isSignUp ? 'Login' : 'Sign up'}
+            </button>
           </p>
         </div>
       </motion.div>

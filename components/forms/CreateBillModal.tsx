@@ -25,8 +25,9 @@ interface CreateBillModalProps {
 }
 
 export const CreateBillModal: React.FC<CreateBillModalProps> = ({ isOpen, onClose }) => {
-  const { products, customers, addSale } = useApp();
-  const [cart, setCart] = useState<{ productId: string; quantity: number; customName?: string; customPrice?: number }[]>([]);
+  const { products, customers, addSale, addProduct, creditNotes, consumeStoreCredit, sales, settings } = useApp();
+  const [cart, setCart] = useState<{ productId: string; quantity: number; customName?: string; customPrice?: number; isCustomPrice?: boolean }[]>([]);
+  const [useCredit, setUseCredit] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCustomerId, setSelectedCustomerId] = useState<string>('GUEST');
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -35,11 +36,19 @@ export const CreateBillModal: React.FC<CreateBillModalProps> = ({ isOpen, onClos
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
   const [isScannerOpen, setIsScannerOpen] = useState(false);
   const [terminalTab, setTerminalTab] = useState<'PRODUCTS' | 'BASKET'>('PRODUCTS');
+  const [transactionDate, setTransactionDate] = useState<string>(() => new Date().toISOString().split('T')[0]);
 
   // Custom/Manual Item states
   const [isCustomFormOpen, setIsCustomFormOpen] = useState(false);
   const [customName, setCustomName] = useState('');
   const [customPrice, setCustomPrice] = useState('');
+  const [customPurchasePrice, setCustomPurchasePrice] = useState('');
+  const [customDiscountValue, setCustomDiscountValue] = useState('');
+  const [customDiscountType, setCustomDiscountType] = useState<'PERCENT' | 'FIXED'>('FIXED');
+  const [saveToInventory, setSaveToInventory] = useState(true);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [selectedCustomProductId, setSelectedCustomProductId] = useState<string | null>(null);
+  const [includeGst, setIncludeGst] = useState(true);
 
   const categories = useMemo(() => Array.from(new Set(products.filter(p => p.purpose === 'SALE' || p.purpose === 'HYBRID').map(p => p.category))), [products]);
 
@@ -70,7 +79,18 @@ export const CreateBillModal: React.FC<CreateBillModalProps> = ({ isOpen, onClos
           }
         };
       }
+      
       const product = products.find(p => p.id === item.productId);
+      if (product && item.isCustomPrice && item.customPrice !== undefined) {
+        return {
+          ...item,
+          product: {
+            ...product,
+            sellingPrice: item.customPrice
+          }
+        };
+      }
+      
       return { ...item, product };
     }).filter(item => item.product);
   }, [cart, products]);
@@ -84,8 +104,23 @@ export const CreateBillModal: React.FC<CreateBillModalProps> = ({ isOpen, onClos
     return Math.min(discountValue, subtotal);
   }, [subtotal, discountType, discountValue]);
 
-  const tax = (subtotal - discountAmount) * 0.05;
+  const tax = includeGst ? (subtotal - discountAmount) * 0.05 : 0;
   const total = (subtotal - discountAmount) + tax;
+
+  // Store Credit Calculations
+  const customerCredit = useMemo(() => {
+    if (selectedCustomerId === 'GUEST') return 0;
+    return creditNotes
+      .filter(cn => cn.customerId === selectedCustomerId && cn.status === 'ACTIVE')
+      .reduce((sum, cn) => sum + cn.amount, 0);
+  }, [creditNotes, selectedCustomerId]);
+
+  const creditApplied = useMemo(() => {
+    if (!useCredit || selectedCustomerId === 'GUEST') return 0;
+    return Math.min(customerCredit, total);
+  }, [useCredit, customerCredit, total, selectedCustomerId]);
+
+  const finalAmountToPay = total - creditApplied;
 
   const addToCart = (productId: string) => {
     setCart(prev => {
@@ -123,8 +158,8 @@ export const CreateBillModal: React.FC<CreateBillModalProps> = ({ isOpen, onClos
           name: item.product!.name,
           quantity: item.quantity,
           unitPrice: item.product!.sellingPrice,
-          taxAmount: item.product!.sellingPrice * 0.05,
-          total: item.product!.sellingPrice * item.quantity * 1.05
+          taxAmount: includeGst ? item.product!.sellingPrice * 0.05 : 0,
+          total: item.product!.sellingPrice * item.quantity * (includeGst ? 1.05 : 1)
         })),
         totalAmount: total,
         marketplaceFees: 0,
@@ -133,10 +168,19 @@ export const CreateBillModal: React.FC<CreateBillModalProps> = ({ isOpen, onClos
         paidAmount: total,
         paymentStatus: PaymentStatus.PAID,
         paymentMethod: PaymentMethod.CASH,
+        date: new Date(transactionDate + 'T12:00:00').toISOString(),
         orderStatus: OrderStatus.COMPLETED,
       });
 
+      // Consume store credit notes if applied
+      if (creditApplied > 0) {
+        const prefix = settings.salesInvoicePrefix || 'INV-';
+        const invoiceNumber = `${prefix}${sales.length + 1001}`;
+        await consumeStoreCredit(selectedCustomerId, creditApplied, invoiceNumber);
+      }
+
       setCart([]);
+      setUseCredit(false);
       setSuccessMessage('Transaction completed successfully!');
       setTimeout(() => {
         setSuccessMessage(null);
@@ -148,11 +192,27 @@ export const CreateBillModal: React.FC<CreateBillModalProps> = ({ isOpen, onClos
     }
   };
 
-  const filteredProducts = products.filter(p =>
-    (p.purpose === 'SALE' || p.purpose === 'HYBRID') &&
-    (selectedCategory === 'ALL' || p.category === selectedCategory) &&
-    (p.name.toLowerCase().includes(searchTerm.toLowerCase()) || p.sku.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
+  const filteredProducts = products.filter(p => {
+    const isForSale = p.purpose === 'SALE' || p.purpose === 'HYBRID';
+    const matchesCategoryTab = selectedCategory === 'ALL' || p.category === selectedCategory;
+    
+    if (!isForSale || !matchesCategoryTab) return false;
+    if (!searchTerm.trim()) return true;
+    
+    const term = searchTerm.toLowerCase().trim();
+    const matchesWordStart = (text: string) => {
+      return text.toLowerCase().split(/[\s_-]+/).some(word => word.startsWith(term));
+    };
+
+    return (
+      matchesWordStart(p.name) ||
+      matchesWordStart(p.sku) ||
+      (p.barcode && p.barcode.toLowerCase().startsWith(term)) ||
+      matchesWordStart(p.category) ||
+      (p.brand && matchesWordStart(p.brand)) ||
+      String(p.sellingPrice).startsWith(term)
+    );
+  });
 
   const handleBarcodeScan = (decodedText: string) => {
     setIsScannerOpen(false);
@@ -168,21 +228,80 @@ export const CreateBillModal: React.FC<CreateBillModalProps> = ({ isOpen, onClos
     }
   };
 
-  const handleAddCustomItem = (e: React.FormEvent) => {
+  const handleAddCustomItem = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!customName || !customPrice) return;
     
     const priceNum = Number(customPrice);
-    if (isNaN(priceNum) || priceNum <= 0) {
-      alert('Please enter a valid price');
+    const purchasePriceNum = customPurchasePrice ? Number(customPurchasePrice) : 0;
+    const discountNum = customDiscountValue ? Number(customDiscountValue) : 0;
+    
+    if (isNaN(priceNum) || priceNum <= 0 || isNaN(purchasePriceNum) || isNaN(discountNum)) {
+      alert('Please enter valid numeric prices (Sale Price must be > 0)');
       return;
     }
 
-    const uniqueId = `CUSTOM_${Date.now()}`;
-    setCart(prev => [...prev, { productId: uniqueId, quantity: 1, customName, customPrice: priceNum }]);
+    let finalSalePrice = priceNum;
+    if (discountNum > 0) {
+      if (customDiscountType === 'PERCENT') {
+        finalSalePrice = priceNum - (priceNum * (discountNum / 100));
+      } else {
+        finalSalePrice = priceNum - discountNum;
+      }
+      finalSalePrice = Math.max(0, finalSalePrice);
+    }
+
+    if (saveToInventory && !selectedCustomProductId) {
+      try {
+        await addProduct({
+          name: customName,
+          sku: `MANUAL-${Date.now().toString().slice(-6)}`,
+          barcode: '',
+          category: 'CUSTOM',
+          brand: '',
+          color: '',
+          material: '',
+          sizes: [],
+          purchasePrice: purchasePriceNum,
+          sellingPrice: finalSalePrice,
+          rentalPrice: 0,
+          taxPercent: 5,
+          saleStock: 0,
+          rentalStock: 0,
+          purpose: 'SALE',
+          minStockAlert: 0,
+          supplierId: '',
+          description: 'Added directly from Checkout Terminal',
+          imageUrl: ''
+        });
+      } catch (err) {
+        console.error("Failed to save to inventory:", err);
+      }
+    }
+
+    const uniqueId = selectedCustomProductId || `CUSTOM_${Date.now()}`;
+    
+    setCart(prev => {
+      const existing = prev.find(item => item.productId === uniqueId && item.customPrice === finalSalePrice);
+      if (existing) {
+        return prev.map(item => item.productId === uniqueId && item.customPrice === finalSalePrice ? { ...item, quantity: item.quantity + 1 } : item);
+      }
+      return [...prev, { 
+        productId: uniqueId, 
+        quantity: 1, 
+        customName, 
+        customPrice: finalSalePrice,
+        isCustomPrice: true 
+      }];
+    });
     
     setCustomName('');
     setCustomPrice('');
+    setCustomPurchasePrice('');
+    setCustomDiscountValue('');
+    setCustomDiscountType('FIXED');
+    setSaveToInventory(false);
+    setSelectedCustomProductId(null);
     setIsCustomFormOpen(false);
   };
 
@@ -194,20 +313,7 @@ export const CreateBillModal: React.FC<CreateBillModalProps> = ({ isOpen, onClos
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 15 }}
           transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-          className="checkout-terminal-container"
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            zIndex: 9999,
-            background: '#F8FAFC',
-            display: 'flex',
-            flexDirection: 'column',
-            padding: '12px',
-            paddingBottom: '12px'
-          }}
+          className="fixed inset-0 z-[99] md:left-64 md:top-16 bg-[#F8FAFC] flex flex-col p-1 sm:p-3"
         >
           {/* Success Feedback Overlay */}
           {successMessage && (
@@ -245,6 +351,17 @@ export const CreateBillModal: React.FC<CreateBillModalProps> = ({ isOpen, onClos
             </div>
 
             <div className="flex items-center gap-3 bg-white p-2 border border-slate-100 shadow-sm rounded-2xl">
+              <div className="flex flex-col items-start pr-2 border-r border-slate-100">
+                <span className="text-[7px] font-black text-slate-400 uppercase tracking-widest">Sale Date</span>
+                <input 
+                  type="date"
+                  value={transactionDate}
+                  onChange={(e) => setTransactionDate(e.target.value)}
+                  max={new Date().toISOString().split('T')[0]}
+                  className="bg-transparent text-[9px] font-bold text-slate-900 border-none outline-none cursor-pointer focus:ring-0 p-0 w-24"
+                />
+              </div>
+              
               <div className="flex flex-col items-end">
                 <span className="text-[7px] font-black text-slate-400 uppercase tracking-widest">Customer</span>
                 <select
@@ -351,7 +468,7 @@ export const CreateBillModal: React.FC<CreateBillModalProps> = ({ isOpen, onClos
           {/* Main Content Area */}
           <div style={{ display: 'flex', flexDirection: 'row', gap: '16px', flex: 1, minHeight: 0, overflow: 'hidden' }}>
             {/* Product Selection Column */}
-            <div className={`${terminalTab === 'PRODUCTS' ? 'flex' : 'hidden lg:flex'}`} style={{ flex: 3, flexDirection: 'column', gap: '10px', minWidth: 0, minHeight: 0 }}>
+            <div className={`${terminalTab === 'PRODUCTS' ? 'flex' : 'hidden lg:flex'} flex-col gap-2.5`} style={{ flex: 3, minWidth: 0, minHeight: 0 }}>
               {/* Search & Categories */}
               <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 <div className="flex gap-2">
@@ -400,7 +517,7 @@ export const CreateBillModal: React.FC<CreateBillModalProps> = ({ isOpen, onClos
               </div>
 
               {/* Product Grid */}
-              <div style={{ flex: 1, overflowY: 'auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: '8px', alignContent: 'start', paddingBottom: '4px', paddingRight: '4px' }} className="hide-scrollbar">
+              <div style={{ flex: 1, overflowY: 'auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(105px, 1fr))', gap: '8px', alignContent: 'start', paddingBottom: '4px', paddingRight: '4px' }} className="hide-scrollbar">
                 {filteredProducts.length === 0 ? (
                   <div style={{ gridColumn: '1 / -1', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 20px', background: 'white', borderRadius: '1.5rem', border: '1px border-slate-100', textAlign: 'center' }}>
                     <Package size={32} className="text-slate-200 mb-2" />
@@ -479,7 +596,7 @@ export const CreateBillModal: React.FC<CreateBillModalProps> = ({ isOpen, onClos
             </div>
 
             {/* Cart/Basket Column */}
-            <div className={`${terminalTab === 'BASKET' ? 'flex' : 'hidden lg:flex'}`} style={{ flex: 1.5, minWidth: '300px', display: 'flex', flexDirection: 'column', background: 'white', borderRadius: '1.5rem', border: '1px solid #E2E8F0', overflow: 'hidden' }}>
+            <div className={`${terminalTab === 'BASKET' ? 'flex' : 'hidden lg:flex'} flex-col`} style={{ flex: 1.5, minWidth: '300px', background: 'white', borderRadius: '1.5rem', border: '1px solid #E2E8F0', overflow: 'hidden' }}>
               {/* Basket Header */}
               <div style={{ padding: '12px 16px', borderBottom: '1px solid #F8FAFC', flexShrink: 0 }}>
                 <div className="flex items-center justify-between">
@@ -500,34 +617,39 @@ export const CreateBillModal: React.FC<CreateBillModalProps> = ({ isOpen, onClos
                   </div>
                 ) : (
                   cartItems.map(item => (
-                    <div key={item.productId} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px', background: 'white', borderRadius: '12px', border: '1px solid #F1F5F9' }}>
-                      <div style={{ width: '36px', height: '36px', borderRadius: '8px', overflow: 'hidden', border: '1px solid #F1F5F9', flexShrink: 0, background: '#F8FAFC' }}>
-                        {item.product?.imageUrl ? (
-                          <img src={item.product.imageUrl} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                        ) : (
-                          <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <Package size={14} className="text-slate-200" />
-                          </div>
-                        )}
+                    <div key={item.productId} className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 p-2 bg-white rounded-xl border border-slate-100/60 shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-10 h-10 rounded-lg overflow-hidden border border-slate-100 shrink-0 bg-[#F8FAFC]">
+                          {item.product?.imageUrl ? (
+                            <img src={item.product.imageUrl} className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center">
+                              <Package size={16} className="text-slate-300" />
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="text-[10px] font-black text-slate-900 uppercase truncate leading-tight">{item.product?.name}</h4>
+                          <p className="text-[9px] font-bold text-slate-400 font-mono mt-0.5">{formatCurrency(item.product?.sellingPrice || 0)}</p>
+                        </div>
                       </div>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <h4 className="text-[9px] font-black text-slate-900 uppercase truncate leading-tight">{item.product?.name}</h4>
-                        <p className="text-[8px] font-bold text-slate-400 font-mono mt-0.5">{formatCurrency(item.product?.sellingPrice || 0)}</p>
-                      </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '2px', background: '#F8FAFC', borderRadius: '8px', padding: '2px', border: '1px solid #F1F5F9', flexShrink: 0 }}>
-                        <button onClick={() => removeFromCart(item.productId)} disabled={item.quantity <= 1} className="w-6 h-6 rounded-md bg-white border border-slate-200 flex items-center justify-center text-slate-600 hover:text-slate-900 disabled:opacity-30 transition-all shadow-sm">
-                          <Minus size={10} strokeWidth={3} />
-                        </button>
-                        <span className="text-[10px] font-black text-slate-900 w-6 text-center font-mono">{item.quantity}</span>
-                        <button onClick={() => addToCart(item.productId)} className="w-6 h-6 rounded-md bg-white border border-slate-200 flex items-center justify-center text-slate-600 hover:text-highlight transition-all shadow-sm">
-                          <Plus size={10} strokeWidth={3} />
-                        </button>
-                      </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
-                        <span className="text-[10px] font-black text-slate-900 font-mono">{formatCurrency((item.product?.sellingPrice || 0) * item.quantity)}</span>
-                        <button onClick={() => deleteFromCart(item.productId)} className="w-6 h-6 rounded-lg bg-rose-50 flex items-center justify-center text-rose-500 hover:bg-rose-100 transition-colors">
-                          <Trash2 size={10} strokeWidth={2.5} />
-                        </button>
+                      
+                      <div className="flex items-center justify-between sm:justify-end gap-3 mt-1 sm:mt-0 pt-2 sm:pt-0 border-t sm:border-0 border-slate-50">
+                        <div className="flex items-center gap-0.5 bg-[#F8FAFC] rounded-lg p-0.5 border border-slate-100 shrink-0">
+                          <button onClick={() => removeFromCart(item.productId)} disabled={item.quantity <= 1} className="w-7 h-7 rounded-md bg-white border border-slate-200 flex items-center justify-center text-slate-600 hover:text-slate-900 disabled:opacity-30 transition-all shadow-sm">
+                            <Minus size={12} strokeWidth={3} />
+                          </button>
+                          <span className="text-[11px] font-black text-slate-900 w-8 text-center font-mono">{item.quantity}</span>
+                          <button onClick={() => addToCart(item.productId)} className="w-7 h-7 rounded-md bg-white border border-slate-200 flex items-center justify-center text-slate-600 hover:text-highlight transition-all shadow-sm">
+                            <Plus size={12} strokeWidth={3} />
+                          </button>
+                        </div>
+                        <div className="flex items-center gap-2 shrink-0">
+                          <span className="text-[11px] font-black text-slate-900 font-mono min-w-[3rem] text-right">{formatCurrency((item.product?.sellingPrice || 0) * item.quantity)}</span>
+                          <button onClick={() => deleteFromCart(item.productId)} className="w-7 h-7 rounded-lg bg-rose-50 flex items-center justify-center text-rose-500 hover:bg-rose-100 transition-colors">
+                            <Trash2 size={12} strokeWidth={2.5} />
+                          </button>
+                        </div>
                       </div>
                     </div>
                   ))
@@ -572,15 +694,39 @@ export const CreateBillModal: React.FC<CreateBillModalProps> = ({ isOpen, onClos
                       <span className="font-mono font-black">-{formatCurrency(discountAmount)}</span>
                     </div>
                   )}
-                  <div style={{ display: 'flex', justifyContent: 'space-between', color: '#64748B' }}>
-                    <span>GST (5%)</span>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: '#64748B' }}>
+                    <label className="flex items-center gap-1.5 cursor-pointer hover:text-slate-900">
+                      <input 
+                        type="checkbox" 
+                        checked={includeGst} 
+                        onChange={(e) => setIncludeGst(e.target.checked)}
+                        className="rounded border-slate-300 text-slate-800 focus:ring-slate-800"
+                      />
+                      <span>GST (5%)</span>
+                    </label>
                     <span className="font-mono font-black" style={{ color: '#1E293B' }}>{formatCurrency(tax)}</span>
                   </div>
+                  {customerCredit > 0 && (
+                    <div className="pt-2 mt-1 border-t border-slate-100/60 flex items-center justify-between">
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input 
+                          type="checkbox"
+                          checked={useCredit}
+                          onChange={(e) => setUseCredit(e.target.checked)}
+                          className="rounded border-slate-300 text-[#8B5CF6] focus:ring-[#8B5CF6] w-3.5 h-3.5"
+                        />
+                        <span className="text-[8px] font-black uppercase text-slate-500 tracking-wider">Apply Store Credit (Avail: {formatCurrency(customerCredit)})</span>
+                      </label>
+                      {useCredit && (
+                        <span className="font-mono font-black text-emerald-500 text-[10px] animate-nano">-{formatCurrency(creditApplied)}</span>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '2px dashed #E2E8F0', marginTop: '6px', paddingTop: '6px' }}>
-                  <span style={{ fontSize: '10px', fontWeight: 900, color: '#1E293B', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Total</span>
-                  <span style={{ fontSize: '20px', fontWeight: 900, color: '#8B5CF6', fontFamily: 'monospace', letterSpacing: '-0.02em', lineHeight: 1 }}>{formatCurrency(total)}</span>
+                  <span style={{ fontSize: '10px', fontWeight: 900, color: '#1E293B', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{useCredit ? 'Final Due' : 'Total'}</span>
+                  <span style={{ fontSize: '20px', fontWeight: 900, color: '#8B5CF6', fontFamily: 'monospace', letterSpacing: '-0.02em', lineHeight: 1 }}>{formatCurrency(useCredit ? finalAmountToPay : total)}</span>
                 </div>
 
                 <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
@@ -612,28 +758,102 @@ export const CreateBillModal: React.FC<CreateBillModalProps> = ({ isOpen, onClos
                   </button>
                 </div>
                 <form onSubmit={handleAddCustomItem} className="space-y-4">
-                  <div className="space-y-1">
+                  <div className="space-y-1 relative">
                     <label className="text-[8px] font-black uppercase text-slate-400 tracking-widest">Item Name</label>
                     <input 
                       type="text" 
                       required 
                       placeholder="e.g. Custom Toys / Repairs" 
                       value={customName}
-                      onChange={e => setCustomName(e.target.value)}
+                      onChange={e => {
+                        setCustomName(e.target.value);
+                        setSelectedCustomProductId(null); // Clear selected product if they type
+                        setIsDropdownOpen(true);
+                      }}
+                      onFocus={() => setIsDropdownOpen(true)}
+                      onBlur={() => setTimeout(() => setIsDropdownOpen(false), 200)}
                       className="w-full bg-slate-50 border border-transparent focus:bg-white focus:border-highlight/30 rounded-xl p-3 text-[10px] font-black uppercase tracking-widest outline-none transition-all text-slate-900"
                     />
+                    {isDropdownOpen && customName.length > 1 && products.filter(p => p.name.toLowerCase().includes(customName.toLowerCase())).length > 0 && (
+                      <div className="absolute top-full left-0 right-0 mt-1 max-h-40 overflow-y-auto bg-white rounded-xl shadow-lg border border-slate-100 z-50">
+                        {products
+                          .filter(p => p.name.toLowerCase().includes(customName.toLowerCase()))
+                          .slice(0, 5)
+                          .map(p => (
+                            <button
+                              key={p.id}
+                              type="button"
+                              onClick={() => {
+                                setCustomName(p.name);
+                                setSelectedCustomProductId(p.id); // Link to real product
+                                setCustomPrice(p.sellingPrice.toString());
+                                setCustomPurchasePrice(p.purchasePrice ? p.purchasePrice.toString() : '');
+                              }}
+                              className="w-full text-left px-4 py-2 hover:bg-slate-50 border-b border-slate-50 last:border-0"
+                            >
+                              <div className="text-[10px] font-bold text-slate-800 uppercase truncate">{p.name}</div>
+                              <div className="text-[8px] font-semibold text-slate-400 uppercase">Sale: ₹{p.sellingPrice} {p.purchasePrice ? `| Pur: ₹${p.purchasePrice}` : ''}</div>
+                            </button>
+                          ))}
+                      </div>
+                    )}
                   </div>
                   <div className="space-y-1">
-                    <label className="text-[8px] font-black uppercase text-slate-400 tracking-widest">Price (₹)</label>
+                    <label className="text-[8px] font-black uppercase text-slate-400 tracking-widest">Sale Price (₹)</label>
                     <input 
                       type="number" 
-                      required 
+                      required
                       placeholder="0.00" 
                       value={customPrice}
                       onChange={e => setCustomPrice(e.target.value)}
                       className="w-full bg-slate-50 border border-transparent focus:bg-white focus:border-highlight/30 rounded-xl p-3 text-[10px] font-bold outline-none transition-all text-slate-900"
                     />
                   </div>
+                  <div className="space-y-1">
+                    <label className="text-[8px] font-black uppercase text-slate-400 tracking-widest">Purchase Price (₹) - Optional</label>
+                    <input 
+                      type="number" 
+                      placeholder="0.00" 
+                      value={customPurchasePrice}
+                      onChange={e => setCustomPurchasePrice(e.target.value)}
+                      className="w-full bg-slate-50 border border-transparent focus:bg-white focus:border-highlight/30 rounded-xl p-3 text-[10px] font-bold outline-none transition-all text-slate-900"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[8px] font-black uppercase text-slate-400 tracking-widest flex items-center justify-between">
+                      <span>Discount - Optional</span>
+                      <div className="flex bg-slate-200 rounded p-0.5">
+                        <button
+                          type="button"
+                          onClick={() => setCustomDiscountType('PERCENT')}
+                          className={`px-2 py-0.5 text-[8px] rounded-sm transition-colors ${customDiscountType === 'PERCENT' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500'}`}
+                        >%</button>
+                        <button
+                          type="button"
+                          onClick={() => setCustomDiscountType('FIXED')}
+                          className={`px-2 py-0.5 text-[8px] rounded-sm transition-colors ${customDiscountType === 'FIXED' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500'}`}
+                        >₹</button>
+                      </div>
+                    </label>
+                    <input 
+                      type="number" 
+                      placeholder="0.00" 
+                      value={customDiscountValue}
+                      onChange={e => setCustomDiscountValue(e.target.value)}
+                      className="w-full bg-slate-50 border border-transparent focus:bg-white focus:border-highlight/30 rounded-xl p-3 text-[10px] font-bold outline-none transition-all text-slate-900"
+                    />
+                  </div>
+                  {!selectedCustomProductId && (
+                    <label className="flex items-center gap-2 cursor-pointer mt-2">
+                      <input 
+                        type="checkbox" 
+                        checked={saveToInventory}
+                        onChange={(e) => setSaveToInventory(e.target.checked)}
+                        className="rounded border-slate-300 text-highlight focus:ring-highlight w-4 h-4"
+                      />
+                      <span className="text-[9px] font-bold text-slate-600 uppercase tracking-widest">Save to Inventory for future sales</span>
+                    </label>
+                  )}
                   <button
                     type="submit"
                     className="banana-btn w-full py-3 text-[9px]"

@@ -15,11 +15,13 @@ import {
   FileText,
   Image,
   CreditCard,
-  Hash
+  Hash,
+  FileSpreadsheet
 } from 'lucide-react';
+import { exportToExcel } from '../utils/excelBackup';
 
 const Settings: React.FC = () => {
-  const { storeProfile, settings, updateStoreProfile, updateSettings, importData, resetData, products, sales, customers } = useApp();
+  const { storeProfile, settings, updateStoreProfile, updateSettings, importData, resetData, products, sales, customers, suppliers, rentals, stockLogs } = useApp();
   const [activeTab, setActiveTab] = useState<'profile' | 'preferences' | 'data'>('profile');
   const [notification, setNotification] = useState<{message: string, type: 'success' | 'error'} | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -353,22 +355,39 @@ const Settings: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="p-6 border border-slate-50 rounded-xl bg-slate-50/50 hover:bg-white hover:border-highlight hover:shadow-sm transition-all group">
-                    <div className="w-10 h-10 bg-highlight/10 text-slate-900 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="p-6 border border-slate-50 rounded-xl bg-slate-50/50 hover:bg-white hover:border-[#8B5CF6] hover:shadow-sm transition-all group">
+                    <div className="w-10 h-10 bg-[#8B5CF6]/10 text-slate-900 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                       <Download size={18} strokeWidth={2.5} />
                     </div>
-                    <h4 className="font-bold text-sm text-slate-900 tracking-tight">Export Backup</h4>
+                    <h4 className="font-bold text-sm text-slate-900 tracking-tight">Export JSON Backup</h4>
                     <p className="text-[9px] font-semibold text-slate-400 mt-1 mb-4 leading-relaxed uppercase tracking-widest">Download secure JSON snapshot.</p>
-                    <button onClick={handleExportData} className="w-full py-2 rounded-lg font-bold uppercase tracking-widest text-[9px] border border-slate-100 hover:border-highlight hover:text-highlight transition-all">Download Backup</button>
+                    <button onClick={handleExportData} className="w-full py-2 rounded-lg font-bold uppercase tracking-widest text-[9px] border border-slate-100 hover:border-[#8B5CF6] hover:text-[#8B5CF6] transition-all">Download JSON</button>
                   </div>
 
-                  <div className="p-6 border border-slate-50 rounded-xl bg-slate-50/50 hover:bg-white hover:border-highlight hover:shadow-sm transition-all group">
-                    <div className="w-10 h-10 bg-highlight/10 text-slate-900 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                  <div className="p-6 border border-slate-50 rounded-xl bg-slate-50/50 hover:bg-white hover:border-[#8B5CF6] hover:shadow-sm transition-all group">
+                    <div className="w-10 h-10 bg-[#8B5CF6]/10 text-slate-900 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                      <FileSpreadsheet size={18} strokeWidth={2.5} className="text-[#8B5CF6]" />
+                    </div>
+                    <h4 className="font-bold text-sm text-slate-900 tracking-tight">Export Excel Backup</h4>
+                    <p className="text-[9px] font-semibold text-slate-400 mt-1 mb-4 leading-relaxed uppercase tracking-widest">Download full database tables in Excel.</p>
+                    <button 
+                      onClick={() => {
+                        exportToExcel({ products, sales, rentals, customers, suppliers, stockLogs });
+                        showNotification('Excel backup downloaded.', 'success');
+                      }} 
+                      className="w-full py-2 rounded-lg font-bold uppercase tracking-widest text-[9px] border border-slate-100 hover:border-[#8B5CF6] hover:text-[#8B5CF6] transition-all"
+                    >
+                      Download Excel
+                    </button>
+                  </div>
+
+                  <div className="p-6 border border-slate-50 rounded-xl bg-slate-50/50 hover:bg-white hover:border-[#8B5CF6] hover:shadow-sm transition-all group">
+                    <div className="w-10 h-10 bg-[#8B5CF6]/10 text-slate-900 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                       <Upload size={18} strokeWidth={2.5} />
                     </div>
                     <h4 className="font-bold text-sm text-slate-900 tracking-tight">Restore Data</h4>
-                    <p className="text-[9px] font-semibold text-slate-400 mt-1 mb-4 leading-relaxed uppercase tracking-widest">Upload backup file.</p>
+                    <p className="text-[9px] font-semibold text-slate-400 mt-1 mb-4 leading-relaxed uppercase tracking-widest">Upload JSON backup file.</p>
                     <input 
                       type="file" 
                       ref={fileInputRef} 
@@ -376,7 +395,7 @@ const Settings: React.FC = () => {
                       accept=".json" 
                       onChange={handleFileChange}
                     />
-                    <button onClick={handleImportClick} className="w-full py-2 rounded-lg font-bold uppercase tracking-widest text-[9px] border border-slate-100 hover:border-highlight hover:text-highlight transition-all">Upload Backup File</button>
+                    <button onClick={handleImportClick} className="w-full py-2 rounded-lg font-bold uppercase tracking-widest text-[9px] border border-slate-100 hover:border-[#8B5CF6] hover:text-[#8B5CF6] transition-all">Upload Backup File</button>
                   </div>
                 </div>
                </div>

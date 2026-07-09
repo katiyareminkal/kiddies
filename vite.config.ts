@@ -15,6 +15,9 @@ export default defineConfig(({ mode }) => {
         VitePWA({
           registerType: 'autoUpdate',
           includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
+          devOptions: {
+            enabled: true
+          },
           manifest: {
             name: 'Kiddies | Premium Kids Wear Management',
             short_name: 'Kiddies',

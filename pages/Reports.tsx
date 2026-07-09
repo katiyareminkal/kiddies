@@ -14,9 +14,10 @@ import {
   Cell, PieChart, Pie, Legend
 } from 'recharts';
 import { subDays, isAfter, format, parseISO } from 'date-fns';
+import { OrderStatus } from '../types';
 
 const Reports: React.FC = () => {
-  const { sales, rentals, products } = useApp();
+  const { sales, rentals, products, expenses } = useApp();
   const [timeRange, setTimeRange] = useState<'7D' | '30D' | 'ALL'>('30D');
 
   // Filter Data based on Time Range
@@ -27,11 +28,16 @@ const Reports: React.FC = () => {
     if (timeRange === '7D') startDate = subDays(now, 7);
     if (timeRange === '30D') startDate = subDays(now, 30);
 
-    const filteredSales = sales.filter(s => isAfter(parseISO(s.date), startDate));
+    const filteredSales = sales.filter(s => 
+      s.orderStatus !== OrderStatus.RETURNED && 
+      s.orderStatus !== OrderStatus.CANCELLED && 
+      isAfter(parseISO(s.date), startDate)
+    );
     const filteredRentals = rentals.filter(r => isAfter(parseISO(r.date), startDate));
+    const filteredExpenses = expenses.filter(e => isAfter(parseISO(e.date), startDate));
 
-    return { sales: filteredSales, rentals: filteredRentals };
-  }, [sales, rentals, timeRange]);
+    return { sales: filteredSales, rentals: filteredRentals, expenses: filteredExpenses };
+  }, [sales, rentals, expenses, timeRange]);
 
   // Calculations for Summary Cards
   const summary = useMemo(() => {
@@ -39,8 +45,9 @@ const Reports: React.FC = () => {
     const rentalRevenue = filteredData.rentals.reduce((acc, r) => acc + r.totalRentAmount, 0);
     const totalRevenue = salesRevenue + rentalRevenue;
     
-    // Net Payout (Sales Net + Rental Revenue)
-    const netPayout = filteredData.sales.reduce((acc, s) => acc + s.netPayout, 0) + rentalRevenue;
+    // Net Payout minus Expenses
+    const totalExpenses = filteredData.expenses.reduce((acc, e) => acc + e.amount, 0);
+    const netPayout = (filteredData.sales.reduce((acc, s) => acc + s.netPayout, 0) + rentalRevenue) - totalExpenses;
     
     const totalOrders = filteredData.sales.length + filteredData.rentals.length;
     const avgOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
@@ -311,6 +318,61 @@ const Reports: React.FC = () => {
                       <Download size={18} strokeWidth={3} /> Download Report
                   </button>
               </div>
+          </div>
+      </div>
+
+      {/* Expense & Cash Out Ledger Section */}
+      <div className="p-8 nano-card">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+              <div>
+                  <h3 className="text-[11px] font-black text-slate-900 uppercase tracking-[0.2em]">Expense & Cash Out Ledger</h3>
+                  <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mt-1">Audit log of cash withdrawals and personal/family goods taken</p>
+              </div>
+          </div>
+          <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                  <thead>
+                      <tr className="text-slate-300 border-b border-slate-50">
+                          <th className="pb-4 font-black uppercase text-[9px] tracking-widest">Date</th>
+                          <th className="pb-4 font-black uppercase text-[9px] tracking-widest">Type</th>
+                          <th className="pb-4 font-black uppercase text-[9px] tracking-widest">Item details</th>
+                          <th className="pb-4 font-black uppercase text-[9px] tracking-widest">Paid To</th>
+                          <th className="pb-4 font-black uppercase text-[9px] tracking-widest">Reason</th>
+                          <th className="pb-4 font-black uppercase text-[9px] tracking-widest text-right">Amount</th>
+                      </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-50">
+                      {filteredData.expenses.map((exp) => {
+                          const product = products.find(p => p.id === exp.productId);
+                          return (
+                              <tr key={exp.id} className="hover:bg-slate-50/50 transition-colors">
+                                  <td className="py-4 font-black text-slate-900 text-[11px]">{format(new Date(exp.date), 'dd MMM yyyy')}</td>
+                                  <td className="py-4">
+                                      <span className={`inline-block px-2.5 py-1 rounded-lg text-[8px] font-black uppercase tracking-wider ${
+                                          exp.type === 'CASH_OUT' ? 'bg-amber-100 text-amber-700' : 'bg-indigo-100 text-indigo-700'
+                                      }`}>
+                                          {exp.type === 'CASH_OUT' ? 'Cash Out' : 'Goods Taken'}
+                                      </span>
+                                  </td>
+                                  <td className="py-4 font-black text-slate-500 text-[10px] uppercase tracking-wider">
+                                      {exp.type === 'GOODS_CONSUMPTION' && product 
+                                          ? `${product.name} (Qty: ${exp.quantity})`
+                                          : '-'
+                                      }
+                                  </td>
+                                  <td className="py-4 font-black text-slate-700 text-[10px] uppercase">{exp.paidTo || '-'}</td>
+                                  <td className="py-4 font-black text-slate-600 text-[10px]">{exp.reason}</td>
+                                  <td className="py-4 text-right font-mono font-black text-rose-500">{formatCurrency(exp.amount)}</td>
+                              </tr>
+                          );
+                      })}
+                      {filteredData.expenses.length === 0 && (
+                          <tr>
+                              <td colSpan={6} className="py-12 text-center text-slate-300 font-black uppercase tracking-widest text-[9px]">No expenses recorded in this period</td>
+                          </tr>
+                      )}
+                  </tbody>
+              </table>
           </div>
       </div>
     </div>
