@@ -18,6 +18,9 @@ export default defineConfig(({ mode }) => {
           devOptions: {
             enabled: true
           },
+          workbox: {
+            maximumFileSizeToCacheInBytes: 5242880 // 5 MB
+          },
           manifest: {
             name: 'Kiddies | Premium Kids Wear Management',
             short_name: 'Kiddies',
