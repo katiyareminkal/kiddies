@@ -259,7 +259,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
             quantity: item.quantity,
             unitPrice: Number(item.unit_price),
             taxAmount: Number(item.tax_amount),
-            total: Number(item.total)
+            total: Number(item.total),
+            returnedQuantity: Number(item.returned_quantity || 0)
           }));
 
         return {
@@ -1085,9 +1086,34 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       // Determine new order status safely
       let newOrderStatus = OrderStatus.PARTIALLY_RETURNED;
       
-      // 4. Update Sale in DB
+      // 4. Update Sale items in DB
+      const { error: itemUpdateError } = await supabase.from('sale_items').update({
+        returned_quantity: targetItem.returnedQuantity
+      }).eq('sale_id', saleId).eq('product_id', targetItem.productId);
+      
+      if (itemUpdateError) throw itemUpdateError;
+
+      // 5. Insert new exchange item into sale_items if present
+      if (exchangeProductId && exchangeQty) {
+        const newProduct = state.products.find(p => p.id === exchangeProductId);
+        if (newProduct) {
+          const newItemTax = (newProduct.sellingPrice * (newProduct.taxPercent || 0)) / 100;
+          const { error: itemInsertError } = await supabase.from('sale_items').insert({
+            sale_id: saleId,
+            product_id: newProduct.id,
+            name: newProduct.name,
+            quantity: exchangeQty,
+            unit_price: newProduct.sellingPrice,
+            tax_amount: newItemTax,
+            total: exchangeItemTotal,
+            returned_quantity: 0
+          });
+          if (itemInsertError) throw itemInsertError;
+        }
+      }
+
+      // 6. Update Sale totals in DB
       const { error } = await supabase.from('sales').update({
-        items: newItems,
         total_amount: newTotalAmount,
         net_payout: newNetPayout,
         order_status: newOrderStatus
