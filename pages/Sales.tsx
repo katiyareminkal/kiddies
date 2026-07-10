@@ -339,8 +339,8 @@ const SaleDetailsModal: React.FC<{ saleId: string; onClose: () => void }> = ({ s
     sale.items.forEach(item => {
       itemsHtml += `
         <tr>
-          <td style="padding: 3px 0; border-bottom: 1px dashed #ccc;">${item.name} <br/> <small style="font-size: 9px; color: #555;">${item.quantity} x ${item.unitPrice}</small></td>
-          <td style="padding: 3px 0; border-bottom: 1px dashed #ccc; text-align: right;">${item.total.toFixed(2)}</td>
+          <td style="padding: 4px 0; border-bottom: 1px dashed #ccc;">${item.name} <br/> <small style="font-size: 15px; color: #555;">${item.quantity} x ${item.unitPrice}</small></td>
+          <td style="padding: 4px 0; border-bottom: 1px dashed #ccc; text-align: right;">${item.total.toFixed(2)}</td>
         </tr>
       `;
       textReceipt += `${item.name}\n${item.quantity} x ${item.unitPrice} = ${item.total.toFixed(2)}\n`;
@@ -360,14 +360,14 @@ const SaleDetailsModal: React.FC<{ saleId: string; onClose: () => void }> = ({ s
           <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
           <style>
             body { font-family: 'Courier New', Courier, monospace; margin: 0; padding: 0; background: #f1f5f9; color: #000; }
-            .receipt-container { width: 220px; margin: 20px auto; padding: 15px; background: #fff; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); border-radius: 8px; }
-            h2 { text-align: center; margin: 0 0 8px 0; font-size: 14px; line-height: 1.2; }
-            p { text-align: center; margin: 0 0 8px 0; font-size: 10px; line-height: 1.2; }
-            table { width: 100%; border-collapse: collapse; margin-bottom: 12px; font-size: 10px; }
+            .receipt-container { width: 384px; margin: 20px auto; padding: 10px; background: #fff; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); border-radius: 8px; box-sizing: border-box; }
+            h2 { text-align: center; margin: 0 0 12px 0; font-size: 24px; line-height: 1.2; }
+            p { text-align: center; margin: 0 0 12px 0; font-size: 18px; line-height: 1.2; }
+            table { width: 100%; border-collapse: collapse; margin-bottom: 16px; font-size: 18px; }
             td { vertical-align: top; }
-            .total-row { font-weight: bold; font-size: 12px; }
+            .total-row { font-weight: bold; font-size: 22px; }
             .center { text-align: center; }
-            .mb-2 { margin-bottom: 8px; }
+            .mb-2 { margin-bottom: 12px; }
             
             .toolbar { display: flex; gap: 10px; justify-content: center; padding: 15px; background: #fff; border-bottom: 1px solid #e2e8f0; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
             .btn { flex: 1; max-width: 150px; padding: 12px 15px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-family: system-ui, sans-serif; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 6px; }
@@ -417,7 +417,7 @@ const SaleDetailsModal: React.FC<{ saleId: string; onClose: () => void }> = ({ s
                 const container = document.querySelector('.receipt-container');
                 // Use html2canvas to convert the receipt to an image
                 const canvas = await html2canvas(container, {
-                  scale: 2, // High resolution for thermal printers
+                  scale: 1, // 1:1 pixel mapping to strictly enforce 384px width
                   backgroundColor: '#ffffff'
                 });
                 
