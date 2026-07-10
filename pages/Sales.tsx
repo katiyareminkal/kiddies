@@ -726,7 +726,7 @@ const SaleDetailsModal: React.FC<{ saleId: string; onClose: () => void }> = ({ s
                      </div>
                      
                      {/* Linking Logic for Custom Items */}
-                     {item.productId.startsWith('CUSTOM_') && (
+                     {item.productId?.startsWith('CUSTOM_') && (
                         <div className="mt-3 pt-3 border-t border-slate-50">
                            {linkingItemId === item.productId ? (
                               <div className="space-y-2">
@@ -780,7 +780,7 @@ const SaleDetailsModal: React.FC<{ saleId: string; onClose: () => void }> = ({ s
                         </div>
                      )}
                      {/* Return/Exchange Action */}
-                     {item.quantity - (item.returnedQuantity || 0) > 0 && !item.productId.startsWith('CUSTOM_') && (
+                     {item.quantity - (item.returnedQuantity || 0) > 0 && !item.productId?.startsWith('CUSTOM_') && (
                         <div className="mt-3 pt-3 border-t border-slate-50 flex justify-end">
                            <button 
                              onClick={() => setReturnModalState({ isOpen: true, itemIndex: idx, item })}
