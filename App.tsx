@@ -13,6 +13,7 @@ import Reports from './pages/Reports';
 import Users from './pages/Users';
 import Login from './pages/Login';
 import More from './pages/More';
+import { Modal } from './components/Shared';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   LayoutDashboard, 
@@ -73,13 +74,51 @@ const Logo: React.FC<{ size?: 'sm' | 'md' | 'lg', onClick?: () => void }> = ({ s
   );
 };
 
+const InstallGuideModal: React.FC<{ isOpen: boolean; onClose: () => void; isIOS: boolean }> = ({ isOpen, onClose, isIOS }) => {
+  return (
+    <Modal isOpen={isOpen} onClose={onClose} title="Install Kiddies App">
+      <div className="p-4 space-y-6 flex flex-col items-center text-center">
+        <div className="w-16 h-16 bg-[#8B5CF6]/10 text-[#8B5CF6] rounded-full flex items-center justify-center mb-2">
+          <Download size={32} strokeWidth={2.5} />
+        </div>
+        
+        {isIOS ? (
+          <div>
+            <h3 className="text-lg font-black text-slate-900 tracking-tight mb-2">Install on iOS</h3>
+            <p className="text-sm font-semibold text-slate-500 mb-4">Apple requires a manual step to install web apps.</p>
+            <ol className="text-sm text-slate-600 space-y-3 text-left bg-slate-50 p-4 rounded-xl border border-slate-100">
+              <li className="flex gap-2"><strong>1.</strong> Tap the <b>Share</b> icon at the bottom of Safari.</li>
+              <li className="flex gap-2"><strong>2.</strong> Scroll down and tap <b>Add to Home Screen</b>.</li>
+            </ol>
+          </div>
+        ) : (
+          <div>
+            <h3 className="text-lg font-black text-slate-900 tracking-tight mb-2">Browser Install Blocked</h3>
+            <p className="text-sm font-semibold text-slate-500 mb-4">Your browser has blocked the automatic install prompt. You can still install it manually!</p>
+            <div className="text-sm text-slate-600 bg-slate-50 p-4 rounded-xl border border-slate-100 font-medium">
+              Look for the <b>Install</b> icon (a screen with a down arrow) at the far right of your browser's top address bar and click it.
+            </div>
+          </div>
+        )}
+        
+        <button onClick={onClose} className="w-full bg-slate-900 text-white rounded-xl py-3 text-[11px] font-black uppercase tracking-widest hover:bg-slate-800 transition-colors">
+          Got it
+        </button>
+      </div>
+    </Modal>
+  );
+};
+
 const Sidebar: React.FC<{ activeTab: string; onTabChange: (id: string) => void }> = ({ activeTab, onTabChange }) => {
   const { currentUser } = useApp();
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [isStandalone, setIsStandalone] = useState(false);
+  const [showInstallGuide, setShowInstallGuide] = useState(false);
+  const [isIOSDevice, setIsIOSDevice] = useState(false);
 
   useEffect(() => {
     setIsStandalone(window.matchMedia('(display-mode: standalone)').matches || (navigator as any).standalone);
+    setIsIOSDevice(/iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream);
     
     const handleBeforeInstallPrompt = (e: any) => {
       e.preventDefault();
@@ -91,12 +130,7 @@ const Sidebar: React.FC<{ activeTab: string; onTabChange: (id: string) => void }
 
   const handleInstallClick = async () => {
     if (!deferredPrompt) {
-      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
-      if (isIOS) {
-        alert("To install the app on iOS:\n\n1. Tap the 'Share' icon at the bottom of Safari.\n2. Tap 'Add to Home Screen'.");
-      } else {
-        alert("To install the app:\n\nLook for the Install icon (a screen with a down arrow) at the far right of your browser's top address bar and click it!");
-      }
+      setShowInstallGuide(true);
       return;
     }
     deferredPrompt.prompt();
@@ -188,6 +222,7 @@ const Sidebar: React.FC<{ activeTab: string; onTabChange: (id: string) => void }
           </div>
         )}
       </div>
+      <InstallGuideModal isOpen={showInstallGuide} onClose={() => setShowInstallGuide(false)} isIOS={isIOSDevice} />
     </aside>
   );
 };
@@ -204,9 +239,12 @@ const TopBar: React.FC<{ activeTab: string; onTabChange: (id: string) => void }>
 
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [isStandalone, setIsStandalone] = useState(false);
+  const [showInstallGuide, setShowInstallGuide] = useState(false);
+  const [isIOSDevice, setIsIOSDevice] = useState(false);
 
   useEffect(() => {
     setIsStandalone(window.matchMedia('(display-mode: standalone)').matches || (navigator as any).standalone);
+    setIsIOSDevice(/iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream);
     
     const handleBeforeInstallPrompt = (e: any) => {
       e.preventDefault();
@@ -218,12 +256,7 @@ const TopBar: React.FC<{ activeTab: string; onTabChange: (id: string) => void }>
 
   const handleInstallClick = async () => {
     if (!deferredPrompt) {
-      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
-      if (isIOS) {
-        alert("To install the app on iOS:\n\n1. Tap the 'Share' icon at the bottom of Safari.\n2. Tap 'Add to Home Screen'.");
-      } else {
-        alert("To install the app:\n\nLook for the Install icon (a screen with a down arrow) at the far right of your browser's top address bar and click it!");
-      }
+      setShowInstallGuide(true);
       return;
     }
     deferredPrompt.prompt();
@@ -383,6 +416,8 @@ const TopBar: React.FC<{ activeTab: string; onTabChange: (id: string) => void }>
         </div>
       </div>
     </header>
+      <InstallGuideModal isOpen={showInstallGuide} onClose={() => setShowInstallGuide(false)} isIOS={isIOSDevice} />
+    </>
   );
 };
 
