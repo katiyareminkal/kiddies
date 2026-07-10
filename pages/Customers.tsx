@@ -466,7 +466,42 @@ const Customers: React.FC = () => {
                  <button type="submit" className="banana-btn w-full sm:flex-1 h-14 text-[9px]">Record Payment</button>
               </div>
            </form>
-        </Modal>
+         </Modal>
+
+         {/* Issue Credit Note Modal */}
+         <Modal 
+            isOpen={isIssueCreditModalOpen} 
+            onClose={() => setIsIssueCreditModalOpen(false)} 
+            title={selectedCustomer ? `Issue Credit Note: ${selectedCustomer.name}` : 'Issue Credit Note'}
+         >
+            <form onSubmit={handleIssueCreditNote} className="space-y-6">
+               <div className="space-y-2">
+                  <label className="text-[9px] font-black uppercase text-slate-400 tracking-widest ml-2">Credit Amount (₹)</label>
+                  <input 
+                    name="amount" 
+                    type="number" 
+                    min={1}
+                    required 
+                    className="w-full px-4 py-3.5 bg-slate-50 border border-transparent focus:bg-white focus:border-highlight/30 rounded-2xl outline-none transition-all font-black text-slate-900 text-[11px]" 
+                    placeholder="e.g. 500" 
+                  />
+               </div>
+               <div className="space-y-2">
+                  <label className="text-[9px] font-black uppercase text-slate-400 tracking-widest ml-2">Reason / Description</label>
+                  <textarea 
+                    name="reason" 
+                    required
+                    className="w-full px-4 py-3 bg-slate-50 border border-transparent focus:bg-white focus:border-highlight/30 rounded-2xl outline-none transition-all font-black text-slate-900 text-[10px] min-h-[80px] resize-none" 
+                    placeholder="e.g. Returned defect product" 
+                  />
+               </div>
+
+               <div className="flex flex-col sm:flex-row gap-4 pt-4">
+                  <button type="button" onClick={() => setIsIssueCreditModalOpen(false)} className="w-full sm:flex-1 h-14 rounded-2xl font-black uppercase tracking-widest text-[9px] border border-slate-100 text-slate-400">Cancel</button>
+                  <button type="submit" className="banana-btn w-full sm:flex-1 h-14 text-[9px]">Issue Credit</button>
+               </div>
+            </form>
+         </Modal>
       </div>
     );
   }
@@ -550,41 +585,6 @@ const Customers: React.FC = () => {
         )}
 
       <CustomerFormModal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} />
-
-      {/* Issue Credit Note Modal */}
-      <Modal 
-         isOpen={isIssueCreditModalOpen} 
-         onClose={() => setIsIssueCreditModalOpen(false)} 
-         title={selectedCustomer ? `Issue Credit Note: ${selectedCustomer.name}` : 'Issue Credit Note'}
-      >
-         <form onSubmit={handleIssueCreditNote} className="space-y-6">
-            <div className="space-y-2">
-               <label className="text-[9px] font-black uppercase text-slate-400 tracking-widest ml-2">Credit Amount (₹)</label>
-               <input 
-                 name="amount" 
-                 type="number" 
-                 min={1}
-                 required 
-                 className="w-full px-4 py-3.5 bg-slate-50 border border-transparent focus:bg-white focus:border-highlight/30 rounded-2xl outline-none transition-all font-black text-slate-900 text-[11px]" 
-                 placeholder="e.g. 500" 
-               />
-            </div>
-            <div className="space-y-2">
-               <label className="text-[9px] font-black uppercase text-slate-400 tracking-widest ml-2">Reason / Description</label>
-               <textarea 
-                 name="reason" 
-                 required
-                 className="w-full px-4 py-3 bg-slate-50 border border-transparent focus:bg-white focus:border-highlight/30 rounded-2xl outline-none transition-all font-black text-slate-900 text-[10px] min-h-[80px] resize-none" 
-                 placeholder="e.g. Returned defect product" 
-               />
-            </div>
-
-            <div className="flex flex-col sm:flex-row gap-4 pt-4">
-               <button type="button" onClick={() => setIsIssueCreditModalOpen(false)} className="w-full sm:flex-1 h-14 rounded-2xl font-black uppercase tracking-widest text-[9px] border border-slate-100 text-slate-400">Cancel</button>
-               <button type="submit" className="banana-btn w-full sm:flex-1 h-14 text-[9px]">Issue Credit</button>
-            </div>
-         </form>
-      </Modal>
     </div>
   );
 };
