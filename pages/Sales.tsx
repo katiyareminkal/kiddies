@@ -1,5 +1,5 @@
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useApp } from '../store/AppContext';
 import { Card, Button } from '../components/Shared';
 import { CreateBillModal } from '../components/forms/CreateBillModal';
