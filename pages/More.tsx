@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../store/AppContext';
 import { 
   Users, 
@@ -14,16 +14,83 @@ import {
   Layers,
   Tag,
   Wallet,
-  UserPlus
+  Wallet,
+  UserPlus,
+  Download
 } from 'lucide-react';
 import { UserRole } from '../types';
+import { Modal } from '../components/Shared';
 
 interface MoreProps {
   onTabChange: (id: string) => void;
 }
 
+const InstallGuideModal: React.FC<{ isOpen: boolean; onClose: () => void; isIOS: boolean }> = ({ isOpen, onClose, isIOS }) => {
+  return (
+    <Modal isOpen={isOpen} onClose={onClose} title="Install Kiddies App">
+      <div className="p-4 space-y-6 flex flex-col items-center text-center">
+        <div className="w-16 h-16 bg-[#8B5CF6]/10 text-[#8B5CF6] rounded-full flex items-center justify-center mb-2">
+          <Download size={32} strokeWidth={2.5} />
+        </div>
+        
+        {isIOS ? (
+          <div>
+            <h3 className="text-lg font-black text-slate-900 tracking-tight mb-2">Install on iOS</h3>
+            <p className="text-sm font-semibold text-slate-500 mb-4">Apple requires a manual step to install web apps.</p>
+            <ol className="text-sm text-slate-600 space-y-3 text-left bg-slate-50 p-4 rounded-xl border border-slate-100">
+              <li className="flex gap-2"><strong>1.</strong> Tap the <b>Share</b> icon at the bottom of Safari.</li>
+              <li className="flex gap-2"><strong>2.</strong> Scroll down and tap <b>Add to Home Screen</b>.</li>
+            </ol>
+          </div>
+        ) : (
+          <div>
+            <h3 className="text-lg font-black text-slate-900 tracking-tight mb-2">Browser Install Blocked</h3>
+            <p className="text-sm font-semibold text-slate-500 mb-4">Your browser has blocked the automatic install prompt. You can still install it manually!</p>
+            <div className="text-sm text-slate-600 bg-slate-50 p-4 rounded-xl border border-slate-100 font-medium">
+              Look for the <b>Install</b> icon (a screen with a down arrow) at the far right of your browser's top address bar and click it.
+            </div>
+          </div>
+        )}
+        
+        <button onClick={onClose} className="w-full bg-slate-900 text-white rounded-xl py-3 text-[11px] font-black uppercase tracking-widest hover:bg-slate-800 transition-colors">
+          Got it
+        </button>
+      </div>
+    </Modal>
+  );
+};
+
 const More: React.FC<MoreProps> = ({ onTabChange }) => {
   const { currentUser, logout } = useApp();
+  
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [isStandalone, setIsStandalone] = useState(false);
+  const [showInstallGuide, setShowInstallGuide] = useState(false);
+  const [isIOSDevice, setIsIOSDevice] = useState(false);
+
+  useEffect(() => {
+    setIsStandalone(window.matchMedia('(display-mode: standalone)').matches || (navigator as any).standalone);
+    setIsIOSDevice(/iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream);
+    
+    const handleBeforeInstallPrompt = (e: any) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+  }, []);
+
+  const handleInstallClick = async () => {
+    if (!deferredPrompt) {
+      setShowInstallGuide(true);
+      return;
+    }
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted') {
+      setDeferredPrompt(null);
+    }
+  };
 
   const menuGroups = [
     {
@@ -44,6 +111,7 @@ const More: React.FC<MoreProps> = ({ onTabChange }) => {
     {
       title: 'System',
       items: [
+        ...(!isStandalone ? [{ id: 'install', label: 'Install App', icon: <Download size={18} />, color: 'text-[#8B5CF6]', bg: 'bg-[#8B5CF6]/10' }] : []),
         { id: 'backup', label: 'Backup & Restore', icon: <Database size={18} />, color: 'text-slate-400', bg: 'bg-slate-50' },
         { id: 'help', label: 'Help & Support', icon: <HelpCircle size={18} />, color: 'text-slate-400', bg: 'bg-slate-50' },
       ]
@@ -83,7 +151,13 @@ const More: React.FC<MoreProps> = ({ onTabChange }) => {
               {group.items.filter(canAccess).map((item, itemIdx) => (
                 <button
                   key={item.id}
-                  onClick={() => onTabChange(item.id)}
+                  onClick={() => {
+                    if (item.id === 'install') {
+                      handleInstallClick();
+                    } else {
+                      onTabChange(item.id);
+                    }
+                  }}
                   className={`w-full flex items-center justify-between p-5 hover:bg-slate-50 transition-colors group ${itemIdx !== group.items.length - 1 ? 'border-b border-slate-50' : ''}`}
                 >
                   <div className="flex items-center gap-4">
@@ -108,6 +182,7 @@ const More: React.FC<MoreProps> = ({ onTabChange }) => {
           Sign Out
         </button>
       </div>
+      <InstallGuideModal isOpen={showInstallGuide} onClose={() => setShowInstallGuide(false)} isIOS={isIOSDevice} />
     </div>
   );
 };
