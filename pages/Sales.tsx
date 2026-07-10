@@ -406,6 +406,7 @@ const SaleDetailsModal: React.FC<{ saleId: string; onClose: () => void }> = ({ s
           </div>
           
           <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+          <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
           <script>
             async function shareReceipt() {
               const btn = document.querySelector('.btn-share');
@@ -415,37 +416,48 @@ const SaleDetailsModal: React.FC<{ saleId: string; onClose: () => void }> = ({ s
 
               try {
                 const container = document.querySelector('.receipt-container');
-                // Use html2canvas to convert the receipt to an image
+                // Use html2canvas to convert the receipt to a high-res image first
                 const canvas = await html2canvas(container, {
-                  scale: 1, // 1:1 pixel mapping to strictly enforce 384px width
+                  scale: 2, // High resolution for sharp text
                   backgroundColor: '#ffffff'
                 });
                 
-                canvas.toBlob(async (blob) => {
-                  if (!blob) {
-                    alert('Failed to generate receipt image.');
-                    return;
-                  }
-                  
-                  const file = new File([blob], 'receipt_${sale.invoiceNumber}.png', { type: 'image/png' });
-                  
-                  if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                    await navigator.share({
-                      title: 'Receipt ${sale.invoiceNumber}',
-                      files: [file]
-                    });
-                  } else {
-                    // Fallback to sharing plain text if image sharing is unsupported
-                    const text = '${escapedTextReceipt}';
-                    await navigator.share({
-                      title: 'Receipt ${sale.invoiceNumber}',
-                      text: text
-                    });
-                  }
-                  
-                  btn.innerHTML = originalText;
-                  btn.disabled = false;
-                }, 'image/png');
+                const imgData = canvas.toDataURL('image/png');
+                
+                // Force physical paper width to exactly 58mm
+                const pdfWidth = 58;
+                // Calculate proportional height in mm
+                const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+                
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF({
+                  orientation: 'portrait',
+                  unit: 'mm',
+                  format: [pdfWidth, pdfHeight]
+                });
+                
+                // Add the high-res image to the perfectly sized 58mm PDF page
+                pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+                const pdfBlob = pdf.output('blob');
+                
+                const file = new File([pdfBlob], 'receipt_${sale.invoiceNumber}.pdf', { type: 'application/pdf' });
+                
+                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                  await navigator.share({
+                    title: 'Receipt ${sale.invoiceNumber}',
+                    files: [file]
+                  });
+                } else {
+                  // Fallback to sharing plain text if PDF sharing is unsupported
+                  const text = '${escapedTextReceipt}';
+                  await navigator.share({
+                    title: 'Receipt ${sale.invoiceNumber}',
+                    text: text
+                  });
+                }
+                
+                btn.innerHTML = originalText;
+                btn.disabled = false;
                 
               } catch (err) {
                 console.error('Share failed:', err);
