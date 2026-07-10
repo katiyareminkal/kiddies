@@ -41,7 +41,8 @@ import {
   Eye,
   EyeOff,
   Sun,
-  Download
+  Download,
+  Loader2
 } from 'lucide-react';
 import { UserRole } from './types';
 import { formatDistanceToNow, parseISO } from 'date-fns';
@@ -526,8 +527,9 @@ const AppContent: React.FC = () => {
               repeat: Infinity, 
               repeatType: "reverse" 
             }}
-            className="h-32 object-contain drop-shadow-xl"
+            className="h-20 object-contain drop-shadow-md mb-6"
           />
+          <Loader2 size={24} className="text-[#8B5CF6] animate-spin opacity-80" strokeWidth={2.5} />
         </div>
       </div>
     );
