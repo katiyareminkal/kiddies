@@ -404,18 +404,53 @@ const SaleDetailsModal: React.FC<{ saleId: string; onClose: () => void }> = ({ s
             <p style="margin-top: 15px;">Thank you for your visit!</p>
           </div>
           
+          <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
           <script>
-            function shareReceipt() {
-              const text = '${escapedTextReceipt}';
-              if (navigator.share) {
-                navigator.share({
-                  title: 'Receipt ${sale.invoiceNumber}',
-                  text: text
-                }).catch(err => {
-                  console.error('Share failed:', err);
+            async function shareReceipt() {
+              const btn = document.querySelector('.btn-share');
+              const originalText = btn.innerHTML;
+              btn.innerHTML = '⏳ Preparing...';
+              btn.disabled = true;
+
+              try {
+                const container = document.querySelector('.receipt-container');
+                // Use html2canvas to convert the receipt to an image
+                const canvas = await html2canvas(container, {
+                  scale: 2, // High resolution for thermal printers
+                  backgroundColor: '#ffffff'
                 });
-              } else {
-                alert('Sharing is not supported on this browser.');
+                
+                canvas.toBlob(async (blob) => {
+                  if (!blob) {
+                    alert('Failed to generate receipt image.');
+                    return;
+                  }
+                  
+                  const file = new File([blob], 'receipt_${sale.invoiceNumber}.png', { type: 'image/png' });
+                  
+                  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                    await navigator.share({
+                      title: 'Receipt ${sale.invoiceNumber}',
+                      files: [file]
+                    });
+                  } else {
+                    // Fallback to sharing plain text if image sharing is unsupported
+                    const text = '${escapedTextReceipt}';
+                    await navigator.share({
+                      title: 'Receipt ${sale.invoiceNumber}',
+                      text: text
+                    });
+                  }
+                  
+                  btn.innerHTML = originalText;
+                  btn.disabled = false;
+                }, 'image/png');
+                
+              } catch (err) {
+                console.error('Share failed:', err);
+                alert('Sharing failed or was cancelled.');
+                btn.innerHTML = originalText;
+                btn.disabled = false;
               }
             }
           </script>
