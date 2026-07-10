@@ -247,15 +247,6 @@ const TopBar: React.FC<{ activeTab: string; onTabChange: (id: string) => void }>
       </div>
       
       <div className="flex items-center gap-2 md:gap-4" ref={dropdownRef}>
-          {!isStandalone && (
-            <button 
-              onClick={handleInstallClick}
-              className="md:hidden flex items-center gap-1.5 px-3 py-1.5 bg-[#8B5CF6] text-white hover:bg-[#7C3AED] rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-md shadow-[#8B5CF6]/30 active:scale-95 border border-white/20"
-            >
-              <Download size={14} strokeWidth={2.5} />
-              Install
-            </button>
-          )}
           <div className="relative">
             <button 
               onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
@@ -338,8 +329,6 @@ const TopBar: React.FC<{ activeTab: string; onTabChange: (id: string) => void }>
         </div>
       </div>
     </header>
-      <InstallGuideModal isOpen={showInstallGuide} onClose={() => setShowInstallGuide(false)} isIOS={isIOSDevice} />
-    </>
   );
 };
 
