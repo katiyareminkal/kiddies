@@ -14,7 +14,6 @@ import {
   Layers,
   Tag,
   Wallet,
-  Wallet,
   UserPlus,
   Download
 } from 'lucide-react';
