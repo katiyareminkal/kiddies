@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { useApp } from '../store/AppContext';
 import { Button, Modal } from '../components/Shared';
 import { ProductFormModal } from '../components/forms/ProductFormModal';
@@ -433,18 +434,21 @@ const Inventory: React.FC = () => {
       )}
 
       {/* Floating Action Button */}
-      <div className="fixed bottom-[80px] right-4 md:bottom-8 md:right-8 flex justify-end pointer-events-none z-40">
-        <button 
-          onClick={() => { 
-            setProductToEdit(null); 
-            setIsProductModalOpen(true); 
-          }}
-          className="pointer-events-auto bg-[#8B5CF6] hover:bg-[#7C3AED] text-white p-4 md:px-6 md:py-3.5 rounded-full shadow-[0_10px_30px_rgba(139,92,246,0.4)] flex items-center justify-center gap-2 hover:scale-105 active:scale-95 transition-all group border border-white/20"
-        >
-          <Plus size={24} strokeWidth={3} className="md:w-[16px] md:h-[16px]" />
-          <span className="hidden md:inline text-[10px] font-black uppercase tracking-widest">Add Product</span>
-        </button>
-      </div>
+      {createPortal(
+        <div className="fixed bottom-[80px] right-4 md:bottom-8 md:right-8 flex justify-end pointer-events-none z-[100]">
+          <button 
+            onClick={() => { 
+              setProductToEdit(null); 
+              setIsProductModalOpen(true); 
+            }}
+            className="pointer-events-auto bg-[#8B5CF6] hover:bg-[#7C3AED] text-white p-4 md:px-6 md:py-3.5 rounded-full shadow-[0_10px_30px_rgba(139,92,246,0.4)] flex items-center justify-center gap-2 hover:scale-105 active:scale-95 transition-all group border border-white/20"
+          >
+            <Plus size={24} strokeWidth={3} className="md:w-[16px] md:h-[16px]" />
+            <span className="hidden md:inline text-[10px] font-black uppercase tracking-widest">Add Product</span>
+          </button>
+        </div>,
+        document.body
+      )}
 
 
       <ProductFormModal isOpen={isProductModalOpen} onClose={() => setIsProductModalOpen(false)} productToEdit={productToEdit} />
