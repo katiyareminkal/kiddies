@@ -515,38 +515,19 @@ const AppContent: React.FC = () => {
         <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-highlight/5 rounded-full blur-[120px]"></div>
         
         <div className="relative z-10 flex flex-col items-center">
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.9 }}
+          <motion.img 
+            src="/logo.png"
+            alt="Kiddies Logo"
+            initial={{ opacity: 0.5, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
-            className="w-20 h-20 bg-highlight rounded-[2rem] shadow-banana flex items-center justify-center mb-8"
-          >
-             <div className="relative">
-                <div className="w-10 h-10 border-4 border-slate-900/10 rounded-full"></div>
-                <motion.div 
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
-                  className="w-10 h-10 border-4 border-slate-900 border-t-transparent rounded-full absolute top-0 left-0"
-                ></motion.div>
-             </div>
-          </motion.div>
-          
-          <motion.h1 
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="text-4xl font-black tracking-tighter leading-none font-display text-slate-900 mb-2"
-          >
-            Kiddies<span className="text-highlight">.</span>
-          </motion.h1>
-          <motion.p 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.4 }}
-            className="text-[9px] font-black text-slate-400 uppercase tracking-[0.5em] mb-10"
-          >
-            Premium Kids Wear
-          </motion.p>
+            transition={{ 
+              duration: 1, 
+              ease: "easeInOut", 
+              repeat: Infinity, 
+              repeatType: "reverse" 
+            }}
+            className="h-32 object-contain drop-shadow-xl"
+          />
         </div>
       </div>
     );
