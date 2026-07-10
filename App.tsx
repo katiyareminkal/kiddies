@@ -201,6 +201,37 @@ const TopBar: React.FC<{ activeTab: string; onTabChange: (id: string) => void }>
   
   const unreadCount = notifications.filter(n => !n.isRead).length;
 
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [isStandalone, setIsStandalone] = useState(false);
+
+  useEffect(() => {
+    setIsStandalone(window.matchMedia('(display-mode: standalone)').matches || (navigator as any).standalone);
+    
+    const handleBeforeInstallPrompt = (e: any) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+  }, []);
+
+  const handleInstallClick = async () => {
+    if (!deferredPrompt) {
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+      if (isIOS) {
+        alert("To install the app on iOS:\n\n1. Tap the 'Share' icon at the bottom of Safari.\n2. Tap 'Add to Home Screen'.");
+      } else {
+        alert("To install the app:\n\nLook for the Install icon (a screen with a down arrow) at the far right of your browser's top address bar and click it!");
+      }
+      return;
+    }
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted') {
+      setDeferredPrompt(null);
+    }
+  };
+
   useEffect(() => {
     if (isSearchOpen && searchInputRef.current) {
       searchInputRef.current.focus();
@@ -260,6 +291,15 @@ const TopBar: React.FC<{ activeTab: string; onTabChange: (id: string) => void }>
       </div>
       
       <div className="flex items-center gap-2 md:gap-4" ref={dropdownRef}>
+          {!isStandalone && (
+            <button 
+              onClick={handleInstallClick}
+              className="md:hidden flex items-center gap-1.5 px-3 py-1.5 bg-[#8B5CF6] text-white hover:bg-[#7C3AED] rounded-lg text-[10px] font-bold uppercase tracking-wider transition-colors shadow-sm"
+            >
+              <Cloud size={14} className="animate-pulse" />
+              App
+            </button>
+          )}
           <div className="relative">
             <button 
               onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
