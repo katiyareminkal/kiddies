@@ -248,7 +248,7 @@ const Customers: React.FC = () => {
               <div className="absolute -right-8 -bottom-8 w-24 h-24 bg-slate-800/50 rounded-full blur-2xl group-hover:bg-highlight/10 transition-all"></div>
             </div>
 
-            <div className="nano-card p-5 bg-emerald-950 text-white relative overflow-hidden group shadow-lg">
+            <div className="nano-card p-5 bg-emerald-950 text-white relative overflow-hidden group shadow-lg flex flex-col justify-between">
               <div className="relative z-10">
                 <div className="flex items-center gap-2 mb-4 text-emerald-300">
                   <Banknote size={14} strokeWidth={2.5} />
@@ -261,6 +261,11 @@ const Customers: React.FC = () => {
                 >
                   Issue Credit
                 </button>
+              </div>
+              <div className="relative z-10 mt-3 pt-3 border-t border-emerald-900/50">
+                <p className="text-[7px] text-emerald-300/80 uppercase font-black tracking-wider leading-relaxed">
+                  💡 How to use: Select this customer on the Sales page & toggle "Apply Store Credit" at checkout.
+                </p>
               </div>
               <div className="absolute -right-8 -bottom-8 w-24 h-24 bg-emerald-900/50 rounded-full blur-2xl group-hover:bg-highlight/10 transition-all"></div>
             </div>
@@ -325,7 +330,9 @@ const Customers: React.FC = () => {
                     ? `${t.items.length} Items` 
                     : isRental 
                     ? products.find(p => p.id === t.productId)?.name || 'Unknown Product'
-                    : `Credit Voucher: ${t.reason}`;
+                    : t.status === 'USED'
+                    ? `Credit Consumed: ${t.reason}`
+                    : `Credit Issued: ${t.reason}`;
                   
                   const total = isSale ? t.totalAmount : isRental ? t.totalRentAmount : t.amount;
                   const paid = t.paidAmount || 0;
@@ -363,6 +370,11 @@ const Customers: React.FC = () => {
                                Due: {format(new Date(t.expectedReturnDate), 'dd MMM')}
                             </div>
                           )}
+                          {isCreditNote && t.status === 'USED' && t.usedAt && (
+                            <div className="text-[8px] text-slate-400 mt-1 font-black uppercase tracking-widest">
+                              Consumed on: {format(new Date(t.usedAt), 'dd MMM yyyy')}
+                            </div>
+                          )}
                         </div>
                       </td>
                       <td className="px-6 py-5 text-right">
@@ -378,11 +390,11 @@ const Customers: React.FC = () => {
                                    Paid
                                 </span>
                              )}
-                             {isCreditNote && (
-                                <span className="text-[10px] font-black text-emerald-600 font-mono">
-                                   {formatCurrency(t.amount)}
-                                </span>
-                             )}
+                              {isCreditNote && (
+                                 <span className={`text-[10px] font-black font-mono ${t.status === 'USED' ? 'text-slate-400 line-through' : 'text-emerald-600'}`}>
+                                    {t.status === 'USED' ? '' : '+'}{formatCurrency(t.amount)} {t.status === 'USED' && '(Consumed)'}
+                                 </span>
+                              )}
                          </div>
                       </td>
                       <td className="px-6 py-5 text-center">
