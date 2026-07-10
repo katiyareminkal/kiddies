@@ -113,18 +113,7 @@ const Login: React.FC = () => {
       >
         {/* Logo Section */}
         <div className="flex flex-col items-center mb-8">
-          <div className="text-[#6AD4DD] mb-2">
-            <Shirt size={40} strokeWidth={1.5} />
-          </div>
-          <div className="flex text-5xl font-black tracking-tight mb-1">
-            <span className="text-[#FF7B7B]">k</span>
-            <span className="text-[#FFD93D]">i</span>
-            <span className="text-[#FF8AAE]">d</span>
-            <span className="text-[#A084E8]">d</span>
-            <span className="text-[#6AD4DD]">i</span>
-            <span className="text-[#F99417]">e</span>
-            <span className="text-[#F99417]">s</span>
-          </div>
+          <img src="/logo.png" alt="Kiddies Logo" className="h-16 object-contain mb-2" />
           <div className="flex items-center gap-3 text-[#A084E8] text-[10px] font-bold uppercase tracking-[0.3em]">
             <div className="h-[1.5px] w-6 bg-[#A084E8]/30"></div>
             kids wear

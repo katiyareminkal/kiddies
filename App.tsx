@@ -53,24 +53,16 @@ const canAccess = (user: any, moduleId: string) => {
 
 const Logo: React.FC<{ size?: 'sm' | 'md' | 'lg', onClick?: () => void }> = ({ size = 'md', onClick }) => {
   const sizeClasses = {
-    sm: { text: 'text-xl', sub: 'text-[6px]', w: 'w-2' },
-    md: { text: 'text-2xl', sub: 'text-[7px]', w: 'w-3' },
-    lg: { text: 'text-3xl', sub: 'text-[8px]', w: 'w-4' }
+    sm: { img: 'h-6', sub: 'text-[6px]', w: 'w-2' },
+    md: { img: 'h-10', sub: 'text-[7px]', w: 'w-3' },
+    lg: { img: 'h-14', sub: 'text-[8px]', w: 'w-4' }
   };
   
   const current = sizeClasses[size];
 
   return (
     <div className={`flex flex-col items-center ${onClick ? 'cursor-pointer' : ''}`} onClick={onClick}>
-      <div className={`flex ${current.text} font-black tracking-tight mb-0.5`}>
-        <span className="text-[#FF7B7B]">k</span>
-        <span className="text-[#FFD93D]">i</span>
-        <span className="text-[#FF8AAE]">d</span>
-        <span className="text-[#A084E8]">d</span>
-        <span className="text-[#6AD4DD]">i</span>
-        <span className="text-[#F99417]">e</span>
-        <span className="text-[#F99417]">s</span>
-      </div>
+      <img src="/logo.png" alt="Kiddies Logo" className={`${current.img} object-contain mb-1`} />
       <div className={`flex items-center gap-1.5 text-[#A084E8] ${current.sub} font-bold uppercase tracking-[0.3em]`}>
         <div className={`h-[1px] ${current.w} bg-[#A084E8]/30`}></div>
         kids wear
