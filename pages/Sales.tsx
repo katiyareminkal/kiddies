@@ -826,6 +826,14 @@ const SaleDetailsModal: React.FC<{ saleId: string; onClose: () => void }> = ({ s
            </div>
         </div>
       </div>
+      
+      <ReturnExchangeModal 
+        isOpen={returnModalState.isOpen}
+        onClose={() => setReturnModalState({ isOpen: false, itemIndex: -1, item: null })}
+        saleId={sale.id}
+        itemIndex={returnModalState.itemIndex}
+        item={returnModalState.item}
+      />
     </div>
   );
 };
