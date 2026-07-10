@@ -28,37 +28,6 @@ const Settings: React.FC = () => {
   const [notification, setNotification] = useState<{message: string, type: 'success' | 'error'} | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
-  // PWA Install State
-  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
-  const [isStandalone, setIsStandalone] = useState(false);
-
-  useEffect(() => {
-    setIsStandalone(window.matchMedia('(display-mode: standalone)').matches || (navigator as any).standalone);
-    const handleBeforeInstallPrompt = (e: any) => {
-      e.preventDefault();
-      setDeferredPrompt(e);
-    };
-    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-    return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-  }, []);
-
-  const handleInstallClick = async () => {
-    if (!deferredPrompt) {
-      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
-      if (isIOS) {
-        showNotification("To install on iOS: Tap Share -> Add to Home Screen", "error");
-      } else {
-        showNotification("Already installed, or browser blocked prompt. Use browser menu to install.", "error");
-      }
-      return;
-    }
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    if (outcome === 'accepted') {
-      setDeferredPrompt(null);
-    }
-  };
-  
   // Logo Upload State
   const [logoPreview, setLogoPreview] = useState<string | null>(storeProfile.logo || null);
   const [selectedLogoFile, setSelectedLogoFile] = useState<File | null>(null);
@@ -361,40 +330,6 @@ const Settings: React.FC = () => {
                                     <label className="text-[9px] font-bold uppercase tracking-widest text-slate-400 ml-1">System Currency</label>
                                     <input name="currency" disabled value="₹" className="w-full px-4 py-2 bg-slate-100 text-slate-400 border border-transparent rounded-lg outline-none font-semibold cursor-not-allowed text-[11px]" />
                                 </div>
-                            </div>
-                        </div>
-
-                        {/* Section: Installation & App */}
-                        <div>
-                            <div className="flex items-center gap-2 mb-4">
-                                <div className="w-6 h-6 rounded-lg bg-[#8B5CF6]/10 text-[#8B5CF6] flex items-center justify-center shadow-sm">
-                                    <MonitorSmartphone size={12} strokeWidth={2.5} />
-                                </div>
-                                <h4 className="text-[9px] font-bold uppercase tracking-widest text-slate-900">App Installation</h4>
-                            </div>
-                            <div className="p-5 bg-slate-50 rounded-xl border border-slate-100 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                                <div>
-                                    <p className="text-[11px] font-bold text-slate-900 uppercase tracking-tight">Progressive Web App</p>
-                                    <p className="text-[9px] font-semibold text-slate-400 mt-1 max-w-sm leading-relaxed">
-                                        Install Kiddies on your device for a native app experience, offline access, and an icon on your home screen.
-                                    </p>
-                                </div>
-                                
-                                {isStandalone ? (
-                                    <div className="px-4 py-2.5 bg-emerald-50 border border-emerald-100 rounded-xl flex items-center gap-2 text-emerald-600 shadow-sm">
-                                        <CheckCircle size={14} strokeWidth={2.5} />
-                                        <span className="text-[10px] font-black uppercase tracking-widest">App Installed</span>
-                                    </div>
-                                ) : (
-                                    <button 
-                                        type="button"
-                                        onClick={handleInstallClick}
-                                        className="w-full md:w-auto px-6 py-2.5 bg-[#8B5CF6] hover:bg-[#7C3AED] text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-md shadow-[#8B5CF6]/20 flex items-center justify-center gap-2"
-                                    >
-                                        <Download size={14} strokeWidth={2.5} />
-                                        Install App
-                                    </button>
-                                )}
                             </div>
                         </div>
 

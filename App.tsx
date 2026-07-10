@@ -74,72 +74,9 @@ const Logo: React.FC<{ size?: 'sm' | 'md' | 'lg', onClick?: () => void }> = ({ s
   );
 };
 
-const InstallGuideModal: React.FC<{ isOpen: boolean; onClose: () => void; isIOS: boolean }> = ({ isOpen, onClose, isIOS }) => {
-  return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Install Kiddies App">
-      <div className="p-4 space-y-6 flex flex-col items-center text-center">
-        <div className="w-16 h-16 bg-[#8B5CF6]/10 text-[#8B5CF6] rounded-full flex items-center justify-center mb-2">
-          <Download size={32} strokeWidth={2.5} />
-        </div>
-        
-        {isIOS ? (
-          <div>
-            <h3 className="text-lg font-black text-slate-900 tracking-tight mb-2">Install on iOS</h3>
-            <p className="text-sm font-semibold text-slate-500 mb-4">Apple requires a manual step to install web apps.</p>
-            <ol className="text-sm text-slate-600 space-y-3 text-left bg-slate-50 p-4 rounded-xl border border-slate-100">
-              <li className="flex gap-2"><strong>1.</strong> Tap the <b>Share</b> icon at the bottom of Safari.</li>
-              <li className="flex gap-2"><strong>2.</strong> Scroll down and tap <b>Add to Home Screen</b>.</li>
-            </ol>
-          </div>
-        ) : (
-          <div>
-            <h3 className="text-lg font-black text-slate-900 tracking-tight mb-2">Browser Install Blocked</h3>
-            <p className="text-sm font-semibold text-slate-500 mb-4">Your browser has blocked the automatic install prompt. You can still install it manually!</p>
-            <div className="text-sm text-slate-600 bg-slate-50 p-4 rounded-xl border border-slate-100 font-medium">
-              Look for the <b>Install</b> icon (a screen with a down arrow) at the far right of your browser's top address bar and click it.
-            </div>
-          </div>
-        )}
-        
-        <button onClick={onClose} className="w-full bg-slate-900 text-white rounded-xl py-3 text-[11px] font-black uppercase tracking-widest hover:bg-slate-800 transition-colors">
-          Got it
-        </button>
-      </div>
-    </Modal>
-  );
-};
-
 const Sidebar: React.FC<{ activeTab: string; onTabChange: (id: string) => void }> = ({ activeTab, onTabChange }) => {
   const { currentUser } = useApp();
-  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
-  const [isStandalone, setIsStandalone] = useState(false);
-  const [showInstallGuide, setShowInstallGuide] = useState(false);
-  const [isIOSDevice, setIsIOSDevice] = useState(false);
 
-  useEffect(() => {
-    setIsStandalone(window.matchMedia('(display-mode: standalone)').matches || (navigator as any).standalone);
-    setIsIOSDevice(/iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream);
-    
-    const handleBeforeInstallPrompt = (e: any) => {
-      e.preventDefault();
-      setDeferredPrompt(e);
-    };
-    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-    return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-  }, []);
-
-  const handleInstallClick = async () => {
-    if (!deferredPrompt) {
-      setShowInstallGuide(true);
-      return;
-    }
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    if (outcome === 'accepted') {
-      setDeferredPrompt(null);
-    }
-  };
-  
   return (
     <aside className="hidden md:flex flex-col w-64 bg-white h-screen border-r border-slate-100 shrink-0 relative">
       {/* Branding Area */}
@@ -188,41 +125,26 @@ const Sidebar: React.FC<{ activeTab: string; onTabChange: (id: string) => void }
         })}
       </nav>
 
-      {/* Sidebar Banner / Install App */}
+      {/* Sidebar Banner */}
       <div className="px-4 mb-6">
-        {!isStandalone ? (
-          <button 
-            onClick={handleInstallClick}
-            className="w-full bg-[#8B5CF6] hover:bg-[#7C3AED] text-white rounded-[2rem] p-5 shadow-xl shadow-[#8B5CF6]/20 transition-all flex flex-col items-center justify-center gap-1 group relative overflow-hidden"
-          >
-            <div className="absolute top-2 right-2 text-white/20 group-hover:rotate-12 transition-transform">
-              <Star size={20} fill="currentColor" />
-            </div>
-            <Cloud size={24} className="mb-1 animate-pulse" />
-            <span className="text-[12px] font-black uppercase tracking-widest mt-1">Install App</span>
-            <span className="text-[8px] font-bold text-white/70 uppercase tracking-widest mt-1">Get the Desktop App</span>
-          </button>
-        ) : (
-          <div className="bg-[#F3E8FF] rounded-[2rem] p-6 relative overflow-hidden group">
-            <div className="absolute top-2 right-2 text-[#A084E8] opacity-20 group-hover:rotate-12 transition-transform">
-              <Heart size={20} fill="currentColor" />
-            </div>
-            <div className="relative z-10">
-              <p className="text-[10px] font-bold text-[#8B5CF6] uppercase tracking-widest mb-1">Make every day</p>
-              <p className="text-sm font-black text-[#2D3648] leading-tight">a little stylish!</p>
-              <div className="mt-4 flex justify-center">
-                <div className="text-[#FFD93D] animate-bounce">
-                  <Star size={32} fill="currentColor" />
-                </div>
+        <div className="bg-[#F3E8FF] rounded-[2rem] p-6 relative overflow-hidden group">
+          <div className="absolute top-2 right-2 text-[#A084E8] opacity-20 group-hover:rotate-12 transition-transform">
+            <Heart size={20} fill="currentColor" />
+          </div>
+          <div className="relative z-10">
+            <p className="text-[10px] font-bold text-[#8B5CF6] uppercase tracking-widest mb-1">Make every day</p>
+            <p className="text-sm font-black text-[#2D3648] leading-tight">a little stylish!</p>
+            <div className="mt-4 flex justify-center">
+              <div className="text-[#FFD93D] animate-bounce">
+                <Star size={32} fill="currentColor" />
               </div>
             </div>
-            <div className="absolute -bottom-2 -left-2 text-[#6AD4DD] opacity-20">
-              <Cloud size={40} fill="currentColor" />
-            </div>
           </div>
-        )}
+          <div className="absolute -bottom-2 -left-2 text-[#6AD4DD] opacity-20">
+            <Cloud size={40} fill="currentColor" />
+          </div>
+        </div>
       </div>
-      <InstallGuideModal isOpen={showInstallGuide} onClose={() => setShowInstallGuide(false)} isIOS={isIOSDevice} />
     </aside>
   );
 };
