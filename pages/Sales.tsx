@@ -334,6 +334,8 @@ const SaleDetailsModal: React.FC<{ saleId: string; onClose: () => void }> = ({ s
     if (!printWindow) return;
 
     let itemsHtml = '';
+    let textReceipt = `Kiddies - Kids Wear\nSHOP NO. 203, 204 C-30\nPh: 097134 69928\n------------------------\nInv: ${sale.invoiceNumber}\nDate: ${format(parseISO(sale.date), 'dd MMM yyyy, hh:mm a')}\nCustomer: ${customer?.name || 'Walk-in'}\n------------------------\n`;
+
     sale.items.forEach(item => {
       itemsHtml += `
         <tr>
@@ -341,51 +343,87 @@ const SaleDetailsModal: React.FC<{ saleId: string; onClose: () => void }> = ({ s
           <td style="padding: 4px 0; border-bottom: 1px dashed #ccc; text-align: right; font-size: 12px;">${item.total.toFixed(2)}</td>
         </tr>
       `;
+      textReceipt += `${item.name}\n${item.quantity} x ${item.unitPrice} = ${item.total.toFixed(2)}\n`;
     });
+
+    textReceipt += `------------------------\nSubtotal: ${sale.totalAmount.toFixed(2)}\n`;
+    if (sale.discount > 0) textReceipt += `Discount: -${sale.discount.toFixed(2)}\n`;
+    textReceipt += `Total: Rs ${sale.netPayout.toFixed(2)}\n------------------------\nThank you for your visit!\n`;
+
+    // Make it safe for injecting into JS string
+    const escapedTextReceipt = textReceipt.replace(/\n/g, '\\n').replace(/'/g, "\\'");
 
     const html = `
       <html>
         <head>
           <title>Receipt ${sale.invoiceNumber}</title>
+          <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
           <style>
-            body { font-family: 'Courier New', Courier, monospace; width: 300px; margin: 0 auto; padding: 20px; color: #000; }
+            body { font-family: 'Courier New', Courier, monospace; margin: 0; padding: 0; background: #f1f5f9; color: #000; }
+            .receipt-container { width: 300px; margin: 20px auto; padding: 20px; background: #fff; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); border-radius: 8px; }
             h2 { text-align: center; margin: 0 0 10px 0; font-size: 18px; }
             p { text-align: center; margin: 0 0 10px 0; font-size: 12px; }
             table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
             .total-row { font-weight: bold; font-size: 14px; }
             .center { text-align: center; }
             .mb-2 { margin-bottom: 10px; }
+            
+            .toolbar { display: flex; gap: 10px; justify-content: center; padding: 15px; background: #fff; border-bottom: 1px solid #e2e8f0; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+            .btn { flex: 1; max-width: 150px; padding: 12px 15px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-family: system-ui, sans-serif; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 6px; }
+            .btn-print { background: #8B5CF6; color: white; }
+            .btn-share { background: #1E293B; color: white; }
+            
+            @media print {
+              .no-print { display: none !important; }
+              body { background: #fff; }
+              .receipt-container { box-shadow: none; margin: 0; padding: 0; width: 100%; border-radius: 0; }
+            }
           </style>
         </head>
         <body>
-          <h2>Kiddies – Kids Wear & Baby Clothing Store</h2>
-          <p>SHOP NO. 203, 204 C-30, next to HDFC Bank<br/>Ph: 097134 69928</p>
-          <hr style="border: 1px dashed #000;" />
-          <p class="mb-2"><strong>Inv: ${sale.invoiceNumber}</strong><br/>${format(parseISO(sale.date), 'dd MMM yyyy, hh:mm a')}</p>
-          <p class="mb-2">Customer: ${customer?.name || 'Walk-in'}</p>
-          <hr style="border: 1px dashed #000;" />
-          <table>
-            ${itemsHtml}
-          </table>
-          <div style="text-align: right; margin-bottom: 15px;">
-            <div>Subtotal: ${sale.totalAmount.toFixed(2)}</div>
-            ${sale.discount > 0 ? `<div>Discount: -${sale.discount.toFixed(2)}</div>` : ''}
-            <div class="total-row" style="margin-top: 5px;">Total: Rs ${sale.netPayout.toFixed(2)}</div>
+          <div class="toolbar no-print">
+            <button class="btn btn-print" onclick="window.print()">🖨️ Print</button>
+            <button class="btn btn-share" onclick="shareReceipt()">📤 Open With...</button>
           </div>
-          <hr style="border: 1px dashed #000;" />
-          <p style="margin-top: 15px;">Thank you for your visit!</p>
+          <div class="receipt-container">
+            <h2>Kiddies – Kids Wear & Baby Clothing Store</h2>
+            <p>SHOP NO. 203, 204 C-30, next to HDFC Bank<br/>Ph: 097134 69928</p>
+            <hr style="border: 1px dashed #000;" />
+            <p class="mb-2"><strong>Inv: ${sale.invoiceNumber}</strong><br/>${format(parseISO(sale.date), 'dd MMM yyyy, hh:mm a')}</p>
+            <p class="mb-2">Customer: ${customer?.name || 'Walk-in'}</p>
+            <hr style="border: 1px dashed #000;" />
+            <table>
+              ${itemsHtml}
+            </table>
+            <div style="text-align: right; margin-bottom: 15px;">
+              <div>Subtotal: ${sale.totalAmount.toFixed(2)}</div>
+              ${sale.discount > 0 ? `<div>Discount: -${sale.discount.toFixed(2)}</div>` : ''}
+              <div class="total-row" style="margin-top: 5px;">Total: Rs ${sale.netPayout.toFixed(2)}</div>
+            </div>
+            <hr style="border: 1px dashed #000;" />
+            <p style="margin-top: 15px;">Thank you for your visit!</p>
+          </div>
+          
+          <script>
+            function shareReceipt() {
+              const text = '${escapedTextReceipt}';
+              if (navigator.share) {
+                navigator.share({
+                  title: 'Receipt ${sale.invoiceNumber}',
+                  text: text
+                }).catch(err => {
+                  console.error('Share failed:', err);
+                });
+              } else {
+                alert('Sharing is not supported on this browser.');
+              }
+            }
+          </script>
         </body>
       </html>
     `;
     printWindow.document.write(html);
     printWindow.document.close();
-    
-    // Some browsers need a slight delay to render the HTML before printing
-    setTimeout(() => {
-      printWindow.focus();
-      printWindow.print();
-      printWindow.close();
-    }, 250);
   };
 
   const handleReturn = async () => {
