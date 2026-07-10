@@ -107,11 +107,10 @@ export const CreateBillModal: React.FC<CreateBillModalProps> = ({ isOpen, onClos
   const tax = includeGst ? (subtotal - discountAmount) * 0.05 : 0;
   const total = (subtotal - discountAmount) + tax;
 
-  // Store Credit Calculations
   const customerCredit = useMemo(() => {
     if (selectedCustomerId === 'GUEST') return 0;
     return creditNotes
-      .filter(cn => cn.customerId === selectedCustomerId && cn.status === 'ACTIVE')
+      .filter(cn => cn.customerId === selectedCustomerId && cn.status?.toUpperCase() === 'ACTIVE')
       .reduce((sum, cn) => sum + cn.amount, 0);
   }, [creditNotes, selectedCustomerId]);
 

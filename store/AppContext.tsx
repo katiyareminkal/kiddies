@@ -878,7 +878,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const consumeStoreCredit = async (customerId: string, amountToConsume: number, invoiceNumber: string) => {
     const activeCNs = state.creditNotes
-      .filter(cn => cn.customerId === customerId && cn.status === 'ACTIVE')
+      .filter(cn => cn.customerId === customerId && cn.status?.toUpperCase() === 'ACTIVE')
       .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
 
     let remainingToConsume = amountToConsume;

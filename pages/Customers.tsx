@@ -92,7 +92,7 @@ const Customers: React.FC = () => {
   const availableCredit = useMemo(() => {
     if (!selectedCustomerId) return 0;
     return creditNotes
-      .filter(cn => cn.customerId === selectedCustomerId && cn.status === 'ACTIVE')
+      .filter(cn => cn.customerId === selectedCustomerId && cn.status?.toUpperCase() === 'ACTIVE')
       .reduce((sum, cn) => sum + cn.amount, 0);
   }, [creditNotes, selectedCustomerId]);
 
@@ -152,7 +152,7 @@ const Customers: React.FC = () => {
                         cRentals.reduce((acc, r) => acc + (r.totalRentAmount - r.paidAmount), 0);
 
         const storeCredit = creditNotes
-          .filter(cn => cn.customerId === c.id && cn.status === 'ACTIVE')
+          .filter(cn => cn.customerId === c.id && cn.status?.toUpperCase() === 'ACTIVE')
           .reduce((sum, cn) => sum + cn.amount, 0);
         
         // Find last activity
