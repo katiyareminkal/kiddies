@@ -148,10 +148,14 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   // -- AUTH LISTENER --
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user) {
-        supabase.from('profiles').select('*').eq('id', session.user.id).single().then(({ data }) => {
-          if (data) {
+    let mounted = true;
+
+    const initializeAuth = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+          const { data } = await supabase.from('profiles').select('*').eq('id', session.user.id).single();
+          if (data && mounted) {
             setState(prev => ({
               ...prev,
               currentUser: {
@@ -164,18 +168,30 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
               }
             }));
           }
-        });
+        } else if (mounted) {
+          setState(prev => ({ ...prev, currentUser: null }));
+        }
+      } catch (error) {
+        console.error("Auth initialization error:", error);
+      } finally {
+        if (mounted) {
+          setIsAuthReady(true);
+        }
       }
-      setIsAuthReady(true);
-    });
+    };
+
+    initializeAuth();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'PASSWORD_RECOVERY') {
+      if (event === 'INITIAL_SESSION') return; // Handled by initializeAuth
+      
+      if (event === 'PASSWORD_RECOVERY' && mounted) {
         setIsPasswordRecovery(true);
       }
+      
       if (session?.user) {
         const { data } = await supabase.from('profiles').select('*').eq('id', session.user.id).single();
-        if (data) {
+        if (data && mounted) {
           setState(prev => ({
             ...prev,
             currentUser: {
@@ -188,13 +204,15 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
             }
           }));
         }
-      } else {
+      } else if (mounted) {
         setState(prev => ({ ...prev, currentUser: null }));
       }
-      setIsAuthReady(true);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
 
