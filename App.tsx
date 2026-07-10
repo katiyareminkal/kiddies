@@ -39,7 +39,8 @@ import {
   Lock,
   Eye,
   EyeOff,
-  Sun
+  Sun,
+  Download
 } from 'lucide-react';
 import { UserRole } from './types';
 import { formatDistanceToNow, parseISO } from 'date-fns';
@@ -294,10 +295,10 @@ const TopBar: React.FC<{ activeTab: string; onTabChange: (id: string) => void }>
           {!isStandalone && (
             <button 
               onClick={handleInstallClick}
-              className="md:hidden flex items-center gap-1.5 px-3 py-1.5 bg-[#8B5CF6] text-white hover:bg-[#7C3AED] rounded-lg text-[10px] font-bold uppercase tracking-wider transition-colors shadow-sm"
+              className="md:hidden flex items-center gap-1.5 px-3 py-1.5 bg-[#8B5CF6] text-white hover:bg-[#7C3AED] rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-md shadow-[#8B5CF6]/30 active:scale-95 border border-white/20"
             >
-              <Cloud size={14} className="animate-pulse" />
-              App
+              <Download size={14} strokeWidth={2.5} />
+              Install
             </button>
           )}
           <div className="relative">
