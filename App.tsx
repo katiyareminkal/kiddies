@@ -75,8 +75,11 @@ const Logo: React.FC<{ size?: 'sm' | 'md' | 'lg', onClick?: () => void }> = ({ s
 const Sidebar: React.FC<{ activeTab: string; onTabChange: (id: string) => void }> = ({ activeTab, onTabChange }) => {
   const { currentUser } = useApp();
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [isStandalone, setIsStandalone] = useState(false);
 
   useEffect(() => {
+    setIsStandalone(window.matchMedia('(display-mode: standalone)').matches || (navigator as any).standalone);
+    
     const handleBeforeInstallPrompt = (e: any) => {
       e.preventDefault();
       setDeferredPrompt(e);
@@ -86,7 +89,15 @@ const Sidebar: React.FC<{ activeTab: string; onTabChange: (id: string) => void }
   }, []);
 
   const handleInstallClick = async () => {
-    if (!deferredPrompt) return;
+    if (!deferredPrompt) {
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+      if (isIOS) {
+        alert("To install the app on iOS:\n\n1. Tap the 'Share' icon at the bottom of Safari.\n2. Tap 'Add to Home Screen'.");
+      } else {
+        alert("To install the app:\n\nLook for the Install icon (a screen with a down arrow) at the far right of your browser's top address bar and click it!");
+      }
+      return;
+    }
     deferredPrompt.prompt();
     const { outcome } = await deferredPrompt.userChoice;
     if (outcome === 'accepted') {
@@ -144,7 +155,7 @@ const Sidebar: React.FC<{ activeTab: string; onTabChange: (id: string) => void }
 
       {/* Sidebar Banner / Install App */}
       <div className="px-4 mb-6">
-        {deferredPrompt ? (
+        {!isStandalone ? (
           <button 
             onClick={handleInstallClick}
             className="w-full bg-[#8B5CF6] hover:bg-[#7C3AED] text-white rounded-[2rem] p-5 shadow-xl shadow-[#8B5CF6]/20 transition-all flex flex-col items-center justify-center gap-1 group relative overflow-hidden"
@@ -547,7 +558,7 @@ const AppContent: React.FC = () => {
             transition={{ delay: 0.4 }}
             className="text-[9px] font-black text-slate-400 uppercase tracking-[0.5em] mb-10"
           >
-            Nano Banana OS
+            Premium Kids Wear
           </motion.p>
         </div>
       </div>

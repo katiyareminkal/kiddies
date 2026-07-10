@@ -207,7 +207,7 @@ const Settings: React.FC = () => {
                      </div>
                      <div className="flex-1 w-full space-y-1.5">
                         <label className="text-[9px] font-bold uppercase tracking-widest text-slate-400 ml-1">Store Name</label>
-                        <input name="storeName" defaultValue={storeProfile.storeName} className="w-full px-4 py-2 bg-slate-50 border border-transparent focus:bg-white focus:border-highlight/30 rounded-lg outline-none transition-all font-bold text-lg text-slate-900 tracking-tight" placeholder="Nano Banana Store" />
+                        <input name="storeName" defaultValue={storeProfile.storeName} className="w-full px-4 py-2 bg-slate-50 border border-transparent focus:bg-white focus:border-highlight/30 rounded-lg outline-none transition-all font-bold text-lg text-slate-900 tracking-tight" placeholder="Kiddies Store" />
                      </div>
                 </div>
 
