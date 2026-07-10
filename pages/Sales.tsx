@@ -298,6 +298,205 @@ const Sales: React.FC = () => {
   );
 };
 
+// Sub-component for Partial Return / Exchange
+const ReturnExchangeModal: React.FC<{
+  isOpen: boolean;
+  onClose: () => void;
+  saleId: string;
+  itemIndex: number;
+  item: any; // InvoiceItem
+}> = ({ isOpen, onClose, saleId, itemIndex, item }) => {
+  const { products, processPartialReturnOrExchange } = useApp();
+  const [returnQty, setReturnQty] = useState(1);
+  const [isExchange, setIsExchange] = useState(false);
+  const [exchangeSearchTerm, setExchangeSearchTerm] = useState('');
+  const [exchangeProductId, setExchangeProductId] = useState<string | null>(null);
+  const [exchangeQty, setExchangeQty] = useState(1);
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  // Reset state on open
+  useEffect(() => {
+    if (isOpen) {
+      setReturnQty(1);
+      setIsExchange(false);
+      setExchangeSearchTerm('');
+      setExchangeProductId(null);
+      setExchangeQty(1);
+      setIsProcessing(false);
+    }
+  }, [isOpen]);
+
+  if (!isOpen || !item) return null;
+
+  const maxReturnable = item.quantity - (item.returnedQuantity || 0);
+  const selectedExchangeProduct = products.find(p => p.id === exchangeProductId);
+
+  const refundAmount = returnQty * (item.total / item.quantity);
+  let newChargeAmount = 0;
+  if (isExchange && selectedExchangeProduct) {
+    const tax = (selectedExchangeProduct.sellingPrice * (selectedExchangeProduct.taxPercent || 0)) / 100;
+    newChargeAmount = (selectedExchangeProduct.sellingPrice + tax) * exchangeQty;
+  }
+  const netDifference = newChargeAmount - refundAmount;
+
+  const handleSubmit = async () => {
+    if (returnQty < 1 || returnQty > maxReturnable) return alert("Invalid return quantity");
+    if (isExchange) {
+      if (!exchangeProductId) return alert("Select an item to exchange for");
+      if (exchangeQty < 1) return alert("Invalid exchange quantity");
+      if (selectedExchangeProduct && selectedExchangeProduct.saleStock < exchangeQty) return alert("Not enough stock for exchange item");
+    }
+
+    setIsProcessing(true);
+    try {
+      await processPartialReturnOrExchange(
+        saleId,
+        itemIndex,
+        returnQty,
+        isExchange ? exchangeProductId! : undefined,
+        isExchange ? exchangeQty : undefined
+      );
+      onClose();
+    } catch (err: any) {
+      alert(err.message || "Failed to process return/exchange");
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  return (
+    <div style={{ position: 'fixed', inset: 0, zIndex: 110, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(15,23,42,0.6)', backdropFilter: 'blur(4px)', padding: '24px' }}>
+      <div className="bg-white rounded-[2rem] shadow-2xl animate-nano text-left flex flex-col w-full max-w-md max-h-[90vh]">
+        <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50 rounded-t-[2rem]">
+          <div>
+            <h3 className="text-sm font-black text-slate-900 uppercase tracking-tight">Return / Exchange</h3>
+            <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-widest">{item.name}</p>
+          </div>
+          <button type="button" onClick={onClose} className="p-2 bg-white text-slate-400 hover:text-slate-600 rounded-xl hover:bg-slate-100 shadow-sm transition-all">
+            <X size={16} />
+          </button>
+        </div>
+
+        <div className="p-6 overflow-y-auto space-y-6">
+          <div className="space-y-2">
+            <label className="text-[9px] font-black uppercase text-slate-400 tracking-widest ml-2">Quantity to Return (Max: {maxReturnable})</label>
+            <input
+              type="number"
+              min={1}
+              max={maxReturnable}
+              value={returnQty}
+              onChange={(e) => setReturnQty(Number(e.target.value))}
+              className="w-full bg-slate-50 border border-transparent focus:bg-white focus:border-highlight/30 rounded-xl p-3 text-sm font-black outline-none transition-all"
+            />
+          </div>
+
+          <div className="flex gap-2 p-1 bg-slate-50 rounded-xl">
+            <button
+              onClick={() => setIsExchange(false)}
+              className={`flex-1 py-2 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${!isExchange ? 'bg-white shadow-sm text-slate-900' : 'text-slate-400 hover:text-slate-600'}`}
+            >
+              Just Return
+            </button>
+            <button
+              onClick={() => setIsExchange(true)}
+              className={`flex-1 py-2 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${isExchange ? 'bg-white shadow-sm text-slate-900' : 'text-slate-400 hover:text-slate-600'}`}
+            >
+              Exchange Item
+            </button>
+          </div>
+
+          {isExchange && (
+            <div className="space-y-4 p-4 border border-slate-100 rounded-2xl bg-slate-50/50">
+              <div className="space-y-2">
+                <label className="text-[9px] font-black uppercase text-slate-400 tracking-widest ml-2">Search Replacement Item</label>
+                <div className="relative">
+                  <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <input
+                    type="text"
+                    placeholder="Search by name or SKU..."
+                    value={exchangeSearchTerm}
+                    onChange={(e) => {
+                      setExchangeSearchTerm(e.target.value);
+                      setExchangeProductId(null);
+                    }}
+                    className="w-full bg-white border border-slate-200 focus:border-highlight/50 rounded-xl pl-9 pr-3 py-3 text-xs font-bold outline-none transition-all"
+                  />
+                </div>
+                {!exchangeProductId && exchangeSearchTerm.length > 1 && (
+                  <div className="bg-white border border-slate-100 rounded-xl shadow-lg mt-2 max-h-40 overflow-y-auto absolute z-10 w-full left-0 right-0">
+                    {products
+                      .filter(p => (p.purpose === 'SALE' || p.purpose === 'HYBRID') && p.saleStock > 0)
+                      .filter(p => p.name.toLowerCase().includes(exchangeSearchTerm.toLowerCase()) || p.sku.toLowerCase().includes(exchangeSearchTerm.toLowerCase()))
+                      .slice(0, 5)
+                      .map(p => (
+                        <button
+                          key={p.id}
+                          onClick={() => {
+                            setExchangeProductId(p.id);
+                            setExchangeSearchTerm(p.name);
+                          }}
+                          className="w-full text-left p-3 hover:bg-slate-50 border-b border-slate-50 last:border-0 flex justify-between items-center"
+                        >
+                          <div>
+                            <p className="text-[10px] font-bold text-slate-900 uppercase truncate pr-2">{p.name}</p>
+                            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">{p.sku} • {p.sizes.join(', ')}</p>
+                          </div>
+                          <span className="text-[10px] text-highlight font-black bg-highlight/10 px-2 py-1 rounded-md flex-shrink-0">{formatCurrency(p.sellingPrice)}</span>
+                        </button>
+                      ))}
+                  </div>
+                )}
+              </div>
+
+              {exchangeProductId && selectedExchangeProduct && (
+                <div className="space-y-2">
+                  <label className="text-[9px] font-black uppercase text-slate-400 tracking-widest ml-2">Quantity to Give</label>
+                  <input
+                    type="number"
+                    min={1}
+                    max={selectedExchangeProduct.saleStock}
+                    value={exchangeQty}
+                    onChange={(e) => setExchangeQty(Number(e.target.value))}
+                    className="w-full bg-white border border-slate-200 focus:border-highlight/50 rounded-xl p-3 text-sm font-black outline-none transition-all"
+                  />
+                  <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest ml-2 mt-1">Available Stock: {selectedExchangeProduct.saleStock}</p>
+                </div>
+              )}
+            </div>
+          )}
+
+          <div className="p-4 bg-slate-900 rounded-2xl text-white space-y-2">
+            <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-slate-400">
+              <span>Refund Amount:</span>
+              <span className="text-white">{formatCurrency(refundAmount)}</span>
+            </div>
+            {isExchange && (
+              <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                <span>New Charge:</span>
+                <span className="text-white">{formatCurrency(newChargeAmount)}</span>
+              </div>
+            )}
+            <div className="pt-2 border-t border-slate-700 flex justify-between text-xs font-black uppercase tracking-widest">
+              <span>{netDifference > 0 ? 'Customer Owes:' : netDifference < 0 ? 'You Refund:' : 'Net Difference:'}</span>
+              <span className={netDifference > 0 ? 'text-rose-400' : netDifference < 0 ? 'text-emerald-400' : 'text-white'}>
+                {formatCurrency(Math.abs(netDifference))}
+              </span>
+            </div>
+          </div>
+
+          <button
+            onClick={handleSubmit}
+            disabled={isProcessing}
+            className="w-full banana-btn shadow-banana text-sm"
+          >
+            {isProcessing ? 'Processing...' : 'Confirm'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // Sub-component for Sale Details Modal to keep it clean
 const SaleDetailsModal: React.FC<{ saleId: string; onClose: () => void }> = ({ saleId, onClose }) => {
   const { sales, customers, products, linkSaleItemToProduct, returnSale, storeProfile } = useApp();
@@ -306,6 +505,7 @@ const SaleDetailsModal: React.FC<{ saleId: string; onClose: () => void }> = ({ s
   const [linkingItemId, setLinkingItemId] = useState<string | null>(null);
   const [linkSearchTerm, setLinkSearchTerm] = useState('');
   const [isProcessingReturn, setIsProcessingReturn] = useState(false);
+  const [returnModalState, setReturnModalState] = useState<{isOpen: boolean; itemIndex: number; item: any}>({isOpen: false, itemIndex: -1, item: null});
 
   if (!sale) return null;
 
@@ -577,6 +777,22 @@ const SaleDetailsModal: React.FC<{ saleId: string; onClose: () => void }> = ({ s
                                 <Plus size={10} /> Link to Product
                               </button>
                            )}
+                        </div>
+                     )}
+                     {/* Return/Exchange Action */}
+                     {item.quantity - (item.returnedQuantity || 0) > 0 && !item.productId.startsWith('CUSTOM_') && (
+                        <div className="mt-3 pt-3 border-t border-slate-50 flex justify-end">
+                           <button 
+                             onClick={() => setReturnModalState({ isOpen: true, itemIndex: idx, item })}
+                             className="text-[9px] font-black uppercase tracking-widest text-rose-500 bg-rose-50 hover:bg-rose-100 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5"
+                           >
+                             <Undo2 size={10} /> Return / Exchange
+                           </button>
+                        </div>
+                     )}
+                     {(item.returnedQuantity || 0) > 0 && (
+                        <div className="mt-2 text-[9px] font-black text-rose-500 uppercase tracking-widest">
+                          ({item.returnedQuantity} Returned)
                         </div>
                      )}
                   </div>

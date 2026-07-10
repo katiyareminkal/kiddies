@@ -34,6 +34,7 @@ export enum OrderStatus {
   SHIPPED = 'SHIPPED',
   DELIVERED = 'DELIVERED',
   RETURNED = 'RETURNED',
+  PARTIALLY_RETURNED = 'PARTIALLY_RETURNED',
   CANCELLED = 'CANCELLED'
 }
 
@@ -108,6 +109,7 @@ export interface InvoiceItem {
   unitPrice: number;
   taxAmount: number;
   total: number;
+  returnedQuantity?: number;
 }
 
 export interface Sale {

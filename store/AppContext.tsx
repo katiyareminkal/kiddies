@@ -46,6 +46,7 @@ interface AppContextType extends AppState {
   uploadImage: (file: File, path: string) => Promise<string>;
   linkSaleItemToProduct: (saleId: string, customItemId: string, realProductId: string) => Promise<void>;
   returnSale: (saleId: string) => Promise<void>;
+  processPartialReturnOrExchange: (saleId: string, itemIndex: number, returnQty: number, exchangeProductId?: string, exchangeQty?: number) => Promise<void>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -1003,6 +1004,104 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
   };
 
+  const processPartialReturnOrExchange = async (saleId: string, itemIndex: number, returnQty: number, exchangeProductId?: string, exchangeQty?: number) => {
+    try {
+      const sale = state.sales.find(s => s.id === saleId);
+      if (!sale) throw new Error('Sale not found');
+
+      const newItems = [...sale.items.map(item => ({ ...item }))];
+      const targetItem = newItems[itemIndex];
+      
+      if (!targetItem) throw new Error('Item not found');
+      
+      const alreadyReturned = targetItem.returnedQuantity || 0;
+      if (returnQty > targetItem.quantity - alreadyReturned) {
+        throw new Error('Cannot return more than purchased');
+      }
+
+      targetItem.returnedQuantity = alreadyReturned + returnQty;
+
+      // 1. Restock original item
+      if (!targetItem.productId.startsWith('CUSTOM_')) {
+        const product = state.products.find(p => p.id === targetItem.productId);
+        if (product) {
+          await supabase.from('products').update({
+            sale_stock: product.saleStock + returnQty
+          }).eq('id', product.id);
+
+          await supabase.from('stock_logs').insert({
+            id: generateID(),
+            product_id: product.id,
+            pool: 'SALE',
+            type: 'IN',
+            quantity: returnQty,
+            reason: `Partial Return (Inv: ${sale.invoiceNumber})`
+          });
+        }
+      }
+
+      // 2. Handle Exchange Item if present
+      let exchangeItemTotal = 0;
+      if (exchangeProductId && exchangeQty) {
+        const newProduct = state.products.find(p => p.id === exchangeProductId);
+        if (newProduct) {
+          if (newProduct.saleStock < exchangeQty) throw new Error('Not enough stock for exchange');
+          
+          await supabase.from('products').update({
+            sale_stock: newProduct.saleStock - exchangeQty
+          }).eq('id', newProduct.id);
+
+          await supabase.from('stock_logs').insert({
+            id: generateID(),
+            product_id: newProduct.id,
+            pool: 'SALE',
+            type: 'OUT',
+            quantity: exchangeQty,
+            reason: `Exchange Item (Inv: ${sale.invoiceNumber})`
+          });
+
+          const newItemTax = (newProduct.sellingPrice * (newProduct.taxPercent || 0)) / 100;
+          const newItemGross = newProduct.sellingPrice + newItemTax;
+          
+          exchangeItemTotal = newItemGross * exchangeQty;
+          
+          newItems.push({
+            productId: newProduct.id,
+            name: newProduct.name,
+            quantity: exchangeQty,
+            unitPrice: newProduct.sellingPrice,
+            taxAmount: newItemTax,
+            total: exchangeItemTotal,
+            returnedQuantity: 0
+          });
+        }
+      }
+
+      // 3. Recalculate Totals
+      const refundAmount = returnQty * (targetItem.total / targetItem.quantity);
+      const newTotalAmount = sale.totalAmount - refundAmount + exchangeItemTotal;
+      const newNetPayout = sale.netPayout - refundAmount + exchangeItemTotal;
+      
+      // Determine new order status safely
+      let newOrderStatus = OrderStatus.PARTIALLY_RETURNED;
+      
+      // 4. Update Sale in DB
+      const { error } = await supabase.from('sales').update({
+        items: newItems,
+        total_amount: newTotalAmount,
+        net_payout: newNetPayout,
+        order_status: newOrderStatus
+      }).eq('id', saleId);
+
+      if (error) throw error;
+
+      await fetchAllData();
+    } catch (error) {
+      console.error('Error processing partial return/exchange:', error);
+      throw error;
+    }
+  };
+
   const addPaymentToSale = async (saleId: string, amount: number) => {
     try {
       const sale = state.sales.find(s => s.id === saleId);
@@ -1315,7 +1414,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       consumeStoreCredit,
       addExpense,
       linkSaleItemToProduct,
-      returnSale
+      returnSale,
+      processPartialReturnOrExchange
     }}>
       {children}
     </AppContext.Provider>
