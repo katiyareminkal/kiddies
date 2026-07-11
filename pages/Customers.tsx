@@ -505,24 +505,25 @@ const Customers: React.FC = () => {
                                Return Item
                              </button>
                            )}
-                            {settings.allowLedgerDeletions && !isCreditNote && (
-                              <button 
-                                onClick={async () => {
-                                  if (window.confirm("Are you sure you want to permanently delete this transaction from the database? This cannot be undone.")) {
-                                    try {
-                                      if (isSale) await deleteSale(t.id);
-                                      else if (isRental) await deleteRental(t.id);
-                                    } catch (err) {
-                                      alert("Failed to delete transaction.");
-                                    }
-                                  }
-                                }}
-                                className="text-[9px] font-black uppercase tracking-widest text-rose-600 hover:bg-rose-100 bg-rose-50 border border-rose-100 px-3.5 py-2.5 rounded-xl transition-all shadow-nano active:scale-95 flex items-center gap-1.5"
-                                title="Delete Transaction"
-                              >
-                                <Trash2 size={11} strokeWidth={2.5} /> Delete
-                              </button>
-                            )}
+                           {settings.allowLedgerDeletions && (
+                             <button 
+                               onClick={async () => {
+                                 if (window.confirm("Are you sure you want to permanently delete this transaction from the database? This cannot be undone.")) {
+                                   try {
+                                     if (isSale) await deleteSale(t.id);
+                                     else if (isRental) await deleteRental(t.id);
+                                     else if (isCreditNote) await deleteCreditNote(t.id);
+                                   } catch (err) {
+                                     alert("Failed to delete transaction.");
+                                   }
+                                 }
+                               }}
+                               className="text-[9px] font-black uppercase tracking-widest text-rose-600 hover:bg-rose-100 bg-rose-50 border border-rose-100 px-3.5 py-2.5 rounded-xl transition-all shadow-nano active:scale-95 flex items-center gap-1.5"
+                               title="Delete Transaction"
+                             >
+                               <Trash2 size={11} strokeWidth={2.5} /> Delete
+                             </button>
+                           )}
                          </div>
                       </td>
                     </tr>
