@@ -891,30 +891,19 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         if (remainingToConsume <= 0) break;
 
         if (cn.amount <= remainingToConsume) {
+          // Fully consumed: mark original note as USED
           await supabase.from('credit_notes').update({ 
             status: 'USED', 
             used_at: dateStr
           }).eq('id', cn.id);
           remainingToConsume -= cn.amount;
         } else {
+          // Partially consumed: update original note amount in-place to the remainder
           const remainder = cn.amount - remainingToConsume;
-          
           await supabase.from('credit_notes').update({ 
-            status: 'USED', 
-            used_at: dateStr
+            amount: remainder
           }).eq('id', cn.id);
-
-          const newId = generateID();
-          await supabase.from('credit_notes').insert({
-            id: newId,
-            customer_id: customerId,
-            amount: remainder,
-            reason: invoiceNumber === 'CASH-OUT' 
-              ? `Balance remaining after cash payout (from CN-${cn.id.slice(-6).toUpperCase()})`
-              : `Balance remaining after checkout (from CN-${cn.id.slice(-6).toUpperCase()} for Inv: ${invoiceNumber})`,
-            status: 'ACTIVE',
-            created_at: dateStr
-          });
+          
           remainingToConsume = 0;
         }
       }
