@@ -64,13 +64,22 @@ const Customers: React.FC = () => {
       sortDate: new Date(r.date)
     }));
 
-    const customerCNs = creditNotes.filter(cn => cn.customerId === selectedCustomerId).map(cn => ({
-      ...cn,
-      type: 'CREDIT_NOTE' as const,
-      sortDate: new Date(cn.createdAt),
-      date: cn.createdAt,
-      invoiceNumber: `CN-${cn.id.slice(-6).toUpperCase()}`
-    }));
+    const sortedCNs = creditNotes
+      .filter(cn => cn.customerId === selectedCustomerId)
+      .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+
+    let runningBal = 0;
+    const customerCNs = sortedCNs.map(cn => {
+      runningBal += cn.amount;
+      return {
+        ...cn,
+        type: 'CREDIT_NOTE' as const,
+        sortDate: new Date(cn.createdAt),
+        date: cn.createdAt,
+        invoiceNumber: `CN-${cn.id.slice(-6).toUpperCase()}`,
+        runningBalance: runningBal
+      };
+    });
 
     // Merge and sort by date descending
     const allTransactions = [...customerSales, ...customerRentals, ...customerCNs].sort((a, b) => 
@@ -448,7 +457,7 @@ const Customers: React.FC = () => {
                                       : t.amount < 0 
                                       ? '' 
                                       : '+'
-                                    }{formatCurrency(t.amount)} {t.status?.toUpperCase() === 'USED' && '(Consumed)'}
+                                    }{formatCurrency(t.amount)} <span className="text-[8.5px] font-semibold text-slate-400 font-sans ml-1">({formatCurrency(t.runningBalance)} Bal)</span> {t.status?.toUpperCase() === 'USED' && '(Consumed)'}
                                  </span>
                               )}
                           </div>
