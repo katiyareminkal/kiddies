@@ -891,22 +891,17 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         if (remainingToConsume <= 0) break;
 
         if (cn.amount <= remainingToConsume) {
-          const updatedReason = `${cn.reason} (Fully consumed for ${invoiceNumber === 'CASH-OUT' ? 'Cash Payout' : `Inv: ${invoiceNumber}`})`;
           await supabase.from('credit_notes').update({ 
             status: 'USED', 
-            used_at: dateStr,
-            reason: updatedReason
+            used_at: dateStr
           }).eq('id', cn.id);
           remainingToConsume -= cn.amount;
         } else {
-          const consumedAmount = remainingToConsume;
           const remainder = cn.amount - remainingToConsume;
-          const updatedReason = `${cn.reason} (₹${consumedAmount} consumed for ${invoiceNumber === 'CASH-OUT' ? 'Cash Payout' : `Inv: ${invoiceNumber}`}, remainder ₹${remainder} carried forward)`;
           
           await supabase.from('credit_notes').update({ 
             status: 'USED', 
-            used_at: dateStr,
-            reason: updatedReason
+            used_at: dateStr
           }).eq('id', cn.id);
 
           const newId = generateID();
@@ -924,17 +919,19 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         }
       }
 
-      if (invoiceNumber === 'CASH-OUT') {
-        await supabase.from('credit_notes').insert({
-          id: generateID(),
-          customer_id: customerId,
-          amount: amountToConsume,
-          reason: 'Cash payout from store credit balance',
-          status: 'USED',
-          used_at: dateStr,
-          created_at: dateStr
-        });
-      }
+      // Insert a single transaction entry for the actual amount consumed (spent)
+      const consumedId = generateID();
+      await supabase.from('credit_notes').insert({
+        id: consumedId,
+        customer_id: customerId,
+        amount: amountToConsume,
+        reason: invoiceNumber === 'CASH-OUT'
+          ? 'Cash payout from store credit balance'
+          : `Credit Consumed: Used for checkout (Inv: ${invoiceNumber})`,
+        status: 'USED',
+        used_at: dateStr,
+        created_at: dateStr
+      });
 
       await fetchAllData();
     } catch (error) {
