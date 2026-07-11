@@ -390,7 +390,9 @@ const Customers: React.FC = () => {
                       </td>
                       <td className="px-6 py-4 text-right">
                           <div className="flex flex-col items-end">
-                              <span className="font-mono font-bold text-slate-900 text-xs">{formatCurrency(total)}</span>
+                              {!isCreditNote && (
+                                 <span className="font-mono font-bold text-slate-900 text-xs">{formatCurrency(total)}</span>
+                              )}
                               {isSale && balance > 0 && (
                                  <span className="text-[9px] font-bold text-rose-500 uppercase tracking-wider mt-0.5">
                                     Bal Due: {formatCurrency(balance)}
