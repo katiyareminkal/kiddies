@@ -47,6 +47,9 @@ interface AppContextType extends AppState {
   linkSaleItemToProduct: (saleId: string, customItemId: string, realProductId: string) => Promise<void>;
   returnSale: (saleId: string) => Promise<void>;
   processPartialReturnOrExchange: (saleId: string, itemIndex: number, returnQty: number, exchangeProductId?: string, exchangeQty?: number) => Promise<void>;
+  deleteSale: (id: string) => Promise<void>;
+  deleteRental: (id: string) => Promise<void>;
+  deleteCreditNote: (id: string) => Promise<void>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -124,7 +127,8 @@ const INITIAL_DATA: AppState = {
     enableLowStockAlerts: true,
     lowStockThreshold: 3,
     salesInvoicePrefix: 'INV-',
-    rentalInvoicePrefix: 'RNT-'
+    rentalInvoicePrefix: 'RNT-',
+    allowLedgerDeletions: false
   },
   creditNotes: [],
   expenses: []
@@ -392,7 +396,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
               enableLowStockAlerts: !!settings.enable_low_stock_alerts,
               lowStockThreshold: Number(settings.low_stock_threshold || 3),
               salesInvoicePrefix: settings.sales_invoice_prefix || 'INV-',
-              rentalInvoicePrefix: settings.rental_invoice_prefix || 'RNT-'
+              rentalInvoicePrefix: settings.rental_invoice_prefix || 'RNT-',
+              allowLedgerDeletions: !!settings.allow_ledger_deletions
             }
           : prev.settings,
         creditNotes: (creditNotes || []).map(cn => ({
@@ -1382,12 +1387,47 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         enable_low_stock_alerts: settings.enableLowStockAlerts,
         low_stock_threshold: settings.lowStockThreshold,
         sales_invoice_prefix: settings.salesInvoicePrefix,
-        rental_invoice_prefix: settings.rentalInvoicePrefix
+        rental_invoice_prefix: settings.rentalInvoicePrefix,
+        allow_ledger_deletions: settings.allowLedgerDeletions
       }).eq('id', 'default');
       if (error) throw error;
       await fetchAllData();
     } catch (error) {
       console.error('Error updating settings:', error);
+    }
+  };
+
+  const deleteSale = async (id: string) => {
+    try {
+      await supabase.from('sale_items').delete().eq('sale_id', id);
+      const { error } = await supabase.from('sales').delete().eq('id', id);
+      if (error) throw error;
+      await fetchAllData();
+    } catch (error) {
+      console.error('Error deleting sale:', error);
+      throw error;
+    }
+  };
+
+  const deleteRental = async (id: string) => {
+    try {
+      const { error } = await supabase.from('rentals').delete().eq('id', id);
+      if (error) throw error;
+      await fetchAllData();
+    } catch (error) {
+      console.error('Error deleting rental:', error);
+      throw error;
+    }
+  };
+
+  const deleteCreditNote = async (id: string) => {
+    try {
+      const { error } = await supabase.from('credit_notes').delete().eq('id', id);
+      if (error) throw error;
+      await fetchAllData();
+    } catch (error) {
+      console.error('Error deleting credit note:', error);
+      throw error;
     }
   };
 
@@ -1449,16 +1489,13 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       addSale, updateOrderStatus, addPaymentToSale,
       addRental, updateRental, returnRental,
       updateStock, updateStoreProfile, updateSettings,
-      importData, resetData,
-      markNotificationsAsRead, clearNotifications,
-      uploadImage,
+      importData, resetData, markNotificationsAsRead, clearNotifications,
+      uploadImage, linkSaleItemToProduct, returnSale, processPartialReturnOrExchange,
+      deleteSale, deleteRental, deleteCreditNote,
       updatePassword,
       addCreditNote,
       consumeStoreCredit,
-      addExpense,
-      linkSaleItemToProduct,
-      returnSale,
-      processPartialReturnOrExchange
+      addExpense
     }}>
       {children}
     </AppContext.Provider>

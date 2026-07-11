@@ -179,6 +179,7 @@ export interface AppSettings {
   lowStockThreshold: number; // Default global threshold
   salesInvoicePrefix: string;
   rentalInvoicePrefix: string;
+  allowLedgerDeletions: boolean;
 }
 
 export interface AppNotification {

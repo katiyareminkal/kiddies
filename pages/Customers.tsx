@@ -22,14 +22,15 @@ import {
   User,
   Star,
   Printer,
-  Eye
+  Eye,
+  Trash2
 } from 'lucide-react';
 import { formatCurrency, getStatusColor } from '../utils/helpers';
 import { Sale, Rental, Customer, PaymentStatus } from '../types';
 import { ReturnRentalModal } from '../components/forms/ReturnRentalModal';
 
 const Customers: React.FC = () => {
-  const { customers, addCustomer, sales, rentals, products, addPaymentToSale, creditNotes, addCreditNote, consumeStoreCredit } = useApp();
+  const { customers, addCustomer, sales, rentals, products, addPaymentToSale, creditNotes, addCreditNote, consumeStoreCredit, settings, deleteSale, deleteRental, deleteCreditNote } = useApp();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [isIssueCreditModalOpen, setIsIssueCreditModalOpen] = useState(false);
@@ -484,6 +485,25 @@ const Customers: React.FC = () => {
                                Return Item
                              </button>
                            )}
+                           {settings.allowLedgerDeletions && (
+                              <button 
+                                onClick={async () => {
+                                  if (window.confirm("Are you sure you want to permanently delete this transaction from the database? This cannot be undone.")) {
+                                    try {
+                                      if (isSale) await deleteSale(t.id);
+                                      else if (isRental) await deleteRental(t.id);
+                                      else if (isCreditNote) await deleteCreditNote(t.id);
+                                    } catch (err) {
+                                      alert("Failed to delete transaction.");
+                                    }
+                                  }
+                                }}
+                                className="text-[9px] font-black uppercase tracking-widest text-rose-600 hover:bg-rose-100 bg-rose-50 border border-slate-100 px-2.5 py-2.5 rounded-xl transition-all shadow-nano active:scale-95 flex items-center justify-center"
+                                title="Delete Transaction"
+                              >
+                                <Trash2 size={11} strokeWidth={2.5} />
+                              </button>
+                            )}
                          </div>
                       </td>
                     </tr>

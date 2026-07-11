@@ -81,6 +81,7 @@ const Settings: React.FC = () => {
       enableLowStockAlerts: formData.get('enableLowStockAlerts') === 'on',
       salesInvoicePrefix: formData.get('salesInvoicePrefix') as string,
       rentalInvoicePrefix: formData.get('rentalInvoicePrefix') as string,
+      allowLedgerDeletions: formData.get('allowLedgerDeletions') === 'on',
     });
     showNotification('System preferences saved!', 'success');
   };
@@ -321,14 +322,26 @@ const Settings: React.FC = () => {
                                 </div>
                                 <h4 className="text-[9px] font-bold uppercase tracking-widest text-slate-900">Financial Controls</h4>
                             </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="space-y-1.5">
-                                    <label className="text-[9px] font-bold uppercase tracking-widest text-slate-400 ml-1">Default Tax Rate (%)</label>
-                                    <input type="number" name="defaultTaxRate" defaultValue={settings.defaultTaxRate} className="w-full px-4 py-2 bg-slate-50 border border-transparent focus:bg-white focus:border-highlight/30 rounded-lg outline-none transition-all font-semibold text-slate-900 text-[11px]" />
+                            <div className="space-y-4">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="space-y-1.5">
+                                        <label className="text-[9px] font-bold uppercase tracking-widest text-slate-400 ml-1">Default Tax Rate (%)</label>
+                                        <input type="number" name="defaultTaxRate" defaultValue={settings.defaultTaxRate} className="w-full px-4 py-2 bg-slate-50 border border-transparent focus:bg-white focus:border-highlight/30 rounded-lg outline-none transition-all font-semibold text-slate-900 text-[11px]" />
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <label className="text-[9px] font-bold uppercase tracking-widest text-slate-400 ml-1">System Currency</label>
+                                        <input name="currency" disabled value="₹" className="w-full px-4 py-2 bg-slate-100 text-slate-400 border border-transparent rounded-lg outline-none font-semibold cursor-not-allowed text-[11px]" />
+                                    </div>
                                 </div>
-                                <div className="space-y-1.5">
-                                    <label className="text-[9px] font-bold uppercase tracking-widest text-slate-400 ml-1">System Currency</label>
-                                    <input name="currency" disabled value="₹" className="w-full px-4 py-2 bg-slate-100 text-slate-400 border border-transparent rounded-lg outline-none font-semibold cursor-not-allowed text-[11px]" />
+                                <div className="p-4 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between">
+                                    <div>
+                                        <p className="text-[10px] font-bold text-slate-900 uppercase tracking-tight">Allow Ledger Deletions</p>
+                                        <p className="text-[8px] font-semibold text-slate-400 mt-0.5 uppercase tracking-widest">Enable delete action in customer transaction history</p>
+                                    </div>
+                                    <label className="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" name="allowLedgerDeletions" defaultChecked={settings.allowLedgerDeletions} className="sr-only peer" />
+                                        <div className="w-10 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-highlight"></div>
+                                    </label>
                                 </div>
                             </div>
                         </div>
