@@ -130,7 +130,7 @@ export const CreateBillModal: React.FC<CreateBillModalProps> = ({ isOpen, onClos
     } else {
       setCreditAmountInput('');
     }
-  }, [useCredit, maxCreditAllowed]);
+  }, [useCredit]);
 
   const finalAmountToPay = total - creditApplied;
 
@@ -738,13 +738,14 @@ export const CreateBillModal: React.FC<CreateBillModalProps> = ({ isOpen, onClos
                             onChange={(e) => {
                               const val = e.target.value;
                               const numVal = Number(val);
-                              if (numVal > maxCreditAllowed) {
-                                setCreditAmountInput(maxCreditAllowed.toString());
+                              // Prevent entering more than available credit
+                              if (numVal > customerCredit) {
+                                setCreditAmountInput(customerCredit.toString());
                               } else {
                                 setCreditAmountInput(val);
                               }
                             }}
-                            max={maxCreditAllowed}
+                            max={customerCredit}
                             min={0}
                             className="w-16 px-1.5 py-0.5 border border-slate-200 rounded-lg text-[9px] font-bold font-mono text-emerald-600 outline-none focus:border-[#8B5CF6]/30 text-right"
                           />
