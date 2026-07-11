@@ -342,7 +342,7 @@ const Customers: React.FC = () => {
         <div className="nano-card overflow-hidden">
           <div className="p-6 border-b border-slate-50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
              <div className="flex items-center gap-6">
-               <h3 className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-900">Transaction Ledger {settings.allowLedgerDeletions ? "(Enabled)" : "(Disabled)"}</h3>
+               <h3 className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-900">Transaction Ledger</h3>
                <div className="flex bg-slate-50 p-1 rounded-2xl border border-slate-100">
                   {(['ALL', 'SALE', 'RENTAL', 'CREDIT_NOTE'] as const).map(filter => (
                     <button 
