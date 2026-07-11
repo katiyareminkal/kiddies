@@ -505,14 +505,13 @@ const Customers: React.FC = () => {
                                Return Item
                              </button>
                            )}
-                           {settings.allowLedgerDeletions && (
+                            {settings.allowLedgerDeletions && !isCreditNote && (
                               <button 
                                 onClick={async () => {
                                   if (window.confirm("Are you sure you want to permanently delete this transaction from the database? This cannot be undone.")) {
                                     try {
                                       if (isSale) await deleteSale(t.id);
                                       else if (isRental) await deleteRental(t.id);
-                                      else if (isCreditNote) await deleteCreditNote(t.id);
                                     } catch (err) {
                                       alert("Failed to delete transaction.");
                                     }
