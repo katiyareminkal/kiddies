@@ -28,6 +28,7 @@ export const CreateBillModal: React.FC<CreateBillModalProps> = ({ isOpen, onClos
   const { products, customers, addSale, addProduct, creditNotes, consumeStoreCredit, sales, settings } = useApp();
   const [cart, setCart] = useState<{ productId: string; quantity: number; customName?: string; customPrice?: number; isCustomPrice?: boolean }[]>([]);
   const [useCredit, setUseCredit] = useState(false);
+  const [creditAmountInput, setCreditAmountInput] = useState<string>('');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCustomerId, setSelectedCustomerId] = useState<string>('GUEST');
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -114,10 +115,22 @@ export const CreateBillModal: React.FC<CreateBillModalProps> = ({ isOpen, onClos
       .reduce((sum, cn) => sum + cn.amount, 0);
   }, [creditNotes, selectedCustomerId]);
 
+  const maxCreditAllowed = Math.min(customerCredit, total);
+  
   const creditApplied = useMemo(() => {
     if (!useCredit || selectedCustomerId === 'GUEST') return 0;
-    return Math.min(customerCredit, total);
-  }, [useCredit, customerCredit, total, selectedCustomerId]);
+    const num = Number(creditAmountInput);
+    if (isNaN(num) || num <= 0) return 0;
+    return Math.min(num, maxCreditAllowed);
+  }, [useCredit, creditAmountInput, maxCreditAllowed, selectedCustomerId]);
+
+  React.useEffect(() => {
+    if (useCredit) {
+      setCreditAmountInput(maxCreditAllowed.toString());
+    } else {
+      setCreditAmountInput('');
+    }
+  }, [useCredit, maxCreditAllowed]);
 
   const finalAmountToPay = total - creditApplied;
 
@@ -717,7 +730,26 @@ export const CreateBillModal: React.FC<CreateBillModalProps> = ({ isOpen, onClos
                         <span className="text-[8px] font-black uppercase text-slate-500 tracking-wider">Apply Store Credit (Avail: {formatCurrency(customerCredit)})</span>
                       </label>
                       {useCredit && (
-                        <span className="font-mono font-black text-emerald-500 text-[10px] animate-nano">-{formatCurrency(creditApplied)}</span>
+                        <div className="flex items-center gap-1.5 animate-nano">
+                          <span className="text-[8px] font-black text-slate-400 tracking-wider">USE:</span>
+                          <input 
+                            type="number"
+                            value={creditAmountInput}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              const numVal = Number(val);
+                              if (numVal > maxCreditAllowed) {
+                                setCreditAmountInput(maxCreditAllowed.toString());
+                              } else {
+                                setCreditAmountInput(val);
+                              }
+                            }}
+                            max={maxCreditAllowed}
+                            min={0}
+                            className="w-16 px-1.5 py-0.5 border border-slate-200 rounded-lg text-[9px] font-bold font-mono text-emerald-600 outline-none focus:border-[#8B5CF6]/30 text-right"
+                          />
+                          <span className="font-mono font-black text-emerald-500 text-[10px]">-{formatCurrency(creditApplied)}</span>
+                        </div>
                       )}
                     </div>
                   )}
