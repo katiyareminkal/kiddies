@@ -20,10 +20,13 @@ import {
   Banknote,
   IndianRupee,
   User,
-  Star
+  Star,
+  Printer,
+  Eye
 } from 'lucide-react';
 import { formatCurrency, getStatusColor } from '../utils/helpers';
 import { Sale, Rental, Customer, PaymentStatus } from '../types';
+import { ReturnRentalModal } from '../components/forms/ReturnRentalModal';
 
 const Customers: React.FC = () => {
   const { customers, addCustomer, sales, rentals, products, addPaymentToSale, creditNotes, addCreditNote } = useApp();
@@ -34,6 +37,10 @@ const Customers: React.FC = () => {
   const [selectedSaleForPayment, setSelectedSaleForPayment] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [transactionFilter, setTransactionFilter] = useState<'ALL' | 'SALE' | 'RENTAL' | 'CREDIT_NOTE'>('ALL');
+  
+  // Custom states for view / action handlers
+  const [selectedRentalForReturn, setSelectedRentalForReturn] = useState<any>(null);
+  const [selectedSaleForDetails, setSelectedSaleForDetails] = useState<any>(null);
 
   // Derived state for the selected customer's ledger
   const selectedCustomer = useMemo(() => 
@@ -333,6 +340,10 @@ const Customers: React.FC = () => {
                     : t.status?.toUpperCase() === 'USED'
                     ? `Credit Consumed: ${t.reason}`
                     : `Credit Issued: ${t.reason}`;
+
+                  const dateRange = isRental 
+                    ? `${format(new Date(t.startDate), 'dd MMM')} - ${format(new Date(t.expectedReturnDate), 'dd MMM yyyy')}`
+                    : '';
                   
                   const total = isSale ? t.totalAmount : isRental ? t.totalRentAmount : t.amount;
                   const paid = t.paidAmount || 0;
@@ -365,9 +376,9 @@ const Customers: React.FC = () => {
                         <div className="flex flex-col max-w-xs md:max-w-sm">
                           <span className="font-bold text-slate-800 text-xs truncate" title={productName}>{productName}</span>
                           {!isSale && !isCreditNote && (
-                            <div className="text-[9px] text-slate-400 mt-1 flex items-center gap-1 font-bold uppercase tracking-wider">
+                            <div className="text-[9px] text-slate-400 mt-1 flex items-center gap-1.5 font-bold uppercase tracking-wider">
                                <Calendar size={10} strokeWidth={2.5} />
-                               Due: {format(new Date(t.expectedReturnDate), 'dd MMM yyyy')}
+                               {dateRange} ({t.quantity} unit{t.quantity > 1 ? 's' : ''})
                             </div>
                           )}
                           {isCreditNote && t.status?.toUpperCase() === 'USED' && t.usedAt && (
@@ -415,14 +426,32 @@ const Customers: React.FC = () => {
                          </span>
                       </td>
                       <td className="px-6 py-4 text-right">
-                          {isSale && t.paymentStatus !== PaymentStatus.PAID && (
+                         <div className="flex justify-end gap-2">
+                           {isSale && (
+                             <button 
+                               onClick={() => setSelectedSaleForDetails(t)}
+                               className="text-[9px] font-black uppercase tracking-widest text-slate-600 hover:text-slate-900 bg-slate-50 border border-slate-100 px-3.5 py-2.5 rounded-xl transition-all shadow-nano active:scale-95 flex items-center gap-1"
+                             >
+                               <Eye size={10} /> View Bill
+                             </button>
+                           )}
+                           {isSale && t.paymentStatus !== PaymentStatus.PAID && (
                              <button 
                                onClick={() => openPaymentModal(t.id)}
-                               className="text-[9px] font-black uppercase tracking-widest text-slate-900 hover:bg-highlight bg-slate-50 border border-slate-100 px-4 py-2 rounded-xl transition-all shadow-nano active:scale-95"
+                               className="text-[9px] font-black uppercase tracking-widest text-slate-900 hover:bg-highlight bg-slate-50 border border-slate-100 px-3.5 py-2.5 rounded-xl transition-all shadow-nano active:scale-95"
                              >
-                                Record Payment
+                               Record Payment
                              </button>
-                          )}
+                           )}
+                           {isRental && t.status === 'ACTIVE' && (
+                             <button 
+                               onClick={() => setSelectedRentalForReturn(t)}
+                               className="text-[9px] font-black uppercase tracking-widest text-rose-600 hover:bg-rose-100 bg-rose-50 border border-rose-100 px-3.5 py-2.5 rounded-xl transition-all shadow-nano active:scale-95"
+                             >
+                               Return Item
+                             </button>
+                           )}
+                         </div>
                       </td>
                     </tr>
                   );
@@ -485,8 +514,120 @@ const Customers: React.FC = () => {
                  <button type="button" onClick={() => setIsPaymentModalOpen(false)} className="w-full sm:flex-1 h-14 rounded-2xl font-black uppercase tracking-widest text-[9px] border border-slate-100 text-slate-400">Cancel</button>
                  <button type="submit" className="banana-btn w-full sm:flex-1 h-14 text-[9px]">Record Payment</button>
               </div>
-           </form>
+            </form>
          </Modal>
+
+         {/* Ledger Sale Details Modal */}
+         <Modal
+            isOpen={!!selectedSaleForDetails}
+            onClose={() => setSelectedSaleForDetails(null)}
+            title={selectedSaleForDetails ? `Invoice: ${selectedSaleForDetails.invoiceNumber}` : 'Invoice Details'}
+         >
+            {selectedSaleForDetails && (
+              <div className="space-y-6">
+                <div className="flex justify-between items-center bg-slate-50 p-4 rounded-2xl border border-slate-100 text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                  <div>
+                    <p>Date: {format(new Date(selectedSaleForDetails.date), 'dd MMM yyyy, hh:mm a')}</p>
+                    <p className="mt-1">Status: {selectedSaleForDetails.orderStatus}</p>
+                  </div>
+                  <div className="text-right">
+                    <p>Channel: {selectedSaleForDetails.channel}</p>
+                    <p className="mt-1">Method: {selectedSaleForDetails.paymentMethod}</p>
+                  </div>
+                </div>
+
+                <div className="space-y-3 text-left">
+                  <h4 className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Items Details</h4>
+                  <div className="divide-y divide-slate-100">
+                    {selectedSaleForDetails.items.map((item: any, i: number) => (
+                      <div key={i} className="py-2.5 flex justify-between items-center text-xs font-bold text-slate-900 uppercase">
+                        <div>
+                          <p>{item.name}</p>
+                          <p className="text-[8px] font-semibold text-slate-400 uppercase tracking-widest mt-0.5">{item.quantity} x {formatCurrency(item.unitPrice)}</p>
+                        </div>
+                        <p className="font-mono">{formatCurrency(item.total)}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="pt-4 border-t border-slate-100 space-y-2 text-[10px] font-bold text-slate-500 uppercase tracking-widest text-left">
+                  <div className="flex justify-between">
+                    <span>Subtotal</span>
+                    <span className="font-mono text-slate-900">{formatCurrency(selectedSaleForDetails.totalAmount)}</span>
+                  </div>
+                  {selectedSaleForDetails.discount > 0 && (
+                    <div className="flex justify-between text-rose-500">
+                      <span>Discount</span>
+                      <span className="font-mono">-{formatCurrency(selectedSaleForDetails.discount)}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between text-slate-900 text-xs font-black pt-2 border-t border-slate-50">
+                    <span>Total Paid</span>
+                    <span className="font-mono">{formatCurrency(selectedSaleForDetails.netPayout)}</span>
+                  </div>
+                </div>
+
+                <div className="flex gap-4">
+                  <button 
+                    type="button" 
+                    onClick={() => setSelectedSaleForDetails(null)} 
+                    className="flex-1 h-12 rounded-xl text-[9px] font-black uppercase tracking-widest border border-slate-100 text-slate-400"
+                  >
+                    Close
+                  </button>
+                  <button 
+                    type="button" 
+                    onClick={() => {
+                      const printWindow = window.open('', '_blank');
+                      if (!printWindow) return;
+                      const printHtml = `
+                        <html>
+                          <head>
+                            <title>Receipt ${selectedSaleForDetails.invoiceNumber}</title>
+                            <style>
+                              body { font-family: monospace; padding: 20px; font-size: 14px; }
+                              table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+                              th, td { text-align: left; padding: 5px 0; }
+                              .total { font-weight: bold; font-size: 16px; text-align: right; margin-top: 15px; }
+                              .center { text-align: center; }
+                            </style>
+                          </head>
+                          <body onload="window.print()">
+                            <h2 class="center">Kiddies Store</h2>
+                            <p class="center">Inv: ${selectedSaleForDetails.invoiceNumber}<br/>Date: ${format(new Date(selectedSaleForDetails.date), 'dd MMM yyyy, hh:mm a')}</p>
+                            <hr style="border: 1px dashed #000;" />
+                            <table>
+                              ${selectedSaleForDetails.items.map((item: any) => `
+                                <tr>
+                                  <td>${item.name} (${item.quantity}x)</td>
+                                  <td style="text-align: right;">${formatCurrency(item.total)}</td>
+                                </tr>
+                              `).join('')}
+                            </table>
+                            <hr style="border: 1px dashed #000;" />
+                            <div class="total">Total: ${formatCurrency(selectedSaleForDetails.netPayout)}</div>
+                          </body>
+                        </html>
+                      `;
+                      printWindow.document.write(printHtml);
+                      printWindow.document.close();
+                    }}
+                    className="banana-btn flex-1 h-12 text-[9px] flex items-center justify-center gap-1.5"
+                  >
+                    <Printer size={12} /> Print Bill
+                  </button>
+                </div>
+              </div>
+            )}
+         </Modal>
+
+         {/* Return Rental Modal */}
+         <ReturnRentalModal 
+            isOpen={!!selectedRentalForReturn} 
+            onClose={() => setSelectedRentalForReturn(null)} 
+            rental={selectedRentalForReturn} 
+         />
 
          {/* Issue Credit Note Modal */}
          <Modal 
