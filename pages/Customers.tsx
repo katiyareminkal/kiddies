@@ -311,13 +311,13 @@ const Customers: React.FC = () => {
           <div className="overflow-x-auto hide-scrollbar">
             <table className="w-full text-left text-sm">
               <thead>
-                <tr className="bg-slate-50/50 text-slate-400">
-                  <th className="px-6 py-5 text-[9px] font-black uppercase tracking-widest">Date & Invoice</th>
-                  <th className="px-6 py-5 text-[9px] font-black uppercase tracking-widest">Type</th>
-                  <th className="px-6 py-5 text-[9px] font-black uppercase tracking-widest">Details</th>
-                  <th className="px-6 py-5 text-[9px] font-black uppercase tracking-widest text-right">Financials</th>
-                  <th className="px-6 py-5 text-[9px] font-black uppercase tracking-widest text-center">Status</th>
-                  <th className="px-6 py-5 text-[9px] font-black uppercase tracking-widest text-right">Actions</th>
+                <tr className="bg-slate-50 text-slate-500 border-b border-slate-100">
+                  <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider">Date & Inv</th>
+                  <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider">Type</th>
+                  <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider">Details</th>
+                  <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-right">Amount</th>
+                  <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-center">Status</th>
+                  <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
@@ -327,10 +327,10 @@ const Customers: React.FC = () => {
                   const isCreditNote = t.type === 'CREDIT_NOTE';
 
                   const productName = isSale 
-                    ? `${t.items.length} Items` 
+                    ? t.items.map((item: any) => `${item.quantity}x ${item.name}`).join(', ')
                     : isRental 
                     ? products.find(p => p.id === t.productId)?.name || 'Unknown Product'
-                    : t.status === 'USED'
+                    : t.status?.toUpperCase() === 'USED'
                     ? `Credit Consumed: ${t.reason}`
                     : `Credit Issued: ${t.reason}`;
                   
@@ -340,81 +340,89 @@ const Customers: React.FC = () => {
                   
                   return (
                     <tr key={t.id} className="group hover:bg-slate-50/50 transition-colors">
-                      <td className="px-6 py-5">
+                      <td className="px-6 py-4">
                         <div className="flex flex-col">
-                          <span className="font-black text-slate-900 text-[11px]">{format(new Date(t.date || t.createdAt), 'dd MMM yyyy')}</span>
-                          <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1">{t.invoiceNumber}</span>
+                          <span className="font-bold text-slate-800 text-xs">{format(new Date(t.date || t.createdAt), 'dd MMM yyyy')}</span>
+                          <span className="text-[9px] font-bold text-slate-400 font-mono mt-0.5">{t.invoiceNumber}</span>
                         </div>
                       </td>
-                      <td className="px-6 py-5">
+                      <td className="px-6 py-4">
                          {isSale ? (
-                           <span className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-[9px] font-black tracking-widest bg-slate-50 text-slate-900 uppercase border border-slate-100 group-hover:bg-highlight transition-colors">
-                             <ShoppingBag size={12} strokeWidth={3} /> Sale
+                           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[9px] font-black tracking-wider bg-indigo-50 text-indigo-700 uppercase border border-indigo-100">
+                             <ShoppingBag size={11} strokeWidth={2.5} /> Sale
                            </span>
                          ) : isRental ? (
-                           <span className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-[9px] font-black tracking-widest bg-slate-900 text-highlight uppercase shadow-nano">
-                             <RefreshCcw size={12} strokeWidth={3} /> Rental
+                           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[9px] font-black tracking-wider bg-slate-900 text-highlight uppercase shadow-nano">
+                             <RefreshCcw size={11} strokeWidth={2.5} /> Rental
                            </span>
                          ) : (
-                           <span className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-[9px] font-black tracking-widest bg-emerald-50 text-emerald-700 uppercase border border-emerald-100 group-hover:bg-emerald-100 transition-colors">
-                             <Banknote size={12} strokeWidth={3} /> Store Credit
+                           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[9px] font-black tracking-wider bg-emerald-50 text-emerald-700 uppercase border border-emerald-100">
+                             <Banknote size={11} strokeWidth={2.5} /> Credit
                            </span>
                          )}
                       </td>
-                      <td className="px-6 py-5">
-                        <div className="flex flex-col">
-                          <span className="font-black text-slate-800 text-[11px] uppercase tracking-tight">{productName}</span>
+                      <td className="px-6 py-4">
+                        <div className="flex flex-col max-w-xs md:max-w-sm">
+                          <span className="font-bold text-slate-800 text-xs truncate" title={productName}>{productName}</span>
                           {!isSale && !isCreditNote && (
-                            <div className="text-[9px] text-slate-400 mt-1.5 flex items-center gap-1.5 font-black uppercase tracking-widest">
-                               <Calendar size={10} strokeWidth={3} />
-                               Due: {format(new Date(t.expectedReturnDate), 'dd MMM')}
+                            <div className="text-[9px] text-slate-400 mt-1 flex items-center gap-1 font-bold uppercase tracking-wider">
+                               <Calendar size={10} strokeWidth={2.5} />
+                               Due: {format(new Date(t.expectedReturnDate), 'dd MMM yyyy')}
                             </div>
                           )}
-                          {isCreditNote && t.status === 'USED' && t.usedAt && (
-                            <div className="text-[8px] text-slate-400 mt-1 font-black uppercase tracking-widest">
-                              Consumed on: {format(new Date(t.usedAt), 'dd MMM yyyy')}
+                          {isCreditNote && t.status?.toUpperCase() === 'USED' && t.usedAt && (
+                            <div className="text-[8px] text-slate-400 mt-0.5 font-bold uppercase tracking-wider">
+                              Consumed: {format(new Date(t.usedAt), 'dd MMM yyyy')}
                             </div>
                           )}
                         </div>
                       </td>
-                      <td className="px-6 py-5 text-right">
-                         <div className="flex flex-col">
-                             <span className="font-mono font-black text-slate-900 text-[12px]">{formatCurrency(total)}</span>
-                             {isSale && balance > 0 && (
-                                <span className="text-[9px] font-black text-rose-500 uppercase tracking-widest mt-1">
-                                   Bal: {formatCurrency(balance)}
-                                </span>
-                             )}
-                             {isSale && balance <= 0 && (
-                                <span className="text-[9px] font-black text-highlight uppercase tracking-widest mt-1 bg-slate-900 px-2 py-0.5 rounded-full inline-block w-fit ml-auto">
-                                   Paid
-                                </span>
-                             )}
-                              {isCreditNote && (
-                                 <span className={`text-[10px] font-black font-mono ${t.status === 'USED' ? 'text-slate-400 line-through' : 'text-emerald-600'}`}>
-                                    {t.status === 'USED' ? '' : '+'}{formatCurrency(t.amount)} {t.status === 'USED' && '(Consumed)'}
+                      <td className="px-6 py-4 text-right">
+                          <div className="flex flex-col items-end">
+                              <span className="font-mono font-bold text-slate-900 text-xs">{formatCurrency(total)}</span>
+                              {isSale && balance > 0 && (
+                                 <span className="text-[9px] font-bold text-rose-500 uppercase tracking-wider mt-0.5">
+                                    Bal Due: {formatCurrency(balance)}
                                  </span>
                               )}
-                         </div>
+                              {isSale && balance <= 0 && (
+                                 <span className="text-[8px] font-black text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded uppercase tracking-wider mt-0.5 border border-emerald-100">
+                                    Fully Paid
+                                 </span>
+                              )}
+                              {isCreditNote && (
+                                 <span className={`text-[10px] font-bold font-mono ${t.status?.toUpperCase() === 'USED' ? 'text-slate-400 line-through' : 'text-emerald-600'}`}>
+                                    {t.status?.toUpperCase() === 'USED' ? '' : '+'}{formatCurrency(t.amount)} {t.status?.toUpperCase() === 'USED' && '(Consumed)'}
+                                 </span>
+                              )}
+                          </div>
                       </td>
-                      <td className="px-6 py-5 text-center">
-                         <span className={`px-4 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest ${
-                            isSale ? 'bg-slate-50 text-slate-400' : 
-                            isRental ? getStatusColor(t.status) : 
-                            t.status === 'ACTIVE' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-400'
+                      <td className="px-6 py-4 text-center">
+                         <span className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider ${
+                            isSale 
+                              ? t.paymentStatus === PaymentStatus.PAID 
+                                ? 'bg-emerald-50 text-emerald-700 border border-emerald-100'
+                                : t.paymentStatus === PaymentStatus.PARTIAL
+                                ? 'bg-amber-50 text-amber-700 border border-amber-100'
+                                : 'bg-rose-50 text-rose-700 border border-rose-100'
+                              : isRental 
+                              ? getStatusColor(t.status) 
+                              : t.status?.toUpperCase() === 'ACTIVE' 
+                              ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' 
+                              : 'bg-slate-50 text-slate-400 border border-slate-100'
                          }`}>
                             {isSale ? t.paymentStatus : isRental ? t.status : t.status}
                          </span>
                       </td>
-                      <td className="px-6 py-5 text-right">
-                         {isSale && t.paymentStatus !== PaymentStatus.PAID && (
-                            <button 
-                              onClick={() => openPaymentModal(t.id)}
-                              className="text-[9px] font-black uppercase tracking-widest text-slate-900 hover:bg-highlight bg-slate-50 border border-slate-100 px-5 py-2.5 rounded-xl transition-all shadow-nano active:scale-95"
-                            >
-                               Record Payment
-                            </button>
-                         )}
+                      <td className="px-6 py-4 text-right">
+                          {isSale && t.paymentStatus !== PaymentStatus.PAID && (
+                             <button 
+                               onClick={() => openPaymentModal(t.id)}
+                               className="text-[9px] font-black uppercase tracking-widest text-slate-900 hover:bg-highlight bg-slate-50 border border-slate-100 px-4 py-2 rounded-xl transition-all shadow-nano active:scale-95"
+                             >
+                                Record Payment
+                             </button>
+                          )}
                       </td>
                     </tr>
                   );
