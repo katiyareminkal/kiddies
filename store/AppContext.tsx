@@ -884,46 +884,17 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   };
 
   const consumeStoreCredit = async (customerId: string, amountToConsume: number, invoiceNumber: string) => {
-    const activeCNs = state.creditNotes
-      .filter(cn => cn.customerId === customerId && cn.status?.toUpperCase() === 'ACTIVE')
-      .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
-
-    let remainingToConsume = amountToConsume;
-
     try {
       const dateStr = new Date().toISOString();
-      for (const cn of activeCNs) {
-        if (remainingToConsume <= 0) break;
-
-        if (cn.amount <= remainingToConsume) {
-          // Fully consumed: mark original note as USED
-          await supabase.from('credit_notes').update({ 
-            status: 'USED', 
-            used_at: dateStr
-          }).eq('id', cn.id);
-          remainingToConsume -= cn.amount;
-        } else {
-          // Partially consumed: update original note amount in-place to the remainder
-          const remainder = cn.amount - remainingToConsume;
-          await supabase.from('credit_notes').update({ 
-            amount: remainder
-          }).eq('id', cn.id);
-          
-          remainingToConsume = 0;
-        }
-      }
-
-      // Insert a single transaction entry for the actual amount consumed (spent)
       const consumedId = generateID();
       await supabase.from('credit_notes').insert({
         id: consumedId,
         customer_id: customerId,
-        amount: amountToConsume,
+        amount: -amountToConsume, // Negative amount to represent debit/consumption
         reason: invoiceNumber === 'CASH-OUT'
           ? 'Cash payout from store credit balance'
           : `Credit Consumed: Used for checkout (Inv: ${invoiceNumber})`,
-        status: 'USED',
-        used_at: dateStr,
+        status: 'ACTIVE',
         created_at: dateStr
       });
 

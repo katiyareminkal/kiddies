@@ -436,8 +436,19 @@ const Customers: React.FC = () => {
                                  </span>
                               )}
                               {isCreditNote && (
-                                 <span className={`text-[10px] font-bold font-mono ${t.status?.toUpperCase() === 'USED' ? 'text-slate-400 line-through' : 'text-emerald-600'}`}>
-                                    {t.status?.toUpperCase() === 'USED' ? '' : '+'}{formatCurrency(t.amount)} {t.status?.toUpperCase() === 'USED' && '(Consumed)'}
+                                 <span className={`text-[10px] font-bold font-mono ${
+                                   t.status?.toUpperCase() === 'USED' 
+                                     ? 'text-slate-400 line-through' 
+                                     : t.amount < 0 
+                                     ? 'text-rose-600' 
+                                     : 'text-emerald-600'
+                                 }`}>
+                                    {t.status?.toUpperCase() === 'USED' 
+                                      ? '' 
+                                      : t.amount < 0 
+                                      ? '' 
+                                      : '+'
+                                    }{formatCurrency(t.amount)} {t.status?.toUpperCase() === 'USED' && '(Consumed)'}
                                  </span>
                               )}
                           </div>
