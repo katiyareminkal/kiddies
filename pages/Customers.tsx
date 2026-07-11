@@ -434,6 +434,17 @@ const Customers: React.FC = () => {
                               {!isCreditNote && (
                                  <span className="font-mono font-bold text-slate-900 text-xs">{formatCurrency(total)}</span>
                               )}
+                              {isSale && (() => {
+                                const saleCreditUsed = creditNotes.find(cn => 
+                                  cn.customerId === selectedCustomerId && 
+                                  cn.reason.includes(`(Inv: ${t.invoiceNumber})`)
+                                );
+                                return saleCreditUsed ? (
+                                  <span className="text-[8px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded uppercase tracking-wider mt-0.5 border border-emerald-100">
+                                    Credit Used: {formatCurrency(Math.abs(saleCreditUsed.amount))}
+                                  </span>
+                                ) : null;
+                              })()}
                               {isSale && balance > 0 && (
                                  <span className="text-[9px] font-bold text-rose-500 uppercase tracking-wider mt-0.5">
                                     Bal Due: {formatCurrency(balance)}

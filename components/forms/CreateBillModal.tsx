@@ -162,7 +162,7 @@ export const CreateBillModal: React.FC<CreateBillModalProps> = ({ isOpen, onClos
     if (cartItems.length === 0) return;
 
     try {
-      await addSale({
+      const newSale = await addSale({
         channel: SalesChannel.IN_STORE,
         customerId: selectedCustomerId,
         items: cartItems.map(item => ({
@@ -185,10 +185,8 @@ export const CreateBillModal: React.FC<CreateBillModalProps> = ({ isOpen, onClos
       });
 
       // Consume store credit notes if applied
-      if (creditApplied > 0) {
-        const prefix = settings.salesInvoicePrefix || 'INV-';
-        const invoiceNumber = `${prefix}${sales.length + 1001}`;
-        await consumeStoreCredit(selectedCustomerId, creditApplied, invoiceNumber);
+      if (creditApplied > 0 && newSale) {
+        await consumeStoreCredit(selectedCustomerId, creditApplied, newSale.invoiceNumber);
       }
 
       setCart([]);

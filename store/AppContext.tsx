@@ -27,7 +27,7 @@ interface AppContextType extends AppState {
   deleteProduct: (id: string) => Promise<void>;
   addCustomer: (customer: Omit<Customer, 'id' | 'createdAt'>) => Promise<string | undefined>;
   addSupplier: (supplier: Omit<Supplier, 'id' | 'createdAt'>) => Promise<void>;
-  addSale: (sale: Omit<Sale, 'id' | 'invoiceNumber' | 'date' | 'netPayout'> & { date?: string }) => Promise<void>;
+  addSale: (sale: Omit<Sale, 'id' | 'invoiceNumber' | 'date' | 'netPayout'> & { date?: string }) => Promise<{ id: string, invoiceNumber: string } | undefined>;
   addCreditNote: (customerId: string, amount: number, reason: string) => Promise<void>;
   consumeStoreCredit: (customerId: string, amountToConsume: number, invoiceNumber: string) => Promise<void>;
   addExpense: (expense: Omit<Expense, 'id' | 'date'> & { date?: string }) => Promise<void>;
@@ -806,6 +806,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       });
 
       await fetchAllData();
+      return { id, invoiceNumber };
     } catch (error) {
       console.error('Error in addSale:', error);
       throw error;
