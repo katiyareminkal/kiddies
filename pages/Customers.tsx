@@ -29,10 +29,11 @@ import { Sale, Rental, Customer, PaymentStatus } from '../types';
 import { ReturnRentalModal } from '../components/forms/ReturnRentalModal';
 
 const Customers: React.FC = () => {
-  const { customers, addCustomer, sales, rentals, products, addPaymentToSale, creditNotes, addCreditNote } = useApp();
+  const { customers, addCustomer, sales, rentals, products, addPaymentToSale, creditNotes, addCreditNote, consumeStoreCredit } = useApp();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [isIssueCreditModalOpen, setIsIssueCreditModalOpen] = useState(false);
+  const [isCashOutModalOpen, setIsCashOutModalOpen] = useState(false);
   const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
   const [selectedSaleForPayment, setSelectedSaleForPayment] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -116,6 +117,26 @@ const Customers: React.FC = () => {
         setIsIssueCreditModalOpen(false);
       } catch (err) {
         alert('Failed to issue credit note.');
+      }
+    }
+  };
+
+  const handleCashOutStoreCredit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!selectedCustomerId) return;
+    const formData = new FormData(e.currentTarget);
+    const amount = Number(formData.get('amount'));
+    
+    if (amount > 0) {
+      if (amount > availableCredit) {
+        alert("Cannot cash out more than available store credit balance.");
+        return;
+      }
+      try {
+        await consumeStoreCredit(selectedCustomerId, amount, 'CASH-OUT');
+        setIsCashOutModalOpen(false);
+      } catch (err) {
+        alert('Failed to process cash payout.');
       }
     }
   };
@@ -262,12 +283,22 @@ const Customers: React.FC = () => {
                   <span className="text-[9px] font-bold uppercase tracking-widest">Store Credit</span>
                 </div>
                 <p className="text-2xl font-bold text-highlight tracking-tight">{formatCurrency(availableCredit)}</p>
-                <button 
-                  onClick={() => setIsIssueCreditModalOpen(true)}
-                  className="mt-3 px-3 py-1.5 bg-emerald-800 hover:bg-emerald-700 text-white rounded-lg text-[8px] font-black uppercase tracking-widest transition-all"
-                >
-                  Issue Credit
-                </button>
+                <div className="flex gap-2 mt-3">
+                  <button 
+                    onClick={() => setIsIssueCreditModalOpen(true)}
+                    className="px-3 py-1.5 bg-emerald-800 hover:bg-emerald-700 text-white rounded-lg text-[8px] font-black uppercase tracking-widest transition-all"
+                  >
+                    Issue Credit
+                  </button>
+                  {availableCredit > 0 && (
+                    <button 
+                      onClick={() => setIsCashOutModalOpen(true)}
+                      className="px-3 py-1.5 bg-rose-800 hover:bg-rose-700 text-white rounded-lg text-[8px] font-black uppercase tracking-widest transition-all"
+                    >
+                      Cash Out
+                    </button>
+                  )}
+                </div>
               </div>
               <div className="relative z-10 mt-3 pt-3 border-t border-emerald-900/50">
                 <p className="text-[7px] text-emerald-300/80 uppercase font-black tracking-wider leading-relaxed">
@@ -662,6 +693,41 @@ const Customers: React.FC = () => {
                <div className="flex flex-col sm:flex-row gap-4 pt-4">
                   <button type="button" onClick={() => setIsIssueCreditModalOpen(false)} className="w-full sm:flex-1 h-14 rounded-2xl font-black uppercase tracking-widest text-[9px] border border-slate-100 text-slate-400">Cancel</button>
                   <button type="submit" className="banana-btn w-full sm:flex-1 h-14 text-[9px]">Issue Credit</button>
+               </div>
+            </form>
+         </Modal>
+
+         {/* Cash Out Store Credit Modal */}
+         <Modal 
+            isOpen={isCashOutModalOpen} 
+            onClose={() => setIsCashOutModalOpen(false)} 
+            title={selectedCustomer ? `Cash Out Credit: ${selectedCustomer.name}` : 'Cash Out Credit'}
+         >
+            <form onSubmit={handleCashOutStoreCredit} className="space-y-6">
+               <div className="p-6 bg-rose-950 text-white rounded-3xl space-y-3 shadow-banana">
+                  <div className="flex justify-between items-center">
+                     <span className="text-[10px] font-black uppercase tracking-widest text-rose-300">Available Credit Balance</span>
+                     <span className="text-2xl font-display font-black text-highlight">{formatCurrency(availableCredit)}</span>
+                  </div>
+               </div>
+
+               <div className="space-y-2 text-left">
+                  <label className="text-[9px] font-black uppercase text-slate-400 tracking-widest ml-2">Payout Amount (₹)</label>
+                  <input 
+                    name="amount" 
+                    type="number" 
+                    max={availableCredit}
+                    min={1}
+                    required 
+                    className="w-full px-4 py-3.5 bg-slate-50 border border-transparent focus:bg-white focus:border-highlight/30 rounded-2xl outline-none transition-all font-black text-slate-900 text-[11px]" 
+                    placeholder="Enter amount to pay out" 
+                  />
+                  <p className="text-[8px] text-slate-400 font-black uppercase tracking-widest ml-2">Max: {formatCurrency(availableCredit)}</p>
+               </div>
+
+               <div className="flex flex-col sm:flex-row gap-4 pt-4">
+                  <button type="button" onClick={() => setIsCashOutModalOpen(false)} className="w-full sm:flex-1 h-14 rounded-2xl font-black uppercase tracking-widest text-[9px] border border-slate-100 text-slate-400">Cancel</button>
+                  <button type="submit" className="banana-btn w-full sm:flex-1 h-14 text-[9px] bg-rose-600 hover:bg-rose-500 shadow-rose-500/25">Confirm Payout</button>
                </div>
             </form>
          </Modal>

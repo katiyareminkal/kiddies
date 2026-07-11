@@ -900,13 +900,28 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
             id: newId,
             customer_id: customerId,
             amount: remainder,
-            reason: `Balance remaining after checkout (Inv: ${invoiceNumber})`,
+            reason: invoiceNumber === 'CASH-OUT' 
+              ? 'Balance remaining after cash payout'
+              : `Balance remaining after checkout (Inv: ${invoiceNumber})`,
             status: 'ACTIVE',
             created_at: new Date().toISOString()
           });
           remainingToConsume = 0;
         }
       }
+
+      if (invoiceNumber === 'CASH-OUT') {
+        await supabase.from('credit_notes').insert({
+          id: generateID(),
+          customer_id: customerId,
+          amount: amountToConsume,
+          reason: 'Cash payout from store credit balance',
+          status: 'USED',
+          used_at: new Date().toISOString(),
+          created_at: new Date().toISOString()
+        });
+      }
+
       await fetchAllData();
     } catch (error) {
       console.error('Error consuming store credit:', error);
