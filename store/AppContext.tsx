@@ -886,25 +886,39 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     let remainingToConsume = amountToConsume;
 
     try {
+      const dateStr = new Date().toISOString();
       for (const cn of activeCNs) {
         if (remainingToConsume <= 0) break;
 
         if (cn.amount <= remainingToConsume) {
-          await supabase.from('credit_notes').update({ status: 'USED', used_at: new Date().toISOString() }).eq('id', cn.id);
+          const updatedReason = `${cn.reason} (Fully consumed for ${invoiceNumber === 'CASH-OUT' ? 'Cash Payout' : `Inv: ${invoiceNumber}`})`;
+          await supabase.from('credit_notes').update({ 
+            status: 'USED', 
+            used_at: dateStr,
+            reason: updatedReason
+          }).eq('id', cn.id);
           remainingToConsume -= cn.amount;
         } else {
-          await supabase.from('credit_notes').update({ status: 'USED', used_at: new Date().toISOString() }).eq('id', cn.id);
+          const consumedAmount = remainingToConsume;
           const remainder = cn.amount - remainingToConsume;
+          const updatedReason = `${cn.reason} (₹${consumedAmount} consumed for ${invoiceNumber === 'CASH-OUT' ? 'Cash Payout' : `Inv: ${invoiceNumber}`}, remainder ₹${remainder} carried forward)`;
+          
+          await supabase.from('credit_notes').update({ 
+            status: 'USED', 
+            used_at: dateStr,
+            reason: updatedReason
+          }).eq('id', cn.id);
+
           const newId = generateID();
           await supabase.from('credit_notes').insert({
             id: newId,
             customer_id: customerId,
             amount: remainder,
             reason: invoiceNumber === 'CASH-OUT' 
-              ? 'Balance remaining after cash payout'
-              : `Balance remaining after checkout (Inv: ${invoiceNumber})`,
+              ? `Balance remaining after cash payout (from CN-${cn.id.slice(-6).toUpperCase()})`
+              : `Balance remaining after checkout (from CN-${cn.id.slice(-6).toUpperCase()} for Inv: ${invoiceNumber})`,
             status: 'ACTIVE',
-            created_at: new Date().toISOString()
+            created_at: dateStr
           });
           remainingToConsume = 0;
         }
@@ -917,8 +931,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
           amount: amountToConsume,
           reason: 'Cash payout from store credit balance',
           status: 'USED',
-          used_at: new Date().toISOString(),
-          created_at: new Date().toISOString()
+          used_at: dateStr,
+          created_at: dateStr
         });
       }
 
