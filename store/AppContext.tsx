@@ -25,7 +25,7 @@ interface AppContextType extends AppState {
   addProduct: (product: Omit<Product, 'id' | 'createdAt'>, imageFile?: File, onProgress?: (status: string) => void) => Promise<void>;
   updateProduct: (id: string, product: Partial<Product>, imageFile?: File, onProgress?: (status: string) => void) => Promise<void>;
   deleteProduct: (id: string) => Promise<void>;
-  addCustomer: (customer: Omit<Customer, 'id' | 'createdAt'>) => Promise<void>;
+  addCustomer: (customer: Omit<Customer, 'id' | 'createdAt'>) => Promise<string | undefined>;
   addSupplier: (supplier: Omit<Supplier, 'id' | 'createdAt'>) => Promise<void>;
   addSale: (sale: Omit<Sale, 'id' | 'invoiceNumber' | 'date' | 'netPayout'> & { date?: string }) => Promise<void>;
   addCreditNote: (customerId: string, amount: number, reason: string) => Promise<void>;
@@ -666,7 +666,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   };
 
   // -- CUSTOMERS --
-  const addCustomer = async (c: Omit<Customer, 'id' | 'createdAt'>) => {
+  const addCustomer = async (c: Omit<Customer, 'id' | 'createdAt'>): Promise<string | undefined> => {
     const id = generateID();
     try {
       const { error: custError } = await supabase.from('customers').insert({
@@ -690,8 +690,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       });
 
       await fetchAllData();
+      return id;
     } catch (error) {
       console.error('Error adding customer:', error);
+      return undefined;
     }
   };
 
