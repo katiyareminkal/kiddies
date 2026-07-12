@@ -1,5 +1,5 @@
 import React, { useState, useRef, useMemo } from 'react';
-import { Plus, X, Upload, ScanLine, Edit2, RefreshCcw, Image as ImageIcon, Palette, CheckCircle2 } from 'lucide-react';
+import { Plus, X, Upload, ScanLine, Edit2, Image as ImageIcon } from 'lucide-react';
 import { Modal } from '../Shared';
 import { useApp } from '../../store/AppContext';
 import { Product } from '../../types';
@@ -7,7 +7,6 @@ import BarcodeScanner from '../BarcodeScanner';
 import { CATEGORIES } from '../../constants';
 import { generateDynamicLabelPDF } from '../../utils/pdfLabel';
 import LabelDesigner from './LabelDesigner';
-const DEFAULT_MODEL_URL = 'https://images.unsplash.com/photo-1519457431-44ccd64a579b?auto=format&fit=crop&w=600&q=80';
 interface ProductFormModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -45,14 +44,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
   const [showLabelEditor, setShowLabelEditor] = useState(false);
   const [labelData, setLabelData] = useState<any>(null);
 
-  // AI Model Dress Up State
-  const [aiAgeGroup, setAiAgeGroup] = useState<'BABY' | 'TODDLER' | 'KID' | 'PRETEEN'>('KID');
-  const [aiGender, setAiGender] = useState<'BOY' | 'GIRL' | 'UNISEX'>('GIRL');
-  const [isGeneratingAI, setIsGeneratingAI] = useState(false);
-  const [aiStatusText, setAiStatusText] = useState('');
-  const [aiModelImage, setAiModelImage] = useState<string | null>(null);
-  const [aiPromptText, setAiPromptText] = useState<string | null>(null);
-  const [aiSeed, setAiSeed] = useState<number>(1);
+
 
   const SUGGESTED_SIZES = [
     'NB', '0-3M', '3-6M', '6-12M', '12-18M', '18-24M',
@@ -76,12 +68,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
       setSelectedFile(null);
       setIsSaving(false);
       setSavingStatus('');
-      setAiModelImage(null);
-      setIsGeneratingAI(false);
-      setAiAgeGroup('KID');
-      setAiGender('GIRL');
-      setAiPromptText(null);
-      setAiSeed(1);
+
     }
   }, [isOpen, productToEdit]);
 
@@ -114,137 +101,10 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
     }
   };
 
-  const generateAITryOnImage = async (base64Image: string, mimeType: string, ageGroup: string, gender: string): Promise<string> => {
-    const apiKey = process.env.GEMINI_API_KEY || (window as any).process?.env?.GEMINI_API_KEY;
-    if (!apiKey) {
-      throw new Error("Gemini API key is not configured. Add GEMINI_API_KEY to your .env file.");
-    }
-
-    const base64Data = base64Image.split(',')[1] || base64Image;
-
-    const ageLabel = ageGroup === 'BABY' ? 'baby (0-1 year old)' : ageGroup === 'TODDLER' ? 'toddler (1-3 years old)' : ageGroup === 'KID' ? 'kid (4-7 years old)' : 'pre-teen (8-12 years old)';
-    const genderLabel = gender === 'BOY' ? 'boy' : gender === 'GIRL' ? 'girl' : 'child';
-
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent?key=${apiKey}`;
-
-    const requestBody = {
-      contents: [
-        {
-          parts: [
-            {
-              text: `Generate a professional kid fashion catalog product photo. Show a cute ${ageLabel} ${genderLabel} model wearing EXACTLY this clothing item shown in the image. The model should be standing and smiling naturally. Use a clean, neutral light gray studio backdrop with soft professional studio lighting. The clothing on the model must match the uploaded garment EXACTLY - same colors, same patterns, same fabric, same design details. Make it look like a real e-commerce product photo.`
-            },
-            {
-              inlineData: {
-                mimeType: mimeType || 'image/jpeg',
-                data: base64Data
-              }
-            }
-          ]
-        }
-      ],
-      generationConfig: {
-        responseModalities: ["IMAGE", "TEXT"],
-        responseMimeType: "text/plain"
-      }
-    };
-
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(requestBody)
-    });
-
-    if (!response.ok) {
-      const errText = await response.text();
-      if (response.status === 429 || errText.includes('quota')) {
-        throw new Error('Free tier limit reached. Please wait 1-2 minutes and try again.');
-      }
-      if (response.status === 404) {
-        throw new Error('AI model not available. Please check your API key.');
-      }
-      throw new Error(`Gemini API Error: ${response.status} - ${errText}`);
-    }
-
-    const data = await response.json();
-    const parts = data.candidates?.[0]?.content?.parts;
-    if (!parts || parts.length === 0) {
-      throw new Error("Gemini returned no content. Try again.");
-    }
-
-    // Look for an image part in the response
-    for (const part of parts) {
-      if (part.inlineData) {
-        const imgMime = part.inlineData.mimeType || 'image/png';
-        const imgBase64 = part.inlineData.data;
-        return `data:${imgMime};base64,${imgBase64}`;
-      }
-    }
-
-    // If no image part found, check if there's text explaining why
-    const textPart = parts.find((p: any) => p.text);
-    throw new Error(textPart?.text || "Gemini could not generate an image. Try a different garment photo.");
-  };
-
   const handleRemoveImage = () => {
     setPreviewImage(null);
     setSelectedFile(null);
     if (fileInputRef.current) fileInputRef.current.value = '';
-    setAiModelImage(null);
-    setAiPromptText(null);
-  };
-
-  const handleGenerateAIModel = async () => {
-    if (isGeneratingAI || !previewImage) return;
-    setIsGeneratingAI(true);
-    setAiModelImage(null);
-
-    try {
-      setAiStatusText('AI is analyzing your garment...');
-      await new Promise(resolve => setTimeout(resolve, 500));
-
-      let mimeType = 'image/jpeg';
-      if (selectedFile) mimeType = selectedFile.type;
-      else if (previewImage.startsWith('data:image/')) {
-        const match = previewImage.match(/^data:(image\/[a-zA-Z0-9+.-]+);base64,/);
-        if (match) mimeType = match[1];
-      }
-
-      setAiStatusText('Generating model wearing your dress...');
-      const imageDataUrl = await generateAITryOnImage(previewImage, mimeType, aiAgeGroup, aiGender);
-      setAiModelImage(imageDataUrl);
-      setAiPromptText('Generated using Gemini AI with your uploaded garment image');
-    } catch (e: any) {
-      console.error(e);
-      alert('AI Dress Up Failed: ' + (e?.message || e));
-    } finally {
-      setIsGeneratingAI(false);
-    }
-  };
-
-  const handleRecreateAIModel = async () => {
-    if (isGeneratingAI || !previewImage) return;
-    setIsGeneratingAI(true);
-    setAiModelImage(null); // Clear first to force re-render
-
-    try {
-      setAiStatusText('Re-generating with new pose...');
-
-      let mimeType = 'image/jpeg';
-      if (selectedFile) mimeType = selectedFile.type;
-      else if (previewImage.startsWith('data:image/')) {
-        const match = previewImage.match(/^data:(image\/[a-zA-Z0-9+.-]+);base64,/);
-        if (match) mimeType = match[1];
-      }
-
-      const imageDataUrl = await generateAITryOnImage(previewImage, mimeType, aiAgeGroup, aiGender);
-      setAiModelImage(imageDataUrl);
-    } catch (e: any) {
-      console.error(e);
-      alert('AI Recreate Failed: ' + (e?.message || e));
-    } finally {
-      setIsGeneratingAI(false);
-    }
   };
 
   const handleSaveProduct = async (e?: React.FormEvent) => {
@@ -435,124 +295,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
             </div>
           </div>
 
-          {/* AI Model Dress Up Section */}
-          {previewImage && (
-            <div className="p-4 bg-slate-50 border border-slate-100 rounded-3xl space-y-3 mt-2 animate-nano">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-1.5 text-[#8B5CF6]">
-                  <Palette size={13} strokeWidth={2.5} />
-                  <span className="text-[9px] font-black uppercase tracking-widest">AI Generative Try-On</span>
-                </div>
-                {aiModelImage && (
-                  <button 
-                    type="button"
-                    onClick={handleRecreateAIModel}
-                    className="text-[8px] font-black uppercase tracking-widest text-[#8B5CF6] hover:bg-[#8B5CF6]/10 px-2.5 py-1 rounded-xl flex items-center gap-1 transition-all border border-[#8B5CF6]/10 bg-[#8B5CF6]/5 active:scale-95"
-                  >
-                    <RefreshCcw size={10} strokeWidth={2.5} /> Recreate
-                  </button>
-                )}
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Selection Controls */}
-                <div className="space-y-3">
-                  <div className="space-y-1">
-                    <label className="text-[8px] font-black uppercase tracking-widest text-slate-400">Select Model Age</label>
-                    <select 
-                      value={aiAgeGroup} 
-                      onChange={(e) => setAiAgeGroup(e.target.value as any)}
-                      className="w-full px-3 py-2.5 bg-white border border-slate-100 rounded-xl outline-none focus:border-[#8B5CF6]/30 text-[9px] font-black uppercase tracking-widest text-slate-600 shadow-nano"
-                    >
-                      <option value="BABY">Baby (0-1 Year)</option>
-                      <option value="TODDLER">Toddler (1-3 Years)</option>
-                      <option value="KID">Kid (4-7 Years)</option>
-                      <option value="PRETEEN">Pre-teen (8-12 Years)</option>
-                    </select>
-                  </div>
-                  
-                  <div className="space-y-1">
-                    <label className="text-[8px] font-black uppercase tracking-widest text-slate-400">Select Gender</label>
-                    <div className="flex gap-2">
-                      {(['BOY', 'GIRL', 'UNISEX'] as const).map(g => (
-                        <button
-                          key={g}
-                          type="button"
-                          onClick={() => setAiGender(g)}
-                          className={`flex-1 py-2 rounded-xl text-[8px] font-black uppercase tracking-widest transition-all border ${
-                            aiGender === g 
-                              ? 'bg-slate-900 border-slate-900 text-white shadow-md' 
-                              : 'bg-white border-slate-100 text-slate-400'
-                          }`}
-                        >
-                          {g}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
 
-                  <button
-                    type="button"
-                    disabled={isGeneratingAI}
-                    onClick={handleGenerateAIModel}
-                    className="w-full py-2.5 bg-[#8B5CF6] hover:bg-[#7C3AED] disabled:bg-slate-200 text-white rounded-xl text-[9px] font-black uppercase tracking-widest transition-all shadow-md shadow-[#8B5CF6]/15 flex items-center justify-center gap-1.5 active:scale-95"
-                  >
-                    {isGeneratingAI ? (
-                      <>
-                        <RefreshCcw size={11} strokeWidth={2.5} className="animate-spin" />
-                        <span>{aiStatusText}</span>
-                      </>
-                    ) : (
-                      <>
-                        <Palette size={11} strokeWidth={2.5} />
-                        <span>Dress up Model</span>
-                      </>
-                    )}
-                  </button>
-                </div>
-
-                {/* Preview Frame */}
-                <div className="w-full h-36 bg-white border border-slate-100 rounded-2xl overflow-hidden relative flex items-center justify-center shadow-nano">
-                  {aiModelImage ? (
-                    <div className="w-full h-full relative group">
-                      <img 
-                        src={aiModelImage} 
-                        alt="AI Model Try-on" 
-                        className="w-full h-full object-cover" 
-                        referrerPolicy="no-referrer"
-                      />
-                      <div className="absolute inset-0 bg-slate-950/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setPreviewImage(aiModelImage);
-                            setSelectedFile(null); // Clear selected file so it saves this URL
-                          }}
-                          className="px-3 py-1.5 bg-white text-slate-900 rounded-xl text-[8px] font-black uppercase tracking-widest shadow-lg flex items-center gap-1 hover:scale-105 active:scale-95 transition-all"
-                        >
-                          <CheckCircle2 size={10} className="text-emerald-500" /> Use Product Photo
-                        </button>
-                      </div>
-                      <span className="absolute bottom-2 left-2 bg-[#8B5CF6] text-white px-2 py-0.5 rounded-md text-[7px] font-bold tracking-widest uppercase border border-white/10 shadow-sm">AI GENERATED</span>
-                    </div>
-                  ) : (
-                    <div className="text-center p-3">
-                      <ImageIcon size={20} className="text-slate-300 mx-auto mb-1.5" />
-                      <p className="text-[8px] font-black uppercase tracking-widest text-slate-400">AI Model Preview</p>
-                      <p className="text-[7px] font-bold text-slate-300 mt-0.5">Click "Dress up Model" to generate</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {aiPromptText && (
-                <div className="bg-white border border-slate-100 rounded-2xl p-2.5 text-[7.5px] font-bold text-slate-400 tracking-wide uppercase leading-normal shadow-nano">
-                  <span className="text-[#8B5CF6] font-black block mb-0.5">AI Prompter Description:</span>
-                  "{aiPromptText}"
-                </div>
-              )}
-            </div>
-          )}
 
           <div className="space-y-1.5">
             <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Product Purpose</label>
