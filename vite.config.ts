@@ -26,7 +26,7 @@ export default defineConfig(({ mode }) => {
             short_name: 'Kiddies',
             description: 'Premium Kids Wear Management App',
             theme_color: '#ffffff',
-            background_color: '#F8FAFC',
+            background_color: '#ffffff',
             display: 'standalone',
             icons: [
               {
