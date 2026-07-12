@@ -157,6 +157,12 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
 
     if (!response.ok) {
       const errText = await response.text();
+      if (response.status === 429 || errText.includes('quota')) {
+        throw new Error('Free tier limit reached. Please wait 1-2 minutes and try again.');
+      }
+      if (response.status === 404) {
+        throw new Error('AI model not available. Please check your API key.');
+      }
       throw new Error(`Gemini API Error: ${response.status} - ${errText}`);
     }
 
