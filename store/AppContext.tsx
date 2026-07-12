@@ -154,14 +154,25 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   // -- AUTH LISTENER --
   useEffect(() => {
     let mounted = true;
+    const startTime = Date.now();
 
-    // Safety timeout: Ensure loading finishes within 3 seconds so the app never hangs
+    const triggerReady = () => {
+      const elapsed = Date.now() - startTime;
+      const remaining = Math.max(0, 3000 - elapsed);
+      setTimeout(() => {
+        if (mounted) {
+          setIsAuthReady(true);
+        }
+      }, remaining);
+    };
+
+    // Safety timeout: Ensure loading finishes within 6 seconds as a hard limit
     const fallbackTimeout = setTimeout(() => {
       if (mounted) {
-        console.warn("Auth initialization timed out, using fallback to render the screen");
-        setIsAuthReady(true);
+        console.warn("Auth initialization timed out, forcing ready");
+        triggerReady();
       }
-    }, 3000);
+    }, 6000);
 
     const initializeAuth = async () => {
       try {
@@ -189,7 +200,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         console.error("Auth initialization error:", error);
       } finally {
         if (mounted) {
-          setIsAuthReady(true);
+          triggerReady();
         }
       }
     };
