@@ -4,10 +4,12 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import { registerSW } from 'virtual:pwa-register';
 
-// Register standard PWA service worker
-if ('serviceWorker' in navigator) {
-  registerSW({ immediate: true });
-}
+// Register standard PWA service worker after page load
+window.addEventListener('load', () => {
+  if ('serviceWorker' in navigator) {
+    registerSW({ immediate: true });
+  }
+});
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {

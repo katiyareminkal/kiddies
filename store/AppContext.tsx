@@ -155,9 +155,18 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   useEffect(() => {
     let mounted = true;
 
+    // Safety timeout: Ensure loading finishes within 3 seconds so the app never hangs
+    const fallbackTimeout = setTimeout(() => {
+      if (mounted) {
+        console.warn("Auth initialization timed out, using fallback to render the screen");
+        setIsAuthReady(true);
+      }
+    }, 3000);
+
     const initializeAuth = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
+        clearTimeout(fallbackTimeout);
         if (session?.user) {
           const { data } = await supabase.from('profiles').select('*').eq('id', session.user.id).single();
           if (data && mounted) {
@@ -216,6 +225,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
     return () => {
       mounted = false;
+      clearTimeout(fallbackTimeout);
       subscription.unsubscribe();
     };
   }, []);
