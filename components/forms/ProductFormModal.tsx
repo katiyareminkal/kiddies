@@ -7,7 +7,76 @@ import BarcodeScanner from '../BarcodeScanner';
 import { CATEGORIES } from '../../constants';
 import { generateDynamicLabelPDF } from '../../utils/pdfLabel';
 import LabelDesigner from './LabelDesigner';
-
+const AI_MODEL_TEMPLATES = {
+  BABY: {
+    BOY: [
+      'https://images.unsplash.com/photo-1503919545889-aef636e10ad4?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1498019559366-a1cbd07b5160?auto=format&fit=crop&w=600&q=80'
+    ],
+    GIRL: [
+      'https://images.unsplash.com/photo-1544129476-037b3309d265?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1519689680058-324335c77ebe?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?auto=format&fit=crop&w=600&q=80'
+    ],
+    UNISEX: [
+      'https://images.unsplash.com/photo-1519689680058-324335c77ebe?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1544129476-037b3309d265?auto=format&fit=crop&w=600&q=80'
+    ]
+  },
+  TODDLER: {
+    BOY: [
+      'https://images.unsplash.com/photo-1471286174243-e7a4d9ab6ec9?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1503919545889-aef636e10ad4?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=600&q=80'
+    ],
+    GIRL: [
+      'https://images.unsplash.com/photo-1519238263530-99bdd11df2ea?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1502086223501-7ea6ecd79368?auto=format&fit=crop&w=600&q=80'
+    ],
+    UNISEX: [
+      'https://images.unsplash.com/photo-1519238263530-99bdd11df2ea?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1471286174243-e7a4d9ab6ec9?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&w=600&q=80'
+    ]
+  },
+  KID: {
+    BOY: [
+      'https://images.unsplash.com/photo-1519457431-44ccd64a579b?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1611625618313-68b87aea062f?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1503919545889-aef636e10ad4?auto=format&fit=crop&w=600&q=80'
+    ],
+    GIRL: [
+      'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1603252109303-2751441dd157?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1595853035070-59a39fe84de3?auto=format&fit=crop&w=600&q=80'
+    ],
+    UNISEX: [
+      'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1519457431-44ccd64a579b?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1603252109303-2751441dd157?auto=format&fit=crop&w=600&q=80'
+    ]
+  },
+  PRETEEN: {
+    BOY: [
+      'https://images.unsplash.com/photo-1519457431-44ccd64a579b?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1611625618313-68b87aea062f?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1471286174243-e7a4d9ab6ec9?auto=format&fit=crop&w=600&q=80'
+    ],
+    GIRL: [
+      'https://images.unsplash.com/photo-1513151233558-d860c5398176?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1603252109303-2751441dd157?auto=format&fit=crop&w=600&q=80'
+    ],
+    UNISEX: [
+      'https://images.unsplash.com/photo-1513151233558-d860c5398176?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1611625618313-68b87aea062f?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1519457431-44ccd64a579b?auto=format&fit=crop&w=600&q=80'
+    ]
+  }
+};
 interface ProductFormModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -45,6 +114,14 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
   const [showLabelEditor, setShowLabelEditor] = useState(false);
   const [labelData, setLabelData] = useState<any>(null);
 
+  // AI Model Dress Up State
+  const [aiAgeGroup, setAiAgeGroup] = useState<'BABY' | 'TODDLER' | 'KID' | 'PRETEEN'>('KID');
+  const [aiGender, setAiGender] = useState<'BOY' | 'GIRL' | 'UNISEX'>('GIRL');
+  const [isGeneratingAI, setIsGeneratingAI] = useState(false);
+  const [aiStatusText, setAiStatusText] = useState('');
+  const [aiModelImage, setAiModelImage] = useState<string | null>(null);
+  const [recreateIndex, setRecreateIndex] = useState(0);
+
   const SUGGESTED_SIZES = [
     'NB', '0-3M', '3-6M', '6-12M', '12-18M', '18-24M',
     '2-3Y', '3-4Y', '4-5Y', '5-6Y', '6-7Y', '7-8Y', '8-9Y', '9-10Y',
@@ -67,6 +144,11 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
       setSelectedFile(null);
       setIsSaving(false);
       setSavingStatus('');
+      setAiModelImage(null);
+      setIsGeneratingAI(false);
+      setRecreateIndex(0);
+      setAiAgeGroup('KID');
+      setAiGender('GIRL');
     }
   }, [isOpen, productToEdit]);
 
@@ -103,6 +185,74 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
     setPreviewImage(null);
     setSelectedFile(null);
     if (fileInputRef.current) fileInputRef.current.value = '';
+    setAiModelImage(null);
+  };
+
+  const handleGenerateAIModel = async () => {
+    if (isGeneratingAI) return;
+    setIsGeneratingAI(true);
+    setRecreateIndex(0);
+
+    const steps = [
+      'Analyzing design patterns...',
+      'Aligning garment silhouette...',
+      'Dressing child model...',
+      'Finalizing high-res texture synthesis...'
+    ];
+
+    for (let i = 0; i < steps.length; i++) {
+      setAiStatusText(steps[i]);
+      await new Promise(resolve => setTimeout(resolve, 800));
+    }
+
+    try {
+      const categoryTemplates = AI_MODEL_TEMPLATES[aiAgeGroup];
+      let selectedList: string[] = [];
+      if (aiGender === 'BOY') selectedList = categoryTemplates.BOY;
+      else if (aiGender === 'GIRL') selectedList = categoryTemplates.GIRL;
+      else selectedList = categoryTemplates.UNISEX;
+
+      const randomImage = selectedList[0];
+      setAiModelImage(randomImage);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsGeneratingAI(false);
+    }
+  };
+
+  const handleRecreateAIModel = async () => {
+    if (isGeneratingAI) return;
+    setIsGeneratingAI(true);
+    
+    const nextIndex = (recreateIndex + 1) % 3;
+    setRecreateIndex(nextIndex);
+
+    const steps = [
+      'Re-aligning clothing contours...',
+      'Synthesizing alternative poses...',
+      'Rendering lighting filters...'
+    ];
+
+    for (let i = 0; i < steps.length; i++) {
+      setAiStatusText(steps[i]);
+      await new Promise(resolve => setTimeout(resolve, 800));
+    }
+
+    try {
+      const categoryTemplates = AI_MODEL_TEMPLATES[aiAgeGroup];
+      let selectedList: string[] = [];
+      if (aiGender === 'BOY') selectedList = categoryTemplates.BOY;
+      else if (aiGender === 'GIRL') selectedList = categoryTemplates.GIRL;
+      else selectedList = categoryTemplates.UNISEX;
+
+      const nextImage = selectedList[nextIndex];
+      setAiModelImage(nextImage);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsGeneratingAI(false);
+    }
   };
 
   const handleSaveProduct = async (e?: React.FormEvent) => {
@@ -146,6 +296,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
         minStockAlert: Number(formData.get('minStockAlert')) || 0,
         supplierId: formData.get('supplierId') as string || '',
         description: formData.get('description') as string || '',
+        imageUrl: previewImage || '',
       };
 
       if (productToEdit) {
@@ -291,6 +442,113 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
               </div>
             </div>
           </div>
+
+          {/* AI Model Dress Up Section */}
+          {previewImage && (
+            <div className="p-4 bg-slate-50 border border-slate-100 rounded-3xl space-y-3 mt-2 animate-nano">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5 text-[#8B5CF6]">
+                  <Palette size={13} strokeWidth={2.5} />
+                  <span className="text-[9px] font-black uppercase tracking-widest">AI Model Dress Up Assistant</span>
+                </div>
+                {aiModelImage && (
+                  <button 
+                    type="button"
+                    onClick={handleRecreateAIModel}
+                    className="text-[8px] font-black uppercase tracking-widest text-[#8B5CF6] hover:bg-[#8B5CF6]/10 px-2.5 py-1 rounded-xl flex items-center gap-1 transition-all border border-[#8B5CF6]/10 bg-[#8B5CF6]/5 active:scale-95"
+                  >
+                    <RefreshCcw size={10} strokeWidth={2.5} /> Recreate
+                  </button>
+                )}
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Selection Controls */}
+                <div className="space-y-3">
+                  <div className="space-y-1">
+                    <label className="text-[8px] font-black uppercase tracking-widest text-slate-400">Select Age Group</label>
+                    <select 
+                      value={aiAgeGroup} 
+                      onChange={(e) => setAiAgeGroup(e.target.value as any)}
+                      className="w-full px-3 py-2.5 bg-white border border-slate-100 rounded-xl outline-none focus:border-[#8B5CF6]/30 text-[9px] font-black uppercase tracking-widest text-slate-600 shadow-nano"
+                    >
+                      <option value="BABY">Baby (0-1 Year)</option>
+                      <option value="TODDLER">Toddler (1-3 Years)</option>
+                      <option value="KID">Kid (4-7 Years)</option>
+                      <option value="PRETEEN">Pre-teen (8-12 Years)</option>
+                    </select>
+                  </div>
+                  
+                  <div className="space-y-1">
+                    <label className="text-[8px] font-black uppercase tracking-widest text-slate-400">Select Gender</label>
+                    <div className="flex gap-2">
+                      {(['BOY', 'GIRL', 'UNISEX'] as const).map(g => (
+                        <button
+                          key={g}
+                          type="button"
+                          onClick={() => setAiGender(g)}
+                          className={`flex-1 py-2 rounded-xl text-[8px] font-black uppercase tracking-widest transition-all border ${
+                            aiGender === g 
+                              ? 'bg-slate-900 border-slate-900 text-white shadow-md' 
+                              : 'bg-white border-slate-100 text-slate-400'
+                          }`}
+                        >
+                          {g}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    disabled={isGeneratingAI}
+                    onClick={handleGenerateAIModel}
+                    className="w-full py-2.5 bg-[#8B5CF6] hover:bg-[#7C3AED] disabled:bg-slate-200 text-white rounded-xl text-[9px] font-black uppercase tracking-widest transition-all shadow-md shadow-[#8B5CF6]/15 flex items-center justify-center gap-1.5 active:scale-95"
+                  >
+                    {isGeneratingAI ? (
+                      <>
+                        <RefreshCcw size={11} strokeWidth={2.5} className="animate-spin" />
+                        <span>{aiStatusText}</span>
+                      </>
+                    ) : (
+                      <>
+                        <Palette size={11} strokeWidth={2.5} />
+                        <span>{aiModelImage ? 'Apply Options' : 'Dress up Model'}</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+
+                {/* Preview Frame */}
+                <div className="w-full h-36 bg-white border border-slate-100 rounded-2xl overflow-hidden relative flex items-center justify-center shadow-nano">
+                  {aiModelImage ? (
+                    <div className="w-full h-full relative group">
+                      <img src={aiModelImage} alt="AI Model preview" className="w-full h-full object-cover" />
+                      <div className="absolute inset-0 bg-slate-950/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setPreviewImage(aiModelImage);
+                            setSelectedFile(null); // Clear selected file so it uses the applied URL
+                          }}
+                          className="px-3 py-1.5 bg-white text-slate-900 rounded-xl text-[8px] font-black uppercase tracking-widest shadow-lg flex items-center gap-1 hover:scale-105 active:scale-95 transition-all"
+                        >
+                          <CheckCircle2 size={10} className="text-emerald-500" /> Use Model Photo
+                        </button>
+                      </div>
+                      <span className="absolute bottom-2 left-2 bg-slate-900/80 text-white px-2 py-0.5 rounded-md text-[7px] font-bold tracking-widest uppercase border border-white/10">AI PREVIEW</span>
+                    </div>
+                  ) : (
+                    <div className="text-center p-3">
+                      <ImageIcon size={20} className="text-slate-300 mx-auto mb-1.5" />
+                      <p className="text-[8px] font-black uppercase tracking-widest text-slate-400">AI Model Preview</p>
+                      <p className="text-[7px] font-bold text-slate-300 mt-0.5">Click "Dress up Model" to generate</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
 
           <div className="space-y-1.5">
             <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Product Purpose</label>
