@@ -56,6 +56,8 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
   const [aiScale, setAiScale] = useState(90);
   const [aiOffsetY, setAiOffsetY] = useState(0);
   const [aiOffsetX, setAiOffsetX] = useState(0);
+  const [garmentType, setGarmentType] = useState<'TSHIRT' | 'DRESS' | 'HOODIE'>('TSHIRT');
+  const [blendMode, setBlendMode] = useState<'normal' | 'multiply' | 'darken'>('multiply');
 
   const SUGGESTED_SIZES = [
     'NB', '0-3M', '3-6M', '6-12M', '12-18M', '18-24M',
@@ -88,6 +90,8 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
       setAiScale(90);
       setAiOffsetY(0);
       setAiOffsetX(0);
+      setGarmentType('TSHIRT');
+      setBlendMode('multiply');
     }
   }, [isOpen, productToEdit]);
 
@@ -129,6 +133,8 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
     setAiScale(90);
     setAiOffsetY(0);
     setAiOffsetX(0);
+    setGarmentType('TSHIRT');
+    setBlendMode('multiply');
   };
 
   const handleGenerateAIModel = async () => {
@@ -450,7 +456,50 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
                       )}
                     </button>
                   ) : (
-                    <div className="space-y-2 border-t border-slate-100 pt-2">
+                    <div className="space-y-2 border-t border-slate-100 pt-2 animate-nano">
+                      {/* Garment Type Buttons */}
+                      <div className="space-y-1">
+                        <label className="text-[7.5px] font-black uppercase tracking-widest text-slate-400">Garment Shape</label>
+                        <div className="flex gap-1.5">
+                          {(['TSHIRT', 'DRESS', 'HOODIE'] as const).map(t => (
+                            <button
+                              key={t}
+                              type="button"
+                              onClick={() => setGarmentType(t)}
+                              className={`flex-1 py-1 rounded-lg text-[7px] font-black uppercase tracking-widest transition-all border ${
+                                garmentType === t 
+                                  ? 'bg-[#8B5CF6] border-[#8B5CF6] text-white shadow-sm' 
+                                  : 'bg-white border-slate-100 text-slate-400'
+                              }`}
+                            >
+                              {t === 'TSHIRT' ? 'Top' : t === 'DRESS' ? 'Dress' : 'Hoodie'}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Blend Mode Buttons */}
+                      <div className="space-y-1">
+                        <label className="text-[7.5px] font-black uppercase tracking-widest text-slate-400">Blending Mode</label>
+                        <div className="flex gap-1.5">
+                          {(['multiply', 'normal', 'darken'] as const).map(b => (
+                            <button
+                              key={b}
+                              type="button"
+                              onClick={() => setBlendMode(b)}
+                              className={`flex-1 py-1 rounded-lg text-[7px] font-black uppercase tracking-widest transition-all border ${
+                                blendMode === b 
+                                  ? 'bg-slate-900 border-slate-900 text-white shadow-sm' 
+                                  : 'bg-white border-slate-100 text-slate-400'
+                              }`}
+                            >
+                              {b === 'multiply' ? 'Realistic' : b === 'normal' ? 'Pattern' : 'Darken'}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Sliders */}
                       <div className="flex items-center justify-between">
                         <span className="text-[7.5px] font-black uppercase tracking-widest text-slate-400">Scale</span>
                         <span className="text-[8px] font-mono text-[#8B5CF6] font-bold">{aiScale}%</span>
@@ -484,12 +533,28 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
                 <div className="w-full h-36 bg-white border border-slate-100 rounded-2xl overflow-hidden relative flex items-center justify-center shadow-nano">
                   {hasDressedModel ? (
                     <div className="w-full h-full relative bg-slate-50">
+                      {/* Inline SVG Definitions for Garment ClipPaths */}
+                      <svg className="absolute w-0 h-0">
+                        <defs>
+                          <clipPath id="clip-tshirt" clipPathUnits="objectBoundingBox">
+                            <path d="M 0.22,0.12 C 0.35,0.06 0.65,0.06 0.78,0.12 L 0.96,0.22 C 0.99,0.24 0.97,0.32 0.92,0.33 L 0.82,0.30 L 0.82,0.92 C 0.82,0.97 0.77,0.99 0.71,0.99 L 0.29,0.99 C 0.23,0.99 0.18,0.97 0.18,0.92 L 0.18,0.30 L 0.08,0.33 C 0.03,0.32 0.01,0.24 0.04,0.22 Z" />
+                          </clipPath>
+                          <clipPath id="clip-dress" clipPathUnits="objectBoundingBox">
+                            <path d="M 0.35,0.10 C 0.43,0.05 0.57,0.05 0.65,0.10 L 0.72,0.22 C 0.74,0.25 0.72,0.32 0.67,0.34 L 0.88,0.90 C 0.90,0.95 0.85,0.98 0.78,0.98 L 0.22,0.98 C 0.15,0.98 0.10,0.95 0.12,0.90 L 0.33,0.34 C 0.28,0.32 0.26,0.25 0.28,0.22 Z" />
+                          </clipPath>
+                          <clipPath id="clip-hoodie" clipPathUnits="objectBoundingBox">
+                            <path d="M 0.30,0.18 C 0.40,0.14 0.60,0.14 0.70,0.18 L 0.87,0.27 C 0.91,0.30 0.88,0.38 0.82,0.39 L 0.80,0.90 C 0.80,0.95 0.75,0.98 0.69,0.98 L 0.31,0.98 C 0.25,0.98 0.20,0.95 0.20,0.90 L 0.18,0.39 C 0.12,0.38 0.09,0.30 0.13,0.27 Z" />
+                          </clipPath>
+                        </defs>
+                      </svg>
+
                       {/* Base Model Image */}
                       <img 
                         src={DEFAULT_MODEL_URL} 
                         alt="Base Model" 
                         className="w-full h-full object-cover opacity-90" 
                       />
+
                       {/* Dressed Garment Overlay */}
                       <img 
                         src={selectedFile ? URL.createObjectURL(selectedFile) : (previewImage || '')} 
@@ -501,12 +566,31 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
                           width: '45%',
                           height: '45%',
                           transform: `translate(-50%, calc(-50% + ${aiOffsetY}px)) scale(${aiScale / 100})`,
-                          objectFit: 'contain',
+                          objectFit: 'cover',
                           pointerEvents: 'none',
-                          filter: 'drop-shadow(0px 6px 12px rgba(0,0,0,0.12))',
-                          mixBlendMode: 'normal'
+                          clipPath: garmentType === 'TSHIRT' ? 'url(#clip-tshirt)' : garmentType === 'DRESS' ? 'url(#clip-dress)' : 'url(#clip-hoodie)',
+                          filter: 'drop-shadow(0px 4px 8px rgba(0,0,0,0.12))',
+                          mixBlendMode: blendMode
                         }}
                       />
+
+                      {/* Shadow & Fabric Creases overlay to simulate natural dress wrinkles */}
+                      <div 
+                        style={{
+                          position: 'absolute',
+                          top: '32%',
+                          left: '50%',
+                          width: '45%',
+                          height: '45%',
+                          transform: `translate(-50%, calc(-50% + ${aiOffsetY}px)) scale(${aiScale / 100})`,
+                          pointerEvents: 'none',
+                          clipPath: garmentType === 'TSHIRT' ? 'url(#clip-tshirt)' : garmentType === 'DRESS' ? 'url(#clip-dress)' : 'url(#clip-hoodie)',
+                          background: 'linear-gradient(105deg, rgba(255,255,255,0.25) 0%, rgba(0,0,0,0.06) 28%, rgba(255,255,255,0.3) 38%, rgba(0,0,0,0.12) 65%, rgba(255,255,255,0.1) 85%, rgba(0,0,0,0.25) 100%)',
+                          mixBlendMode: 'overlay',
+                          opacity: 0.85
+                        }}
+                      />
+
                       <span className="absolute bottom-2 left-2 bg-[#8B5CF6] text-white px-2 py-0.5 rounded-md text-[7px] font-bold tracking-widest uppercase border border-white/10 shadow-sm">TRY-ON MODE</span>
                     </div>
                   ) : (
