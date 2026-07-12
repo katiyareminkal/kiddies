@@ -51,13 +51,8 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
   const [isGeneratingAI, setIsGeneratingAI] = useState(false);
   const [aiStatusText, setAiStatusText] = useState('');
   const [aiModelImage, setAiModelImage] = useState<string | null>(null);
-  const [recreateIndex, setRecreateIndex] = useState(0);
-  const [hasDressedModel, setHasDressedModel] = useState(false);
-  const [aiScale, setAiScale] = useState(90);
-  const [aiOffsetY, setAiOffsetY] = useState(0);
-  const [aiOffsetX, setAiOffsetX] = useState(0);
-  const [garmentType, setGarmentType] = useState<'TSHIRT' | 'DRESS' | 'HOODIE'>('TSHIRT');
-  const [blendMode, setBlendMode] = useState<'normal' | 'multiply' | 'darken'>('multiply');
+  const [aiPromptText, setAiPromptText] = useState<string | null>(null);
+  const [aiSeed, setAiSeed] = useState<number>(1);
 
   const SUGGESTED_SIZES = [
     'NB', '0-3M', '3-6M', '6-12M', '12-18M', '18-24M',
@@ -83,15 +78,10 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
       setSavingStatus('');
       setAiModelImage(null);
       setIsGeneratingAI(false);
-      setRecreateIndex(0);
       setAiAgeGroup('KID');
       setAiGender('GIRL');
-      setHasDressedModel(false);
-      setAiScale(90);
-      setAiOffsetY(0);
-      setAiOffsetX(0);
-      setGarmentType('TSHIRT');
-      setBlendMode('multiply');
+      setAiPromptText(null);
+      setAiSeed(1);
     }
   }, [isOpen, productToEdit]);
 
@@ -124,69 +114,119 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
     }
   };
 
+  const callGeminiToDescribeGarment = async (base64Image: string, mimeType: string, ageGroup: string, gender: string): Promise<string> => {
+    const apiKey = process.env.GEMINI_API_KEY || (window as any).process?.env?.GEMINI_API_KEY;
+    if (!apiKey) {
+      throw new Error("Gemini API key is not configured in environment variables.");
+    }
+
+    const base64Data = base64Image.split(',')[1] || base64Image;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+
+    const requestBody = {
+      contents: [
+        {
+          parts: [
+            {
+              text: `Analyze this uploaded kid clothing garment image. Describe its color, pattern, material, and style in detail. Then, write a single sentence prompt (max 70 words) for an AI image generator to show a child model wearing this exact item.
+The target model is: a ${ageGroup.toLowerCase()} ${gender.toLowerCase()}.
+Make the description highly detailed, specifying a professional kid fashion catalog photo style, neutral light gray studio backdrop, soft studio lighting.
+Return ONLY the prompt text, no chat prefix, no markup. E.g.: "A professional kid fashion catalog photo of a toddler girl smiling and posing, wearing a [detailed description of garment color, style, patterns, fabric textures]. She is standing in front of a neutral soft gray studio backdrop."`
+            },
+            {
+              inlineData: {
+                mimeType: mimeType || 'image/jpeg',
+                data: base64Data
+              }
+            }
+          ]
+        }
+      ]
+    };
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(requestBody)
+    });
+
+    if (!response.ok) {
+      const errText = await response.text();
+      throw new Error(`Gemini API Error: ${response.status} - ${errText}`);
+    }
+
+    const data = await response.json();
+    const textResult = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!textResult) {
+      throw new Error("Could not parse description from Gemini response.");
+    }
+
+    return textResult.trim();
+  };
+
   const handleRemoveImage = () => {
     setPreviewImage(null);
     setSelectedFile(null);
     if (fileInputRef.current) fileInputRef.current.value = '';
     setAiModelImage(null);
-    setHasDressedModel(false);
-    setAiScale(90);
-    setAiOffsetY(0);
-    setAiOffsetX(0);
-    setGarmentType('TSHIRT');
-    setBlendMode('multiply');
+    setAiPromptText(null);
   };
 
   const handleGenerateAIModel = async () => {
-    if (isGeneratingAI) return;
+    if (isGeneratingAI || !previewImage) return;
     setIsGeneratingAI(true);
 
-    const steps = [
-      'Analyzing product image contours...',
-      'Isolating garment from background...',
-      'Stitching clothing fabric onto model torso...',
-      'Adjusting lighting and shadows...'
-    ];
-
-    for (let i = 0; i < steps.length; i++) {
-      setAiStatusText(steps[i]);
-      await new Promise(resolve => setTimeout(resolve, 800));
-    }
-
     try {
-      setAiModelImage(DEFAULT_MODEL_URL);
-      setHasDressedModel(true);
-      setAiScale(90);
-      setAiOffsetY(0);
-      setAiOffsetX(0);
-    } catch (e) {
+      setAiStatusText('AI is analyzing clothing textures...');
+      await new Promise(resolve => setTimeout(resolve, 800));
+
+      setAiStatusText('Describing garment design details...');
+      let mimeType = 'image/jpeg';
+      if (selectedFile) mimeType = selectedFile.type;
+      else if (previewImage.startsWith('data:image/')) {
+        const match = previewImage.match(/^data:(image\/[a-zA-Z0-9+.-]+);base64,/);
+        if (match) mimeType = match[1];
+      }
+
+      const prompt = await callGeminiToDescribeGarment(previewImage, mimeType, aiAgeGroup, aiGender);
+      setAiPromptText(prompt);
+
+      setAiStatusText('Generating realistic model fitting...');
+      const seed = Math.floor(Math.random() * 1000000);
+      setAiSeed(seed);
+
+      const generatedUrl = `https://image.pollinations.ai/p/${encodeURIComponent(prompt)}?width=600&height=600&seed=${seed}&nologo=true`;
+      setAiModelImage(generatedUrl);
+    } catch (e: any) {
       console.error(e);
+      alert('AI Dress Up Failed: ' + (e?.message || e));
     } finally {
       setIsGeneratingAI(false);
     }
   };
 
   const handleRecreateAIModel = async () => {
-    if (isGeneratingAI) return;
+    if (isGeneratingAI || !previewImage) return;
     setIsGeneratingAI(true);
 
-    const steps = [
-      'Stitching alternative pattern contour...',
-      'Optimizing garment scale and dimensions...',
-      'Applying shadows to clothing overlay...'
-    ];
-
-    for (let i = 0; i < steps.length; i++) {
-      setAiStatusText(steps[i]);
-      await new Promise(resolve => setTimeout(resolve, 800));
-    }
-
     try {
-      setAiScale(95);
-      setAiOffsetY(10);
-      setAiOffsetX(0);
-    } catch (e) {
+      setAiStatusText('Re-rendering alternative poses...');
+      const seed = Math.floor(Math.random() * 1000000);
+      setAiSeed(seed);
+
+      let prompt = aiPromptText;
+      if (!prompt) {
+        let mimeType = 'image/jpeg';
+        if (selectedFile) mimeType = selectedFile.type;
+        prompt = await callGeminiToDescribeGarment(previewImage, mimeType, aiAgeGroup, aiGender);
+        setAiPromptText(prompt);
+      }
+
+      const generatedUrl = `https://image.pollinations.ai/p/${encodeURIComponent(prompt)}?width=600&height=600&seed=${seed}&nologo=true`;
+      setAiModelImage(generatedUrl);
+    } catch (e: any) {
       console.error(e);
+      alert('AI Dress Up Failed: ' + (e?.message || e));
     } finally {
       setIsGeneratingAI(false);
     }
@@ -386,15 +426,15 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1.5 text-[#8B5CF6]">
                   <Palette size={13} strokeWidth={2.5} />
-                  <span className="text-[9px] font-black uppercase tracking-widest">AI Model Dress Up Assistant</span>
+                  <span className="text-[9px] font-black uppercase tracking-widest">AI Generative Try-On</span>
                 </div>
-                {hasDressedModel && (
+                {aiModelImage && (
                   <button 
                     type="button"
                     onClick={handleRecreateAIModel}
                     className="text-[8px] font-black uppercase tracking-widest text-[#8B5CF6] hover:bg-[#8B5CF6]/10 px-2.5 py-1 rounded-xl flex items-center gap-1 transition-all border border-[#8B5CF6]/10 bg-[#8B5CF6]/5 active:scale-95"
                   >
-                    <RefreshCcw size={10} strokeWidth={2.5} /> Reset Fit
+                    <RefreshCcw size={10} strokeWidth={2.5} /> Recreate
                   </button>
                 )}
               </div>
@@ -403,7 +443,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
                 {/* Selection Controls */}
                 <div className="space-y-3">
                   <div className="space-y-1">
-                    <label className="text-[8px] font-black uppercase tracking-widest text-slate-400">Select Age Group</label>
+                    <label className="text-[8px] font-black uppercase tracking-widest text-slate-400">Select Model Age</label>
                     <select 
                       value={aiAgeGroup} 
                       onChange={(e) => setAiAgeGroup(e.target.value as any)}
@@ -436,162 +476,49 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
                     </div>
                   </div>
 
-                  {!hasDressedModel ? (
-                    <button
-                      type="button"
-                      disabled={isGeneratingAI}
-                      onClick={handleGenerateAIModel}
-                      className="w-full py-2.5 bg-[#8B5CF6] hover:bg-[#7C3AED] disabled:bg-slate-200 text-white rounded-xl text-[9px] font-black uppercase tracking-widest transition-all shadow-md shadow-[#8B5CF6]/15 flex items-center justify-center gap-1.5 active:scale-95"
-                    >
-                      {isGeneratingAI ? (
-                        <>
-                          <RefreshCcw size={11} strokeWidth={2.5} className="animate-spin" />
-                          <span>{aiStatusText}</span>
-                        </>
-                      ) : (
-                        <>
-                          <Palette size={11} strokeWidth={2.5} />
-                          <span>Dress up Model</span>
-                        </>
-                      )}
-                    </button>
-                  ) : (
-                    <div className="space-y-2 border-t border-slate-100 pt-2 animate-nano">
-                      {/* Garment Type Buttons */}
-                      <div className="space-y-1">
-                        <label className="text-[7.5px] font-black uppercase tracking-widest text-slate-400">Garment Shape</label>
-                        <div className="flex gap-1.5">
-                          {(['TSHIRT', 'DRESS', 'HOODIE'] as const).map(t => (
-                            <button
-                              key={t}
-                              type="button"
-                              onClick={() => setGarmentType(t)}
-                              className={`flex-1 py-1 rounded-lg text-[7px] font-black uppercase tracking-widest transition-all border ${
-                                garmentType === t 
-                                  ? 'bg-[#8B5CF6] border-[#8B5CF6] text-white shadow-sm' 
-                                  : 'bg-white border-slate-100 text-slate-400'
-                              }`}
-                            >
-                              {t === 'TSHIRT' ? 'Top' : t === 'DRESS' ? 'Dress' : 'Hoodie'}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Blend Mode Buttons */}
-                      <div className="space-y-1">
-                        <label className="text-[7.5px] font-black uppercase tracking-widest text-slate-400">Blending Mode</label>
-                        <div className="flex gap-1.5">
-                          {(['multiply', 'normal', 'darken'] as const).map(b => (
-                            <button
-                              key={b}
-                              type="button"
-                              onClick={() => setBlendMode(b)}
-                              className={`flex-1 py-1 rounded-lg text-[7px] font-black uppercase tracking-widest transition-all border ${
-                                blendMode === b 
-                                  ? 'bg-slate-900 border-slate-900 text-white shadow-sm' 
-                                  : 'bg-white border-slate-100 text-slate-400'
-                              }`}
-                            >
-                              {b === 'multiply' ? 'Realistic' : b === 'normal' ? 'Pattern' : 'Darken'}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Sliders */}
-                      <div className="flex items-center justify-between">
-                        <span className="text-[7.5px] font-black uppercase tracking-widest text-slate-400">Scale</span>
-                        <span className="text-[8px] font-mono text-[#8B5CF6] font-bold">{aiScale}%</span>
-                      </div>
-                      <input 
-                        type="range" 
-                        min="50" 
-                        max="150" 
-                        value={aiScale}
-                        onChange={(e) => setAiScale(Number(e.target.value))}
-                        className="w-full h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#8B5CF6]"
-                      />
-                      
-                      <div className="flex items-center justify-between">
-                        <span className="text-[7.5px] font-black uppercase tracking-widest text-slate-400">Position Y</span>
-                        <span className="text-[8px] font-mono text-[#8B5CF6] font-bold">{aiOffsetY}px</span>
-                      </div>
-                      <input 
-                        type="range" 
-                        min="-60" 
-                        max="60" 
-                        value={aiOffsetY}
-                        onChange={(e) => setAiOffsetY(Number(e.target.value))}
-                        className="w-full h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#8B5CF6]"
-                      />
-                    </div>
-                  )}
+                  <button
+                    type="button"
+                    disabled={isGeneratingAI}
+                    onClick={handleGenerateAIModel}
+                    className="w-full py-2.5 bg-[#8B5CF6] hover:bg-[#7C3AED] disabled:bg-slate-200 text-white rounded-xl text-[9px] font-black uppercase tracking-widest transition-all shadow-md shadow-[#8B5CF6]/15 flex items-center justify-center gap-1.5 active:scale-95"
+                  >
+                    {isGeneratingAI ? (
+                      <>
+                        <RefreshCcw size={11} strokeWidth={2.5} className="animate-spin" />
+                        <span>{aiStatusText}</span>
+                      </>
+                    ) : (
+                      <>
+                        <Palette size={11} strokeWidth={2.5} />
+                        <span>Dress up Model</span>
+                      </>
+                    )}
+                  </button>
                 </div>
 
                 {/* Preview Frame */}
                 <div className="w-full h-36 bg-white border border-slate-100 rounded-2xl overflow-hidden relative flex items-center justify-center shadow-nano">
-                  {hasDressedModel ? (
-                    <div className="w-full h-full relative bg-slate-50">
-                      {/* Inline SVG Definitions for Garment ClipPaths */}
-                      <svg className="absolute w-0 h-0">
-                        <defs>
-                          <clipPath id="clip-tshirt" clipPathUnits="objectBoundingBox">
-                            <path d="M 0.22,0.12 C 0.35,0.06 0.65,0.06 0.78,0.12 L 0.96,0.22 C 0.99,0.24 0.97,0.32 0.92,0.33 L 0.82,0.30 L 0.82,0.92 C 0.82,0.97 0.77,0.99 0.71,0.99 L 0.29,0.99 C 0.23,0.99 0.18,0.97 0.18,0.92 L 0.18,0.30 L 0.08,0.33 C 0.03,0.32 0.01,0.24 0.04,0.22 Z" />
-                          </clipPath>
-                          <clipPath id="clip-dress" clipPathUnits="objectBoundingBox">
-                            <path d="M 0.35,0.10 C 0.43,0.05 0.57,0.05 0.65,0.10 L 0.72,0.22 C 0.74,0.25 0.72,0.32 0.67,0.34 L 0.88,0.90 C 0.90,0.95 0.85,0.98 0.78,0.98 L 0.22,0.98 C 0.15,0.98 0.10,0.95 0.12,0.90 L 0.33,0.34 C 0.28,0.32 0.26,0.25 0.28,0.22 Z" />
-                          </clipPath>
-                          <clipPath id="clip-hoodie" clipPathUnits="objectBoundingBox">
-                            <path d="M 0.30,0.18 C 0.40,0.14 0.60,0.14 0.70,0.18 L 0.87,0.27 C 0.91,0.30 0.88,0.38 0.82,0.39 L 0.80,0.90 C 0.80,0.95 0.75,0.98 0.69,0.98 L 0.31,0.98 C 0.25,0.98 0.20,0.95 0.20,0.90 L 0.18,0.39 C 0.12,0.38 0.09,0.30 0.13,0.27 Z" />
-                          </clipPath>
-                        </defs>
-                      </svg>
-
-                      {/* Base Model Image */}
+                  {aiModelImage ? (
+                    <div className="w-full h-full relative group">
                       <img 
-                        src={DEFAULT_MODEL_URL} 
-                        alt="Base Model" 
-                        className="w-full h-full object-cover opacity-90" 
+                        src={aiModelImage} 
+                        alt="AI Model Try-on" 
+                        className="w-full h-full object-cover" 
+                        referrerPolicy="no-referrer"
                       />
-
-                      {/* Dressed Garment Overlay */}
-                      <img 
-                        src={selectedFile ? URL.createObjectURL(selectedFile) : (previewImage || '')} 
-                        alt="Overlay Garment" 
-                        style={{
-                          position: 'absolute',
-                          top: '32%',
-                          left: '50%',
-                          width: '45%',
-                          height: '45%',
-                          transform: `translate(-50%, calc(-50% + ${aiOffsetY}px)) scale(${aiScale / 100})`,
-                          objectFit: 'cover',
-                          pointerEvents: 'none',
-                          clipPath: garmentType === 'TSHIRT' ? 'url(#clip-tshirt)' : garmentType === 'DRESS' ? 'url(#clip-dress)' : 'url(#clip-hoodie)',
-                          filter: 'drop-shadow(0px 4px 8px rgba(0,0,0,0.12))',
-                          mixBlendMode: blendMode
-                        }}
-                      />
-
-                      {/* Shadow & Fabric Creases overlay to simulate natural dress wrinkles */}
-                      <div 
-                        style={{
-                          position: 'absolute',
-                          top: '32%',
-                          left: '50%',
-                          width: '45%',
-                          height: '45%',
-                          transform: `translate(-50%, calc(-50% + ${aiOffsetY}px)) scale(${aiScale / 100})`,
-                          pointerEvents: 'none',
-                          clipPath: garmentType === 'TSHIRT' ? 'url(#clip-tshirt)' : garmentType === 'DRESS' ? 'url(#clip-dress)' : 'url(#clip-hoodie)',
-                          background: 'linear-gradient(105deg, rgba(255,255,255,0.25) 0%, rgba(0,0,0,0.06) 28%, rgba(255,255,255,0.3) 38%, rgba(0,0,0,0.12) 65%, rgba(255,255,255,0.1) 85%, rgba(0,0,0,0.25) 100%)',
-                          mixBlendMode: 'overlay',
-                          opacity: 0.85
-                        }}
-                      />
-
-                      <span className="absolute bottom-2 left-2 bg-[#8B5CF6] text-white px-2 py-0.5 rounded-md text-[7px] font-bold tracking-widest uppercase border border-white/10 shadow-sm">TRY-ON MODE</span>
+                      <div className="absolute inset-0 bg-slate-950/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setPreviewImage(aiModelImage);
+                            setSelectedFile(null); // Clear selected file so it saves this URL
+                          }}
+                          className="px-3 py-1.5 bg-white text-slate-900 rounded-xl text-[8px] font-black uppercase tracking-widest shadow-lg flex items-center gap-1 hover:scale-105 active:scale-95 transition-all"
+                        >
+                          <CheckCircle2 size={10} className="text-emerald-500" /> Use Product Photo
+                        </button>
+                      </div>
+                      <span className="absolute bottom-2 left-2 bg-[#8B5CF6] text-white px-2 py-0.5 rounded-md text-[7px] font-bold tracking-widest uppercase border border-white/10 shadow-sm">AI GENERATED</span>
                     </div>
                   ) : (
                     <div className="text-center p-3">
@@ -602,6 +529,13 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
                   )}
                 </div>
               </div>
+
+              {aiPromptText && (
+                <div className="bg-white border border-slate-100 rounded-2xl p-2.5 text-[7.5px] font-bold text-slate-400 tracking-wide uppercase leading-normal shadow-nano">
+                  <span className="text-[#8B5CF6] font-black block mb-0.5">AI Prompter Description:</span>
+                  "{aiPromptText}"
+                </div>
+              )}
             </div>
           )}
 
