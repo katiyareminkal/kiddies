@@ -125,7 +125,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
     const ageLabel = ageGroup === 'BABY' ? 'baby (0-1 year old)' : ageGroup === 'TODDLER' ? 'toddler (1-3 years old)' : ageGroup === 'KID' ? 'kid (4-7 years old)' : 'pre-teen (8-12 years old)';
     const genderLabel = gender === 'BOY' ? 'boy' : gender === 'GIRL' ? 'girl' : 'child';
 
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-image-generation:generateContent?key=${apiKey}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent?key=${apiKey}`;
 
     const requestBody = {
       contents: [
