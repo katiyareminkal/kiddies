@@ -55,6 +55,8 @@ const UPCOMING_EVENTS = [
     focus: 'Fancy Dress Costumes, Jackets & Sweatshirts',
     strategy: 'Heavy costume rental demand. Promote winter layering outfits and holiday party wear.',
     checklist: ['Double dry-cleaning speeds', 'Check winter jacket stock levels', 'Stock up on holiday gift bundles'],
+    stockSuggestion: 'Purchase superhero and animal costume sizes (3-6Y) and warm fleece jackets.',
+    bundleIdea: 'Bundle fancy dress costumes with matching props (wands, capes) at 15% off.',
     color: 'amber',
     bgClass: 'bg-amber-50/70 border-amber-100/50',
     badgeClass: 'bg-amber-100 text-amber-700'
@@ -65,6 +67,8 @@ const UPCOMING_EVENTS = [
     focus: 'School Uniforms, Shoes, Activewear & Rompers',
     strategy: 'Preparation for the new school year. Stock durable school shoes, backpacks, and light spring activewear.',
     checklist: ['Partner with uniform suppliers', 'Run school stock clearance campaigns', 'Launch spring wear preorder catalogs'],
+    stockSuggestion: 'Increase inventory of black/white school shoes (sizes 6-10) and high-cotton uniforms.',
+    bundleIdea: 'Cross-sell uniform purchases with pack-of-3 cotton school socks and water bottles.',
     color: 'indigo',
     bgClass: 'bg-indigo-50/70 border-indigo-100/50',
     badgeClass: 'bg-indigo-100 text-indigo-700'
@@ -75,6 +79,8 @@ const UPCOMING_EVENTS = [
     focus: 'Cotton Rompers, Swimsuits, Sun Hats & Shorts',
     strategy: 'Casual lightweight wear peak. Stock breathable organic cotton clothing for holidays.',
     checklist: ['Set up summer holiday product bundles', 'Focus marketing on travel & vacation gear', 'Run beachwear early bird deals'],
+    stockSuggestion: 'Stock UV-protective swimwear, cute straw hats, and pastel linen shorts sets.',
+    bundleIdea: 'Package a swim dress with matching sunglasses and a sun hat as a vacation pack.',
     color: 'teal',
     bgClass: 'bg-teal-50/70 border-teal-100/50',
     badgeClass: 'bg-teal-100 text-teal-700'
@@ -85,6 +91,8 @@ const UPCOMING_EVENTS = [
     focus: 'Raincoats, Waterproof Boots, Umbrellas',
     strategy: 'High demand for waterproof kids gear. Ensure all clothing storage areas are dry and damp-proof.',
     checklist: ['Stock anti-slip footwear sizes', 'Audit storage facility humidity levels', 'Introduce monsoon raincoat combo packages'],
+    stockSuggestion: 'Increase rubber boot stock in bright colors and premium waterproof light jackets.',
+    bundleIdea: 'Offer a raincoat + matching umbrella combo discount to clear monsoon stock quickly.',
     color: 'sky',
     bgClass: 'bg-sky-50/70 border-sky-100/50',
     badgeClass: 'bg-sky-100 text-sky-700'
@@ -94,7 +102,9 @@ const UPCOMING_EVENTS = [
     period: 'Sep - Oct',
     focus: 'Kediyus, Chaniya Cholis, traditional Kurta sets',
     strategy: 'Peak festival demand. High booking volume for traditional rental costumes.',
-    checklist: ['Launch advance festive rental booking discounts', 'Stock heavy ethnic accessories/turbans', 'Perform stitch audits on high-rotation sets'],
+    checklist: ['Launch advance festive rental booking discounts', 'Stock ethnic accessories/turbans', 'Perform stitch audits on high-rotation sets'],
+    stockSuggestion: 'Increase silk sherwanis (boys 4-10Y) and heavy mirror-work chaniya cholis (girls 5-12Y).',
+    bundleIdea: 'Bundle ethnic wear with traditional footwear (Juttis) and hair accessories at checkout.',
     color: 'rose',
     bgClass: 'bg-rose-50/70 border-rose-100/50',
     badgeClass: 'bg-rose-100 text-rose-700'
@@ -104,7 +114,9 @@ const UPCOMING_EVENTS = [
     period: 'Nov - Dec',
     focus: 'Designer Sherwanis, Tuxedos, Silk Lehengas',
     strategy: 'High-end kids formal wear demand peaks. Upsell premium accessories and custom fitting options.',
-    checklist: ['Ensure alteration tailors are on standby', 'Update the premium collection photoshoot', 'Send catalogs to regular event clients'],
+    checklist: ['Ensure alteration tailors are standby', 'Update premium collection photoshoot', 'Send catalogs to regular event clients'],
+    stockSuggestion: 'Stock double-breasted premium tuxedos (sizes 5Y+) and embroidered raw-silk lehengas.',
+    bundleIdea: 'Add custom tailoring + matching pocket square/bow-tie bundle as a premium up-sell.',
     color: 'purple',
     bgClass: 'bg-purple-50/70 border-purple-100/50',
     badgeClass: 'bg-purple-100 text-purple-700'
@@ -139,8 +151,39 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
   const [expandedEventIdx, setExpandedEventIdx] = useState<number | null>(0);
 
   // Date filters
-  const [startDateFilter, setStartDateFilter] = useState<string>('');
-  const [endDateFilter, setEndDateFilter] = useState<string>('');
+  const [startDateFilter, setStartDateFilter] = useState<string>(format(new Date(), 'yyyy-MM-dd'));
+  const [endDateFilter, setEndDateFilter] = useState<string>(format(new Date(), 'yyyy-MM-dd'));
+  const [filterPreset, setFilterPreset] = useState<string>('TODAY');
+
+  const handlePresetChange = (preset: string) => {
+    setFilterPreset(preset);
+    const today = new Date();
+    
+    if (preset === 'TODAY') {
+      const todayStr = format(today, 'yyyy-MM-dd');
+      setStartDateFilter(todayStr);
+      setEndDateFilter(todayStr);
+    } else if (preset === 'YESTERDAY') {
+      const yesterdayStr = format(subDays(today, 1), 'yyyy-MM-dd');
+      setStartDateFilter(yesterdayStr);
+      setEndDateFilter(yesterdayStr);
+    } else if (preset === 'LAST_7_DAYS') {
+      setStartDateFilter(format(subDays(today, 6), 'yyyy-MM-dd'));
+      setEndDateFilter(format(today, 'yyyy-MM-dd'));
+    } else if (preset === 'LAST_30_DAYS') {
+      setStartDateFilter(format(subDays(today, 29), 'yyyy-MM-dd'));
+      setEndDateFilter(format(today, 'yyyy-MM-dd'));
+    } else if (preset === 'LAST_6_MONTHS') {
+      setStartDateFilter(format(subMonths(today, 6), 'yyyy-MM-dd'));
+      setEndDateFilter(format(today, 'yyyy-MM-dd'));
+    } else if (preset === 'LAST_1_YEAR') {
+      setStartDateFilter(format(subMonths(today, 12), 'yyyy-MM-dd'));
+      setEndDateFilter(format(today, 'yyyy-MM-dd'));
+    } else if (preset === 'LIFETIME') {
+      setStartDateFilter('');
+      setEndDateFilter('');
+    }
+  };
 
   // Backup Alert State
   const [showBackupAlert, setShowBackupAlert] = useState(false);
@@ -214,6 +257,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
 
   // 1. Total Stock (Real-time value, not filtered by dates)
   const availableStock = products.reduce((acc, p) => acc + p.saleStock + p.rentalStock, 0);
+  const stockValuation = products.reduce((acc, p) => acc + ((p.saleStock + p.rentalStock) * (p.purchasePrice || 0)), 0);
   const lowStockProducts = products.filter(p => (p.saleStock + p.rentalStock) <= p.minStockAlert);
   const outOfStockProducts = products.filter(p => (p.saleStock + p.rentalStock) === 0);
 
@@ -223,6 +267,16 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
   const validFilteredSales = filteredSales.filter(s => s.orderStatus !== OrderStatus.RETURNED && s.orderStatus !== OrderStatus.CANCELLED);
   const salesToShow = (startDateFilter || endDateFilter) ? validFilteredSales : todaySales;
   const todaySalesAmount = salesToShow.reduce((acc, s) => acc + s.netPayout, 0);
+  
+  const todayProfit = salesToShow.reduce((acc, s) => {
+    const saleCost = (s.items || []).reduce((sum, item) => {
+      const prod = products.find(p => p.id === item.productId);
+      return sum + ((prod?.purchasePrice || 0) * item.quantity);
+    }, 0);
+    return acc + (s.netPayout - saleCost);
+  }, 0);
+  const todayProfitPercent = todaySalesAmount > 0 ? (todayProfit / todaySalesAmount) * 100 : 0;
+
   const salesTitle = (startDateFilter || endDateFilter) ? "Period Sales" : "Today's Sales";
   const salesSubText = (startDateFilter || endDateFilter) ? `${salesToShow.length} orders in period` : `${todaySales.length} orders today`;
   
@@ -261,6 +315,21 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
   const customersTitle = (startDateFilter || endDateFilter) ? "New Customers" : "Customers";
   const customersCountToShow = (startDateFilter || endDateFilter) ? filteredCustomers.length : customers.length;
   const customersSubText = (startDateFilter || endDateFilter) ? "Registered in period" : `${newCustomersThisMonth} new this month`;
+
+  // Secondary Monetary values for cards
+  const activeRentalsValue = activeRentalsToShow.reduce((acc, r) => acc + (r.totalRentAmount || 0), 0);
+  const returnsDueValue = (startDateFilter || endDateFilter)
+    ? returnsInPeriod.reduce((acc, r) => acc + (r.totalRentAmount || 0), 0)
+    : [...dueTodayRentals, ...overdueRentals].reduce((acc, r) => acc + (r.totalRentAmount || 0), 0);
+  const customersValue = sales.reduce((acc, s) => acc + (s.netPayout || 0), 0) + rentals.reduce((acc, r) => acc + (r.paidAmount || 0), 0);
+
+  // New vs Repeat Customer calculations
+  const customerTxCounts = customers.map(c => {
+    const txCount = sales.filter(s => s.customerId === c.id).length + rentals.filter(r => r.customerId === c.id).length;
+    return { id: c.id, txCount };
+  });
+  const repeatCustomersCount = customerTxCounts.filter(c => c.txCount >= 2).length;
+  const newCustomersCount = customerTxCounts.filter(c => c.txCount < 2).length;
 
   // 7. Expenses
   const todayExpenses = expenses.filter(e => isToday(parseISO(e.date)));
@@ -431,47 +500,52 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
         </div>
         
         <div className="flex flex-wrap items-center gap-3">
-          {allDates.first && (
-            <button 
-              onClick={() => { setStartDateFilter(allDates.first); setEndDateFilter(allDates.first); }}
-              className="px-3 py-1.5 text-[9px] font-black uppercase tracking-widest text-indigo-600 hover:bg-indigo-50 bg-indigo-50/50 rounded-xl transition-all border border-indigo-100"
-            >
-              First Entry
-            </button>
-          )}
-          {allDates.last && (
-            <button 
-              onClick={() => { setStartDateFilter(allDates.last); setEndDateFilter(allDates.last); }}
-              className="px-3 py-1.5 text-[9px] font-black uppercase tracking-widest text-indigo-600 hover:bg-indigo-50 bg-indigo-50/50 rounded-xl transition-all border border-indigo-100"
-            >
-              Last Entry
-            </button>
-          )}
-          <div className="flex items-center gap-2 bg-slate-50 border border-slate-100/50 rounded-xl px-3 py-1.5 shadow-sm">
-            <span className="text-[8px] font-black uppercase text-slate-400 tracking-widest">From</span>
-            <input 
-              type="date" 
-              value={startDateFilter}
-              onChange={(e) => setStartDateFilter(e.target.value)}
-              className="bg-transparent text-[10px] font-bold text-slate-700 outline-none uppercase"
-            />
+          <div className="flex flex-col gap-1">
+            <div className="relative">
+              <select
+                value={filterPreset}
+                onChange={(e) => handlePresetChange(e.target.value)}
+                className="appearance-none bg-slate-50 border border-slate-100 hover:border-slate-200 px-4 py-2 pr-10 rounded-xl text-[10px] font-black text-slate-655 uppercase outline-none cursor-pointer transition-all shadow-sm font-sans w-full"
+              >
+                <option value="TODAY">Today</option>
+                <option value="YESTERDAY">Yesterday</option>
+                <option value="LAST_7_DAYS">Last 7 Days</option>
+                <option value="LAST_30_DAYS">Last 1 Month</option>
+                <option value="LAST_6_MONTHS">Last 6 Months</option>
+                <option value="LAST_1_YEAR">Last 1 Year</option>
+                <option value="LIFETIME">Lifetime</option>
+                <option value="CUSTOM">Custom Range</option>
+              </select>
+              <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={10} strokeWidth={3} />
+            </div>
+            {allDates.first && allDates.last && (
+              <span className="text-[7px] font-bold text-slate-400 uppercase tracking-widest ml-1">
+                Data Bounds: {format(parseISO(allDates.first), 'dd MMM yy')} - {format(parseISO(allDates.last), 'dd MMM yy')}
+              </span>
+            )}
           </div>
-          <div className="flex items-center gap-3 bg-slate-50 border border-slate-100/50 rounded-xl px-3 py-1.5 shadow-sm">
-            <span className="text-[8px] font-black uppercase text-slate-400 tracking-widest">To</span>
-            <input 
-              type="date" 
-              value={endDateFilter}
-              onChange={(e) => setEndDateFilter(e.target.value)}
-              className="bg-transparent text-[10px] font-bold text-slate-700 outline-none uppercase"
-            />
-          </div>
-          {(startDateFilter || endDateFilter) && (
-            <button 
-              onClick={() => { setStartDateFilter(''); setEndDateFilter(''); }}
-              className="px-3 py-1.5 text-[9px] font-black uppercase tracking-widest text-rose-500 hover:bg-rose-50 rounded-xl transition-all border border-rose-100"
-            >
-              Clear
-            </button>
+
+          {filterPreset === 'CUSTOM' && (
+            <>
+              <div className="flex items-center gap-2 bg-slate-50 border border-slate-100/50 rounded-xl px-3 py-1.5 shadow-sm">
+                <span className="text-[8px] font-black uppercase text-slate-400 tracking-widest">From</span>
+                <input 
+                  type="date" 
+                  value={startDateFilter}
+                  onChange={(e) => setStartDateFilter(e.target.value)}
+                  className="bg-transparent text-[10px] font-bold text-slate-700 outline-none uppercase"
+                />
+              </div>
+              <div className="flex items-center gap-3 bg-slate-50 border border-slate-100/50 rounded-xl px-3 py-1.5 shadow-sm">
+                <span className="text-[8px] font-black uppercase text-slate-400 tracking-widest">To</span>
+                <input 
+                  type="date" 
+                  value={endDateFilter}
+                  onChange={(e) => setEndDateFilter(e.target.value)}
+                  className="bg-transparent text-[10px] font-bold text-slate-700 outline-none uppercase"
+                />
+              </div>
+            </>
           )}
         </div>
       </div>
@@ -516,8 +590,13 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
                  <div className="p-1.5 bg-slate-50 text-slate-600 rounded-lg group-hover:bg-highlight group-hover:text-slate-900 transition-colors"><Package size={14}/></div>
               </div>
               <div>
-                  <h3 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">{availableStock}</h3>
-                  <p className="text-[9px] font-bold text-amber-500 mt-1 uppercase tracking-widest">{lowStockProducts.length} low stock items</p>
+                  <h3 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">{availableStock} <span className="text-[10px] font-bold text-slate-400">Pcs</span></h3>
+                  <div className="flex flex-wrap gap-x-1.5 gap-y-1 mt-1.5">
+                    <span className="text-[8px] font-black text-indigo-600 bg-indigo-50 border border-indigo-100/30 px-1.5 py-0.5 rounded-lg uppercase tracking-wider">
+                      Valuation: {formatMoney(stockValuation)}
+                    </span>
+                  </div>
+                  <p className="text-[7px] font-bold text-amber-500 mt-2 uppercase tracking-widest">{lowStockProducts.length} low stock items</p>
               </div>
           </div>
           <div onClick={() => navigate('reports')} className="bg-white p-3.5 md:p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between cursor-pointer hover:border-highlight hover:shadow-md transition-all group">
@@ -527,7 +606,15 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
               </div>
               <div>
                   <h3 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">{formatMoney(todaySalesAmount)}</h3>
-                  <p className="text-[9px] font-bold text-emerald-500 mt-1 uppercase tracking-widest">{salesSubText}</p>
+                  <div className="flex flex-wrap gap-x-1.5 gap-y-1 mt-1.5">
+                    <span className="text-[8px] font-black text-emerald-600 bg-emerald-50 border border-emerald-100/30 px-1.5 py-0.5 rounded-lg uppercase tracking-wider">
+                      Profit: {formatMoney(todayProfit)}
+                    </span>
+                    <span className="text-[8px] font-black text-[#8B5CF6] bg-[#8B5CF6]/5 border border-[#8B5CF6]/10 px-1.5 py-0.5 rounded-lg uppercase tracking-wider">
+                      Margin: {todayProfitPercent.toFixed(1)}%
+                    </span>
+                  </div>
+                  <p className="text-[7px] font-bold text-slate-400 mt-2 uppercase tracking-widest">{salesSubText}</p>
               </div>
           </div>
           <div onClick={() => navigate('rentals')} className="bg-white p-3.5 md:p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between cursor-pointer hover:border-highlight hover:shadow-md transition-all group">
@@ -537,7 +624,12 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
               </div>
               <div>
                   <h3 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">{activeRentalsToShow.length}</h3>
-                  <p className="text-[9px] font-bold text-slate-400 mt-1 uppercase tracking-widest">Currently Rented</p>
+                  <div className="flex flex-wrap gap-x-1.5 gap-y-1 mt-1.5">
+                    <span className="text-[8px] font-black text-rose-600 bg-rose-50 border border-rose-100/30 px-1.5 py-0.5 rounded-lg uppercase tracking-wider">
+                      Value: {formatMoney(activeRentalsValue)}
+                    </span>
+                  </div>
+                  <p className="text-[7px] font-bold text-slate-400 mt-2 uppercase tracking-widest">Currently Rented</p>
               </div>
           </div>
           <div onClick={() => navigate('rentals')} className="bg-white p-3.5 md:p-5 rounded-2xl border border-rose-100 bg-rose-50/20 shadow-sm flex flex-col justify-between cursor-pointer hover:border-rose-300 hover:shadow-md transition-all group">
@@ -547,7 +639,12 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
               </div>
               <div>
                   <h3 className="text-xl md:text-2xl font-black text-rose-600 tracking-tight">{returnsDueCount}</h3>
-                  <p className="text-[9px] font-bold text-rose-500 mt-1 uppercase tracking-widest">{returnsDueSubText}</p>
+                  <div className="flex flex-wrap gap-x-1.5 gap-y-1 mt-1.5">
+                    <span className="text-[8px] font-black text-rose-600 bg-rose-50 border border-rose-100/30 px-1.5 py-0.5 rounded-lg uppercase tracking-wider">
+                      Value: {formatMoney(returnsDueValue)}
+                    </span>
+                  </div>
+                  <p className="text-[7px] font-bold text-rose-500 mt-2 uppercase tracking-widest">{returnsDueSubText}</p>
               </div>
           </div>
           <div onClick={() => navigate('reports')} className="bg-white p-3.5 md:p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between cursor-pointer hover:border-highlight hover:shadow-md transition-all group">
@@ -557,7 +654,12 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
               </div>
               <div>
                   <h3 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">{formatMoney(totalPendingPayments)}</h3>
-                  <p className="text-[9px] font-bold text-amber-500 mt-1 uppercase tracking-widest">From {customersWithCredit} customers</p>
+                  <div className="flex flex-wrap gap-x-1.5 gap-y-1 mt-1.5">
+                    <span className="text-[8px] font-black text-amber-600 bg-amber-50 border border-amber-100/30 px-1.5 py-0.5 rounded-lg uppercase tracking-wider">
+                      {customersWithCredit} Customers
+                    </span>
+                  </div>
+                  <p className="text-[7px] font-bold text-amber-500 mt-2 uppercase tracking-widest">Pending credit bills</p>
               </div>
           </div>
           <div onClick={() => navigate('customers')} className="bg-white p-3.5 md:p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between cursor-pointer hover:border-highlight hover:shadow-md transition-all group">
@@ -567,17 +669,51 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
               </div>
               <div>
                   <h3 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">{customersCountToShow}</h3>
-                  <p className="text-[9px] font-bold text-sky-500 mt-1 uppercase tracking-widest">{customersSubText}</p>
+                  <div className="flex flex-wrap gap-x-1.5 gap-y-1 mt-1.5">
+                    <span className="text-[8px] font-black text-emerald-650 bg-emerald-50 border border-emerald-100/30 px-1.5 py-0.5 rounded-lg uppercase tracking-wider">
+                      Repeat: {repeatCustomersCount}
+                    </span>
+                    <span className="text-[8px] font-black text-indigo-650 bg-indigo-50 border border-indigo-100/30 px-1.5 py-0.5 rounded-lg uppercase tracking-wider">
+                      New: {newCustomersCount}
+                    </span>
+                  </div>
+                  <p className="text-[7px] font-bold text-sky-500 mt-2 uppercase tracking-widest">{customersSubText}</p>
               </div>
           </div>
-          <div onClick={() => navigate('reports')} className="bg-white p-3.5 md:p-5 rounded-2xl border border-rose-100 bg-rose-50/10 shadow-sm flex flex-col justify-between cursor-pointer hover:border-rose-300 hover:shadow-md transition-all group col-span-2 md:col-span-1">
+          <div onClick={() => navigate('reports')} className="bg-white p-3.5 md:p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between cursor-pointer hover:border-highlight hover:shadow-md transition-all group">
+              <div className="flex justify-between items-start mb-2">
+                 <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest group-hover:text-[#10B981] transition-colors">Net Income</h4>
+                 <div className="p-1.5 bg-emerald-50 text-emerald-600 rounded-lg group-hover:bg-[#10B981] group-hover:text-white transition-colors"><TrendingUp size={14}/></div>
+              </div>
+              <div>
+                  <h3 className={`text-xl md:text-2xl font-black tracking-tight ${todayProfit - totalExpensesAmount >= 0 ? 'text-[#10B981]' : 'text-rose-600'}`}>
+                    {formatMoney(todayProfit - totalExpensesAmount)}
+                  </h3>
+                  <div className="flex flex-wrap gap-x-1.5 gap-y-1 mt-1.5">
+                    <span className={`text-[8px] font-black px-1.5 py-0.5 rounded-lg uppercase tracking-wider ${
+                      todayProfit - totalExpensesAmount >= 0 
+                        ? 'text-emerald-600 bg-emerald-50 border border-emerald-100/30' 
+                        : 'text-rose-650 bg-rose-50 border border-rose-100/30'
+                    }`}>
+                      {todayProfit - totalExpensesAmount >= 0 ? 'Surplus' : 'Deficit'}
+                    </span>
+                  </div>
+                  <p className="text-[7px] font-bold text-slate-400 mt-2 uppercase tracking-widest">Profit minus expenses</p>
+              </div>
+          </div>
+          <div onClick={() => navigate('reports')} className="bg-white p-3.5 md:p-5 rounded-2xl border border-rose-100 bg-rose-50/10 shadow-sm flex flex-col justify-between cursor-pointer hover:border-rose-300 hover:shadow-md transition-all group">
               <div className="flex justify-between items-start mb-2">
                  <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest group-hover:text-rose-600 transition-colors">{expensesTitle}</h4>
                  <div className="p-1.5 bg-rose-100 text-rose-700 rounded-lg"><Wallet size={14}/></div>
               </div>
               <div>
                   <h3 className="text-xl md:text-2xl font-black text-rose-700 tracking-tight">{formatMoney(totalExpensesAmount)}</h3>
-                  <p className="text-[9px] font-bold text-rose-500 mt-1 uppercase tracking-widest">{expensesSubText}</p>
+                  <div className="flex flex-wrap gap-x-1.5 gap-y-1 mt-1.5">
+                    <span className="text-[8px] font-black text-rose-650 bg-rose-50 border border-rose-100/30 px-1.5 py-0.5 rounded-lg uppercase tracking-wider">
+                      {expensesToShow.length} Records
+                    </span>
+                  </div>
+                  <p className="text-[7px] font-bold text-rose-500 mt-2 uppercase tracking-widest">{expensesSubText}</p>
               </div>
           </div>
       </div>
@@ -650,6 +786,18 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
                             <p className="text-[8px] font-black uppercase text-slate-400 tracking-widest">Stocking Strategy</p>
                             <p className="text-[10px] text-slate-600 font-bold leading-relaxed mt-1">{event.strategy}</p>
                           </div>
+                          {event.stockSuggestion && (
+                            <div>
+                              <p className="text-[8px] font-black uppercase text-indigo-500 tracking-widest">Recommended Stock Addition</p>
+                              <p className="text-[10px] text-slate-600 font-bold leading-relaxed mt-1">{event.stockSuggestion}</p>
+                            </div>
+                          )}
+                          {event.bundleIdea && (
+                            <div>
+                              <p className="text-[8px] font-black uppercase text-emerald-600 tracking-widest">Bundling / Up-sell Idea</p>
+                              <p className="text-[10px] text-slate-600 font-bold leading-relaxed mt-1">{event.bundleIdea}</p>
+                            </div>
+                          )}
                           <div>
                             <p className="text-[8px] font-black uppercase text-slate-400 tracking-widest">Prep Checklist</p>
                             <ul className="list-disc list-inside text-[9px] text-slate-500 font-semibold space-y-1 mt-1">

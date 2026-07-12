@@ -153,7 +153,7 @@ const Suppliers: React.FC = () => {
       <Modal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} title="Add New Supplier">
         <form onSubmit={handleAddSupplier} className="space-y-5">
           <div className="space-y-2">
-            <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-2">Company Name</label>
+            <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-2">Company Name <span className="text-red-500">*</span></label>
             <div className="relative group">
               <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors" size={18} strokeWidth={3} />
               <input name="name" required className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border-2 border-transparent focus:bg-white focus:border-primary/20 rounded-[1.25rem] outline-none transition-all font-black text-xs text-slate-900 shadow-inner" placeholder="e.g. ABC Textiles Pvt Ltd" />
@@ -162,11 +162,11 @@ const Suppliers: React.FC = () => {
           
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-2">Contact Person</label>
+                <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-2">Contact Person <span className="text-red-500">*</span></label>
                 <input name="contactPerson" required className="w-full px-4 py-3.5 bg-slate-50 border-2 border-transparent focus:bg-white focus:border-primary/20 rounded-[1.25rem] outline-none transition-all font-black text-xs text-slate-900 shadow-inner" placeholder="Name" />
             </div>
             <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-2">Phone</label>
+                <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-2">Phone <span className="text-red-500">*</span></label>
                 <div className="relative group">
                   <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors" size={18} strokeWidth={3} />
                   <input name="phone" required className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border-2 border-transparent focus:bg-white focus:border-primary/20 rounded-[1.25rem] outline-none transition-all font-black text-xs text-slate-900 shadow-inner" placeholder="Phone Number" />
@@ -175,7 +175,7 @@ const Suppliers: React.FC = () => {
           </div>
 
           <div className="space-y-2">
-            <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-2">Email</label>
+            <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-2">Email <span className="text-red-500">*</span></label>
             <div className="relative group">
               <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors" size={18} strokeWidth={3} />
               <input name="email" type="email" required className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border-2 border-transparent focus:bg-white focus:border-primary/20 rounded-[1.25rem] outline-none transition-all font-black text-xs text-slate-900 shadow-inner" placeholder="email@company.com" />
@@ -183,7 +183,7 @@ const Suppliers: React.FC = () => {
           </div>
 
           <div className="space-y-2">
-            <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-2">Address</label>
+            <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-2">Address <span className="text-red-500">*</span></label>
             <div className="relative group">
               <MapPin className="absolute left-4 top-4 text-slate-400 group-focus-within:text-primary transition-colors" size={18} strokeWidth={3} />
               <textarea name="address" required className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border-2 border-transparent focus:bg-white focus:border-primary/20 rounded-[1.25rem] outline-none transition-all font-black text-xs text-slate-900 h-24 resize-none shadow-inner" placeholder="Full office address"></textarea>

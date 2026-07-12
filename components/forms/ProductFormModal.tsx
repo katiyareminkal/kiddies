@@ -1,5 +1,5 @@
 import React, { useState, useRef, useMemo } from 'react';
-import { Plus, X, Upload, ScanLine, Edit2, Image as ImageIcon } from 'lucide-react';
+import { Plus, X, Upload, ScanLine, Edit2, Image as ImageIcon, Palette, CheckCircle2, RefreshCcw } from 'lucide-react';
 import { Modal } from '../Shared';
 import { useApp } from '../../store/AppContext';
 import { Product } from '../../types';
@@ -14,7 +14,7 @@ interface ProductFormModalProps {
 }
 
 export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onClose, productToEdit }) => {
-  const { products, suppliers, addProduct, updateProduct } = useApp();
+  const { products, suppliers, addProduct, updateProduct, deleteProduct } = useApp();
   
   const [productPurpose, setProductPurpose] = useState<'SALE' | 'RENTAL' | 'HYBRID'>(productToEdit ? productToEdit.purpose : 'SALE');
   const [isSaving, setIsSaving] = useState(false);
@@ -24,6 +24,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
   // Size Management
   const [selectedSizes, setSelectedSizes] = useState<string[]>(productToEdit?.sizes || []);
   const [sizeInput, setSizeInput] = useState('');
+  const [variantStocks, setVariantStocks] = useState<Record<string, { saleStock: number; rentalStock: number }>>({});
 
   // Barcode Scanner State
   const [isScannerOpen, setIsScannerOpen] = useState(false);
@@ -61,27 +62,137 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
   React.useEffect(() => {
     if (isOpen) {
       setProductPurpose(productToEdit ? productToEdit.purpose : 'SALE');
-      setSelectedSizes(productToEdit?.sizes || []);
-      setSkuValue(productToEdit?.sku || '');
-      setBarcodeValue(productToEdit?.barcode || '');
       setPreviewImage(productToEdit?.imageUrl || null);
       setSelectedFile(null);
       setIsSaving(false);
       setSavingStatus('');
 
+      // Initialize variant stocks and selected sizes from all siblings
+      const initialStocks: Record<string, { saleStock: number; rentalStock: number }> = {};
+      if (productToEdit) {
+        // Strip size suffix from SKU to get base SKU
+        let baseSku = productToEdit.sku;
+        const matchingSize = productToEdit.sizes[0];
+        if (matchingSize && productToEdit.sku.endsWith(`-${matchingSize}`)) {
+          baseSku = productToEdit.sku.substring(0, productToEdit.sku.length - matchingSize.length - 1);
+        } else {
+          const lastDash = productToEdit.sku.lastIndexOf('-');
+          if (lastDash > 0) {
+            baseSku = productToEdit.sku.substring(0, lastDash);
+          }
+        }
+        setSkuValue(baseSku); // Display the base SKU in the SKU input field
+        setBarcodeValue(productToEdit.barcode || '');
+
+        // Find sibling variants
+        const siblings = products.filter(p => {
+          let pBase = p.sku;
+          const pSize = p.sizes[0];
+          if (pSize && p.sku.endsWith(`-${pSize}`)) {
+            pBase = p.sku.substring(0, p.sku.length - pSize.length - 1);
+          } else {
+            const pDash = p.sku.lastIndexOf('-');
+            if (pDash > 0) {
+              pBase = p.sku.substring(0, pDash);
+            }
+          }
+          return pBase.toLowerCase() === baseSku.toLowerCase() || p.name.toLowerCase() === productToEdit.name.toLowerCase();
+        });
+
+        const allSizes: string[] = [];
+        siblings.forEach(sib => {
+          sib.sizes.forEach(size => {
+            if (!allSizes.includes(size)) {
+              allSizes.push(size);
+            }
+            initialStocks[size] = {
+              saleStock: sib.saleStock,
+              rentalStock: sib.rentalStock
+            };
+          });
+        });
+        setSelectedSizes(allSizes);
+      } else {
+        setSelectedSizes([]);
+        setSkuValue('');
+        setBarcodeValue('');
+      }
+      setVariantStocks(initialStocks);
     }
-  }, [isOpen, productToEdit]);
+  }, [isOpen, productToEdit, products]);
+
+  const generateAutoSKU = () => {
+    const formElement = formRef.current;
+    const category = formElement ? (formElement.elements.namedItem('category') as HTMLSelectElement)?.value : '';
+    
+    // Explicit clean mapping for categories to standard 3-letter SKU prefixes
+    const categoryPrefixes: Record<string, string> = {
+      'Infants (0-2Y)': 'INF',
+      'Toddlers (2-5Y)': 'TOD',
+      'Kids (5-10Y)': 'KID',
+      'Teens (10-15Y)': 'TEN',
+      'Party Wear': 'PTY',
+      'Casual Wear': 'CSL',
+      'Ethnic & Traditional': 'ETH',
+      'Costumes & Fancy Dress': 'COS',
+      'Outerwear & Sweaters': 'OUT',
+      'Sleepwear': 'SLP',
+      'Innerwear': 'INR',
+      'Footwear': 'FTW',
+      'Accessories': 'ACC'
+    };
+
+    let prefix = 'KID';
+    if (category && categoryPrefixes[category]) {
+      prefix = categoryPrefixes[category];
+    } else if (category) {
+      // Fallback parser if category isn't in mapping
+      const words = category.replace(/[^a-zA-Z ]/g, '').split(' ');
+      if (words.length >= 2) {
+        prefix = (words[0].substring(0, 1) + words[1].substring(0, 2)).toUpperCase();
+      } else if (words[0]) {
+        prefix = words[0].substring(0, 3).toUpperCase();
+      }
+    }
+
+    if (prefix.length < 3) {
+      prefix = (prefix + 'KID').substring(0, 3);
+    }
+    
+    // Find next number for prefix
+    const pattern = new RegExp(`^${prefix}-(\\d+)`);
+    let maxNum = 1000;
+    products.forEach(p => {
+      const match = p.sku?.toUpperCase().match(pattern);
+      if (match) {
+        const num = parseInt(match[1], 10);
+        if (num > maxNum) maxNum = num;
+      }
+    });
+    
+    const nextSku = `${prefix}-${maxNum + 1}`;
+    setSkuValue(nextSku);
+  };
 
   const addSizeTag = (size: string) => {
     const trimmed = size.trim().toUpperCase();
     if (trimmed && !selectedSizes.includes(trimmed)) {
       setSelectedSizes([...selectedSizes, trimmed]);
+      setVariantStocks(prev => ({
+        ...prev,
+        [trimmed]: { saleStock: 0, rentalStock: 0 }
+      }));
     }
     setSizeInput('');
   };
 
   const removeSizeTag = (size: string) => {
     setSelectedSizes(selectedSizes.filter(s => s !== size));
+    setVariantStocks(prev => {
+      const updated = { ...prev };
+      delete updated[size];
+      return updated;
+    });
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -122,6 +233,69 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
       return;
     }
 
+    if (sku.length < 3) {
+      alert('SKU must be at least 3 characters long.');
+      return;
+    }
+
+    // SKU Duplication check
+    if (!productToEdit) {
+      for (const size of selectedSizes) {
+        const variantSku = `${sku}-${size}`;
+        const isDuplicate = products.some(p => p.sku.toUpperCase() === variantSku.toUpperCase());
+        if (isDuplicate) {
+          alert(`The variant SKU "${variantSku}" is already in use by another product. SKU must be unique.`);
+          return;
+        }
+      }
+    } else {
+      const isDuplicate = products.some(p => p.sku.toUpperCase() === sku.toUpperCase() && p.id !== productToEdit.id);
+      if (isDuplicate) {
+        alert(`The SKU "${sku}" is already in use by another product. SKU must be unique.`);
+        return;
+      }
+    }
+
+    // New mandatory fields validations
+    if (selectedSizes.length === 0) {
+      alert('Please add at least one size.');
+      return;
+    }
+
+    const purchasePrice = Number(formData.get('purchasePrice'));
+    if (isNaN(purchasePrice) || purchasePrice <= 0) {
+      alert('Purchase Price is mandatory and must be greater than 0.');
+      return;
+    }
+
+    // Validate per-size variant stocks
+    for (const size of selectedSizes) {
+      const stocks = variantStocks[size];
+      if (productPurpose === 'SALE' || productPurpose === 'HYBRID') {
+        const sellingPrice = Number(formData.get('sellingPrice'));
+        if (isNaN(sellingPrice) || sellingPrice <= 0) {
+          alert('Selling Price is mandatory and must be greater than 0.');
+          return;
+        }
+        if (!stocks || stocks.saleStock === undefined || stocks.saleStock < 0) {
+          alert(`Sale Stock for size ${size} is mandatory and must be 0 or more.`);
+          return;
+        }
+      }
+
+      if (productPurpose === 'RENTAL' || productPurpose === 'HYBRID') {
+        const rentalPrice = Number(formData.get('rentalPrice'));
+        if (isNaN(rentalPrice) || rentalPrice <= 0) {
+          alert('Rental Price (Daily) is mandatory and must be greater than 0.');
+          return;
+        }
+        if (!stocks || stocks.rentalStock === undefined || stocks.rentalStock < 0) {
+          alert(`Rental Stock for size ${size} is mandatory and must be 0 or more.`);
+          return;
+        }
+      }
+    }
+
     setIsSaving(true);
     
     try {
@@ -129,32 +303,112 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
         throw new Error('Image size exceeds 5MB. Please choose a smaller photo.');
       }
 
-      const productData = {
+      const baseProductData = {
         name,
-        sku,
         barcode: formData.get('barcode') as string || '',
         category: formData.get('category') as string || '',
         brand: formData.get('brand') as string || '',
         color: formData.get('color') as string || '',
         material: formData.get('material') as string || '',
-        sizes: selectedSizes,
         purpose: productPurpose,
         purchasePrice: Number(formData.get('purchasePrice')) || 0,
         sellingPrice: (productPurpose === 'SALE' || productPurpose === 'HYBRID') ? Number(formData.get('sellingPrice')) : 0,
         rentalPrice: (productPurpose === 'RENTAL' || productPurpose === 'HYBRID') ? Number(formData.get('rentalPrice')) : 0,
         taxPercent: Number(formData.get('taxPercent')) || 0,
-        saleStock: (productPurpose === 'SALE' || productPurpose === 'HYBRID') ? Number(formData.get('saleStock')) : 0,
-        rentalStock: (productPurpose === 'RENTAL' || productPurpose === 'HYBRID') ? Number(formData.get('rentalStock')) : 0,
         minStockAlert: Number(formData.get('minStockAlert')) || 0,
         supplierId: formData.get('supplierId') as string || '',
         description: formData.get('description') as string || '',
         imageUrl: previewImage || '',
       };
 
+      let siblings: Product[] = [];
       if (productToEdit) {
-        await updateProduct(productToEdit.id, productData, selectedFile || undefined, setSavingStatus);
-      } else {
-        await addProduct(productData, selectedFile || undefined, setSavingStatus);
+        let originalBaseSku = productToEdit.sku;
+        const matchingSize = productToEdit.sizes[0];
+        if (matchingSize && productToEdit.sku.endsWith(`-${matchingSize}`)) {
+          originalBaseSku = productToEdit.sku.substring(0, productToEdit.sku.length - matchingSize.length - 1);
+        } else {
+          const lastDash = productToEdit.sku.lastIndexOf('-');
+          if (lastDash > 0) {
+            originalBaseSku = productToEdit.sku.substring(0, lastDash);
+          }
+        }
+
+        siblings = products.filter(p => {
+          let pBase = p.sku;
+          const pSize = p.sizes[0];
+          if (pSize && p.sku.endsWith(`-${pSize}`)) {
+            pBase = p.sku.substring(0, p.sku.length - pSize.length - 1);
+          } else {
+            const pDash = p.sku.lastIndexOf('-');
+            if (pDash > 0) {
+              pBase = p.sku.substring(0, pDash);
+            }
+          }
+          return pBase.toLowerCase() === originalBaseSku.toLowerCase() || p.name.toLowerCase() === productToEdit.name.toLowerCase();
+        });
+      }
+
+      // 1. Save new or update existing size variants
+      for (const size of selectedSizes) {
+        const variantSku = `${sku}-${size}`;
+        const existing = siblings.find(sib => {
+          const sibSize = sib.sizes[0];
+          return sibSize?.toUpperCase() === size.toUpperCase();
+        });
+
+        const variantData = {
+          ...baseProductData,
+          sku: variantSku,
+          sizes: [size],
+          saleStock: variantStocks[size]?.saleStock ?? 0,
+          rentalStock: variantStocks[size]?.rentalStock ?? 0
+        };
+
+        if (existing) {
+          setSavingStatus(`Updating variant for size ${size}...`);
+          await updateProduct(existing.id, variantData, selectedFile || undefined, setSavingStatus);
+        } else {
+          setSavingStatus(`Adding variant for size ${size}...`);
+          await addProduct(variantData, selectedFile || undefined, setSavingStatus);
+        }
+      }
+
+      // 2. Delete variants that were removed
+      const removedVariants = siblings.filter(sib => {
+        const sibSize = sib.sizes[0];
+        return !selectedSizes.some(s => s.toUpperCase() === sibSize?.toUpperCase());
+      });
+
+      for (const removed of removedVariants) {
+        try {
+          setSavingStatus(`Removing variant for size ${removed.sizes[0]}...`);
+          await deleteProduct(removed.id);
+        } catch (err) {
+          console.warn(`Failed to hard delete variant ${removed.id}. Setting stock to 0 and hiding instead.`, err);
+          const softDeleteData = {
+            sku: removed.sku,
+            name: removed.name,
+            barcode: removed.barcode,
+            category: removed.category,
+            brand: removed.brand,
+            color: removed.color,
+            material: removed.material,
+            purpose: removed.purpose,
+            purchasePrice: removed.purchasePrice,
+            sellingPrice: removed.sellingPrice,
+            rentalPrice: removed.rentalPrice,
+            taxPercent: removed.taxPercent,
+            minStockAlert: removed.minStockAlert,
+            supplierId: removed.supplierId,
+            description: removed.description,
+            imageUrl: removed.imageUrl,
+            sizes: [], // Clear sizes so it disappears from grouped display
+            saleStock: 0,
+            rentalStock: 0
+          };
+          await updateProduct(removed.id, softDeleteData);
+        }
       }
 
       setSuccessMessage(productToEdit ? 'Product updated successfully!' : 'Product added successfully!');
@@ -317,73 +571,22 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
             </div>
           </div>
 
-          <div className="space-y-1.5">
-            <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Product Name</label>
-            <input name="name" defaultValue={productToEdit?.name} required className="w-full px-4 py-3 bg-slate-50 border-slate-100 border focus:bg-white focus:border-[#8B5CF6]/30 rounded-2xl outline-none transition-all font-black uppercase tracking-widest text-slate-700 text-[10px]" placeholder="e.g. Designer Suit" />
-          </div>
-
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">SKU</label>
-              <div className="relative">
-                <input 
-                  name="sku" 
-                  value={skuValue}
-                  onChange={(e) => setSkuValue(e.target.value)}
-                  required 
-                  className="w-full pl-4 pr-10 py-3 bg-slate-50 border-slate-100 border focus:bg-white focus:border-[#8B5CF6]/30 rounded-2xl outline-none transition-all font-black uppercase tracking-widest text-slate-700 text-[10px]" 
-                  placeholder="DSG-001" 
-                />
-                <button 
-                  type="button"
-                  onClick={() => { setScannerTarget('SKU'); setIsScannerOpen(true); }}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-slate-100 text-slate-400 hover:bg-[#8B5CF6] hover:text-white rounded-xl transition-all shadow-sm group"
-                  title="Scan Barcode"
-                >
-                  <ScanLine size={14} strokeWidth={2.5} className="group-active:scale-95 transition-transform" />
-                </button>
-              </div>
+              <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Product Name <span className="text-red-500">*</span></label>
+              <input name="name" defaultValue={productToEdit?.name} required className="w-full px-4 py-3 bg-slate-50 border-slate-100 border focus:bg-white focus:border-[#8B5CF6]/30 rounded-2xl outline-none transition-all font-black uppercase tracking-widest text-slate-700 text-[10px]" placeholder="e.g. Designer Suit" />
             </div>
             <div className="space-y-1.5">
-              <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Brand</label>
-              <input name="brand" defaultValue={productToEdit?.brand} className="w-full px-4 py-3 bg-slate-50 border-slate-100 border focus:bg-white focus:border-[#8B5CF6]/30 rounded-2xl outline-none transition-all font-black uppercase tracking-widest text-slate-700 text-[10px]" placeholder="Brand Name" />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="space-y-1.5">
-              <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Color</label>
-              <input name="color" defaultValue={productToEdit?.color} className="w-full px-4 py-3 bg-slate-50 border-slate-100 border focus:bg-white focus:border-[#8B5CF6]/30 rounded-2xl outline-none transition-all font-black uppercase tracking-widest text-slate-700 text-[10px]" placeholder="Blue" />
-            </div>
-            <div className="space-y-1.5">
-              <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Material</label>
-              <input name="material" defaultValue={productToEdit?.material} className="w-full px-4 py-3 bg-slate-50 border-slate-100 border focus:bg-white focus:border-[#8B5CF6]/30 rounded-2xl outline-none transition-all font-black uppercase tracking-widest text-slate-700 text-[10px]" placeholder="Cotton" />
-            </div>
-            <div className="space-y-1.5">
-              <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Barcode</label>
-              <div className="relative">
-                <input 
-                  name="barcode" 
-                  value={barcodeValue}
-                  onChange={(e) => setBarcodeValue(e.target.value)}
-                  className="w-full pl-4 pr-10 py-3 bg-slate-50 border-slate-100 border focus:bg-white focus:border-[#8B5CF6]/30 rounded-2xl outline-none transition-all font-black uppercase tracking-widest text-slate-700 text-[10px]" 
-                  placeholder="Optional" 
-                />
-                <button 
-                  type="button"
-                  onClick={() => { setScannerTarget('BARCODE'); setIsScannerOpen(true); }}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-slate-100 text-slate-400 hover:bg-[#8B5CF6] hover:text-white rounded-xl transition-all shadow-sm group"
-                  title="Scan Barcode"
-                >
-                  <ScanLine size={14} strokeWidth={2.5} className="group-active:scale-95 transition-transform" />
-                </button>
-              </div>
+              <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Category</label>
+              <select name="category" defaultValue={productToEdit?.category} className="w-full px-4 py-3 bg-slate-50 border-slate-100 border focus:bg-white focus:border-[#8B5CF6]/30 rounded-2xl outline-none transition-all font-black uppercase tracking-widest text-slate-700 text-[10px] appearance-none">
+                {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+              </select>
             </div>
           </div>
 
           {/* Sizes Management */}
           <div className="space-y-2 border-t border-slate-50 pt-4">
-            <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Sizes</label>
+            <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Sizes <span className="text-red-500">*</span></label>
             <div className="flex flex-wrap gap-2 mb-2">
               {selectedSizes.map(size => (
                 <span key={size} className="bg-slate-900 text-white text-[8px] font-black uppercase tracking-widest px-3 py-1.5 rounded-xl flex items-center gap-1.5 shadow-sm">
@@ -428,50 +631,152 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-slate-50 pt-4">
             <div className="space-y-1.5">
-              <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Category</label>
-              <select name="category" defaultValue={productToEdit?.category} className="w-full px-4 py-3 bg-slate-50 border-slate-100 border focus:bg-white focus:border-[#8B5CF6]/30 rounded-2xl outline-none transition-all font-black uppercase tracking-widest text-slate-700 text-[10px] appearance-none">
-                {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
-              </select>
+              <div className="flex justify-between items-center ml-1">
+                <label className="text-[9px] font-black uppercase tracking-widest text-slate-400">SKU <span className="text-red-500">*</span></label>
+                <button 
+                  type="button" 
+                  onClick={generateAutoSKU}
+                  className="text-[8px] font-black uppercase tracking-widest text-[#8B5CF6] hover:underline transition-all"
+                >
+                  Auto-Generate
+                </button>
+              </div>
+              <div className="relative">
+                <input 
+                  name="sku" 
+                  value={skuValue}
+                  onChange={(e) => setSkuValue(e.target.value)}
+                  required 
+                  className="w-full pl-4 pr-10 py-3 bg-slate-50 border-slate-100 border focus:bg-white focus:border-[#8B5CF6]/30 rounded-2xl outline-none transition-all font-black uppercase tracking-widest text-slate-700 text-[10px]" 
+                  placeholder="DSG-001" 
+                />
+                <button 
+                  type="button"
+                  onClick={() => { setScannerTarget('SKU'); setIsScannerOpen(true); }}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-slate-100 text-slate-400 hover:bg-[#8B5CF6] hover:text-white rounded-xl transition-all shadow-sm group"
+                  title="Scan Barcode"
+                >
+                  <ScanLine size={14} strokeWidth={2.5} className="group-active:scale-95 transition-transform" />
+                </button>
+              </div>
             </div>
             <div className="space-y-1.5">
-              <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Supplier</label>
-              <select name="supplierId" defaultValue={productToEdit?.supplierId} className="w-full px-4 py-3 bg-slate-50 border-slate-100 border focus:bg-white focus:border-[#8B5CF6]/30 rounded-2xl outline-none transition-all font-black uppercase tracking-widest text-slate-700 text-[10px] appearance-none">
-                <option value="">Select Supplier (Optional)</option>
-                {suppliers.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
-              </select>
+              <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Brand</label>
+              <input name="brand" defaultValue={productToEdit?.brand} className="w-full px-4 py-3 bg-slate-50 border-slate-100 border focus:bg-white focus:border-[#8B5CF6]/30 rounded-2xl outline-none transition-all font-black uppercase tracking-widest text-slate-700 text-[10px]" placeholder="Brand Name" />
             </div>
           </div>
 
-          {(productPurpose === 'SALE' || productPurpose === 'HYBRID') && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-nano">
-              <div className="space-y-1.5">
-                <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Selling Price</label>
-                <input name="sellingPrice" type="number" step="0.01" defaultValue={productToEdit?.sellingPrice} className="w-full px-4 py-3 bg-slate-50 border-slate-100 border focus:bg-white focus:border-[#8B5CF6]/30 rounded-2xl outline-none transition-all font-black uppercase tracking-widest text-slate-700 text-[10px]" placeholder="0.00" />
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Sale Stock</label>
-                <input name="saleStock" type="number" defaultValue={productToEdit?.saleStock} className="w-full px-4 py-3 bg-slate-50 border-slate-100 border focus:bg-white focus:border-[#8B5CF6]/30 rounded-2xl outline-none transition-all font-black uppercase tracking-widest text-slate-700 text-[10px]" placeholder="0" />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 border-t border-slate-50 pt-4">
+            <div className="space-y-1.5">
+              <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Color</label>
+              <input name="color" defaultValue={productToEdit?.color} className="w-full px-4 py-3 bg-slate-50 border-slate-100 border focus:bg-white focus:border-[#8B5CF6]/30 rounded-2xl outline-none transition-all font-black uppercase tracking-widest text-slate-700 text-[10px]" placeholder="Blue" />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Material</label>
+              <input name="material" defaultValue={productToEdit?.material} className="w-full px-4 py-3 bg-slate-50 border-slate-100 border focus:bg-white focus:border-[#8B5CF6]/30 rounded-2xl outline-none transition-all font-black uppercase tracking-widest text-slate-700 text-[10px]" placeholder="Cotton" />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Barcode</label>
+              <div className="relative">
+                <input 
+                  name="barcode" 
+                  value={barcodeValue}
+                  onChange={(e) => setBarcodeValue(e.target.value)}
+                  className="w-full pl-4 pr-10 py-3 bg-slate-50 border-slate-100 border focus:bg-white focus:border-[#8B5CF6]/30 rounded-2xl outline-none transition-all font-black uppercase tracking-widest text-slate-700 text-[10px]" 
+                  placeholder="Optional" 
+                />
+                <button 
+                  type="button"
+                  onClick={() => { setScannerTarget('BARCODE'); setIsScannerOpen(true); }}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-slate-100 text-slate-400 hover:bg-[#8B5CF6] hover:text-white rounded-xl transition-all shadow-sm group"
+                  title="Scan Barcode"
+                >
+                  <ScanLine size={14} strokeWidth={2.5} className="group-active:scale-95 transition-transform" />
+                </button>
               </div>
             </div>
-          )}
+          </div>
 
-          {(productPurpose === 'RENTAL' || productPurpose === 'HYBRID') && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-nano">
+          <div className="space-y-1.5 border-t border-slate-50 pt-4">
+            <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Supplier</label>
+            <select name="supplierId" defaultValue={productToEdit?.supplierId} className="w-full px-4 py-3 bg-slate-50 border-slate-100 border focus:bg-white focus:border-[#8B5CF6]/30 rounded-2xl outline-none transition-all font-black uppercase tracking-widest text-slate-700 text-[10px] appearance-none">
+              <option value="">Select Supplier (Optional)</option>
+              {suppliers.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+            </select>
+          </div>
+
+          {/* Prices Section */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {(productPurpose === 'SALE' || productPurpose === 'HYBRID') && (
               <div className="space-y-1.5">
-                <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Rental Price (Daily)</label>
-                <input name="rentalPrice" type="number" step="0.01" defaultValue={productToEdit?.rentalPrice} className="w-full px-4 py-3 bg-slate-50 border-slate-100 border focus:bg-white focus:border-[#8B5CF6]/30 rounded-2xl outline-none transition-all font-black uppercase tracking-widest text-slate-700 text-[10px]" placeholder="0.00" />
+                <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Selling Price <span className="text-red-500">*</span></label>
+                <input name="sellingPrice" type="number" step="0.01" defaultValue={productToEdit?.sellingPrice} required className="w-full px-4 py-3 bg-slate-50 border-slate-100 border focus:bg-white focus:border-[#8B5CF6]/30 rounded-2xl outline-none transition-all font-black uppercase tracking-widest text-slate-700 text-[10px]" placeholder="0.00" />
               </div>
+            )}
+            {(productPurpose === 'RENTAL' || productPurpose === 'HYBRID') && (
               <div className="space-y-1.5">
-                <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Rental Stock</label>
-                <input name="rentalStock" type="number" defaultValue={productToEdit?.rentalStock} className="w-full px-4 py-3 bg-slate-50 border-slate-100 border focus:bg-white focus:border-[#8B5CF6]/30 rounded-2xl outline-none transition-all font-black uppercase tracking-widest text-slate-700 text-[10px]" placeholder="0" />
+                <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Rental Price (Daily) <span className="text-red-500">*</span></label>
+                <input name="rentalPrice" type="number" step="0.01" defaultValue={productToEdit?.rentalPrice} required className="w-full px-4 py-3 bg-slate-50 border-slate-100 border focus:bg-white focus:border-[#8B5CF6]/30 rounded-2xl outline-none transition-all font-black uppercase tracking-widest text-slate-700 text-[10px]" placeholder="0.00" />
               </div>
-            </div>
-          )}
+            )}
+          </div>
+
+          {/* Stock per Size Variant Section */}
+          <div className="space-y-2 border-t border-slate-50 pt-4">
+            <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Stock per Size <span className="text-red-500">*</span></label>
+            {selectedSizes.length > 0 ? (
+              <div className="space-y-3">
+                {selectedSizes.map(size => (
+                  <div key={size} className="flex flex-col sm:flex-row sm:items-center gap-3 bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                    <span className="text-xs font-black uppercase tracking-widest text-slate-700 min-w-[60px]">{size}</span>
+                    <div className="flex-1 grid grid-cols-2 gap-3">
+                      {(productPurpose === 'SALE' || productPurpose === 'HYBRID') && (
+                        <div className="space-y-1">
+                          <label className="text-[7px] font-black uppercase tracking-widest text-slate-400 ml-1">Sale Stock</label>
+                          <input 
+                            type="number" 
+                            value={variantStocks[size]?.saleStock ?? 0}
+                            onChange={(e) => setVariantStocks(prev => ({
+                              ...prev,
+                              [size]: { ...prev[size], saleStock: Math.max(0, Number(e.target.value) || 0) }
+                            }))}
+                            className="w-full px-3 py-2 bg-white border border-slate-150 focus:border-[#8B5CF6]/30 rounded-xl outline-none transition-all font-black text-slate-700 text-[10px]" 
+                            placeholder="0" 
+                            min="0"
+                          />
+                        </div>
+                      )}
+                      {(productPurpose === 'RENTAL' || productPurpose === 'HYBRID') && (
+                        <div className="space-y-1">
+                          <label className="text-[7px] font-black uppercase tracking-widest text-slate-400 ml-1">Rental Stock</label>
+                          <input 
+                            type="number" 
+                            value={variantStocks[size]?.rentalStock ?? 0}
+                            onChange={(e) => setVariantStocks(prev => ({
+                              ...prev,
+                              [size]: { ...prev[size], rentalStock: Math.max(0, Number(e.target.value) || 0) }
+                            }))}
+                            className="w-full px-3 py-2 bg-white border border-slate-150 focus:border-[#8B5CF6]/30 rounded-xl outline-none transition-all font-black text-slate-700 text-[10px]" 
+                            placeholder="0" 
+                            min="0"
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest text-center py-4 bg-slate-50 border border-dashed border-slate-200 rounded-2xl">
+                Please add at least one size above to set stock.
+              </p>
+            )}
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 border-t border-slate-50 pt-4">
             <div className="space-y-1.5">
-              <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Purchase Price</label>
-              <input name="purchasePrice" type="number" step="0.01" defaultValue={productToEdit?.purchasePrice || 0} className="w-full px-4 py-3 bg-slate-50 border-slate-100 border focus:bg-white focus:border-[#8B5CF6]/30 rounded-2xl outline-none transition-all font-black uppercase tracking-widest text-slate-700 text-[10px]" placeholder="0.00" />
+              <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Purchase Price <span className="text-red-500">*</span></label>
+              <input name="purchasePrice" type="number" step="0.01" defaultValue={productToEdit?.purchasePrice || 0} required className="w-full px-4 py-3 bg-slate-50 border-slate-100 border focus:bg-white focus:border-[#8B5CF6]/30 rounded-2xl outline-none transition-all font-black uppercase tracking-widest text-slate-700 text-[10px]" placeholder="0.00" />
             </div>
             <div className="space-y-1.5">
               <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Tax (%)</label>
