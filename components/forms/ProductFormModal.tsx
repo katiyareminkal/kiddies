@@ -114,24 +114,25 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
     }
   };
 
-  const callGeminiToDescribeGarment = async (base64Image: string, mimeType: string, ageGroup: string, gender: string): Promise<string> => {
+  const generateAITryOnImage = async (base64Image: string, mimeType: string, ageGroup: string, gender: string): Promise<string> => {
     const apiKey = process.env.GEMINI_API_KEY || (window as any).process?.env?.GEMINI_API_KEY;
     if (!apiKey) {
-      throw new Error("Gemini API key is not configured in environment variables.");
+      throw new Error("Gemini API key is not configured. Add GEMINI_API_KEY to your .env file.");
     }
 
     const base64Data = base64Image.split(',')[1] || base64Image;
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+
+    const ageLabel = ageGroup === 'BABY' ? 'baby (0-1 year old)' : ageGroup === 'TODDLER' ? 'toddler (1-3 years old)' : ageGroup === 'KID' ? 'kid (4-7 years old)' : 'pre-teen (8-12 years old)';
+    const genderLabel = gender === 'BOY' ? 'boy' : gender === 'GIRL' ? 'girl' : 'child';
+
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${apiKey}`;
 
     const requestBody = {
       contents: [
         {
           parts: [
             {
-              text: `Analyze this uploaded kid clothing garment image. Describe its color, pattern, material, and style in detail. Then, write a single sentence prompt (max 70 words) for an AI image generator to show a child model wearing this exact item.
-The target model is: a ${ageGroup.toLowerCase()} ${gender.toLowerCase()}.
-Make the description highly detailed, specifying a professional kid fashion catalog photo style, neutral light gray studio backdrop, soft studio lighting.
-Return ONLY the prompt text, no chat prefix, no markup. E.g.: "A professional kid fashion catalog photo of a toddler girl smiling and posing, wearing a [detailed description of garment color, style, patterns, fabric textures]. She is standing in front of a neutral soft gray studio backdrop."`
+              text: `Generate a professional kid fashion catalog product photo. Show a cute ${ageLabel} ${genderLabel} model wearing EXACTLY this clothing item shown in the image. The model should be standing and smiling naturally. Use a clean, neutral light gray studio backdrop with soft professional studio lighting. The clothing on the model must match the uploaded garment EXACTLY - same colors, same patterns, same fabric, same design details. Make it look like a real e-commerce product photo.`
             },
             {
               inlineData: {
@@ -141,7 +142,11 @@ Return ONLY the prompt text, no chat prefix, no markup. E.g.: "A professional ki
             }
           ]
         }
-      ]
+      ],
+      generationConfig: {
+        responseModalities: ["IMAGE", "TEXT"],
+        responseMimeType: "text/plain"
+      }
     };
 
     const response = await fetch(url, {
@@ -156,12 +161,23 @@ Return ONLY the prompt text, no chat prefix, no markup. E.g.: "A professional ki
     }
 
     const data = await response.json();
-    const textResult = data.candidates?.[0]?.content?.parts?.[0]?.text;
-    if (!textResult) {
-      throw new Error("Could not parse description from Gemini response.");
+    const parts = data.candidates?.[0]?.content?.parts;
+    if (!parts || parts.length === 0) {
+      throw new Error("Gemini returned no content. Try again.");
     }
 
-    return textResult.trim();
+    // Look for an image part in the response
+    for (const part of parts) {
+      if (part.inlineData) {
+        const imgMime = part.inlineData.mimeType || 'image/png';
+        const imgBase64 = part.inlineData.data;
+        return `data:${imgMime};base64,${imgBase64}`;
+      }
+    }
+
+    // If no image part found, check if there's text explaining why
+    const textPart = parts.find((p: any) => p.text);
+    throw new Error(textPart?.text || "Gemini could not generate an image. Try a different garment photo.");
   };
 
   const handleRemoveImage = () => {
@@ -175,12 +191,12 @@ Return ONLY the prompt text, no chat prefix, no markup. E.g.: "A professional ki
   const handleGenerateAIModel = async () => {
     if (isGeneratingAI || !previewImage) return;
     setIsGeneratingAI(true);
+    setAiModelImage(null);
 
     try {
-      setAiStatusText('AI is analyzing clothing textures...');
-      await new Promise(resolve => setTimeout(resolve, 800));
+      setAiStatusText('AI is analyzing your garment...');
+      await new Promise(resolve => setTimeout(resolve, 500));
 
-      setAiStatusText('Describing garment design details...');
       let mimeType = 'image/jpeg';
       if (selectedFile) mimeType = selectedFile.type;
       else if (previewImage.startsWith('data:image/')) {
@@ -188,15 +204,10 @@ Return ONLY the prompt text, no chat prefix, no markup. E.g.: "A professional ki
         if (match) mimeType = match[1];
       }
 
-      const prompt = await callGeminiToDescribeGarment(previewImage, mimeType, aiAgeGroup, aiGender);
-      setAiPromptText(prompt);
-
-      setAiStatusText('Generating realistic model fitting...');
-      const seed = Math.floor(Math.random() * 1000000);
-      setAiSeed(seed);
-
-      const generatedUrl = `https://image.pollinations.ai/p/${encodeURIComponent(prompt)}?width=600&height=600&seed=${seed}&nologo=true`;
-      setAiModelImage(generatedUrl);
+      setAiStatusText('Generating model wearing your dress...');
+      const imageDataUrl = await generateAITryOnImage(previewImage, mimeType, aiAgeGroup, aiGender);
+      setAiModelImage(imageDataUrl);
+      setAiPromptText('Generated using Gemini AI with your uploaded garment image');
     } catch (e: any) {
       console.error(e);
       alert('AI Dress Up Failed: ' + (e?.message || e));
@@ -208,25 +219,23 @@ Return ONLY the prompt text, no chat prefix, no markup. E.g.: "A professional ki
   const handleRecreateAIModel = async () => {
     if (isGeneratingAI || !previewImage) return;
     setIsGeneratingAI(true);
+    setAiModelImage(null); // Clear first to force re-render
 
     try {
-      setAiStatusText('Re-rendering alternative poses...');
-      const seed = Math.floor(Math.random() * 1000000);
-      setAiSeed(seed);
+      setAiStatusText('Re-generating with new pose...');
 
-      let prompt = aiPromptText;
-      if (!prompt) {
-        let mimeType = 'image/jpeg';
-        if (selectedFile) mimeType = selectedFile.type;
-        prompt = await callGeminiToDescribeGarment(previewImage, mimeType, aiAgeGroup, aiGender);
-        setAiPromptText(prompt);
+      let mimeType = 'image/jpeg';
+      if (selectedFile) mimeType = selectedFile.type;
+      else if (previewImage.startsWith('data:image/')) {
+        const match = previewImage.match(/^data:(image\/[a-zA-Z0-9+.-]+);base64,/);
+        if (match) mimeType = match[1];
       }
 
-      const generatedUrl = `https://image.pollinations.ai/p/${encodeURIComponent(prompt)}?width=600&height=600&seed=${seed}&nologo=true`;
-      setAiModelImage(generatedUrl);
+      const imageDataUrl = await generateAITryOnImage(previewImage, mimeType, aiAgeGroup, aiGender);
+      setAiModelImage(imageDataUrl);
     } catch (e: any) {
       console.error(e);
-      alert('AI Dress Up Failed: ' + (e?.message || e));
+      alert('AI Recreate Failed: ' + (e?.message || e));
     } finally {
       setIsGeneratingAI(false);
     }
