@@ -811,109 +811,73 @@ const Inventory: React.FC = () => {
                 boxSizing: 'border-box'
               }}
             >
-              {/* Border rectangle */}
-              <div style={{
-                position: 'absolute',
-                left: '5.7px',
-                top: '5.7px',
-                width: '177.6px',
-                height: '102px',
-                border: '1.5px solid #000000',
-                borderRadius: '7.5px',
-                boxSizing: 'border-box'
-              }} />
+              {DEFAULT_TEMPLATE_50x30.elements.map(el => {
+                if (!el.visible) return null;
+                const MM_TO_PX = 3.7795275591;
+                
+                // Get values
+                let text = '';
+                if (el.id === 'name') text = downloadingProduct.product.name;
+                else if (el.id === 'size') text = `SIZE: ${size}`;
+                else if (el.id === 'sku') text = `SKU: ${downloadingProduct.product.sku}`;
+                else if (el.id === 'price') text = `PRICE Rs. ${Number(downloadingProduct.product.sellingPrice).toFixed(2)}`;
+                else if (el.id === 'code') text = `CODE: 91${Number(downloadingProduct.product.purchasePrice || 0) * 2}`;
+                
+                const isCentered = el.align === 'center';
+                const baseStyle: React.CSSProperties = {
+                  position: 'absolute',
+                  left: `${el.x * MM_TO_PX}px`,
+                  top: `${el.y * MM_TO_PX}px`,
+                  transform: isCentered ? 'translateX(-50%)' : 'none',
+                  transformOrigin: 'top center',
+                  boxSizing: 'border-box'
+                };
 
-              {/* Product Name */}
-              <div style={{
-                position: 'absolute',
-                left: '0px',
-                right: '0px',
-                top: '18px',
-                textAlign: 'center',
-                fontSize: '12px',
-                fontWeight: 900,
-                color: '#000000',
-                textTransform: 'uppercase',
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                padding: '0 12px'
-              }}>
-                {downloadingProduct.product.name}
-              </div>
-
-              {/* Size */}
-              <div style={{
-                position: 'absolute',
-                left: '0px',
-                right: '0px',
-                top: '39px',
-                textAlign: 'center',
-                fontSize: '11px',
-                fontWeight: 900,
-                color: '#000000',
-                textTransform: 'uppercase'
-              }}>
-                SIZE: {size}
-              </div>
-
-              {/* SKU */}
-              <div style={{
-                position: 'absolute',
-                left: '0px',
-                right: '0px',
-                top: '54px',
-                textAlign: 'center',
-                fontSize: '11px',
-                fontWeight: 900,
-                color: '#000000',
-                textTransform: 'uppercase',
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                padding: '0 12px'
-              }}>
-                SKU: {downloadingProduct.product.sku}
-              </div>
-
-              {/* Divider */}
-              <div style={{
-                position: 'absolute',
-                left: '11.3px',
-                top: '69px',
-                width: '166.3px',
-                borderBottom: '1px dotted #000000'
-              }} />
-
-              {/* Price */}
-              <div style={{
-                position: 'absolute',
-                left: '0px',
-                right: '0px',
-                top: '78px',
-                textAlign: 'center',
-                fontSize: '14.5px',
-                fontWeight: 900,
-                color: '#000000',
-                textTransform: 'uppercase'
-              }}>
-                PRICE Rs. {Number(downloadingProduct.product.sellingPrice).toFixed(2)}
-              </div>
-
-              {/* Code */}
-              <div style={{
-                position: 'absolute',
-                left: '0px',
-                right: '0px',
-                top: '95px',
-                textAlign: 'center',
-                fontSize: '9px',
-                fontWeight: 900,
-                color: '#000000',
-                textTransform: 'uppercase'
-              }}>
-                CODE: 91{Number(downloadingProduct.product.purchasePrice || 0) * 2}
-              </div>
+                if (el.type === 'text') {
+                  return (
+                    <div
+                      key={el.id}
+                      style={{
+                        ...baseStyle,
+                        fontSize: `${(el.fontSize || 6) * 1.33}px`,
+                        fontWeight: el.isBold ? 900 : 'normal',
+                        fontFamily: 'Helvetica, Arial, sans-serif',
+                        whiteSpace: 'nowrap',
+                        color: '#000000',
+                        lineHeight: 1
+                      }}
+                    >
+                      {text}
+                    </div>
+                  );
+                } else if (el.type === 'line') {
+                  return (
+                    <div
+                      key={el.id}
+                      style={{
+                        ...baseStyle,
+                        width: `${(el.width || 10) * MM_TO_PX}px`,
+                        height: 0,
+                        borderBottom: `${(el.height || 0.5) * MM_TO_PX}px ${el.borderStyle === 'dotted' ? 'dotted' : 'solid'} #000000`
+                      }}
+                    />
+                  );
+                } else if (el.type === 'rect') {
+                  return (
+                    <div
+                      key={el.id}
+                      style={{
+                        ...baseStyle,
+                        width: `${(el.width || 10) * MM_TO_PX}px`,
+                        height: `${(el.height || 10) * MM_TO_PX}px`,
+                        border: `${0.5 * MM_TO_PX}px solid #000000`,
+                        borderRadius: `${(el.borderRadius || 0) * MM_TO_PX}px`
+                      }}
+                    />
+                  );
+                }
+                return null;
+              })}
             </div>
           ))}
         </div>
