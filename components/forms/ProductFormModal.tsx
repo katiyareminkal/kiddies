@@ -40,7 +40,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Label Printing State
-  const [printLabelSize, setPrintLabelSize] = useState<'50x30' | '30x50'>('30x50');
+  const [printLabelSize, setPrintLabelSize] = useState<'50x30' | '30x50'>('50x30');
   const [printGarmentSize, setPrintGarmentSize] = useState<string>('');
   const [showLabelEditor, setShowLabelEditor] = useState(false);
   const [labelData, setLabelData] = useState<any>(null);

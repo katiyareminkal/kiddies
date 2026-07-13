@@ -33,7 +33,7 @@ import { CATEGORIES } from '../constants';
 import { Product } from '../types';
 import { auth } from '../firebase';
 import BarcodeScanner from '../components/BarcodeScanner';
-import { generateDynamicLabelPDF, DEFAULT_TEMPLATE_30x50 } from '../utils/pdfLabel';
+import { generateDynamicLabelPDF, DEFAULT_TEMPLATE_50x30 } from '../utils/pdfLabel';
 
 import { StockEntryModal } from '../components/forms/StockEntryModal';
 import LabelDesigner from '../components/forms/LabelDesigner';
@@ -52,13 +52,13 @@ const Inventory: React.FC = () => {
 
   const handleQuickPrint = (product: Product) => {
     try {
-      const saved = localStorage.getItem('kiddies_label_template_30x50');
+      const saved = localStorage.getItem('kiddies_label_template_50x30');
       if (saved) {
         generateDynamicLabelPDF(product, JSON.parse(saved));
         return;
       }
     } catch(e) {}
-    generateDynamicLabelPDF(product, DEFAULT_TEMPLATE_30x50);
+    generateDynamicLabelPDF(product, DEFAULT_TEMPLATE_50x30);
   };
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -539,7 +539,7 @@ const Inventory: React.FC = () => {
             purchasePrice: printProduct.purchasePrice,
             color: printProduct.color || '',
             styleCode: '',
-            labelSize: '30x50'
+            labelSize: '50x30'
           }}
           allProductSizes={printProduct.sizes}
           onClose={() => setPrintProduct(null)}
