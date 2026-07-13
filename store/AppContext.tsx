@@ -585,7 +585,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         }));
       }
 
-      await fetchAllData();
+      fetchAllData();
       return true;
     } catch (error) {
       console.error("Login failed:", error);
