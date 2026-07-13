@@ -119,6 +119,27 @@ function LabelDesigner({ labelData, allProductSizes, onClose, onPrint }: LabelDe
     setHistoryFuture([]);
   };
 
+  const [isCurrentlyDefault, setIsCurrentlyDefault] = useState<boolean>(false);
+
+  useEffect(() => {
+    try {
+      const savedDefault = localStorage.getItem('kiddies_label_template_' + template.labelWidth + 'x' + template.labelHeight);
+      if (savedDefault) {
+        setIsCurrentlyDefault(JSON.stringify(JSON.parse(savedDefault)) === JSON.stringify(template));
+      } else {
+        setIsCurrentlyDefault(false);
+      }
+    } catch(e) {
+      setIsCurrentlyDefault(false);
+    }
+  }, [template]);
+
+  const handleSetAsDefault = () => {
+    localStorage.setItem('kiddies_label_template_' + template.labelWidth + 'x' + template.labelHeight, JSON.stringify(template));
+    setIsCurrentlyDefault(true);
+    showToast("This design is set as your default download layout!");
+  };
+
   const handleAddIcon = (iconId: string) => {
     const divEl = document.getElementById(`gallery-icon-${iconId}`);
     if (!divEl) return;
@@ -627,6 +648,20 @@ function LabelDesigner({ labelData, allProductSizes, onClose, onPrint }: LabelDe
     return null;
   };
 
+  const checkIsTemplateDefault = (t: LabelTemplate) => {
+    try {
+      const saved = localStorage.getItem('kiddies_label_template_' + t.labelWidth + 'x' + t.labelHeight);
+      if (saved) return JSON.stringify(JSON.parse(saved)) === JSON.stringify(t);
+    } catch(e) {}
+    return false;
+  };
+
+  const handleSetTemplateAsDefault = (t: LabelTemplate) => {
+    localStorage.setItem('kiddies_label_template_' + t.labelWidth + 'x' + t.labelHeight, JSON.stringify(t));
+    setIsCurrentlyDefault(true);
+    showToast("Template layout set as default direct download format!");
+  };
+
   return createPortal(
     <div
       className="fixed inset-0 z-[200] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-0 md:p-4 select-none"
@@ -699,6 +734,18 @@ function LabelDesigner({ labelData, allProductSizes, onClose, onPrint }: LabelDe
             )}
 
             <button onClick={handleSaveTemplate} className="px-2 md:px-3 py-1.5 bg-[#8B5CF6]/10 text-[#8B5CF6] rounded-lg font-bold uppercase tracking-widest text-[9px] hover:bg-[#8B5CF6]/20 flex items-center gap-1.5 transition-colors shrink-0"><Save size={12} /> <span className="hidden sm:inline">Save As Preset</span></button>
+
+            <button
+              onClick={isCurrentlyDefault ? undefined : handleSetAsDefault}
+              className={`px-2 md:px-3 py-1.5 rounded-lg font-bold uppercase tracking-widest text-[9px] flex items-center gap-1.5 transition-colors shrink-0 ${
+                isCurrentlyDefault
+                  ? 'bg-emerald-50 text-emerald-600 border border-emerald-200 cursor-default'
+                  : 'bg-[#8B5CF6]/10 text-[#8B5CF6] hover:bg-[#8B5CF6]/20 cursor-pointer'
+              }`}
+            >
+              <Star size={12} className={isCurrentlyDefault ? 'fill-emerald-500 text-emerald-500' : ''} />
+              <span>{isCurrentlyDefault ? 'Default Layout' : 'Set as Default'}</span>
+            </button>
 
             <div className="hidden md:flex items-center">
               <div className="w-px h-6 bg-slate-200 mx-1 shrink-0"></div>
@@ -1063,6 +1110,21 @@ function LabelDesigner({ labelData, allProductSizes, onClose, onPrint }: LabelDe
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
                   {savedLayouts.map(l => (
                     <div key={l.name} className="bg-white border border-slate-200 rounded-2xl overflow-hidden hover:border-[#8B5CF6]/40 hover:shadow-xl hover:-translate-y-1 transition-all group flex flex-col relative">
+                      {/* Default Layout Star Toggle Button */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleSetTemplateAsDefault(l.template);
+                        }}
+                        className={`absolute top-2.5 right-2.5 z-20 p-2 rounded-full border transition-all ${
+                          checkIsTemplateDefault(l.template)
+                            ? 'bg-emerald-50 text-emerald-500 border-emerald-200 shadow-sm'
+                            : 'bg-white/90 backdrop-blur-sm text-slate-400 border-slate-200/50 hover:bg-[#8B5CF6] hover:text-white hover:border-transparent hover:shadow-md'
+                        }`}
+                        title={checkIsTemplateDefault(l.template) ? "Current Default Layout" : "Set as Default Layout"}
+                      >
+                        <Star size={12} className={checkIsTemplateDefault(l.template) ? 'fill-emerald-500 text-emerald-500 animate-pulse' : ''} />
+                      </button>
                       <div
                         className="h-44 bg-slate-100/50 border-b border-slate-100 flex items-center justify-center relative p-4 overflow-hidden cursor-zoom-in"
                         onClick={() => setZoomedTemplate(l.template)}
