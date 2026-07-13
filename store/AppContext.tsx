@@ -179,17 +179,38 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         const { data: { session } } = await supabase.auth.getSession();
         clearTimeout(fallbackTimeout);
         if (session?.user) {
-          const { data } = await supabase.from('profiles').select('*').eq('id', session.user.id).single();
-          if (data && mounted) {
+          let name = 'User';
+          let role = UserRole.STAFF;
+          let permissions: string[] = [];
+          let createdAt = new Date().toISOString();
+
+          try {
+            const { data } = await supabase.from('profiles').select('*').eq('id', session.user.id).single();
+            if (data) {
+              name = data.name || name;
+              role = (data.role as any) || role;
+              permissions = data.permissions || permissions;
+              createdAt = data.created_at || createdAt;
+            } else {
+              name = session.user.user_metadata?.name || name;
+              role = session.user.user_metadata?.role || role;
+            }
+          } catch (err) {
+            console.warn("Could not query user profile on init, using metadata fallback:", err);
+            name = session.user.user_metadata?.name || name;
+            role = session.user.user_metadata?.role || role;
+          }
+
+          if (mounted) {
             setState(prev => ({
               ...prev,
               currentUser: {
-                id: data.id,
-                name: data.name || 'User',
-                email: data.email || session.user.email || '',
-                role: (data.role as any) || UserRole.STAFF,
-                permissions: data.permissions || [],
-                createdAt: data.created_at
+                id: session.user.id,
+                name,
+                email: session.user.email || '',
+                role,
+                permissions,
+                createdAt
               }
             }));
           }
@@ -215,17 +236,38 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       }
       
       if (session?.user) {
-        const { data } = await supabase.from('profiles').select('*').eq('id', session.user.id).single();
-        if (data && mounted) {
+        let name = 'User';
+        let role = UserRole.STAFF;
+        let permissions: string[] = [];
+        let createdAt = new Date().toISOString();
+
+        try {
+          const { data } = await supabase.from('profiles').select('*').eq('id', session.user.id).single();
+          if (data) {
+            name = data.name || name;
+            role = (data.role as any) || role;
+            permissions = data.permissions || permissions;
+            createdAt = data.created_at || createdAt;
+          } else {
+            name = session.user.user_metadata?.name || name;
+            role = session.user.user_metadata?.role || role;
+          }
+        } catch (err) {
+          console.warn("Could not query user profile on auth change, using metadata fallback:", err);
+          name = session.user.user_metadata?.name || name;
+          role = session.user.user_metadata?.role || role;
+        }
+
+        if (mounted) {
           setState(prev => ({
             ...prev,
             currentUser: {
-              id: data.id,
-              name: data.name || 'User',
-              email: data.email || session.user.email || '',
-              role: (data.role as any) || UserRole.STAFF,
-              permissions: data.permissions || [],
-              createdAt: data.created_at
+              id: session.user.id,
+              name,
+              email: session.user.email || '',
+              role,
+              permissions,
+              createdAt
             }
           }));
         }
