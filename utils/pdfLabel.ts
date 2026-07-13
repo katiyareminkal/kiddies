@@ -69,7 +69,7 @@ export const DEFAULT_TEMPLATE_50x30: LabelTemplate = {
     { id: 'name', type: 'text', x: 25, y: 8, fontSize: 9.5, isBold: true, align: 'center', visible: true },
     { id: 'size', type: 'text', x: 25, y: 12.5, fontSize: 8.5, isBold: true, align: 'center', visible: true, staticText: 'SIZE: ' },
     { id: 'sku', type: 'text', x: 25, y: 17, fontSize: 8.5, isBold: true, align: 'center', visible: true, staticText: 'SKU: ' },
-    { id: 'divider2', type: 'line', x: 3, y: 19.5, width: 44, height: 0.3, borderStyle: 'dotted', visible: true },
+    { id: 'divider2', type: 'line', x: 3, y: 20.5, width: 44, height: 0.3, borderStyle: 'dotted', visible: true },
     { id: 'price', type: 'text', x: 25, y: 24.5, fontSize: 11, isBold: true, align: 'center', visible: true, staticText: 'PRICE Rs. ' },
     { id: 'code', type: 'text', x: 25, y: 28, fontSize: 7, isBold: true, align: 'center', visible: true, staticText: 'CODE: ' },
   ]

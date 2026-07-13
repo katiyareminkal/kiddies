@@ -74,15 +74,30 @@ const Inventory: React.FC = () => {
     // Wait for React to render the off-screen cards in the DOM
     setTimeout(async () => {
       try {
+        const template = getActiveDownloadTemplate();
+        const MM_TO_PX = 3.7795275591;
+        const labelWidthPx = template.labelWidth * MM_TO_PX;
+        const labelHeightPx = template.labelHeight * MM_TO_PX;
+
         for (let i = 0; i < sizes.length; i++) {
           const element = document.getElementById(`hidden-tag-card-${i}`);
           if (element) {
-            const canvas = await html2canvas(element, {
+            const fullCanvas = await html2canvas(element, {
               scale: 6, // 6x high resolution output for maximum sharpness
               useCORS: true,
               backgroundColor: '#ffffff'
             });
-            const imgData = canvas.toDataURL('image/png');
+            // Manually crop the canvas to exact label dimensions to clip any overflowing text
+            const cropW = Math.round(labelWidthPx * 6);
+            const cropH = Math.round(labelHeightPx * 6);
+            const croppedCanvas = document.createElement('canvas');
+            croppedCanvas.width = cropW;
+            croppedCanvas.height = cropH;
+            const ctx = croppedCanvas.getContext('2d');
+            if (ctx) {
+              ctx.drawImage(fullCanvas, 0, 0, cropW, cropH, 0, 0, cropW, cropH);
+            }
+            const imgData = croppedCanvas.toDataURL('image/png');
             const link = document.createElement('a');
             link.href = imgData;
             link.download = `Label_${product.sku.toUpperCase()}_${sizes[i].toUpperCase()}.png`;
@@ -857,9 +872,6 @@ const Inventory: React.FC = () => {
                     if (el.id === 'code') text += '91' + ((downloadingProduct.product.purchasePrice || 0) * 2).toString();
                     if (el.id === 'sku') text += (downloadingProduct.product.sku || '').toUpperCase();
                     if (el.id === 'barcodeText') text = (downloadingProduct.product.barcode || downloadingProduct.product.sku || '').toUpperCase();
-                    const labelW = template.labelWidth * MM_TO_PX;
-                    const elLeft = el.x * MM_TO_PX;
-                    const maxW = isCentered ? labelW : Math.max(1, labelW - elLeft);
 
                     return (
                       <div
@@ -871,11 +883,7 @@ const Inventory: React.FC = () => {
                           fontFamily: el.fontFamily === 'times' ? 'Times New Roman, Times, serif' : el.fontFamily === 'courier' ? 'Courier New, Courier, monospace' : 'Helvetica, Arial, sans-serif',
                           whiteSpace: 'nowrap',
                           color: '#1e293b',
-                          lineHeight: 1,
-                          maxWidth: `${maxW}px`,
-                          overflowX: 'hidden',
-                          overflowY: 'visible',
-                          textOverflow: 'ellipsis'
+                          lineHeight: 1
                         }}
                       >
                         {text}
