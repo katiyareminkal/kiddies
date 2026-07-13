@@ -65,15 +65,15 @@ export const DEFAULT_TEMPLATE_50x30: LabelTemplate = {
   labelWidth: 50,
   labelHeight: 30,
   elements: [
-    { id: 'border', type: 'rect', x: 1.5, y: 1.5, width: 47, height: 27, borderRadius: 1.5, borderStyle: 'solid', visible: true },
-    { id: 'storeName', type: 'text', x: 25, y: 5.5, fontSize: 7, isBold: true, align: 'center', visible: true, staticText: '★ KIDDIES ★' },
+    { id: 'border', type: 'rect', x: 1.5, y: 1.5, width: 47, height: 27, borderRadius: 2, borderStyle: 'solid', visible: true },
+    { id: 'storeName', type: 'text', x: 25, y: 5.5, fontSize: 8, isBold: true, align: 'center', visible: true, staticText: '★  K I D D I E S  ★' },
     { id: 'divider', type: 'line', x: 3, y: 7.5, width: 44, height: 0.3, borderStyle: 'dotted', visible: true },
-    { id: 'name', type: 'text', x: 4, y: 12.5, fontSize: 7, isBold: true, align: 'left', visible: true },
-    { id: 'size', type: 'text', x: 4, y: 18.5, fontSize: 6.5, isBold: true, align: 'left', visible: true, staticText: 'SIZE: ' },
-    { id: 'sku', type: 'text', x: 4, y: 24.5, fontSize: 6, isBold: true, align: 'left', visible: true, staticText: 'SKU: ' },
-    { id: 'priceBox', type: 'rect', x: 26, y: 10, width: 21, height: 16, borderRadius: 1, borderStyle: 'solid', visible: true },
-    { id: 'price', type: 'text', x: 36.5, y: 15.5, fontSize: 8.5, isBold: true, align: 'center', visible: true, staticText: 'Rs. ' },
-    { id: 'code', type: 'text', x: 36.5, y: 22, fontSize: 6.5, isBold: true, align: 'center', visible: true, staticText: 'CODE: ' },
+    { id: 'name', type: 'text', x: 25, y: 12, fontSize: 9.5, isBold: true, align: 'center', visible: true },
+    { id: 'size', type: 'text', x: 4, y: 17.5, fontSize: 7, isBold: true, align: 'left', visible: true, staticText: 'SIZE: ' },
+    { id: 'sku', type: 'text', x: 46, y: 17.5, fontSize: 7, isBold: true, align: 'right', visible: true, staticText: 'SKU: ' },
+    { id: 'divider2', type: 'line', x: 3, y: 20, width: 44, height: 0.3, borderStyle: 'dotted', visible: true },
+    { id: 'price', type: 'text', x: 25, y: 24.5, fontSize: 11, isBold: true, align: 'center', visible: true, staticText: 'MRP Rs. ' },
+    { id: 'code', type: 'text', x: 25, y: 28, fontSize: 7, isBold: true, align: 'center', visible: true, staticText: 'CODE: ' },
   ]
 };
 
