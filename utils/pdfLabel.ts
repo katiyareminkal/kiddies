@@ -66,14 +66,12 @@ export const DEFAULT_TEMPLATE_50x30: LabelTemplate = {
   labelHeight: 30,
   elements: [
     { id: 'border', type: 'rect', x: 1.5, y: 1.5, width: 47, height: 27, borderRadius: 2, borderStyle: 'solid', visible: true },
-    { id: 'storeName', type: 'text', x: 25, y: 5.5, fontSize: 8, isBold: true, align: 'center', visible: true, staticText: '★  K I D D I E S  ★' },
-    { id: 'divider', type: 'line', x: 3, y: 7.5, width: 44, height: 0.3, borderStyle: 'dotted', visible: true },
-    { id: 'name', type: 'text', x: 25, y: 12, fontSize: 9.5, isBold: true, align: 'center', visible: true },
-    { id: 'size', type: 'text', x: 4, y: 17.5, fontSize: 7, isBold: true, align: 'left', visible: true, staticText: 'SIZE: ' },
-    { id: 'sku', type: 'text', x: 46, y: 17.5, fontSize: 7, isBold: true, align: 'right', visible: true, staticText: 'SKU: ' },
-    { id: 'divider2', type: 'line', x: 3, y: 20, width: 44, height: 0.3, borderStyle: 'dotted', visible: true },
-    { id: 'price', type: 'text', x: 25, y: 24.5, fontSize: 11, isBold: true, align: 'center', visible: true, staticText: 'MRP Rs. ' },
-    { id: 'code', type: 'text', x: 25, y: 28, fontSize: 7, isBold: true, align: 'center', visible: true, staticText: 'CODE: ' },
+    { id: 'name', type: 'text', x: 25, y: 8.5, fontSize: 9.5, isBold: true, align: 'center', visible: true },
+    { id: 'size', type: 'text', x: 4, y: 14.5, fontSize: 7, isBold: true, align: 'left', visible: true, staticText: 'SIZE: ' },
+    { id: 'sku', type: 'text', x: 46, y: 14.5, fontSize: 7, isBold: true, align: 'right', visible: true, staticText: 'SKU: ' },
+    { id: 'divider2', type: 'line', x: 3, y: 17.5, width: 44, height: 0.3, borderStyle: 'dotted', visible: true },
+    { id: 'price', type: 'text', x: 25, y: 22.5, fontSize: 11, isBold: true, align: 'center', visible: true, staticText: 'MRP Rs. ' },
+    { id: 'code', type: 'text', x: 25, y: 26.5, fontSize: 7, isBold: true, align: 'center', visible: true, staticText: 'CODE: ' },
   ]
 };
 
