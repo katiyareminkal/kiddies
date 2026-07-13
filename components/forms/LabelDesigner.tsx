@@ -918,8 +918,17 @@ function LabelDesigner({ labelData, allProductSizes, onClose, onPrint }: LabelDe
                     >
                       <div className="flex items-center gap-1.5 min-w-0 w-full mb-1.5 md:mb-0">
                         {el.type === 'text' ? <Type size={12} className={isSelected ? 'text-[#8B5CF6]' : 'text-slate-400'} /> : el.type === 'rect' ? <Square size={12} className={isSelected ? 'text-[#8B5CF6]' : 'text-slate-400'} /> : el.type === 'barcode' ? <span className={`text-[7px] font-black tracking-widest ${isSelected ? 'text-[#8B5CF6]' : 'text-slate-400'}`}>|||</span> : <Minus size={12} className={isSelected ? 'text-[#8B5CF6]' : 'text-slate-400'} />}
-                        <span className={`text-[9px] font-bold truncate ${isSelected ? 'text-[#8B5CF6]' : 'text-slate-600'}`}>
-                          {el.staticText ? el.staticText.slice(0, 10) : el.id.replace('custom_', '')}
+                        <span className={`text-[9px] font-black uppercase tracking-wider truncate ${isSelected ? 'text-[#8B5CF6]' : 'text-slate-655'}`}>
+                          {el.id === 'name' ? 'Product Name' :
+                           el.id === 'price' ? 'MRP Price' :
+                           el.id === 'size' ? 'Garment Size' :
+                           el.id === 'code' ? 'Supplier Code' :
+                           el.id === 'sku' ? 'Product SKU' :
+                           el.id === 'barcode' ? 'Barcode Graphic' :
+                           el.id === 'barcodeText' ? 'Barcode Text' :
+                           el.id === 'storeName' ? 'Store Name' :
+                           el.id === 'style' ? 'Style Code' :
+                           el.staticText ? `Text: ${el.staticText.slice(0, 10)}` : el.id.replace('custom_', '').toUpperCase()}
                         </span>
                       </div>
                       <div className={`flex items-center gap-0.5 justify-between w-full md:w-auto md:justify-end transition-opacity ${isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
