@@ -117,8 +117,12 @@ export const generateDynamicLabelPDF = (products: LabelProduct | LabelProduct[],
         }
 
         if (text) {
+          // Adjust y coordinate for baseline offset in jsPDF (approx 0.72 of the font height in mm)
+          const fontSizeInMm = (el.fontSize || 6) * 0.352778;
+          const baselineY = el.y + (fontSizeInMm * 0.72);
+          
           // jsPDF uses negative angles for clockwise rotation
-          doc.text(text, el.x, el.y, { align: el.align || 'left', angle: -(el.rotation || 0) });
+          doc.text(text, el.x, baselineY, { align: el.align || 'left', angle: -(el.rotation || 0) });
         }
       } else if (el.type === 'barcode') {
         const codeValue = product.barcode || product.sku;

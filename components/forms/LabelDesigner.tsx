@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
-import { X, Move, Type, Square, Minus, Trash2, Save, Printer, CheckSquare, Layers, ChevronUp, ChevronDown, Eye, EyeOff, Download, Undo, Redo, RotateCw, LayoutGrid, FileDown, ZoomIn, ZoomOut, ImagePlus, Maximize2, Minimize2, Sticker, Shirt, Baby, ShoppingBag, Tag, Heart, Star, Smile, Scissors, IndianRupee, DollarSign, Euro, PoundSterling, Gift, Crown, Truck, Phone } from 'lucide-react';
+import { X, Move, Type, Square, Minus, Trash2, Save, Printer, CheckSquare, Layers, ChevronUp, ChevronDown, Eye, EyeOff, Download, Undo, Redo, RotateCw, LayoutGrid, FileDown, ZoomIn, ZoomOut, ImagePlus, Maximize2, Minimize2, Sticker, Shirt, Baby, ShoppingBag, Tag, Heart, Star, Smile, Scissors, IndianRupee, DollarSign, Euro, PoundSterling, Gift, Crown, Truck, Phone, Plus } from 'lucide-react';
 import { LabelProduct, LabelTemplate, LabelElement, DEFAULT_TEMPLATE_30x50, DEFAULT_TEMPLATE_50x30 } from '../../utils/pdfLabel';
 import html2canvas from 'html2canvas';
 
@@ -484,6 +484,25 @@ function LabelDesigner({ labelData, allProductSizes, onClose, onPrint }: LabelDe
     });
   };
 
+  const handleCreateNewTemplate = () => {
+    setConfirmDialog({
+      message: 'Are you sure you want to start a brand new label design from scratch? All unsaved changes will be lost.',
+      onConfirm: () => {
+        setTemplate(prev => ({
+          ...prev,
+          elements: [
+            { id: 'border', type: 'rect', x: 1.5, y: 1.5, width: prev.labelWidth - 3, height: prev.labelHeight - 3, borderRadius: 2, borderStyle: 'solid', visible: true }
+          ]
+        }));
+        setSelectedElementIds([]);
+        setCurrentPresetName(null);
+        setConfirmDialog(null);
+        setHistoryPast([]);
+        setHistoryFuture([]);
+      }
+    });
+  };
+
   const handleAddElement = (type: 'text' | 'line' | 'rect') => {
     pushHistory(template);
     const newId = `custom_${type}_${Date.now()}`;
@@ -719,6 +738,7 @@ function LabelDesigner({ labelData, allProductSizes, onClose, onPrint }: LabelDe
             <div className="w-px h-4 bg-slate-200 mx-1 shrink-0"></div>
             <button onClick={() => setSelectedElementIds(template.elements.map(e => e.id))} className="px-2 md:px-3 py-1.5 bg-slate-50 text-slate-600 rounded-lg font-bold uppercase tracking-widest text-[9px] hover:bg-slate-100 flex items-center gap-1 transition-colors shrink-0"><CheckSquare size={12} /> <span className="hidden sm:inline">Select All</span></button>
             <button onClick={handleResetTemplate} className="px-2 md:px-3 py-1.5 bg-slate-50 text-slate-600 rounded-lg font-bold uppercase tracking-widest text-[9px] hover:bg-slate-100 transition-colors shrink-0">Reset</button>
+            <button onClick={handleCreateNewTemplate} className="px-2 md:px-3 py-1.5 bg-[#8B5CF6]/10 text-[#8B5CF6] hover:bg-[#8B5CF6]/20 rounded-lg font-bold uppercase tracking-widest text-[9px] flex items-center gap-1 transition-colors shrink-0"><Plus size={12} /> <span className="hidden xs:inline">Create New</span></button>
 
             {currentPresetName && (
               <button
