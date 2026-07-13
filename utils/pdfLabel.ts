@@ -70,7 +70,7 @@ export const DEFAULT_TEMPLATE_50x30: LabelTemplate = {
     { id: 'size', type: 'text', x: 4, y: 14.5, fontSize: 7, isBold: true, align: 'left', visible: true, staticText: 'SIZE: ' },
     { id: 'sku', type: 'text', x: 46, y: 14.5, fontSize: 7, isBold: true, align: 'right', visible: true, staticText: 'SKU: ' },
     { id: 'divider2', type: 'line', x: 3, y: 17.5, width: 44, height: 0.3, borderStyle: 'dotted', visible: true },
-    { id: 'price', type: 'text', x: 25, y: 22.5, fontSize: 11, isBold: true, align: 'center', visible: true, staticText: 'MRP Rs. ' },
+    { id: 'price', type: 'text', x: 25, y: 22.5, fontSize: 11, isBold: true, align: 'center', visible: true, staticText: 'PRICE Rs. ' },
     { id: 'code', type: 'text', x: 25, y: 26.5, fontSize: 7, isBold: true, align: 'center', visible: true, staticText: 'CODE: ' },
   ]
 };
