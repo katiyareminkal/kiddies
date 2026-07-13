@@ -857,6 +857,9 @@ const Inventory: React.FC = () => {
                     if (el.id === 'code') text += '91' + ((downloadingProduct.product.purchasePrice || 0) * 2).toString();
                     if (el.id === 'sku') text += (downloadingProduct.product.sku || '').toUpperCase();
                     if (el.id === 'barcodeText') text = (downloadingProduct.product.barcode || downloadingProduct.product.sku || '').toUpperCase();
+                    const labelW = template.labelWidth * MM_TO_PX;
+                    const elLeft = el.x * MM_TO_PX;
+                    const maxW = isCentered ? labelW : Math.max(1, labelW - elLeft);
 
                     return (
                       <div
@@ -868,7 +871,11 @@ const Inventory: React.FC = () => {
                           fontFamily: el.fontFamily === 'times' ? 'Times New Roman, Times, serif' : el.fontFamily === 'courier' ? 'Courier New, Courier, monospace' : 'Helvetica, Arial, sans-serif',
                           whiteSpace: 'nowrap',
                           color: '#1e293b',
-                          lineHeight: 1
+                          lineHeight: 1,
+                          maxWidth: `${maxW}px`,
+                          overflowX: 'hidden',
+                          overflowY: 'visible',
+                          textOverflow: 'ellipsis'
                         }}
                       >
                         {text}
