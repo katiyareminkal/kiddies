@@ -547,8 +547,44 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   // -- AUTH --
   const login = async (email: string, pass: string) => {
     try {
-      const { error } = await supabase.auth.signInWithPassword({ email, password: pass });
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password: pass });
       if (error) throw error;
+      
+      if (data?.user) {
+        let name = 'User';
+        let role = UserRole.STAFF;
+        let permissions: string[] = [];
+        let createdAt = new Date().toISOString();
+
+        try {
+          const { data: profile } = await supabase.from('profiles').select('*').eq('id', data.user.id).single();
+          if (profile) {
+            name = profile.name || name;
+            role = (profile.role as any) || role;
+            permissions = profile.permissions || permissions;
+            createdAt = profile.created_at || createdAt;
+          } else {
+            name = data.user.user_metadata?.name || name;
+            role = data.user.user_metadata?.role || role;
+          }
+        } catch (err) {
+          name = data.user.user_metadata?.name || name;
+          role = data.user.user_metadata?.role || role;
+        }
+
+        setState(prev => ({
+          ...prev,
+          currentUser: {
+            id: data.user.id,
+            name,
+            email: data.user.email || '',
+            role,
+            permissions,
+            createdAt
+          }
+        }));
+      }
+
       await fetchAllData();
       return true;
     } catch (error) {
