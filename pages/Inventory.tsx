@@ -812,36 +812,114 @@ const Inventory: React.FC = () => {
                 width: '189px',
                 height: '113.4px',
                 backgroundColor: '#ffffff',
-                border: '1.5px solid #000000',
-                borderRadius: '6px',
-                padding: '10px 12px 10px 12px',
-                boxSizing: 'border-box',
+                position: 'relative',
                 fontFamily: 'Helvetica, Arial, sans-serif',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'space-between',
-                alignItems: 'center'
+                overflow: 'hidden',
+                boxSizing: 'border-box'
               }}
             >
+              {/* Border rectangle */}
+              <div style={{
+                position: 'absolute',
+                left: '5.7px',
+                top: '5.7px',
+                width: '177.6px',
+                height: '102px',
+                border: '1.5px solid #000000',
+                borderRadius: '7.5px',
+                boxSizing: 'border-box'
+              }} />
+
               {/* Product Name */}
-              <div style={{ fontSize: '13px', fontWeight: 900, color: '#1e293b', textTransform: 'uppercase', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%', textAlign: 'center', lineHeight: 1.2 }}>
+              <div style={{
+                position: 'absolute',
+                left: '0px',
+                right: '0px',
+                top: '18px',
+                textAlign: 'center',
+                fontSize: '12px',
+                fontWeight: 900,
+                color: '#000000',
+                textTransform: 'uppercase',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                padding: '0 12px'
+              }}>
                 {downloadingProduct.product.name}
               </div>
 
-              {/* Size & SKU Row */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', fontSize: '10px', fontWeight: 800, color: '#000000', textTransform: 'uppercase', paddingBottom: '4px', borderBottom: '1px dotted #94a3b8' }}>
-                <span>SIZE: {size}</span>
-                <span>SKU: {downloadingProduct.product.sku}</span>
+              {/* Size */}
+              <div style={{
+                position: 'absolute',
+                left: '0px',
+                right: '0px',
+                top: '39px',
+                textAlign: 'center',
+                fontSize: '11px',
+                fontWeight: 900,
+                color: '#000000',
+                textTransform: 'uppercase'
+              }}>
+                SIZE: {size}
               </div>
 
-              {/* Price & Code */}
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', gap: '1px' }}>
-                <div style={{ fontSize: '15px', fontWeight: 900, color: '#000000', letterSpacing: '-0.5px' }}>
-                  PRICE Rs. {Number(downloadingProduct.product.sellingPrice).toFixed(2)}
-                </div>
-                <div style={{ fontSize: '10px', fontWeight: 800, color: '#000000' }}>
-                  CODE: 91{Number(downloadingProduct.product.purchasePrice || 0) * 2}
-                </div>
+              {/* SKU */}
+              <div style={{
+                position: 'absolute',
+                left: '0px',
+                right: '0px',
+                top: '54px',
+                textAlign: 'center',
+                fontSize: '11px',
+                fontWeight: 900,
+                color: '#000000',
+                textTransform: 'uppercase',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                padding: '0 12px'
+              }}>
+                SKU: {downloadingProduct.product.sku}
+              </div>
+
+              {/* Divider */}
+              <div style={{
+                position: 'absolute',
+                left: '11.3px',
+                top: '69px',
+                width: '166.3px',
+                borderBottom: '1px dotted #000000'
+              }} />
+
+              {/* Price */}
+              <div style={{
+                position: 'absolute',
+                left: '0px',
+                right: '0px',
+                top: '78px',
+                textAlign: 'center',
+                fontSize: '14.5px',
+                fontWeight: 900,
+                color: '#000000',
+                textTransform: 'uppercase'
+              }}>
+                PRICE Rs. {Number(downloadingProduct.product.sellingPrice).toFixed(2)}
+              </div>
+
+              {/* Code */}
+              <div style={{
+                position: 'absolute',
+                left: '0px',
+                right: '0px',
+                top: '95px',
+                textAlign: 'center',
+                fontSize: '9px',
+                fontWeight: 900,
+                color: '#000000',
+                textTransform: 'uppercase'
+              }}>
+                CODE: 91{Number(downloadingProduct.product.purchasePrice || 0) * 2}
               </div>
             </div>
           ))}
