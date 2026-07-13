@@ -228,7 +228,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
     initializeAuth();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'INITIAL_SESSION') return; // Handled by initializeAuth
       
       if (event === 'PASSWORD_RECOVERY' && mounted) {
@@ -236,27 +236,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       }
       
       if (session?.user) {
-        let name = 'User';
-        let role = UserRole.STAFF;
-        let permissions: string[] = [];
-        let createdAt = new Date().toISOString();
-
-        try {
-          const { data } = await supabase.from('profiles').select('*').eq('id', session.user.id).single();
-          if (data) {
-            name = data.name || name;
-            role = (data.role as any) || role;
-            permissions = data.permissions || permissions;
-            createdAt = data.created_at || createdAt;
-          } else {
-            name = session.user.user_metadata?.name || name;
-            role = session.user.user_metadata?.role || role;
-          }
-        } catch (err) {
-          console.warn("Could not query user profile on auth change, using metadata fallback:", err);
-          name = session.user.user_metadata?.name || name;
-          role = session.user.user_metadata?.role || role;
-        }
+        const name = session.user.user_metadata?.name || 'User';
+        const role = session.user.user_metadata?.role || UserRole.STAFF;
+        const permissions: string[] = [];
+        const createdAt = new Date().toISOString();
 
         if (mounted) {
           setState(prev => ({
@@ -271,6 +254,29 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
             }
           }));
         }
+
+        // Fetch database profile in the background
+        supabase.from('profiles').select('*').eq('id', session.user.id).single()
+          .then(({ data }) => {
+            if (data && mounted) {
+              setState(prev => {
+                if (!prev.currentUser || prev.currentUser.id !== session.user.id) return prev;
+                return {
+                  ...prev,
+                  currentUser: {
+                    ...prev.currentUser,
+                    name: data.name || prev.currentUser.name,
+                    role: (data.role as any) || prev.currentUser.role,
+                    permissions: data.permissions || prev.currentUser.permissions,
+                    createdAt: data.created_at || prev.currentUser.createdAt
+                  }
+                };
+              });
+            }
+          })
+          .catch(err => {
+            console.warn("Could not query user profile in background:", err);
+          });
       } else if (mounted) {
         setState(prev => ({ ...prev, currentUser: null }));
       }
@@ -551,26 +557,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       if (error) throw error;
       
       if (data?.user) {
-        let name = 'User';
-        let role = UserRole.STAFF;
-        let permissions: string[] = [];
-        let createdAt = new Date().toISOString();
-
-        try {
-          const { data: profile } = await supabase.from('profiles').select('*').eq('id', data.user.id).single();
-          if (profile) {
-            name = profile.name || name;
-            role = (profile.role as any) || role;
-            permissions = profile.permissions || permissions;
-            createdAt = profile.created_at || createdAt;
-          } else {
-            name = data.user.user_metadata?.name || name;
-            role = data.user.user_metadata?.role || role;
-          }
-        } catch (err) {
-          name = data.user.user_metadata?.name || name;
-          role = data.user.user_metadata?.role || role;
-        }
+        const name = data.user.user_metadata?.name || 'User';
+        const role = data.user.user_metadata?.role || UserRole.STAFF;
+        const permissions: string[] = [];
+        const createdAt = new Date().toISOString();
 
         setState(prev => ({
           ...prev,
@@ -583,6 +573,29 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
             createdAt
           }
         }));
+
+        // Fetch profile in the background
+        supabase.from('profiles').select('*').eq('id', data.user.id).single()
+          .then(({ data: profile }) => {
+            if (profile) {
+              setState(prev => {
+                if (!prev.currentUser || prev.currentUser.id !== data.user.id) return prev;
+                return {
+                  ...prev,
+                  currentUser: {
+                    ...prev.currentUser,
+                    name: profile.name || prev.currentUser.name,
+                    role: (profile.role as any) || prev.currentUser.role,
+                    permissions: profile.permissions || prev.currentUser.permissions,
+                    createdAt: profile.created_at || prev.currentUser.createdAt
+                  }
+                };
+              });
+            }
+          })
+          .catch(err => {
+            console.warn("Could not query user profile on login in background:", err);
+          });
       }
 
       fetchAllData();
