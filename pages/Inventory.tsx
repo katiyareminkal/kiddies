@@ -54,38 +54,31 @@ const Inventory: React.FC = () => {
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
   const [viewProductDetails, setViewProductDetails] = useState<Product | null>(null);
 
-  const runHTMLToPDFDownload = async (product: Product, sizes: string[]) => {
+  const runHTMLToImageDownload = async (product: Product, sizes: string[]) => {
     setDownloadingProduct({ product, sizes });
 
     // Wait for React to render the off-screen cards in the DOM
     setTimeout(async () => {
       try {
-        const doc = new jsPDF({
-          orientation: 'landscape',
-          unit: 'mm',
-          format: [50, 30]
-        });
-
         for (let i = 0; i < sizes.length; i++) {
           const element = document.getElementById(`hidden-tag-card-${i}`);
           if (element) {
             const canvas = await html2canvas(element, {
-              scale: 4, // 4x high resolution output
+              scale: 6, // 6x high resolution output for maximum sharpness
               useCORS: true,
               backgroundColor: '#ffffff'
             });
             const imgData = canvas.toDataURL('image/png');
-            if (i > 0) doc.addPage();
-            doc.addImage(imgData, 'PNG', 0, 0, 50, 30);
+            const link = document.createElement('a');
+            link.href = imgData;
+            link.download = `Label_${product.sku.toUpperCase()}_${sizes[i].toUpperCase()}.png`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
           }
         }
-
-        const saveName = sizes.length === 1 
-          ? `Label_${product.sku.toUpperCase()}_${sizes[0].toUpperCase()}.pdf` 
-          : `Labels_${product.sku.toUpperCase()}_Multiple.pdf`;
-        doc.save(saveName);
       } catch (err) {
-        console.error("Failed to generate HTML-based PDF:", err);
+        console.error("Failed to generate HTML tag image:", err);
       } finally {
         setDownloadingProduct(null);
       }
@@ -93,11 +86,11 @@ const Inventory: React.FC = () => {
   };
 
   const triggerDownloadForSize = (product: Product, size: string) => {
-    runHTMLToPDFDownload(product, [size]);
+    runHTMLToImageDownload(product, [size]);
   };
 
   const triggerDownloadForMultipleSizes = (product: Product, sizes: string[]) => {
-    runHTMLToPDFDownload(product, sizes);
+    runHTMLToImageDownload(product, sizes);
   };
 
   const handleTagClick = (product: Product) => {
