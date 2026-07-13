@@ -55,7 +55,10 @@ const Inventory: React.FC = () => {
     let template = DEFAULT_TEMPLATE_50x30;
     try {
       const saved = localStorage.getItem('kiddies_label_template_50x30');
-      if (saved) template = JSON.parse(saved);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.id !== 'default_50x30') template = parsed;
+      }
     } catch(e) {}
 
     generateDynamicLabelPDF({
@@ -75,7 +78,10 @@ const Inventory: React.FC = () => {
     let template = DEFAULT_TEMPLATE_50x30;
     try {
       const saved = localStorage.getItem('kiddies_label_template_50x30');
-      if (saved) template = JSON.parse(saved);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.id !== 'default_50x30') template = parsed;
+      }
     } catch(e) {}
 
     const labelProducts = sizes.map(sz => ({

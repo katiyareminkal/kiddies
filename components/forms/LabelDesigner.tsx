@@ -88,7 +88,10 @@ function LabelDesigner({ labelData, allProductSizes, onClose, onPrint }: LabelDe
   const [template, setTemplate] = useState<LabelTemplate>(() => {
     try {
       const saved = localStorage.getItem('kiddies_label_template_' + (labelData.labelSize || '30x50'));
-      if (saved) return JSON.parse(saved);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.id !== 'default_50x30' && parsed.id !== 'default_30x50') return parsed;
+      }
     } catch (e) { }
     return labelData.labelSize === '50x30' ? DEFAULT_TEMPLATE_50x30 : DEFAULT_TEMPLATE_30x50;
   });
