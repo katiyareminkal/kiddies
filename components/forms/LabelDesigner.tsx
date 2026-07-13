@@ -126,19 +126,29 @@ function LabelDesigner({ labelData, allProductSizes, onClose, onPrint }: LabelDe
 
   useEffect(() => {
     try {
-      const savedDefault = localStorage.getItem('kiddies_label_template_' + template.labelWidth + 'x' + template.labelHeight);
-      if (savedDefault) {
-        setIsCurrentlyDefault(JSON.stringify(JSON.parse(savedDefault)) === JSON.stringify(template));
+      const savedDefaultName = localStorage.getItem('kiddies_default_template_name_' + template.labelWidth + 'x' + template.labelHeight);
+      if (savedDefaultName && currentPresetName) {
+        setIsCurrentlyDefault(savedDefaultName === currentPresetName);
       } else {
-        setIsCurrentlyDefault(false);
+        const savedDefault = localStorage.getItem('kiddies_label_template_' + template.labelWidth + 'x' + template.labelHeight);
+        if (savedDefault) {
+          setIsCurrentlyDefault(JSON.stringify(JSON.parse(savedDefault)) === JSON.stringify(template));
+        } else {
+          setIsCurrentlyDefault(false);
+        }
       }
     } catch(e) {
       setIsCurrentlyDefault(false);
     }
-  }, [template]);
+  }, [template, currentPresetName]);
 
   const handleSetAsDefault = () => {
     localStorage.setItem('kiddies_label_template_' + template.labelWidth + 'x' + template.labelHeight, JSON.stringify(template));
+    if (currentPresetName) {
+      localStorage.setItem('kiddies_default_template_name_' + template.labelWidth + 'x' + template.labelHeight, currentPresetName);
+    } else {
+      localStorage.removeItem('kiddies_default_template_name_' + template.labelWidth + 'x' + template.labelHeight);
+    }
     setIsCurrentlyDefault(true);
     showToast("This design is set as your default download layout!");
   };
@@ -670,18 +680,22 @@ function LabelDesigner({ labelData, allProductSizes, onClose, onPrint }: LabelDe
     return null;
   };
 
-  const checkIsTemplateDefault = (t: LabelTemplate) => {
+  const checkIsTemplateDefault = (t: LabelTemplate, name: string) => {
     try {
+      const savedDefaultName = localStorage.getItem('kiddies_default_template_name_' + t.labelWidth + 'x' + t.labelHeight);
+      if (savedDefaultName) return savedDefaultName === name;
+
       const saved = localStorage.getItem('kiddies_label_template_' + t.labelWidth + 'x' + t.labelHeight);
       if (saved) return JSON.stringify(JSON.parse(saved)) === JSON.stringify(t);
     } catch(e) {}
     return false;
   };
 
-  const handleSetTemplateAsDefault = (t: LabelTemplate) => {
+  const handleSetTemplateAsDefault = (t: LabelTemplate, name: string) => {
     localStorage.setItem('kiddies_label_template_' + t.labelWidth + 'x' + t.labelHeight, JSON.stringify(t));
+    localStorage.setItem('kiddies_default_template_name_' + t.labelWidth + 'x' + t.labelHeight, name);
     setIsCurrentlyDefault(true);
-    showToast("Template layout set as default direct download format!");
+    showToast(`Template "${name}" set as default download format!`);
   };
 
   return createPortal(
@@ -1137,16 +1151,16 @@ function LabelDesigner({ labelData, allProductSizes, onClose, onPrint }: LabelDe
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleSetTemplateAsDefault(l.template);
+                          handleSetTemplateAsDefault(l.template, l.name);
                         }}
                         className={`absolute top-2.5 right-2.5 z-20 p-2 rounded-full border transition-all ${
-                          checkIsTemplateDefault(l.template)
+                          checkIsTemplateDefault(l.template, l.name)
                             ? 'bg-emerald-50 text-emerald-500 border-emerald-200 shadow-sm'
                             : 'bg-white/90 backdrop-blur-sm text-slate-400 border-slate-200/50 hover:bg-[#8B5CF6] hover:text-white hover:border-transparent hover:shadow-md'
                         }`}
-                        title={checkIsTemplateDefault(l.template) ? "Current Default Layout" : "Set as Default Layout"}
+                        title={checkIsTemplateDefault(l.template, l.name) ? "Current Default Layout" : "Set as Default Layout"}
                       >
-                        <Star size={12} className={checkIsTemplateDefault(l.template) ? 'fill-emerald-500 text-emerald-500 animate-pulse' : ''} />
+                        <Star size={12} className={checkIsTemplateDefault(l.template, l.name) ? 'fill-emerald-500 text-emerald-500 animate-pulse' : ''} />
                       </button>
                       <div
                         className="h-44 bg-slate-100/50 border-b border-slate-100 flex items-center justify-center relative p-4 overflow-hidden cursor-zoom-in"
