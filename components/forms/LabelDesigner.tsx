@@ -592,7 +592,7 @@ function LabelDesigner({ labelData, allProductSizes, onClose, onPrint }: LabelDe
       if (el.id === 'color') text += (labelData.color || '').toUpperCase();
       if (el.id === 'style') text += (labelData.styleCode || '').toUpperCase();
       if (el.id === 'price') text += Number(labelData.sellingPrice || 0).toFixed(2);
-      if (el.id === 'code') text += ((labelData.purchasePrice || 0) * 2).toString();
+      if (el.id === 'code') text += '91' + ((labelData.purchasePrice || 0) * 2).toString();
       if (el.id === 'sku') text += (labelData.sku || '').toUpperCase();
       if (el.id === 'barcodeText') text = (labelData.barcode || labelData.sku || '').toUpperCase();
 

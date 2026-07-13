@@ -66,13 +66,14 @@ export const DEFAULT_TEMPLATE_50x30: LabelTemplate = {
   labelHeight: 30,
   elements: [
     { id: 'border', type: 'rect', x: 1.5, y: 1.5, width: 47, height: 27, borderRadius: 1.5, borderStyle: 'solid', visible: true },
-    { id: 'storeName', type: 'text', x: 25, y: 5.5, fontSize: 6.5, isBold: true, align: 'center', visible: true, staticText: '★ KIDDIES ★' },
+    { id: 'storeName', type: 'text', x: 25, y: 5.5, fontSize: 7, isBold: true, align: 'center', visible: true, staticText: '★ KIDDIES ★' },
     { id: 'divider', type: 'line', x: 3, y: 7.5, width: 44, height: 0.3, borderStyle: 'dotted', visible: true },
-    { id: 'name', type: 'text', x: 25, y: 11.5, fontSize: 7, isBold: true, align: 'center', visible: true },
-    { id: 'price', type: 'text', x: 25, y: 16.5, fontSize: 8.5, isBold: true, align: 'center', visible: true, staticText: 'MRP: Rs. ' },
-    { id: 'size', type: 'text', x: 25, y: 21, fontSize: 6, isBold: false, align: 'center', visible: true, staticText: 'SIZE: ' },
-    { id: 'code', type: 'text', x: 25, y: 24.5, fontSize: 5.5, isBold: false, align: 'center', visible: true, staticText: 'CODE: ' },
-    { id: 'sku', type: 'text', x: 25, y: 27, fontSize: 5.5, isBold: false, align: 'center', visible: true, staticText: 'SKU: ' },
+    { id: 'name', type: 'text', x: 4, y: 12.5, fontSize: 7, isBold: true, align: 'left', visible: true },
+    { id: 'size', type: 'text', x: 4, y: 18.5, fontSize: 6.5, isBold: false, align: 'left', visible: true, staticText: 'SIZE: ' },
+    { id: 'sku', type: 'text', x: 4, y: 24.5, fontSize: 6, isBold: false, align: 'left', visible: true, staticText: 'SKU: ' },
+    { id: 'priceBox', type: 'rect', x: 26, y: 10, width: 21, height: 16, borderRadius: 1, borderStyle: 'solid', visible: true },
+    { id: 'price', type: 'text', x: 36.5, y: 15.5, fontSize: 8.5, isBold: true, align: 'center', visible: true, staticText: 'Rs. ' },
+    { id: 'code', type: 'text', x: 36.5, y: 22, fontSize: 6.5, isBold: true, align: 'center', visible: true, staticText: 'CODE: ' },
   ]
 };
 
@@ -110,7 +111,7 @@ export const generateDynamicLabelPDF = (products: LabelProduct | LabelProduct[],
         } else if (el.id === 'price') {
           text = (el.staticText || '') + Number(product.sellingPrice).toFixed(2);
         } else if (el.id === 'code' && product.purchasePrice) {
-          text = (el.staticText || '') + (product.purchasePrice * 2);
+          text = (el.staticText || '') + '91' + (product.purchasePrice * 2);
         } else if (el.id === 'sku') {
           text = (el.staticText || '') + product.sku.toUpperCase();
         } else if (el.id === 'barcodeText') {
