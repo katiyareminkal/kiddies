@@ -34,6 +34,8 @@ import { Product } from '../types';
 import { auth } from '../firebase';
 import BarcodeScanner from '../components/BarcodeScanner';
 import { generateDynamicLabelPDF, DEFAULT_TEMPLATE_50x30 } from '../utils/pdfLabel';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 import { StockEntryModal } from '../components/forms/StockEntryModal';
 import LabelDesigner from '../components/forms/LabelDesigner';
@@ -48,39 +50,54 @@ const Inventory: React.FC = () => {
   const [productToEdit, setProductToEdit] = useState<Product | null>(null);
   const [printProduct, setPrintProduct] = useState<Product | null>(null);
   const [sizeSelectorProduct, setSizeSelectorProduct] = useState<Product | null>(null);
+  const [downloadingProduct, setDownloadingProduct] = useState<{ product: Product; sizes: string[] } | null>(null);
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
   const [viewProductDetails, setViewProductDetails] = useState<Product | null>(null);
 
+  const runHTMLToPDFDownload = async (product: Product, sizes: string[]) => {
+    setDownloadingProduct({ product, sizes });
+
+    // Wait for React to render the off-screen cards in the DOM
+    setTimeout(async () => {
+      try {
+        const doc = new jsPDF({
+          orientation: 'landscape',
+          unit: 'mm',
+          format: [50, 30]
+        });
+
+        for (let i = 0; i < sizes.length; i++) {
+          const element = document.getElementById(`hidden-tag-card-${i}`);
+          if (element) {
+            const canvas = await html2canvas(element, {
+              scale: 4, // 4x high resolution output
+              useCORS: true,
+              backgroundColor: '#ffffff'
+            });
+            const imgData = canvas.toDataURL('image/png');
+            if (i > 0) doc.addPage();
+            doc.addImage(imgData, 'PNG', 0, 0, 50, 30);
+          }
+        }
+
+        const saveName = sizes.length === 1 
+          ? `Label_${product.sku.toUpperCase()}_${sizes[0].toUpperCase()}.pdf` 
+          : `Labels_${product.sku.toUpperCase()}_Multiple.pdf`;
+        doc.save(saveName);
+      } catch (err) {
+        console.error("Failed to generate HTML-based PDF:", err);
+      } finally {
+        setDownloadingProduct(null);
+      }
+    }, 150);
+  };
+
   const triggerDownloadForSize = (product: Product, size: string) => {
-    const template = DEFAULT_TEMPLATE_50x30;
-    generateDynamicLabelPDF({
-      name: product.name,
-      sku: product.sku,
-      barcode: product.barcode || '',
-      sellingPrice: product.sellingPrice,
-      purchasePrice: product.purchasePrice,
-      color: product.color || '',
-      styleCode: '',
-      size: size,
-      labelSize: '50x30'
-    }, template);
+    runHTMLToPDFDownload(product, [size]);
   };
 
   const triggerDownloadForMultipleSizes = (product: Product, sizes: string[]) => {
-    const template = DEFAULT_TEMPLATE_50x30;
-    const labelProducts = sizes.map(sz => ({
-      name: product.name,
-      sku: product.sku,
-      barcode: product.barcode || '',
-      sellingPrice: product.sellingPrice,
-      purchasePrice: product.purchasePrice,
-      color: product.color || '',
-      styleCode: '',
-      size: sz,
-      labelSize: '50x30'
-    }));
-
-    generateDynamicLabelPDF(labelProducts, template);
+    runHTMLToPDFDownload(product, sizes);
   };
 
   const handleTagClick = (product: Product) => {
@@ -782,6 +799,53 @@ const Inventory: React.FC = () => {
             </div>
           </div>
         </Modal>
+      )}
+
+      {/* Hidden Offscreen Tag Rendering Element */}
+      {downloadingProduct && (
+        <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', zIndex: -100, pointerEvents: 'none' }}>
+          {downloadingProduct.sizes.map((size, idx) => (
+            <div
+              key={idx}
+              id={`hidden-tag-card-${idx}`}
+              style={{
+                width: '189px',
+                height: '113.4px',
+                backgroundColor: '#ffffff',
+                border: '1.5px solid #000000',
+                borderRadius: '6px',
+                padding: '10px 12px 10px 12px',
+                boxSizing: 'border-box',
+                fontFamily: 'Helvetica, Arial, sans-serif',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                alignItems: 'center'
+              }}
+            >
+              {/* Product Name */}
+              <div style={{ fontSize: '13px', fontWeight: 900, color: '#1e293b', textTransform: 'uppercase', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%', textAlign: 'center', lineHeight: 1.2 }}>
+                {downloadingProduct.product.name}
+              </div>
+
+              {/* Size & SKU Row */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', fontSize: '10px', fontWeight: 800, color: '#000000', textTransform: 'uppercase', paddingBottom: '4px', borderBottom: '1px dotted #94a3b8' }}>
+                <span>SIZE: {size}</span>
+                <span>SKU: {downloadingProduct.product.sku}</span>
+              </div>
+
+              {/* Price & Code */}
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', gap: '1px' }}>
+                <div style={{ fontSize: '15px', fontWeight: 900, color: '#000000', letterSpacing: '-0.5px' }}>
+                  PRICE Rs. {Number(downloadingProduct.product.sellingPrice).toFixed(2)}
+                </div>
+                <div style={{ fontSize: '10px', fontWeight: 800, color: '#000000' }}>
+                  CODE: 91{Number(downloadingProduct.product.purchasePrice || 0) * 2}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       )}
     </div>
   );
