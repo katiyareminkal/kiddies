@@ -831,54 +831,73 @@ const Inventory: React.FC = () => {
                   if (!el.visible) return null;
                   const MM_TO_PX = 3.7795275591;
                   
-                  // Get values
-                  let text = el.staticText || '';
-                  if (el.id === 'name') text = (el.staticText || '') + downloadingProduct.product.name;
-                  else if (el.id === 'size') text = (el.staticText || '') + size;
-                  else if (el.id === 'sku') text = (el.staticText || '') + downloadingProduct.product.sku;
-                  else if (el.id === 'price') text = (el.staticText || '') + Number(downloadingProduct.product.sellingPrice).toFixed(2);
-                  else if (el.id === 'code') text = (el.staticText || '') + `91${Number(downloadingProduct.product.purchasePrice || 0) * 2}`;
-                  
-                  const isCentered = el.align === 'center';
+                  const isCentered = (el.type === 'text' && el.align === 'center') || el.type === 'barcode';
                   const baseStyle: React.CSSProperties = {
                     position: 'absolute',
                     left: `${el.x * MM_TO_PX}px`,
                     top: `${el.y * MM_TO_PX}px`,
-                    transform: isCentered ? 'translateX(-50%)' : 'none',
-                    transformOrigin: 'top center',
+                    transform: isCentered ? `translateX(-50%) rotate(${el.rotation || 0}deg)` : `rotate(${el.rotation || 0}deg)`,
+                    transformOrigin: isCentered ? 'top center' : 'top left',
                     boxSizing: 'border-box'
                   };
 
-                  if (el.type === 'text') {
+                  if (el.type === 'image') {
+                    return (
+                      <div key={el.id} style={{ ...baseStyle, width: `${(el.width || 10) * MM_TO_PX}px`, height: `${(el.height || 10) * MM_TO_PX}px` }}>
+                        <img src={el.imageBase64} style={{ width: '100%', height: '100%', objectFit: 'fill' }} />
+                      </div>
+                    );
+                  } else if (el.type === 'text') {
+                    let text = el.staticText || '';
+                    if (el.id === 'name') text = (downloadingProduct.product.name || '').slice(0, 23).toUpperCase();
+                    if (el.id === 'size') text += (size || '').toUpperCase();
+                    if (el.id === 'color') text += (downloadingProduct.product.color || '').toUpperCase();
+                    if (el.id === 'style') text += '';
+                    if (el.id === 'price') text += Number(downloadingProduct.product.sellingPrice || 0).toFixed(2);
+                    if (el.id === 'code') text += '91' + ((downloadingProduct.product.purchasePrice || 0) * 2).toString();
+                    if (el.id === 'sku') text += (downloadingProduct.product.sku || '').toUpperCase();
+                    if (el.id === 'barcodeText') text = (downloadingProduct.product.barcode || downloadingProduct.product.sku || '').toUpperCase();
+
                     return (
                       <div
                         key={el.id}
                         style={{
                           ...baseStyle,
-                          fontSize: `${(el.fontSize || 6) * 1.33}px`,
+                          fontSize: `${(el.fontSize || 6) * 1.3}px`,
                           fontWeight: el.isBold ? 900 : 'normal',
-                          fontFamily: 'Helvetica, Arial, sans-serif',
+                          fontFamily: el.fontFamily === 'times' ? 'Times New Roman, Times, serif' : el.fontFamily === 'courier' ? 'Courier New, Courier, monospace' : 'Helvetica, Arial, sans-serif',
                           whiteSpace: 'nowrap',
-                          color: '#000000',
+                          color: '#1e293b',
                           lineHeight: 1
                         }}
                       >
                         {text}
                       </div>
                     );
-                  } else if (el.type === 'line') {
+                  } else if (el.type === 'barcode') {
+                    const w = (el.width || 0.16) * 15 * MM_TO_PX;
+                    const h = (el.height || 7) * MM_TO_PX;
                     return (
                       <div
                         key={el.id}
                         style={{
                           ...baseStyle,
-                          width: `${(el.width || 10) * MM_TO_PX}px`,
-                          height: 0,
-                          borderBottom: `${(el.height || 0.5) * MM_TO_PX}px ${el.borderStyle === 'dotted' ? 'dotted' : 'solid'} #000000`
+                          width: `${w}px`,
+                          height: `${h}px`,
+                          backgroundColor: '#1e293b',
+                          backgroundImage: 'repeating-linear-gradient(90deg, #1e293b 0px, #1e293b 2px, transparent 2px, transparent 4px)'
                         }}
                       />
                     );
+                  } else if (el.type === 'line') {
+                    const bStyle = el.borderStyle === 'dashed' ? 'dashed' : el.borderStyle === 'dotted' ? 'dotted' : 'solid';
+                    return (
+                      <div key={el.id} style={{ ...baseStyle, width: `${(el.width || 10) * MM_TO_PX}px`, minHeight: '10px', display: 'flex', alignItems: 'center' }}>
+                        <div style={{ width: '100%', height: 0, borderBottom: `${(el.height || 0.5) * MM_TO_PX}px ${bStyle} #1e293b` }} />
+                      </div>
+                    );
                   } else if (el.type === 'rect') {
+                    const bStyle = el.borderStyle === 'dashed' ? 'dashed' : el.borderStyle === 'dotted' ? 'dotted' : 'solid';
                     return (
                       <div
                         key={el.id}
@@ -886,8 +905,9 @@ const Inventory: React.FC = () => {
                           ...baseStyle,
                           width: `${(el.width || 10) * MM_TO_PX}px`,
                           height: `${(el.height || 10) * MM_TO_PX}px`,
-                          border: `${0.5 * MM_TO_PX}px solid #000000`,
-                          borderRadius: `${(el.borderRadius || 0) * MM_TO_PX}px`
+                          border: `${0.5 * MM_TO_PX}px ${bStyle} #1e293b`,
+                          borderRadius: `${(el.borderRadius || 0) * MM_TO_PX}px`,
+                          backgroundColor: 'transparent'
                         }}
                       />
                     );
