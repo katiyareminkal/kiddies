@@ -54,6 +54,20 @@ const Inventory: React.FC = () => {
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
   const [viewProductDetails, setViewProductDetails] = useState<Product | null>(null);
 
+  const getActiveDownloadTemplate = () => {
+    let template = DEFAULT_TEMPLATE_50x30;
+    try {
+      const saved = localStorage.getItem('kiddies_label_template_50x30');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed && Array.isArray(parsed.elements)) {
+          template = parsed;
+        }
+      }
+    } catch(e) {}
+    return template;
+  };
+
   const runHTMLToImageDownload = async (product: Product, sizes: string[]) => {
     setDownloadingProduct({ product, sizes });
 
@@ -795,93 +809,96 @@ const Inventory: React.FC = () => {
       )}
 
       {/* Hidden Offscreen Tag Rendering Element */}
-      {downloadingProduct && (
-        <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', zIndex: -100, pointerEvents: 'none' }}>
-          {downloadingProduct.sizes.map((size, idx) => (
-            <div
-              key={idx}
-              id={`hidden-tag-card-${idx}`}
-              style={{
-                width: '189px',
-                height: '113.4px',
-                backgroundColor: '#ffffff',
-                position: 'relative',
-                fontFamily: 'Helvetica, Arial, sans-serif',
-                overflow: 'hidden',
-                boxSizing: 'border-box'
-              }}
-            >
-              {DEFAULT_TEMPLATE_50x30.elements.map(el => {
-                if (!el.visible) return null;
-                const MM_TO_PX = 3.7795275591;
-                
-                // Get values
-                let text = '';
-                if (el.id === 'name') text = downloadingProduct.product.name;
-                else if (el.id === 'size') text = `SIZE: ${size}`;
-                else if (el.id === 'sku') text = `SKU: ${downloadingProduct.product.sku}`;
-                else if (el.id === 'price') text = `PRICE Rs. ${Number(downloadingProduct.product.sellingPrice).toFixed(2)}`;
-                else if (el.id === 'code') text = `CODE: 91${Number(downloadingProduct.product.purchasePrice || 0) * 2}`;
-                
-                const isCentered = el.align === 'center';
-                const baseStyle: React.CSSProperties = {
-                  position: 'absolute',
-                  left: `${el.x * MM_TO_PX}px`,
-                  top: `${el.y * MM_TO_PX}px`,
-                  transform: isCentered ? 'translateX(-50%)' : 'none',
-                  transformOrigin: 'top center',
+      {downloadingProduct && (() => {
+        const template = getActiveDownloadTemplate();
+        return (
+          <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', zIndex: -100, pointerEvents: 'none' }}>
+            {downloadingProduct.sizes.map((size, idx) => (
+              <div
+                key={idx}
+                id={`hidden-tag-card-${idx}`}
+                style={{
+                  width: `${template.labelWidth * 3.7795275591}px`,
+                  height: `${template.labelHeight * 3.7795275591}px`,
+                  backgroundColor: '#ffffff',
+                  position: 'relative',
+                  fontFamily: 'Helvetica, Arial, sans-serif',
+                  overflow: 'hidden',
                   boxSizing: 'border-box'
-                };
+                }}
+              >
+                {template.elements.map(el => {
+                  if (!el.visible) return null;
+                  const MM_TO_PX = 3.7795275591;
+                  
+                  // Get values
+                  let text = el.staticText || '';
+                  if (el.id === 'name') text = (el.staticText || '') + downloadingProduct.product.name;
+                  else if (el.id === 'size') text = (el.staticText || '') + size;
+                  else if (el.id === 'sku') text = (el.staticText || '') + downloadingProduct.product.sku;
+                  else if (el.id === 'price') text = (el.staticText || '') + Number(downloadingProduct.product.sellingPrice).toFixed(2);
+                  else if (el.id === 'code') text = (el.staticText || '') + `91${Number(downloadingProduct.product.purchasePrice || 0) * 2}`;
+                  
+                  const isCentered = el.align === 'center';
+                  const baseStyle: React.CSSProperties = {
+                    position: 'absolute',
+                    left: `${el.x * MM_TO_PX}px`,
+                    top: `${el.y * MM_TO_PX}px`,
+                    transform: isCentered ? 'translateX(-50%)' : 'none',
+                    transformOrigin: 'top center',
+                    boxSizing: 'border-box'
+                  };
 
-                if (el.type === 'text') {
-                  return (
-                    <div
-                      key={el.id}
-                      style={{
-                        ...baseStyle,
-                        fontSize: `${(el.fontSize || 6) * 1.33}px`,
-                        fontWeight: el.isBold ? 900 : 'normal',
-                        fontFamily: 'Helvetica, Arial, sans-serif',
-                        whiteSpace: 'nowrap',
-                        color: '#000000',
-                        lineHeight: 1
-                      }}
-                    >
-                      {text}
-                    </div>
-                  );
-                } else if (el.type === 'line') {
-                  return (
-                    <div
-                      key={el.id}
-                      style={{
-                        ...baseStyle,
-                        width: `${(el.width || 10) * MM_TO_PX}px`,
-                        height: 0,
-                        borderBottom: `${(el.height || 0.5) * MM_TO_PX}px ${el.borderStyle === 'dotted' ? 'dotted' : 'solid'} #000000`
-                      }}
-                    />
-                  );
-                } else if (el.type === 'rect') {
-                  return (
-                    <div
-                      key={el.id}
-                      style={{
-                        ...baseStyle,
-                        width: `${(el.width || 10) * MM_TO_PX}px`,
-                        height: `${(el.height || 10) * MM_TO_PX}px`,
-                        border: `${0.5 * MM_TO_PX}px solid #000000`,
-                        borderRadius: `${(el.borderRadius || 0) * MM_TO_PX}px`
-                      }}
-                    />
-                  );
-                }
-                return null;
-              })}
-            </div>
-          ))}
-        </div>
-      )}
+                  if (el.type === 'text') {
+                    return (
+                      <div
+                        key={el.id}
+                        style={{
+                          ...baseStyle,
+                          fontSize: `${(el.fontSize || 6) * 1.33}px`,
+                          fontWeight: el.isBold ? 900 : 'normal',
+                          fontFamily: 'Helvetica, Arial, sans-serif',
+                          whiteSpace: 'nowrap',
+                          color: '#000000',
+                          lineHeight: 1
+                        }}
+                      >
+                        {text}
+                      </div>
+                    );
+                  } else if (el.type === 'line') {
+                    return (
+                      <div
+                        key={el.id}
+                        style={{
+                          ...baseStyle,
+                          width: `${(el.width || 10) * MM_TO_PX}px`,
+                          height: 0,
+                          borderBottom: `${(el.height || 0.5) * MM_TO_PX}px ${el.borderStyle === 'dotted' ? 'dotted' : 'solid'} #000000`
+                        }}
+                      />
+                    );
+                  } else if (el.type === 'rect') {
+                    return (
+                      <div
+                        key={el.id}
+                        style={{
+                          ...baseStyle,
+                          width: `${(el.width || 10) * MM_TO_PX}px`,
+                          height: `${(el.height || 10) * MM_TO_PX}px`,
+                          border: `${0.5 * MM_TO_PX}px solid #000000`,
+                          borderRadius: `${(el.borderRadius || 0) * MM_TO_PX}px`
+                        }}
+                      />
+                    );
+                  }
+                  return null;
+                })}
+              </div>
+            ))}
+          </div>
+        );
+      })()}
     </div>
   );
 };
