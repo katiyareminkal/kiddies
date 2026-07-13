@@ -65,11 +65,14 @@ export const DEFAULT_TEMPLATE_50x30: LabelTemplate = {
   labelWidth: 50,
   labelHeight: 30,
   elements: [
-    { id: 'name', type: 'text', x: 25, y: 6, fontSize: 7.5, isBold: true, align: 'center', visible: true },
-    { id: 'price', type: 'text', x: 25, y: 12, fontSize: 9.5, isBold: true, align: 'center', visible: true, staticText: 'MRP: Rs. ' },
-    { id: 'size', type: 'text', x: 25, y: 17.5, fontSize: 6.5, isBold: false, align: 'center', visible: true, staticText: 'SIZE: ' },
-    { id: 'code', type: 'text', x: 25, y: 22.5, fontSize: 6.5, isBold: false, align: 'center', visible: true, staticText: 'CODE: ' },
-    { id: 'sku', type: 'text', x: 25, y: 27.5, fontSize: 6.5, isBold: false, align: 'center', visible: true, staticText: 'SKU: ' },
+    { id: 'border', type: 'rect', x: 1.5, y: 1.5, width: 47, height: 27, borderRadius: 1.5, borderStyle: 'solid', visible: true },
+    { id: 'storeName', type: 'text', x: 25, y: 5.5, fontSize: 6.5, isBold: true, align: 'center', visible: true, staticText: '★ KIDDIES ★' },
+    { id: 'divider', type: 'line', x: 3, y: 7.5, width: 44, height: 0.3, borderStyle: 'dotted', visible: true },
+    { id: 'name', type: 'text', x: 25, y: 11.5, fontSize: 7, isBold: true, align: 'center', visible: true },
+    { id: 'price', type: 'text', x: 25, y: 16.5, fontSize: 8.5, isBold: true, align: 'center', visible: true, staticText: 'MRP: Rs. ' },
+    { id: 'size', type: 'text', x: 25, y: 21, fontSize: 6, isBold: false, align: 'center', visible: true, staticText: 'SIZE: ' },
+    { id: 'code', type: 'text', x: 25, y: 24.5, fontSize: 5.5, isBold: false, align: 'center', visible: true, staticText: 'CODE: ' },
+    { id: 'sku', type: 'text', x: 25, y: 27, fontSize: 5.5, isBold: false, align: 'center', visible: true, staticText: 'SKU: ' },
   ]
 };
 

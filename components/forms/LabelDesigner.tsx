@@ -714,13 +714,24 @@ function LabelDesigner({ labelData, allProductSizes, onClose, onPrint }: LabelDe
           <div className="w-full md:w-56 max-h-[35vh] md:max-h-none shrink-0 bg-white border-b md:border-b-0 md:border-r border-slate-100 overflow-y-auto p-2 md:p-3 flex flex-col gap-2 md:gap-4 shadow-[4px_0_24px_rgba(0,0,0,0.02)] z-10">
             <div className="space-y-1 md:space-y-2">
               <p className="text-[8px] md:text-[9px] font-black uppercase tracking-widest text-slate-400">Sizes to Print</p>
-              <div className="flex flex-wrap gap-1">
-                {allProductSizes.length > 0 ? allProductSizes.map(size => (
-                  <label key={size} className="flex items-center gap-1 bg-slate-50 px-1.5 py-1 md:px-2 md:py-1.5 rounded-lg cursor-pointer hover:bg-[#8B5CF6]/5 border border-transparent hover:border-[#8B5CF6]/20 transition-all">
-                    <input type="checkbox" checked={printSizes.includes(size)} onChange={(e) => setPrintSizes(prev => e.target.checked ? [...prev, size] : prev.filter(s => s !== size))} className="rounded text-[#8B5CF6] focus:ring-[#8B5CF6] border-slate-300 w-2.5 h-2.5 md:w-3 md:h-3" />
-                    <span className="text-[8px] md:text-[9px] font-black tracking-widest text-slate-700">{size}</span>
-                  </label>
-                )) : <p className="text-[9px] md:text-[10px] text-slate-400 italic">No sizes selected.</p>}
+              <div className="flex flex-wrap gap-1.5 mt-1">
+                {allProductSizes.length > 0 ? allProductSizes.map(size => {
+                  const isSelected = printSizes.includes(size);
+                  return (
+                    <button
+                      key={size}
+                      type="button"
+                      onClick={() => setPrintSizes(prev => isSelected ? prev.filter(s => s !== size) : [...prev, size])}
+                      className={`flex items-center justify-center min-w-[36px] h-7 px-2.5 rounded-lg text-[9px] font-black uppercase tracking-wider transition-all border select-none ${
+                        isSelected 
+                          ? 'bg-gradient-to-br from-[#8B5CF6] to-[#7C3AED] text-white border-transparent shadow-sm shadow-[#8B5CF6]/20' 
+                          : 'bg-white text-slate-600 border-slate-200 hover:border-[#8B5CF6]/30 hover:bg-[#8B5CF6]/5'
+                      }`}
+                    >
+                      {size}
+                    </button>
+                  );
+                }) : <p className="text-[9px] md:text-[10px] text-slate-400 italic">No sizes selected.</p>}
               </div>
             </div>
 
