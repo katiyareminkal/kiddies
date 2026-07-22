@@ -872,13 +872,22 @@ const Inventory: React.FC = () => {
                     if (el.id === 'code') text += '91' + ((downloadingProduct.product.purchasePrice || 0) * 2).toString();
                     if (el.id === 'sku') text += (downloadingProduct.product.sku || '').toUpperCase();
                     if (el.id === 'barcodeText') text = (downloadingProduct.product.barcode || downloadingProduct.product.sku || '').toUpperCase();
+                    // Auto-shrink font if text would overflow the label width
+                    const baseFontPx = (el.fontSize || 6) * 1.3;
+                    const labelWidthPxLocal = template.labelWidth * MM_TO_PX;
+                    const charWidthEstimate = baseFontPx * 0.65; // approximate character width
+                    const textWidthEstimate = text.length * charWidthEstimate;
+                    const availableWidth = isCentered ? labelWidthPxLocal : (labelWidthPxLocal - el.x * MM_TO_PX);
+                    const scaledFontPx = textWidthEstimate > availableWidth
+                      ? baseFontPx * (availableWidth / textWidthEstimate)
+                      : baseFontPx;
 
                     return (
                       <div
                         key={el.id}
                         style={{
                           ...baseStyle,
-                          fontSize: `${(el.fontSize || 6) * 1.3}px`,
+                          fontSize: `${scaledFontPx}px`,
                           fontWeight: el.isBold ? 900 : 'normal',
                           fontFamily: el.fontFamily === 'times' ? 'Times New Roman, Times, serif' : el.fontFamily === 'courier' ? 'Courier New, Courier, monospace' : 'Helvetica, Arial, sans-serif',
                           whiteSpace: 'nowrap',
