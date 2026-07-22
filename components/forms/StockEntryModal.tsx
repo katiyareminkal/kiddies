@@ -84,11 +84,14 @@ export const StockEntryModal: React.FC<StockEntryModalProps> = ({ isOpen, onClos
                 className="w-full pl-4 pr-10 py-3 bg-slate-50 border border-transparent focus:bg-white focus:border-highlight/30 rounded-2xl outline-none transition-all font-black uppercase tracking-widest text-[10px] text-slate-900 appearance-none"
               >
                 <option value="" disabled>-- Select Product --</option>
-                {products.map(p => (
-                  <option key={p.id} value={p.id}>
-                    {p.name} (SKU: {p.sku}) - Sale: {p.saleStock}, Rental: {p.rentalStock} [{p.purpose}]
-                  </option>
-                ))}
+                {products.map(p => {
+                  const totalStock = p.saleStock + p.rentalStock;
+                  return (
+                    <option key={p.id} value={p.id}>
+                      {p.name} (SKU: {p.sku}) — Total: {totalStock} Pcs (Sale: {p.saleStock}, Rental: {p.rentalStock})
+                    </option>
+                  );
+                })}
               </select>
               <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={16} strokeWidth={3} />
             </div>
@@ -107,17 +110,17 @@ export const StockEntryModal: React.FC<StockEntryModalProps> = ({ isOpen, onClos
             'RENTAL': 'Rental Only',
             'HYBRID': 'Sale + Rental'
           };
+          const total = activeProduct.saleStock + activeProduct.rentalStock;
+
           return (
             <div className="bg-slate-50 rounded-2xl p-3 flex items-center justify-between">
               <div>
                 <p className="text-[10px] font-black uppercase tracking-widest text-slate-900">{activeProduct.name}</p>
-                <div className="flex gap-3 mt-1">
-                  {(activeProduct.purpose === 'SALE' || activeProduct.purpose === 'HYBRID') && (
-                    <span className="text-[8px] font-bold text-slate-500">Sale Stock: <span className="text-slate-800 font-extrabold">{activeProduct.saleStock}</span></span>
-                  )}
-                  {(activeProduct.purpose === 'RENTAL' || activeProduct.purpose === 'HYBRID') && (
-                    <span className="text-[8px] font-bold text-slate-500">Rental Stock: <span className="text-slate-800 font-extrabold">{activeProduct.rentalStock}</span></span>
-                  )}
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="text-[9px] font-black text-slate-900 bg-slate-200/80 px-2 py-0.5 rounded-md">Total: {total} Pcs</span>
+                  <span className="text-[8px] font-bold text-slate-500">
+                    (Sale: <span className="text-slate-800 font-extrabold">{activeProduct.saleStock}</span> | Rental: <span className="text-slate-800 font-extrabold">{activeProduct.rentalStock}</span>)
+                  </span>
                 </div>
               </div>
               <span className={`text-[8px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full ${purposeColors[activeProduct.purpose] || 'bg-slate-200 text-slate-600'}`}>
