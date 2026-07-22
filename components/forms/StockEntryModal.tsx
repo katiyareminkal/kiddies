@@ -33,14 +33,29 @@ export const StockEntryModal: React.FC<StockEntryModalProps> = ({ isOpen, onClos
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const prodId = selectedProductId || (formData.get('productId') as string);
-    if (prodId) {
-      updateStock(
-        prodId,
-        formData.get('pool') as 'SALE' | 'RENTAL',
-        Number(formData.get('quantity')),
-        formData.get('type') as 'IN' | 'OUT',
-        (formData.get('reason') as string) || 'Stock adjustment'
-      );
+    const activeProd = product || products.find(p => p.id === prodId);
+
+    if (prodId && activeProd) {
+      const type = formData.get('type') as 'IN' | 'OUT';
+      const reason = (formData.get('reason') as string) || 'Stock adjustment';
+
+      if (activeProd.purpose === 'HYBRID') {
+        const saleQty = Number(formData.get('saleQuantity') || 0);
+        const rentalQty = Number(formData.get('rentalQuantity') || 0);
+
+        if (saleQty > 0) {
+          updateStock(prodId, 'SALE', saleQty, type, reason);
+        }
+        if (rentalQty > 0) {
+          updateStock(prodId, 'RENTAL', rentalQty, type, reason);
+        }
+      } else {
+        const pool = (formData.get('pool') as 'SALE' | 'RENTAL') || (activeProd.purpose === 'RENTAL' ? 'RENTAL' : 'SALE');
+        const qty = Number(formData.get('quantity') || 0);
+        if (qty > 0) {
+          updateStock(prodId, pool, qty, type, reason);
+        }
+      }
       handleClose();
     }
   };
@@ -49,6 +64,9 @@ export const StockEntryModal: React.FC<StockEntryModalProps> = ({ isOpen, onClos
     setSelectedProductId('');
     onClose();
   };
+
+  const activeProduct = product || products.find(p => p.id === selectedProductId);
+  const isHybrid = activeProduct?.purpose === 'HYBRID';
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title="Stock Adjustment">
@@ -68,7 +86,7 @@ export const StockEntryModal: React.FC<StockEntryModalProps> = ({ isOpen, onClos
                 <option value="" disabled>-- Select Product --</option>
                 {products.map(p => (
                   <option key={p.id} value={p.id}>
-                    {p.name} (SKU: {p.sku}) - Sale Stock: {p.saleStock}, Rental Stock: {p.rentalStock}
+                    {p.name} (SKU: {p.sku}) - Sale: {p.saleStock}, Rental: {p.rentalStock} [{p.purpose}]
                   </option>
                 ))}
               </select>
@@ -78,9 +96,7 @@ export const StockEntryModal: React.FC<StockEntryModalProps> = ({ isOpen, onClos
         )}
 
         {/* Product Info Card - shows purpose and current stock */}
-        {(() => {
-          const activeProduct = product || products.find(p => p.id === selectedProductId);
-          if (!activeProduct) return null;
+        {activeProduct && (() => {
           const purposeColors: Record<string, string> = {
             'SALE': 'bg-blue-100 text-blue-700',
             'RENTAL': 'bg-purple-100 text-purple-700',
@@ -97,10 +113,10 @@ export const StockEntryModal: React.FC<StockEntryModalProps> = ({ isOpen, onClos
                 <p className="text-[10px] font-black uppercase tracking-widest text-slate-900">{activeProduct.name}</p>
                 <div className="flex gap-3 mt-1">
                   {(activeProduct.purpose === 'SALE' || activeProduct.purpose === 'HYBRID') && (
-                    <span className="text-[8px] font-bold text-slate-500">Sale: <span className="text-slate-800">{activeProduct.saleStock}</span></span>
+                    <span className="text-[8px] font-bold text-slate-500">Sale Stock: <span className="text-slate-800 font-extrabold">{activeProduct.saleStock}</span></span>
                   )}
                   {(activeProduct.purpose === 'RENTAL' || activeProduct.purpose === 'HYBRID') && (
-                    <span className="text-[8px] font-bold text-slate-500">Rental: <span className="text-slate-800">{activeProduct.rentalStock}</span></span>
+                    <span className="text-[8px] font-bold text-slate-500">Rental Stock: <span className="text-slate-800 font-extrabold">{activeProduct.rentalStock}</span></span>
                   )}
                 </div>
               </div>
@@ -111,19 +127,24 @@ export const StockEntryModal: React.FC<StockEntryModalProps> = ({ isOpen, onClos
           );
         })()}
 
-        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Stock Type</label>
-        <div className="grid grid-cols-2 gap-3">
-          <label className="relative border-2 border-slate-50 rounded-[2rem] p-4 flex flex-col items-center justify-center gap-2 cursor-pointer has-[:checked]:bg-primary/5 has-[:checked]:border-primary has-[:checked]:text-primary transition-all group">
-            <input type="radio" name="pool" value="SALE" defaultChecked className="hidden" />
-            <ShoppingBag size={20} className="text-slate-400 group-has-[:checked]:text-primary transition-colors" strokeWidth={3} />
-            <span className="text-[9px] font-black uppercase tracking-widest">Sale Stock</span>
-          </label>
-          <label className="relative border-2 border-slate-50 rounded-[2rem] p-4 flex flex-col items-center justify-center gap-2 cursor-pointer has-[:checked]:bg-primary/5 has-[:checked]:border-primary has-[:checked]:text-primary transition-all group">
-            <input type="radio" name="pool" value="RENTAL" className="hidden" />
-            <RefreshCcw size={20} className="text-slate-400 group-has-[:checked]:text-primary transition-colors" strokeWidth={3} />
-            <span className="text-[9px] font-black uppercase tracking-widest">Rental Stock</span>
-          </label>
-        </div>
+        {/* Stock Pool selection (Only if product is not HYBRID) */}
+        {!isHybrid && (
+          <>
+            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Stock Type</label>
+            <div className="grid grid-cols-2 gap-3">
+              <label className="relative border-2 border-slate-50 rounded-[2rem] p-4 flex flex-col items-center justify-center gap-2 cursor-pointer has-[:checked]:bg-primary/5 has-[:checked]:border-primary has-[:checked]:text-primary transition-all group">
+                <input type="radio" name="pool" value="SALE" defaultChecked={activeProduct?.purpose !== 'RENTAL'} className="hidden" />
+                <ShoppingBag size={20} className="text-slate-400 group-has-[:checked]:text-primary transition-colors" strokeWidth={3} />
+                <span className="text-[9px] font-black uppercase tracking-widest">Sale Stock</span>
+              </label>
+              <label className="relative border-2 border-slate-50 rounded-[2rem] p-4 flex flex-col items-center justify-center gap-2 cursor-pointer has-[:checked]:bg-primary/5 has-[:checked]:border-primary has-[:checked]:text-primary transition-all group">
+                <input type="radio" name="pool" value="RENTAL" defaultChecked={activeProduct?.purpose === 'RENTAL'} className="hidden" />
+                <RefreshCcw size={20} className="text-slate-400 group-has-[:checked]:text-primary transition-colors" strokeWidth={3} />
+                <span className="text-[9px] font-black uppercase tracking-widest">Rental Stock</span>
+              </label>
+            </div>
+          </>
+        )}
 
         <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Action</label>
         <div className="grid grid-cols-2 gap-3">
@@ -139,10 +160,24 @@ export const StockEntryModal: React.FC<StockEntryModalProps> = ({ isOpen, onClos
           </label>
         </div>
 
-        <div className="space-y-1.5">
-          <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Quantity</label>
-          <input name="quantity" type="number" required className="w-full px-4 py-3 bg-slate-50 border-slate-50 border-2 focus:bg-white focus:border-primary rounded-2xl outline-none transition-all font-bold text-slate-700 text-sm" placeholder="0" min="1" />
-        </div>
+        {/* Quantity Fields */}
+        {isHybrid ? (
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-black uppercase tracking-widest text-blue-600 ml-1">Sale Stock Qty</label>
+              <input name="saleQuantity" type="number" min="0" className="w-full px-4 py-3 bg-slate-50 border-slate-50 border-2 focus:bg-white focus:border-primary rounded-2xl outline-none transition-all font-bold text-slate-700 text-sm" placeholder="0" />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-black uppercase tracking-widest text-purple-600 ml-1">Rental Stock Qty</label>
+              <input name="rentalQuantity" type="number" min="0" className="w-full px-4 py-3 bg-slate-50 border-slate-50 border-2 focus:bg-white focus:border-primary rounded-2xl outline-none transition-all font-bold text-slate-700 text-sm" placeholder="0" />
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Quantity</label>
+            <input name="quantity" type="number" required className="w-full px-4 py-3 bg-slate-50 border-slate-50 border-2 focus:bg-white focus:border-primary rounded-2xl outline-none transition-all font-bold text-slate-700 text-sm" placeholder="0" min="1" />
+          </div>
+        )}
 
         <div className="space-y-1.5">
           <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Reason / Notes (Optional)</label>
