@@ -130,18 +130,26 @@ export const StockEntryModal: React.FC<StockEntryModalProps> = ({ isOpen, onClos
           );
         })()}
 
-        {/* Stock Pool selection (Only if product is not HYBRID) */}
-        {!isHybrid && (
+        {/* Stock Pool selection (Show only if no product is selected or if purpose requires selecting pool) */}
+        {(!activeProduct || activeProduct.purpose === 'HYBRID') ? null : (
+          <>
+            {/* For SALE only or RENTAL only products, pass a hidden pool input */}
+            <input type="hidden" name="pool" value={activeProduct.purpose === 'RENTAL' ? 'RENTAL' : 'SALE'} />
+          </>
+        )}
+
+        {/* If no product selected yet, allow picking pool */}
+        {!activeProduct && (
           <>
             <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Stock Type</label>
             <div className="grid grid-cols-2 gap-3">
               <label className="relative border-2 border-slate-50 rounded-[2rem] p-4 flex flex-col items-center justify-center gap-2 cursor-pointer has-[:checked]:bg-primary/5 has-[:checked]:border-primary has-[:checked]:text-primary transition-all group">
-                <input type="radio" name="pool" value="SALE" defaultChecked={activeProduct?.purpose !== 'RENTAL'} className="hidden" />
+                <input type="radio" name="pool" value="SALE" defaultChecked className="hidden" />
                 <ShoppingBag size={20} className="text-slate-400 group-has-[:checked]:text-primary transition-colors" strokeWidth={3} />
                 <span className="text-[9px] font-black uppercase tracking-widest">Sale Stock</span>
               </label>
               <label className="relative border-2 border-slate-50 rounded-[2rem] p-4 flex flex-col items-center justify-center gap-2 cursor-pointer has-[:checked]:bg-primary/5 has-[:checked]:border-primary has-[:checked]:text-primary transition-all group">
-                <input type="radio" name="pool" value="RENTAL" defaultChecked={activeProduct?.purpose === 'RENTAL'} className="hidden" />
+                <input type="radio" name="pool" value="RENTAL" className="hidden" />
                 <RefreshCcw size={20} className="text-slate-400 group-has-[:checked]:text-primary transition-colors" strokeWidth={3} />
                 <span className="text-[9px] font-black uppercase tracking-widest">Rental Stock</span>
               </label>
