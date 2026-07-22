@@ -77,19 +77,21 @@ export const StockEntryModal: React.FC<StockEntryModalProps> = ({ isOpen, onClos
           </div>
         )}
 
+        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Stock Type</label>
         <div className="grid grid-cols-2 gap-3">
           <label className="relative border-2 border-slate-50 rounded-[2rem] p-4 flex flex-col items-center justify-center gap-2 cursor-pointer has-[:checked]:bg-primary/5 has-[:checked]:border-primary has-[:checked]:text-primary transition-all group">
             <input type="radio" name="pool" value="SALE" defaultChecked className="hidden" />
             <ShoppingBag size={20} className="text-slate-400 group-has-[:checked]:text-primary transition-colors" strokeWidth={3} />
-            <span className="text-[9px] font-black uppercase tracking-widest">Retail</span>
+            <span className="text-[9px] font-black uppercase tracking-widest">Sale Stock</span>
           </label>
           <label className="relative border-2 border-slate-50 rounded-[2rem] p-4 flex flex-col items-center justify-center gap-2 cursor-pointer has-[:checked]:bg-primary/5 has-[:checked]:border-primary has-[:checked]:text-primary transition-all group">
             <input type="radio" name="pool" value="RENTAL" className="hidden" />
             <RefreshCcw size={20} className="text-slate-400 group-has-[:checked]:text-primary transition-colors" strokeWidth={3} />
-            <span className="text-[9px] font-black uppercase tracking-widest">Rental</span>
+            <span className="text-[9px] font-black uppercase tracking-widest">Rental Stock</span>
           </label>
         </div>
 
+        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Action</label>
         <div className="grid grid-cols-2 gap-3">
           <label className="relative border-2 border-slate-50 rounded-[2rem] p-4 flex flex-col items-center justify-center gap-2 cursor-pointer has-[:checked]:bg-emerald-50 has-[:checked]:border-emerald-600 has-[:checked]:text-emerald-700 transition-all group">
             <input type="radio" name="type" value="IN" defaultChecked className="hidden" />
