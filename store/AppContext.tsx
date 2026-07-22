@@ -1296,21 +1296,33 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       });
       if (rentalError) throw rentalError;
 
-      // Update Stock
+      // Update Stock (Shared pool fallback for HYBRID products)
       const product = state.products.find(p => p.id === r.productId);
       if (product) {
-        await supabase.from('products').update({
-          rental_stock: Math.max(0, product.rentalStock - r.quantity)
-        }).eq('id', r.productId);
+        let poolUsed: 'RENTAL' | 'SALE' = 'RENTAL';
+        if (product.rentalStock >= r.quantity) {
+          await supabase.from('products').update({
+            rental_stock: Math.max(0, product.rentalStock - r.quantity)
+          }).eq('id', r.productId);
+        } else if (product.purpose === 'HYBRID') {
+          poolUsed = 'SALE';
+          await supabase.from('products').update({
+            sale_stock: Math.max(0, product.saleStock - r.quantity)
+          }).eq('id', r.productId);
+        } else {
+          await supabase.from('products').update({
+            rental_stock: Math.max(0, product.rentalStock - r.quantity)
+          }).eq('id', r.productId);
+        }
 
         const logId = generateID();
         await supabase.from('stock_logs').insert({
           id: logId,
           product_id: r.productId,
-          pool: 'RENTAL',
+          pool: poolUsed,
           type: 'OUT',
           quantity: r.quantity,
-          reason: `Rental ${invoiceNumber}`
+          reason: `Rental ${invoiceNumber}${poolUsed === 'SALE' ? ' (from Sale Stock)' : ''}`
         });
       }
 

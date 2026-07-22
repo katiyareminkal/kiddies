@@ -270,7 +270,17 @@ export const NewRentalModal: React.FC<NewRentalModalProps> = ({ isOpen, onClose 
                 <Package className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-highlight transition-colors" size={16} strokeWidth={3} />
                 <select name="productId" required className="w-full pl-12 pr-10 py-3 bg-slate-50 border border-transparent focus:bg-white focus:border-highlight/30 rounded-2xl outline-none transition-all font-black uppercase tracking-widest text-[10px] text-slate-900 appearance-none">
                   <option value="" disabled selected>Select Product</option>
-                  {products.map(p => <option key={p.id} value={p.id} disabled={p.rentalStock === 0}>{p.name} ({formatCurrency(p.rentalPrice)}/day) - Avail: {p.rentalStock}</option>)}
+                  {products
+                    .filter(p => p.purpose === 'RENTAL' || p.purpose === 'HYBRID')
+                    .map(p => {
+                      const avail = p.rentalStock > 0 ? p.rentalStock : (p.purpose === 'HYBRID' ? p.saleStock : 0);
+                      const isShared = p.rentalStock === 0 && p.purpose === 'HYBRID' && p.saleStock > 0;
+                      return (
+                        <option key={p.id} value={p.id} disabled={avail === 0}>
+                          {p.name} ({formatCurrency(p.rentalPrice)}/day) - Avail: {avail} {isShared ? '(Sale Stock)' : ''}
+                        </option>
+                      );
+                    })}
                 </select>
                 <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={16} strokeWidth={3} />
               </div>
