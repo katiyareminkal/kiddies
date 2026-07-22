@@ -77,6 +77,40 @@ export const StockEntryModal: React.FC<StockEntryModalProps> = ({ isOpen, onClos
           </div>
         )}
 
+        {/* Product Info Card - shows purpose and current stock */}
+        {(() => {
+          const activeProduct = product || products.find(p => p.id === selectedProductId);
+          if (!activeProduct) return null;
+          const purposeColors: Record<string, string> = {
+            'SALE': 'bg-blue-100 text-blue-700',
+            'RENTAL': 'bg-purple-100 text-purple-700',
+            'HYBRID': 'bg-amber-100 text-amber-700'
+          };
+          const purposeLabels: Record<string, string> = {
+            'SALE': 'Sale Only',
+            'RENTAL': 'Rental Only',
+            'HYBRID': 'Sale + Rental'
+          };
+          return (
+            <div className="bg-slate-50 rounded-2xl p-3 flex items-center justify-between">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-widest text-slate-900">{activeProduct.name}</p>
+                <div className="flex gap-3 mt-1">
+                  {(activeProduct.purpose === 'SALE' || activeProduct.purpose === 'HYBRID') && (
+                    <span className="text-[8px] font-bold text-slate-500">Sale: <span className="text-slate-800">{activeProduct.saleStock}</span></span>
+                  )}
+                  {(activeProduct.purpose === 'RENTAL' || activeProduct.purpose === 'HYBRID') && (
+                    <span className="text-[8px] font-bold text-slate-500">Rental: <span className="text-slate-800">{activeProduct.rentalStock}</span></span>
+                  )}
+                </div>
+              </div>
+              <span className={`text-[8px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full ${purposeColors[activeProduct.purpose] || 'bg-slate-200 text-slate-600'}`}>
+                {purposeLabels[activeProduct.purpose] || activeProduct.purpose}
+              </span>
+            </div>
+          );
+        })()}
+
         <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Stock Type</label>
         <div className="grid grid-cols-2 gap-3">
           <label className="relative border-2 border-slate-50 rounded-[2rem] p-4 flex flex-col items-center justify-center gap-2 cursor-pointer has-[:checked]:bg-primary/5 has-[:checked]:border-primary has-[:checked]:text-primary transition-all group">
