@@ -53,59 +53,59 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
       id: 'INFANTS',
       label: 'Infants (0-18M)',
       sizes: [
-        'NB (Newborn)',
-        '0-3M (0-3 Months)',
-        '3-6M (3-6 Months)',
-        '6-12M (6-12 Months)',
-        '12-18M (12-18 Months)',
         'Size 00 (Newborn)',
         'Size 0 (0-3M)',
         'Size 1 (3-6M)',
-        'Size 2 (6-12M)'
+        'Size 2 (6-12M)',
+        'Size 3 (12-18M)',
+        'NB (Newborn)',
+        '0-3M',
+        '3-6M',
+        '6-12M',
+        '12-18M'
       ]
     },
     {
       id: 'TODDLERS',
       label: 'Toddlers (1-5Y)',
       sizes: [
-        '18-24M (1.5-2Y)',
-        '1-2Y (1-2 Years)',
-        '2-3Y (2-3 Years)',
-        '3-4Y (3-4 Years)',
-        '4-5Y (4-5 Years)'
+        'Size 16 (1-2Y)',
+        'Size 18 (2-3Y)',
+        'Size 20 (3-4Y)',
+        'Size 22 (4-5Y)',
+        '1-2Y (2T)',
+        '2-3Y (3T)',
+        '3-4Y (4T)',
+        '4-5Y (5T)'
       ]
     },
     {
       id: 'KIDS',
       label: 'Kids (4-10Y)',
       sizes: [
-        '4-5Y',
-        '5-6Y',
-        '6-7Y',
-        '7-8Y',
-        '8-9Y',
-        '9-10Y',
-        'Kids XS (Size 18-20)',
-        'Kids S (Size 22-24)',
-        'Kids M (Size 26-28)',
-        'Kids L (Size 30-32)'
+        'Size 24 (5-6Y)',
+        'Size 26 (6-7Y)',
+        'Size 28 (7-8Y)',
+        'Size 30 (8-9Y)',
+        'Size 32 (9-10Y)',
+        'Kids XS (Size 22-24)',
+        'Kids S (Size 26-28)',
+        'Kids M (Size 30-32)'
       ]
     },
     {
       id: 'TEENS',
       label: 'Teens (10-16Y)',
       sizes: [
-        '10-11Y',
-        '11-12Y',
-        '12-13Y',
-        '13-14Y',
-        '14-15Y',
-        '15-16Y',
-        'Teen XS (Size 34)',
-        'Teen S (Size 36)',
-        'Teen M (Size 38)',
-        'Teen L (Size 40)',
-        'Teen XL (Size 42)'
+        'Size 34 (10-11Y)',
+        'Size 36 (11-12Y)',
+        'Size 38 (12-13Y)',
+        'Size 40 (13-14Y)',
+        'Size 42 (14-15Y)',
+        'Size 44 (15-16Y)',
+        'Teen S (Size 34-36)',
+        'Teen M (Size 38-40)',
+        'Teen L (Size 42-44)'
       ]
     },
     {
