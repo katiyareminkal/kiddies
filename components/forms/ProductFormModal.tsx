@@ -50,34 +50,70 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
 
   const SIZE_CATEGORIES = [
     {
-      id: 'INFANT_TODDLER',
-      label: 'Infants & Toddlers (0-5Y)',
+      id: 'INFANTS',
+      label: 'Infants (0-12M)',
       sizes: [
         'NB (Newborn)',
         '0-3M',
         '3-6M',
         '6-12M',
+        'Size 00',
+        'Size 0',
+        'Size 1'
+      ]
+    },
+    {
+      id: 'TODDLERS',
+      label: 'Toddlers (1-4Y)',
+      sizes: [
         '12-18M',
         '18-24M',
         '1-2Y (2T)',
         '2-3Y (3T)',
         '3-4Y (4T)',
         '4-5Y (5T)',
-        'Size 00 (Infant)',
-        'Size 0 (0-3M)'
+        'Size 2',
+        'Size 3',
+        'Size 4'
       ]
     },
     {
-      id: 'KIDS_ALPHA',
-      label: 'Kids Alpha (4-15Y)',
+      id: 'KIDS',
+      label: 'Kids (4-10Y)',
       sizes: [
-        'Kids XS (2-3Y)',
-        'Kids S (4-6Y / Size 4-6)',
-        'Kids M (7-9Y / Size 8-10)',
-        'Kids L (10-12Y / Size 12-14)',
-        'Kids XL (13-15Y / Size 16-18)',
-        'Kids XXL (15Y+)'
+        '4-5Y',
+        '5-6Y',
+        '6-7Y',
+        '7-8Y',
+        '8-9Y',
+        '9-10Y',
+        'Kids XS (Size 18-20)',
+        'Kids S (Size 22-24)',
+        'Kids M (Size 26-28)',
+        'Kids L (Size 30-32)'
       ]
+    },
+    {
+      id: 'TEENS',
+      label: 'Teens (10-16Y)',
+      sizes: [
+        '10-11Y',
+        '11-12Y',
+        '12-13Y',
+        '13-14Y',
+        '14-15Y',
+        '15-16Y',
+        'Teen XS (Size 34)',
+        'Teen S (Size 36)',
+        'Teen M (Size 38)',
+        'Teen L (Size 40)',
+        'Teen XL (Size 42)'
+      ]
+    },
+    {
+      id: 'ADULT_ALPHA',
+      label: 'Adults / Big',
+      sizes: ['FREE (Free Size)', 'XS', 'S', 'M', 'L', 'XL', '2XL', '3XL', '4XL', '5XL']
     },
     {
       id: 'NUMBERS',
@@ -97,14 +133,9 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
       sizes: ['30cm', '35cm', '40cm', '45cm', '50cm', '55cm', '60cm', '65cm', '70cm', '75cm', '80cm', '85cm', '90cm', '95cm', '100cm', '105cm', '110cm']
     },
     {
-      id: 'ADULT_ALPHA',
-      label: 'Adult / Big (Teens & Adults)',
-      sizes: ['FREE', 'XS (Teens 13-15Y)', 'S (Adult)', 'M (Adult)', 'L (Adult)', 'XL (Adult)', '2XL', '3XL', '4XL', '5XL']
-    },
-    {
       id: 'FOOTWEAR',
       label: 'Footwear',
-      sizes: ['18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40']
+      sizes: ['16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40']
     }
   ];
 
