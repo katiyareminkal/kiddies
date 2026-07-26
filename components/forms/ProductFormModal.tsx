@@ -72,9 +72,21 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
       sizes: ['30cm', '35cm', '40cm', '45cm', '50cm', '55cm', '60cm', '65cm', '70cm', '75cm', '80cm', '85cm', '90cm', '95cm', '100cm', '105cm', '110cm']
     },
     {
-      id: 'ALPHA',
-      label: 'Standard (S-XL)',
-      sizes: ['FREE', 'XS', 'S', 'M', 'L', 'XL', '2XL', '3XL', '4XL', '5XL']
+      id: 'KIDS_ALPHA',
+      label: 'Kids Alpha (XS-XXL)',
+      sizes: [
+        'Kids XS (2-3Y)',
+        'Kids S (4-5Y)',
+        'Kids M (6-7Y)',
+        'Kids L (8-9Y)',
+        'Kids XL (10-12Y)',
+        'Kids XXL (12-14Y)'
+      ]
+    },
+    {
+      id: 'ADULT_ALPHA',
+      label: 'Adult / Big (Teens & Adults)',
+      sizes: ['FREE', 'XS (Teens 13-15Y)', 'S (Adult)', 'M (Adult)', 'L (Adult)', 'XL (Adult)', '2XL', '3XL', '4XL', '5XL']
     },
     {
       id: 'FOOTWEAR',
@@ -626,12 +638,12 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
 
             {/* Active Selected Size Tags */}
             {selectedSizes.length > 0 && (
-              <div className="flex flex-wrap gap-2 mb-2 bg-slate-50 p-2.5 rounded-2xl border border-slate-100">
+              <div className="flex flex-wrap gap-2 mb-2 bg-slate-50 p-3 rounded-2xl border border-slate-100">
                 {selectedSizes.map(size => (
-                  <span key={size} className="bg-slate-900 text-white text-[8px] font-black uppercase tracking-widest px-3 py-1.5 rounded-xl flex items-center gap-1.5 shadow-xs">
+                  <span key={size} className="bg-slate-900 text-white text-[10px] font-black uppercase tracking-wider px-3.5 py-2 rounded-xl flex items-center gap-2 shadow-xs">
                     {size}
                     <button type="button" onClick={() => removeSizeTag(size)} className="hover:text-rose-400 transition-colors">
-                      <X size={10} strokeWidth={4} />
+                      <X size={12} strokeWidth={4} />
                     </button>
                   </span>
                 ))}
@@ -645,31 +657,31 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
                 value={sizeInput}
                 onChange={(e) => setSizeInput(e.target.value)}
                 onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addSizeTag(sizeInput); } }}
-                className="flex-1 px-4 py-3 bg-slate-50 border-slate-100 border focus:bg-white focus:border-[#8B5CF6]/30 rounded-2xl outline-none transition-all font-black uppercase tracking-widest text-slate-700 text-[10px]" 
+                className="flex-1 px-4 py-3 bg-slate-50 border-slate-100 border focus:bg-white focus:border-[#8B5CF6]/30 rounded-2xl outline-none transition-all font-black uppercase tracking-widest text-slate-700 text-[11px]" 
                 placeholder="Custom size (e.g. 28, 45cm, 2-3Y) & press Enter" 
               />
               <button 
                 type="button" 
                 onClick={() => addSizeTag(sizeInput)}
-                className="bg-slate-100 text-slate-700 px-4 py-2 rounded-2xl hover:bg-slate-200 transition-all font-black uppercase tracking-widest text-[8px]"
+                className="bg-slate-100 text-slate-700 px-5 py-3 rounded-2xl hover:bg-slate-200 transition-all font-black uppercase tracking-widest text-[9.5px]"
               >
                 Add
               </button>
             </div>
 
             {/* Size Category Tabs & Organized Quick Picks */}
-            <div className="bg-slate-50/80 p-3 rounded-2xl border border-slate-100 space-y-2.5">
-              <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1">
-                <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest mr-1 shrink-0">Articles:</span>
+            <div className="bg-slate-50/80 p-3.5 rounded-2xl border border-slate-100 space-y-3">
+              <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
+                <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest mr-1 shrink-0">Articles:</span>
                 {SIZE_CATEGORIES.map(cat => (
                   <button
                     key={cat.id}
                     type="button"
                     onClick={() => setActiveSizeCategory(cat.id)}
-                    className={`text-[8.5px] font-black uppercase tracking-widest px-3 py-1.5 rounded-xl transition-all shrink-0 ${
+                    className={`text-[9.5px] font-black uppercase tracking-wider px-3.5 py-2 rounded-xl transition-all shrink-0 ${
                       activeSizeCategory === cat.id
-                        ? 'bg-[#8B5CF6] text-white shadow-xs'
-                        : 'bg-white text-slate-600 hover:text-slate-900 border border-slate-200/60'
+                        ? 'bg-[#8B5CF6] text-white shadow-sm'
+                        : 'bg-white text-slate-600 hover:text-slate-900 border border-slate-200/80'
                     }`}
                   >
                     {cat.label}
@@ -678,7 +690,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
               </div>
 
               {/* Categorized Size Chips (Toggleable) */}
-              <div className="flex flex-wrap gap-1.5 pt-1">
+              <div className="flex flex-wrap gap-2 pt-1">
                 {SIZE_CATEGORIES.find(c => c.id === activeSizeCategory)?.sizes.map(size => {
                   const isSelected = selectedSizes.includes(size);
                   return (
@@ -686,10 +698,10 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
                       key={size} 
                       type="button"
                       onClick={() => isSelected ? removeSizeTag(size) : addSizeTag(size)}
-                      className={`text-[8px] font-black px-2.5 py-1.5 rounded-xl transition-all ${
+                      className={`text-[10.5px] font-black px-3 py-2 rounded-xl transition-all ${
                         isSelected
                           ? 'bg-[#8B5CF6] text-white shadow-xs scale-105'
-                          : 'bg-white text-slate-600 border border-slate-200/80 hover:bg-slate-100 hover:border-slate-300'
+                          : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-100 hover:border-slate-300'
                       }`}
                     >
                       {isSelected ? `✓ ${size}` : size}
