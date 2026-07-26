@@ -50,9 +50,34 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
 
   const SIZE_CATEGORIES = [
     {
-      id: 'AGE',
-      label: 'Age / Kids',
-      sizes: ['NB', '0-3M', '3-6M', '6-12M', '12-18M', '18-24M', '2-3Y', '3-4Y', '4-5Y', '5-6Y', '6-7Y', '7-8Y', '8-9Y', '9-10Y', '10-11Y', '11-12Y', '12-13Y', '13-14Y', '14-15Y']
+      id: 'INFANT_TODDLER',
+      label: 'Infants & Toddlers (0-5Y)',
+      sizes: [
+        'NB (Newborn)',
+        '0-3M',
+        '3-6M',
+        '6-12M',
+        '12-18M',
+        '18-24M',
+        '1-2Y (2T)',
+        '2-3Y (3T)',
+        '3-4Y (4T)',
+        '4-5Y (5T)',
+        'Size 00 (Infant)',
+        'Size 0 (0-3M)'
+      ]
+    },
+    {
+      id: 'KIDS_ALPHA',
+      label: 'Kids Alpha (4-15Y)',
+      sizes: [
+        'Kids XS (2-3Y)',
+        'Kids S (4-6Y / Size 4-6)',
+        'Kids M (7-9Y / Size 8-10)',
+        'Kids L (10-12Y / Size 12-14)',
+        'Kids XL (13-15Y / Size 16-18)',
+        'Kids XXL (15Y+)'
+      ]
     },
     {
       id: 'NUMBERS',
@@ -70,18 +95,6 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
       id: 'CM',
       label: 'CM / Length',
       sizes: ['30cm', '35cm', '40cm', '45cm', '50cm', '55cm', '60cm', '65cm', '70cm', '75cm', '80cm', '85cm', '90cm', '95cm', '100cm', '105cm', '110cm']
-    },
-    {
-      id: 'KIDS_ALPHA',
-      label: 'Kids Alpha (XS-XXL)',
-      sizes: [
-        'Kids XS (2-3Y)',
-        'Kids S (4-5Y)',
-        'Kids M (6-7Y)',
-        'Kids L (8-9Y)',
-        'Kids XL (10-12Y)',
-        'Kids XXL (12-14Y)'
-      ]
     },
     {
       id: 'ADULT_ALPHA',
