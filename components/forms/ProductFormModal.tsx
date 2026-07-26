@@ -24,6 +24,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
   // Size Management
   const [selectedSizes, setSelectedSizes] = useState<string[]>(productToEdit?.sizes || []);
   const [sizeInput, setSizeInput] = useState('');
+  const [activeSizeCategory, setActiveSizeCategory] = useState<string>('AGE');
   const [variantStocks, setVariantStocks] = useState<Record<string, { saleStock: number; rentalStock: number }>>({});
 
   // Barcode Scanner State
@@ -47,15 +48,43 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
 
 
 
-  const SUGGESTED_SIZES = [
-    'NB', '0-3M', '3-6M', '6-12M', '12-18M', '18-24M',
-    '2-3Y', '3-4Y', '4-5Y', '5-6Y', '6-7Y', '7-8Y', '8-9Y', '9-10Y',
-    '10-11Y', '11-12Y', '12-13Y', '13-14Y', '14-15Y',
-    'XS', 'S', 'M', 'L', 'XL',
-    '00', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20',
-    '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40',
-    '41', '42', '43', '44', '45', '46', '47', '48', '49', '50', '51', '52', '53', '54', '55', '56', '57', '58', '59', '60',
-    '30cm', '35cm', '40cm', '45cm', '50cm', '55cm', '60cm', '65cm', '70cm', '75cm', '80cm', '85cm', '90cm', '95cm', '100cm', '105cm', '110cm'
+  const SIZE_CATEGORIES = [
+    {
+      id: 'AGE',
+      label: 'Age / Kids',
+      sizes: ['NB', '0-3M', '3-6M', '6-12M', '12-18M', '18-24M', '2-3Y', '3-4Y', '4-5Y', '5-6Y', '6-7Y', '7-8Y', '8-9Y', '9-10Y', '10-11Y', '11-12Y', '12-13Y', '13-14Y', '14-15Y']
+    },
+    {
+      id: 'GARMENT_NUMBERS',
+      label: 'Garment Sizes (16-60)',
+      sizes: [
+        '16', '17', '18', '19', '20', '21', '22', '23', '24', '25',
+        '26', '27', '28', '29', '30', '31', '32', '33', '34', '35',
+        '36', '37', '38', '39', '40', '41', '42', '43', '44', '45',
+        '46', '47', '48', '49', '50', '51', '52', '53', '54', '55',
+        '56', '57', '58', '59', '60'
+      ]
+    },
+    {
+      id: 'KID_NUMBERS',
+      label: 'Kid Numbers (00-15)',
+      sizes: ['00', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15']
+    },
+    {
+      id: 'CM',
+      label: 'CM / Length',
+      sizes: ['30cm', '35cm', '40cm', '45cm', '50cm', '55cm', '60cm', '65cm', '70cm', '75cm', '80cm', '85cm', '90cm', '95cm', '100cm', '105cm', '110cm']
+    },
+    {
+      id: 'ALPHA',
+      label: 'Standard (S-XL)',
+      sizes: ['FREE', 'XS', 'S', 'M', 'L', 'XL', '2XL', '3XL', '4XL', '5XL']
+    },
+    {
+      id: 'FOOTWEAR',
+      label: 'Footwear',
+      sizes: ['18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40']
+    }
   ];
 
   // Initialize state when modal opens or productToEdit changes
@@ -585,18 +614,35 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
           </div>
 
           {/* Sizes Management */}
-          <div className="space-y-2 border-t border-slate-50 pt-4">
-            <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Sizes <span className="text-red-500">*</span></label>
-            <div className="flex flex-wrap gap-2 mb-2">
-              {selectedSizes.map(size => (
-                <span key={size} className="bg-slate-900 text-white text-[8px] font-black uppercase tracking-widest px-3 py-1.5 rounded-xl flex items-center gap-1.5 shadow-sm">
-                  {size}
-                  <button type="button" onClick={() => removeSizeTag(size)} className="hover:text-rose-400 transition-colors">
-                    <X size={10} strokeWidth={4} />
-                  </button>
-                </span>
-              ))}
+          <div className="space-y-3 border-t border-slate-50 pt-4">
+            <div className="flex justify-between items-center ml-1">
+              <label className="text-[9px] font-black uppercase tracking-widest text-slate-400">Sizes <span className="text-red-500">*</span></label>
+              {selectedSizes.length > 0 && (
+                <button 
+                  type="button" 
+                  onClick={() => { setSelectedSizes([]); setVariantStocks({}); }}
+                  className="text-[8px] font-bold text-rose-500 hover:underline uppercase tracking-widest"
+                >
+                  Clear All
+                </button>
+              )}
             </div>
+
+            {/* Active Selected Size Tags */}
+            {selectedSizes.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-2 bg-slate-50 p-2.5 rounded-2xl border border-slate-100">
+                {selectedSizes.map(size => (
+                  <span key={size} className="bg-slate-900 text-white text-[8px] font-black uppercase tracking-widest px-3 py-1.5 rounded-xl flex items-center gap-1.5 shadow-xs">
+                    {size}
+                    <button type="button" onClick={() => removeSizeTag(size)} className="hover:text-rose-400 transition-colors">
+                      <X size={10} strokeWidth={4} />
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
+
+            {/* Size Custom Input */}
             <div className="flex gap-2">
               <input 
                 type="text" 
@@ -604,28 +650,57 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
                 onChange={(e) => setSizeInput(e.target.value)}
                 onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addSizeTag(sizeInput); } }}
                 className="flex-1 px-4 py-3 bg-slate-50 border-slate-100 border focus:bg-white focus:border-[#8B5CF6]/30 rounded-2xl outline-none transition-all font-black uppercase tracking-widest text-slate-700 text-[10px]" 
-                placeholder="Type size (e.g. 2-3Y) and enter" 
+                placeholder="Custom size (e.g. 28, 45cm, 2-3Y) & press Enter" 
               />
               <button 
                 type="button" 
                 onClick={() => addSizeTag(sizeInput)}
-                className="bg-slate-100 text-slate-400 px-4 py-2 rounded-2xl hover:bg-slate-200 transition-all font-black uppercase tracking-widest text-[8px]"
+                className="bg-slate-100 text-slate-700 px-4 py-2 rounded-2xl hover:bg-slate-200 transition-all font-black uppercase tracking-widest text-[8px]"
               >
                 Add
               </button>
             </div>
-            <div className="flex flex-wrap gap-1.5 mt-2">
-              <span className="text-[7px] font-black text-slate-300 uppercase tracking-widest mr-1">Quick Picks:</span>
-              {SUGGESTED_SIZES.map(size => (
-                <button 
-                  key={size} 
-                  type="button"
-                  onClick={() => addSizeTag(size)}
-                  className="text-[7px] font-bold text-slate-400 border border-slate-100 px-2 py-1 rounded-lg hover:bg-slate-50 transition-colors"
-                >
-                  {size}
-                </button>
-              ))}
+
+            {/* Size Category Tabs & Organized Quick Picks */}
+            <div className="bg-slate-50/80 p-3 rounded-2xl border border-slate-100 space-y-2.5">
+              <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1">
+                <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest mr-1 shrink-0">Articles:</span>
+                {SIZE_CATEGORIES.map(cat => (
+                  <button
+                    key={cat.id}
+                    type="button"
+                    onClick={() => setActiveSizeCategory(cat.id)}
+                    className={`text-[8.5px] font-black uppercase tracking-widest px-3 py-1.5 rounded-xl transition-all shrink-0 ${
+                      activeSizeCategory === cat.id
+                        ? 'bg-[#8B5CF6] text-white shadow-xs'
+                        : 'bg-white text-slate-600 hover:text-slate-900 border border-slate-200/60'
+                    }`}
+                  >
+                    {cat.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Categorized Size Chips (Toggleable) */}
+              <div className="flex flex-wrap gap-1.5 pt-1">
+                {SIZE_CATEGORIES.find(c => c.id === activeSizeCategory)?.sizes.map(size => {
+                  const isSelected = selectedSizes.includes(size);
+                  return (
+                    <button 
+                      key={size} 
+                      type="button"
+                      onClick={() => isSelected ? removeSizeTag(size) : addSizeTag(size)}
+                      className={`text-[8px] font-black px-2.5 py-1.5 rounded-xl transition-all ${
+                        isSelected
+                          ? 'bg-[#8B5CF6] text-white shadow-xs scale-105'
+                          : 'bg-white text-slate-600 border border-slate-200/80 hover:bg-slate-100 hover:border-slate-300'
+                      }`}
+                    >
+                      {isSelected ? `✓ ${size}` : size}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
 
