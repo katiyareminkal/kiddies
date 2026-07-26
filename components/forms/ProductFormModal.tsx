@@ -51,30 +51,28 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
   const SIZE_CATEGORIES = [
     {
       id: 'INFANTS',
-      label: 'Infants (0-12M)',
+      label: 'Infants (0-18M)',
       sizes: [
         'NB (Newborn)',
-        '0-3M',
-        '3-6M',
-        '6-12M',
-        'Size 00',
-        'Size 0',
-        'Size 1'
+        '0-3M (0-3 Months)',
+        '3-6M (3-6 Months)',
+        '6-12M (6-12 Months)',
+        '12-18M (12-18 Months)',
+        'Size 00 (Newborn)',
+        'Size 0 (0-3M)',
+        'Size 1 (3-6M)',
+        'Size 2 (6-12M)'
       ]
     },
     {
       id: 'TODDLERS',
-      label: 'Toddlers (1-4Y)',
+      label: 'Toddlers (1-5Y)',
       sizes: [
-        '12-18M',
-        '18-24M',
-        '1-2Y (2T)',
-        '2-3Y (3T)',
-        '3-4Y (4T)',
-        '4-5Y (5T)',
-        'Size 2',
-        'Size 3',
-        'Size 4'
+        '18-24M (1.5-2Y)',
+        '1-2Y (1-2 Years)',
+        '2-3Y (2-3 Years)',
+        '3-4Y (3-4 Years)',
+        '4-5Y (4-5 Years)'
       ]
     },
     {
