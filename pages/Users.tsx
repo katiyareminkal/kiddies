@@ -21,7 +21,7 @@ import {
 import { UserRole } from '../types';
 
 const Users: React.FC = () => {
-  const { users, currentUser, addUser, updateUser, deleteUser } = useApp();
+  const { users, currentUser, addUser, updateUser, deleteUser, settings } = useApp();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [editingUserId, setEditingUserId] = useState<string | null>(null);
@@ -217,7 +217,7 @@ const Users: React.FC = () => {
                        <button onClick={() => openEdit(user)} className="p-2.5 text-slate-400 hover:text-slate-900 hover:bg-highlight rounded-xl transition-all shadow-nano" title="Edit User">
                          <Edit2 size={18} strokeWidth={3} />
                        </button>
-                       {user.id !== currentUser?.id && (
+                       {user.id !== currentUser?.id && settings?.enableDeleteUsers && (
                           <button onClick={() => handleDeleteClick(user.id)} className="p-2.5 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition-all shadow-nano" title="Delete User">
                             <Trash2 size={18} strokeWidth={3} />
                           </button>

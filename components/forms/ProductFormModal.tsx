@@ -51,79 +51,75 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
   const SIZE_CATEGORIES = [
     {
       id: 'INFANTS',
-      label: 'Infants (0-18M)',
+      label: 'Infants (0-1Y)',
       sizes: [
-        'Size 00 (Newborn)',
-        'Size 0 (0-3M)',
-        'Size 1 (3-6M)',
-        'Size 2 (6-12M)',
-        'Size 3 (12-18M)',
-        'NB (Newborn)',
-        '0-3M',
-        '3-6M',
-        '6-12M',
-        '12-18M'
+        'XS (Newborn)',
+        'S (0-3 Months)',
+        'M (3-6 Months)',
+        'L (6-9 Months)',
+        'XL (9-12 Months)',
+        'XXL (12-18 Months)',
+        '00 (Newborn)',
+        '0 (0-3M)',
+        '1 (3-6M)',
+        '2 (6-12M)',
+        '16 (6-12 Months)'
       ]
     },
     {
       id: 'TODDLERS',
       label: 'Toddlers (1-5Y)',
       sizes: [
-        'Size 16 (1-2Y)',
-        'Size 18 (2-3Y)',
-        'Size 20 (3-4Y)',
-        'Size 22 (4-5Y)',
-        '1-2Y (2T)',
-        '2-3Y (3T)',
-        '3-4Y (4T)',
-        '4-5Y (5T)'
+        'XS (1-2 Years)',
+        'S (2-3 Years)',
+        'M (3-4 Years)',
+        'L (4-5 Years)',
+        'XL (5-6 Years)',
+        'XXL (6-7 Years)',
+        '3 (12-18M)',
+        '18 (1-2 Years)',
+        '20 (2-3 Years)',
+        '22 (3-4 Years)'
       ]
     },
     {
       id: 'KIDS',
-      label: 'Kids (4-10Y)',
+      label: 'Kids (5-10Y)',
       sizes: [
-        'Size 24 (5-6Y)',
-        'Size 26 (6-7Y)',
-        'Size 28 (7-8Y)',
-        'Size 30 (8-9Y)',
-        'Size 32 (9-10Y)',
-        'Kids XS (Size 22-24)',
-        'Kids S (Size 26-28)',
-        'Kids M (Size 30-32)'
+        'XS (4-5 Years)',
+        'S (6-7 Years)',
+        'M (8-9 Years)',
+        'L (10-12 Years)',
+        'XL (12-14 Years)',
+        'XXL (14-16 Years)',
+        '24 (4-5 Years)',
+        '26 (5-6 Years)',
+        '28 (6-7 Years)',
+        '30 (7 Years)',
+        '32 (7-8 Years)',
+        '34 (7-8 Years)'
       ]
     },
     {
       id: 'TEENS',
       label: 'Teens (10-16Y)',
       sizes: [
-        'Size 34 (10-11Y)',
-        'Size 36 (11-12Y)',
-        'Size 38 (12-13Y)',
-        'Size 40 (13-14Y)',
-        'Size 42 (14-15Y)',
-        'Size 44 (15-16Y)',
-        'Teen S (Size 34-36)',
-        'Teen M (Size 38-40)',
-        'Teen L (Size 42-44)'
+        'XS (11-12 Years)',
+        'S (13-14 Years)',
+        'M (14-15 Years)',
+        'L (15-16 Years)',
+        'XL (16+ Years)',
+        'XXL (18+ Years)',
+        '36 (9-10 Years)',
+        '38 (11-12 Years)',
+        '40 (12-13 Years)',
+        '42 (14-15 Years)'
       ]
     },
     {
       id: 'ADULT_ALPHA',
       label: 'Adults / Big',
       sizes: ['FREE (Free Size)', 'XS', 'S', 'M', 'L', 'XL', '2XL', '3XL', '4XL', '5XL']
-    },
-    {
-      id: 'NUMBERS',
-      label: 'Numbers (00-60)',
-      sizes: [
-        '00', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10',
-        '11', '12', '13', '14', '15', '16', '17', '18', '19', '20',
-        '21', '22', '23', '24', '25', '26', '27', '28', '29', '30',
-        '31', '32', '33', '34', '35', '36', '37', '38', '39', '40',
-        '41', '42', '43', '44', '45', '46', '47', '48', '49', '50',
-        '51', '52', '53', '54', '55', '56', '57', '58', '59', '60'
-      ]
     },
     {
       id: 'CM',
@@ -713,7 +709,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
 
             {/* Size Category Tabs & Organized Quick Picks */}
             <div className="bg-slate-50/80 p-3.5 rounded-2xl border border-slate-100 space-y-3">
-              <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
+              <div className="flex flex-wrap items-center gap-2 pb-1">
                 <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest mr-1 shrink-0">Articles:</span>
                 {SIZE_CATEGORIES.map(cat => (
                   <button

@@ -25,10 +25,10 @@ export const NAVIGATION_ITEMS = [
 ];
 
 export const CATEGORIES = [
-  'Infants (0-2Y)',
-  'Toddlers (2-5Y)',
+  'Infants (0-1Y)',
+  'Toddlers (1-5Y)',
   'Kids (5-10Y)',
-  'Teens (10-15Y)',
+  'Teens (10-16Y)',
   'Party Wear',
   'Casual Wear',
   'Ethnic & Traditional',

@@ -27,6 +27,7 @@ interface AppContextType extends AppState {
   deleteProduct: (id: string) => Promise<void>;
   addCustomer: (customer: Omit<Customer, 'id' | 'createdAt'>) => Promise<string | undefined>;
   addSupplier: (supplier: Omit<Supplier, 'id' | 'createdAt'>) => Promise<void>;
+  updateSupplier: (id: string, updates: Partial<Supplier>) => Promise<void>;
   addSale: (sale: Omit<Sale, 'id' | 'invoiceNumber' | 'date' | 'netPayout'> & { date?: string }) => Promise<{ id: string, invoiceNumber: string } | undefined>;
   addCreditNote: (customerId: string, amount: number, reason: string) => Promise<void>;
   consumeStoreCredit: (customerId: string, amountToConsume: number, invoiceNumber: string) => Promise<void>;
@@ -50,6 +51,9 @@ interface AppContextType extends AppState {
   deleteSale: (id: string) => Promise<void>;
   deleteRental: (id: string) => Promise<void>;
   deleteCreditNote: (id: string) => Promise<void>;
+  addSupplierBill: (bill: Omit<SupplierBill, 'id' | 'createdAt' | 'items'> & { items: Omit<SupplierBillItem, 'id' | 'billId' | 'createdAt'>[] }, imageFile?: File) => Promise<void>;
+  addPaymentToSupplierBill: (billId: string, amount: number) => Promise<void>;
+  deleteSupplierBill: (id: string) => Promise<void>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -92,6 +96,7 @@ const INITIAL_DATA: AppState = {
   suppliers: [
     { id: 'S1', name: 'Tiny Tots Wholesalers', contactPerson: 'Mike Brown', phone: '1122334455', email: 'orders@tinytots.com', address: 'Garment District, City', createdAt: new Date().toISOString() }
   ],
+  supplierBills: [],
   sales: [
     {
       id: 'SALE1', invoiceNumber: 'INV-1001', externalOrderId: '404-1234567-1234567', channel: SalesChannel.AMAZON, customerId: 'C_AMZ',
@@ -128,7 +133,11 @@ const INITIAL_DATA: AppState = {
     lowStockThreshold: 3,
     salesInvoicePrefix: 'INV-',
     rentalInvoicePrefix: 'RNT-',
-    allowLedgerDeletions: false
+    enableDeleteInventory: false,
+    enableDeleteCustomers: false,
+    enableDeleteTransactions: false,
+    enableDeleteSuppliers: false,
+    enableDeleteUsers: false
   },
   creditNotes: [],
   expenses: []
@@ -298,6 +307,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         { data: products },
         { data: customers },
         { data: suppliers },
+        { data: supplierBills },
         { data: sales },
         { data: rentals },
         { data: stockLogs },
@@ -311,6 +321,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
           supabase.from('products').select('*'),
           supabase.from('customers').select('*'),
           supabase.from('suppliers').select('*'),
+          supabase.from('supplier_bills').select('*').order('created_at', { ascending: false }),
           supabase.from('sales').select('*').order('date', { ascending: false }),
           supabase.from('rentals').select('*').order('date', { ascending: false }),
           supabase.from('stock_logs').select('*').order('date', { ascending: false }),
@@ -322,6 +333,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         ]);
 
       const { data: saleItems } = await supabase.from('sale_items').select('*');
+      const { data: supplierBillItems } = await supabase.from('supplier_bill_items').select('*');
 
       const combinedSales: Sale[] = (sales || []).map(sale => {
         const items = (saleItems || [])
@@ -405,8 +417,34 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
           phone: s.phone || '',
           email: s.email || '',
           address: s.address || '',
+          location: s.location || undefined,
+          category: s.category || undefined,
           createdAt: s.created_at
         })),
+        supplierBills: (supplierBills || []).map(b => {
+          const items = (supplierBillItems || []).filter((i: any) => i.bill_id === b.id).map((i: any) => ({
+            id: i.id,
+            billId: i.bill_id,
+            itemName: i.item_name,
+            quantity: Number(i.quantity),
+            unitPrice: Number(i.unit_price),
+            total: Number(i.total),
+            createdAt: i.created_at
+          }));
+          return {
+            id: b.id,
+            supplierId: b.supplier_id,
+            billNumber: b.bill_number || '',
+            date: b.date,
+            items,
+            totalAmount: Number(b.total_amount || 0),
+            paidAmount: Number(b.paid_amount || 0),
+            status: b.status as 'UNPAID' | 'PARTIAL' | 'PAID',
+            notes: b.notes || '',
+            imageUrl: b.image_url || undefined,
+            createdAt: b.created_at
+          };
+        }),
         sales: combinedSales,
         rentals: (rentals || []).map(r => ({
           id: r.id,
@@ -466,7 +504,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
               lowStockThreshold: Number(settings.low_stock_threshold || 3),
               salesInvoicePrefix: settings.sales_invoice_prefix || 'INV-',
               rentalInvoicePrefix: settings.rental_invoice_prefix || 'RNT-',
-              allowLedgerDeletions: !!settings.allow_ledger_deletions
+              enableDeleteInventory: !!settings.enable_delete_inventory,
+              enableDeleteCustomers: !!settings.enable_delete_customers,
+              enableDeleteTransactions: !!settings.enable_delete_transactions,
+              enableDeleteSuppliers: !!settings.enable_delete_suppliers,
+              enableDeleteUsers: !!settings.enable_delete_users
             }
           : prev.settings,
         creditNotes: (creditNotes || []).map(cn => ({
@@ -824,12 +866,108 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         contact_person: s.contactPerson,
         phone: s.phone,
         email: s.email,
-        address: s.address
+        address: s.address,
+        location: s.location,
+        category: s.category
       });
       if (error) throw error;
       await fetchAllData();
     } catch (error) {
       console.error('Error adding supplier:', error);
+    }
+  };
+
+  const updateSupplier = async (id: string, updates: Partial<Supplier>) => {
+    try {
+      const dbUpdates: any = {};
+      if (updates.name !== undefined) dbUpdates.name = updates.name;
+      if (updates.contactPerson !== undefined) dbUpdates.contact_person = updates.contactPerson;
+      if (updates.phone !== undefined) dbUpdates.phone = updates.phone;
+      if (updates.email !== undefined) dbUpdates.email = updates.email;
+      if (updates.address !== undefined) dbUpdates.address = updates.address;
+      if (updates.location !== undefined) dbUpdates.location = updates.location;
+      if (updates.category !== undefined) dbUpdates.category = updates.category;
+
+      const { error } = await supabase.from('suppliers').update(dbUpdates).eq('id', id);
+      if (error) throw error;
+      await fetchAllData();
+    } catch (error) {
+      console.error('Error updating supplier:', error);
+    }
+  };
+
+  const addSupplierBill = async (bill: Omit<SupplierBill, 'id' | 'createdAt' | 'items'> & { items: Omit<SupplierBillItem, 'id' | 'billId' | 'createdAt'>[] }, imageFile?: File) => {
+    try {
+      let imageUrl = bill.imageUrl;
+      if (imageFile) {
+        imageUrl = await uploadImage(imageFile, `supplier_bills/${bill.supplierId}_${Date.now()}`);
+      }
+
+      const { data, error } = await supabase.from('supplier_bills').insert([{
+        supplier_id: bill.supplierId,
+        bill_number: bill.billNumber,
+        date: bill.date,
+        total_amount: bill.totalAmount,
+        paid_amount: bill.paidAmount,
+        status: bill.status,
+        notes: bill.notes,
+        image_url: imageUrl
+      }]).select().single();
+      if (error) throw error;
+      
+      const newBillId = data.id;
+
+      if (bill.items && bill.items.length > 0) {
+        const itemsToInsert = bill.items.map(item => ({
+          bill_id: newBillId,
+          item_name: item.itemName,
+          quantity: item.quantity,
+          unit_price: item.unitPrice,
+          total: item.total
+        }));
+        const { error: itemsError } = await supabase.from('supplier_bill_items').insert(itemsToInsert);
+        if (itemsError) throw itemsError;
+      }
+
+      await fetchAllData();
+    } catch (error) {
+      console.error('Error adding supplier bill:', error);
+      throw error;
+    }
+  };
+
+  const addPaymentToSupplierBill = async (billId: string, amount: number) => {
+    try {
+      const bill = state.supplierBills.find(b => b.id === billId);
+      if (!bill) throw new Error("Bill not found");
+
+      const newPaidAmount = bill.paidAmount + amount;
+      let newStatus: 'UNPAID' | 'PARTIAL' | 'PAID' = bill.status;
+      if (newPaidAmount >= bill.totalAmount) {
+        newStatus = 'PAID';
+      } else if (newPaidAmount > 0) {
+        newStatus = 'PARTIAL';
+      }
+
+      const { error } = await supabase.from('supplier_bills').update({
+        paid_amount: newPaidAmount,
+        status: newStatus
+      }).eq('id', billId);
+      if (error) throw error;
+      await fetchAllData();
+    } catch (error) {
+      console.error("Failed to add payment to supplier bill", error);
+    }
+  };
+
+  const deleteSupplierBill = async (id: string) => {
+    try {
+      const { error } = await supabase.from('supplier_bills').delete().eq('id', id);
+      if (error) throw error;
+      await fetchAllData();
+    } catch (error) {
+      console.error('Error deleting supplier bill:', error);
+      throw error;
     }
   };
 
@@ -1484,7 +1622,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         low_stock_threshold: settings.lowStockThreshold,
         sales_invoice_prefix: settings.salesInvoicePrefix,
         rental_invoice_prefix: settings.rentalInvoicePrefix,
-        allow_ledger_deletions: settings.allowLedgerDeletions
+        enable_delete_inventory: settings.enableDeleteInventory,
+        enable_delete_customers: settings.enableDeleteCustomers,
+        enable_delete_transactions: settings.enableDeleteTransactions,
+        enable_delete_suppliers: settings.enableDeleteSuppliers,
+        enable_delete_users: settings.enableDeleteUsers
       }).eq('id', 'default');
       if (error) throw error;
       await fetchAllData();
@@ -1581,13 +1723,16 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       isPasswordRecovery,
       login, loginWithGoogle, logout, addUser, updateUser, deleteUser,
       addProduct, updateProduct, deleteProduct,
-      addCustomer, addSupplier,
+      addCustomer,
+      addSupplier,
+      updateSupplier,
       addSale, updateOrderStatus, addPaymentToSale,
       addRental, updateRental, returnRental,
       updateStock, updateStoreProfile, updateSettings,
       importData, resetData, markNotificationsAsRead, clearNotifications,
       uploadImage, linkSaleItemToProduct, returnSale, processPartialReturnOrExchange,
       deleteSale, deleteRental, deleteCreditNote,
+      addSupplierBill, addPaymentToSupplierBill, deleteSupplierBill,
       updatePassword,
       addCreditNote,
       consumeStoreCredit,

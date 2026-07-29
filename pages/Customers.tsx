@@ -516,7 +516,7 @@ const Customers: React.FC = () => {
                                Return Item
                              </button>
                            )}
-                           {settings.allowLedgerDeletions && (
+                           {settings?.enableDeleteTransactions && (
                              <button 
                                onClick={async () => {
                                  if (window.confirm("Are you sure you want to permanently delete this transaction from the database? This cannot be undone.")) {

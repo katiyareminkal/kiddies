@@ -81,7 +81,11 @@ const Settings: React.FC = () => {
       enableLowStockAlerts: formData.get('enableLowStockAlerts') === 'on',
       salesInvoicePrefix: formData.get('salesInvoicePrefix') as string,
       rentalInvoicePrefix: formData.get('rentalInvoicePrefix') as string,
-      allowLedgerDeletions: formData.get('allowLedgerDeletions') === 'on',
+      enableDeleteInventory: formData.get('enableDeleteInventory') === 'on',
+      enableDeleteCustomers: formData.get('enableDeleteCustomers') === 'on',
+      enableDeleteTransactions: formData.get('enableDeleteTransactions') === 'on',
+      enableDeleteSuppliers: formData.get('enableDeleteSuppliers') === 'on',
+      enableDeleteUsers: formData.get('enableDeleteUsers') === 'on',
     });
     showNotification('System preferences saved!', 'success');
   };
@@ -333,13 +337,65 @@ const Settings: React.FC = () => {
                                         <input name="currency" disabled value="₹" className="w-full px-4 py-2 bg-slate-100 text-slate-400 border border-transparent rounded-lg outline-none font-semibold cursor-not-allowed text-[11px]" />
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+
+                        {/* Section: Deletion Permissions */}
+                        <div>
+                            <div className="flex items-center gap-2 mb-4">
+                                <div className="w-6 h-6 rounded-lg bg-slate-900 text-rose-500 flex items-center justify-center shadow-sm">
+                                    <Trash2 size={12} strokeWidth={2.5} />
+                                </div>
+                                <h4 className="text-[9px] font-bold uppercase tracking-widest text-slate-900">Deletion Permissions</h4>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="p-4 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between">
                                     <div>
-                                        <p className="text-[10px] font-bold text-slate-900 uppercase tracking-tight">Allow Ledger Deletions</p>
-                                        <p className="text-[8px] font-semibold text-slate-400 mt-0.5 uppercase tracking-widest">Enable delete action in customer transaction history</p>
+                                        <p className="text-[10px] font-bold text-slate-900 uppercase tracking-tight">Products & Inventory</p>
+                                        <p className="text-[8px] font-semibold text-slate-400 mt-0.5 uppercase tracking-widest">Allow deletion of products</p>
                                     </div>
                                     <label className="relative inline-flex items-center cursor-pointer">
-                                        <input type="checkbox" name="allowLedgerDeletions" defaultChecked={settings.allowLedgerDeletions} className="sr-only peer" />
+                                        <input type="checkbox" name="enableDeleteInventory" defaultChecked={settings.enableDeleteInventory} className="sr-only peer" />
+                                        <div className="w-10 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-highlight"></div>
+                                    </label>
+                                </div>
+                                <div className="p-4 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between">
+                                    <div>
+                                        <p className="text-[10px] font-bold text-slate-900 uppercase tracking-tight">Transaction History</p>
+                                        <p className="text-[8px] font-semibold text-slate-400 mt-0.5 uppercase tracking-widest">Allow deletion of sales & rentals</p>
+                                    </div>
+                                    <label className="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" name="enableDeleteTransactions" defaultChecked={settings.enableDeleteTransactions} className="sr-only peer" />
+                                        <div className="w-10 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-highlight"></div>
+                                    </label>
+                                </div>
+                                <div className="p-4 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between">
+                                    <div>
+                                        <p className="text-[10px] font-bold text-slate-900 uppercase tracking-tight">Customers</p>
+                                        <p className="text-[8px] font-semibold text-slate-400 mt-0.5 uppercase tracking-widest">Allow deletion of customers</p>
+                                    </div>
+                                    <label className="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" name="enableDeleteCustomers" defaultChecked={settings.enableDeleteCustomers} className="sr-only peer" />
+                                        <div className="w-10 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-highlight"></div>
+                                    </label>
+                                </div>
+                                <div className="p-4 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between">
+                                    <div>
+                                        <p className="text-[10px] font-bold text-slate-900 uppercase tracking-tight">Suppliers</p>
+                                        <p className="text-[8px] font-semibold text-slate-400 mt-0.5 uppercase tracking-widest">Allow deletion of suppliers</p>
+                                    </div>
+                                    <label className="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" name="enableDeleteSuppliers" defaultChecked={settings.enableDeleteSuppliers} className="sr-only peer" />
+                                        <div className="w-10 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-highlight"></div>
+                                    </label>
+                                </div>
+                                <div className="p-4 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between">
+                                    <div>
+                                        <p className="text-[10px] font-bold text-slate-900 uppercase tracking-tight">Users</p>
+                                        <p className="text-[8px] font-semibold text-slate-400 mt-0.5 uppercase tracking-widest">Allow deletion of system users</p>
+                                    </div>
+                                    <label className="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" name="enableDeleteUsers" defaultChecked={settings.enableDeleteUsers} className="sr-only peer" />
                                         <div className="w-10 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-highlight"></div>
                                     </label>
                                 </div>

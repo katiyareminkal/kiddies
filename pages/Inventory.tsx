@@ -41,7 +41,7 @@ import { StockEntryModal } from '../components/forms/StockEntryModal';
 import LabelDesigner from '../components/forms/LabelDesigner';
 
 const Inventory: React.FC = () => {
-  const { products, addProduct, updateProduct, deleteProduct, suppliers } = useApp();
+  const { products, addProduct, updateProduct, deleteProduct, suppliers, settings } = useApp();
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
   const [isStockModalOpen, setIsStockModalOpen] = useState(false);
   const [viewLayout, setViewLayout] = useState<'GRID' | 'TABLE'>('GRID');
@@ -439,6 +439,20 @@ const Inventory: React.FC = () => {
                   >
                     <Tag size={10} strokeWidth={2.5} />
                   </button>
+                  {settings?.enableDeleteInventory && (
+                    <button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (window.confirm("Are you sure you want to permanently delete this product? This cannot be undone.")) {
+                          deleteProduct(product.id);
+                        }
+                      }}
+                      className="flex-1 py-1 bg-rose-50 hover:bg-rose-100 rounded-md text-rose-500 flex items-center justify-center transition-all h-6"
+                      title="Delete Product"
+                    >
+                      <Trash2 size={10} strokeWidth={2.5} />
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
@@ -554,6 +568,20 @@ const Inventory: React.FC = () => {
                         >
                           <Tag size={10} strokeWidth={2.5} />
                         </button>
+                        {settings?.enableDeleteInventory && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (window.confirm("Are you sure you want to permanently delete this product? This cannot be undone.")) {
+                                deleteProduct(product.id);
+                              }
+                            }}
+                            className="w-6 h-6 rounded-lg bg-rose-50 hover:bg-rose-100 flex items-center justify-center text-rose-500 transition-all"
+                            title="Delete Product"
+                          >
+                            <Trash2 size={10} strokeWidth={2.5} />
+                          </button>
+                        )}
                       </div>
                     </td>
                   </tr>

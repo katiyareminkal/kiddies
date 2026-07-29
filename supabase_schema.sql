@@ -212,7 +212,12 @@ CREATE TABLE public.settings (
   enable_low_stock_alerts BOOLEAN DEFAULT true,
   low_stock_threshold INTEGER DEFAULT 3,
   sales_invoice_prefix TEXT DEFAULT 'INV-',
-  rental_invoice_prefix TEXT DEFAULT 'RNT-'
+  rental_invoice_prefix TEXT DEFAULT 'RNT-',
+  enable_delete_inventory BOOLEAN DEFAULT false,
+  enable_delete_customers BOOLEAN DEFAULT false,
+  enable_delete_transactions BOOLEAN DEFAULT false,
+  enable_delete_suppliers BOOLEAN DEFAULT false,
+  enable_delete_users BOOLEAN DEFAULT false
 );
 
 ALTER TABLE public.settings ENABLE ROW LEVEL SECURITY;
@@ -311,3 +316,41 @@ WITH CHECK ( bucket_id = 'store-images' AND auth.role() = 'authenticated' );
 CREATE POLICY "Authenticated users can delete images"
 ON storage.objects FOR DELETE
 USING ( bucket_id = 'store-images' AND auth.role() = 'authenticated' );
+
+
+CREATE TABLE IF NOT EXISTS public.supplier_bills (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  supplier_id UUID REFERENCES public.suppliers(id) ON DELETE CASCADE,
+  bill_number TEXT NOT NULL,
+  date DATE NOT NULL,
+  total_amount NUMERIC NOT NULL DEFAULT 0,
+  paid_amount NUMERIC NOT NULL DEFAULT 0,
+  status TEXT NOT NULL DEFAULT 'UNPAID',
+  notes TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
+);
+
+ALTER TABLE public.supplier_bills ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Allow authenticated full access on supplier_bills" ON public.supplier_bills FOR ALL TO authenticated USING (true) WITH CHECK (true);
+
+
+CREATE TABLE IF NOT EXISTS public.supplier_bill_items (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  bill_id UUID REFERENCES public.supplier_bills(id) ON DELETE CASCADE,
+  item_name TEXT NOT NULL,
+  quantity INTEGER NOT NULL DEFAULT 1,
+  unit_price NUMERIC NOT NULL DEFAULT 0,
+  total NUMERIC NOT NULL DEFAULT 0,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
+);
+
+ALTER TABLE public.supplier_bill_items ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Allow authenticated full access on supplier_bill_items" ON public.supplier_bill_items FOR ALL TO authenticated USING (true) WITH CHECK (true);
+
+
+ALTER TABLE public.supplier_bills ADD COLUMN IF NOT EXISTS image_url TEXT;
+
+
+ALTER TABLE public.suppliers ADD COLUMN IF NOT EXISTS location TEXT, ADD COLUMN IF NOT EXISTS category TEXT;

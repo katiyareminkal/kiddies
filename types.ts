@@ -99,6 +99,32 @@ export interface Supplier {
   phone: string;
   email: string;
   address: string;
+  location?: string;
+  category?: string;
+  createdAt: string;
+}
+
+export interface SupplierBillItem {
+  id: string;
+  billId: string;
+  itemName: string;
+  quantity: number;
+  unitPrice: number;
+  total: number;
+  createdAt: string;
+}
+
+export interface SupplierBill {
+  id: string;
+  supplierId: string;
+  billNumber: string;
+  date: string;
+  items: SupplierBillItem[];
+  totalAmount: number;
+  paidAmount: number;
+  status: 'UNPAID' | 'PARTIAL' | 'PAID';
+  notes?: string;
+  imageUrl?: string;
   createdAt: string;
 }
 
@@ -179,7 +205,11 @@ export interface AppSettings {
   lowStockThreshold: number; // Default global threshold
   salesInvoicePrefix: string;
   rentalInvoicePrefix: string;
-  allowLedgerDeletions: boolean;
+  enableDeleteInventory: boolean;
+  enableDeleteCustomers: boolean;
+  enableDeleteTransactions: boolean;
+  enableDeleteSuppliers: boolean;
+  enableDeleteUsers: boolean;
 }
 
 export interface AppNotification {
@@ -220,6 +250,7 @@ export interface AppState {
   products: Product[];
   customers: Customer[];
   suppliers: Supplier[];
+  supplierBills: SupplierBill[];
   sales: Sale[];
   rentals: Rental[];
   stockLogs: StockLog[];
