@@ -142,7 +142,7 @@ const Inventory: React.FC = () => {
       const saved = localStorage.getItem('kiddies_label_template_50x30');
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (parsed && parsed.id === 'default_50x30_v2' && Array.isArray(parsed.elements)) {
+        if (parsed && parsed.id === 'default_50x30_v3' && Array.isArray(parsed.elements)) {
           template = parsed;
         }
       }

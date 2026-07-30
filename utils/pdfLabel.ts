@@ -61,8 +61,8 @@ export const DEFAULT_TEMPLATE_30x50: LabelTemplate = {
 };
 
 export const DEFAULT_TEMPLATE_50x30: LabelTemplate = {
-  id: 'default_50x30_v2',
-  name: 'Default 50x30 Designer',
+  id: 'default_50x30_v3',
+  name: 'Default 50x30 Designer v3',
   labelWidth: 50,
   labelHeight: 30,
   elements: [
@@ -71,13 +71,11 @@ export const DEFAULT_TEMPLATE_50x30: LabelTemplate = {
     { id: 'size_lbl', type: 'text', x: 9, y: 3.5, fontSize: 5, isBold: true, align: 'center', visible: true, staticText: 'SIZE' },
     { id: 'size_line_r', type: 'line', x: 12, y: 4, width: 4, height: 0.2, borderStyle: 'solid', visible: true },
     
-    // Large Size Value
-    { id: 'size', type: 'text', x: 9, y: 9.5, fontSize: 18, isBold: true, align: 'center', visible: true, staticText: '' },
+    // Size Box & Value
+    { id: 'size_box', type: 'rect', x: 2, y: 7, width: 14, height: 11, borderRadius: 1.5, borderStyle: 'solid', visible: true },
+    { id: 'size', type: 'text', x: 9, y: 11, fontSize: 16, isBold: true, align: 'center', visible: true, staticText: '' },
     
-    // Separator line below size
-    { id: 'div_left', type: 'line', x: 2, y: 17, width: 14, height: 0.2, borderStyle: 'solid', visible: true },
-    
-    // SubCategory Box
+    // SubCategory Box & Value
     { id: 'subcat_box', type: 'rect', x: 1.5, y: 20, width: 15, height: 7, borderRadius: 1, borderStyle: 'solid', visible: true },
     { id: 'subCategory', type: 'text', x: 9, y: 23.2, fontSize: 5, isBold: true, align: 'center', visible: true, staticText: '' },
 
@@ -128,11 +126,9 @@ export const generateDynamicLabelPDF = (products: LabelProduct | LabelProduct[],
         doc.setFontSize(el.fontSize || 6);
         doc.setTextColor(0, 0, 0);
 
-        let text = '';
-        if (el.id === 'storeName' || el.id.startsWith('custom_text')) {
-          text = el.staticText || '';
-        } else if (el.id === 'name') {
-          text = product.name.slice(0, 23).toUpperCase();
+        let text = el.staticText || '';
+        if (el.id === 'name') {
+          text = (el.staticText || '') + product.name.slice(0, 23).toUpperCase();
         } else if (el.id === 'size' && product.size) {
           text = (el.staticText || '') + product.size.toUpperCase();
         } else if (el.id === 'color' && product.color) {
@@ -148,7 +144,6 @@ export const generateDynamicLabelPDF = (products: LabelProduct | LabelProduct[],
         } else if (el.id === 'barcodeText') {
           text = (product.barcode || product.sku).toUpperCase();
         } else if (el.id === 'subCategory' && product.subCategory) {
-          // Truncate to fit in the small box
           text = (el.staticText || '') + product.subCategory.toUpperCase().slice(0, 10);
         }
 
