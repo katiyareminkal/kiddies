@@ -123,18 +123,25 @@ const Inventory: React.FC = () => {
   };
 
   const handleTagClick = (product: Product) => {
-    const productsToPrint = (product.sizes?.length ? product.sizes : ['FREE']).map(size => ({
-      name: product.name,
-      sku: product.sku,
-      barcode: product.barcode || '',
-      sellingPrice: product.sellingPrice,
-      purchasePrice: product.purchasePrice,
-      color: product.color || '',
-      size: size,
-      styleCode: '',
-      subCategory: product.subCategory || '',
-      labelSize: '50x30' as const
-    }));
+    const siblings = (product as any).variants && (product as any).variants.length > 0
+      ? (product as any).variants
+      : [product];
+
+    const productsToPrint = (product.sizes?.length ? product.sizes : ['FREE']).map(size => {
+      const variant = siblings.find((v: Product) => (v.sizes || [])[0]?.toUpperCase() === size.toUpperCase()) || product;
+      return {
+        name: variant.name,
+        sku: variant.sku,
+        barcode: variant.barcode || '',
+        sellingPrice: variant.sellingPrice,
+        purchasePrice: variant.purchasePrice,
+        color: variant.color || product.color || '',
+        size: size,
+        styleCode: '',
+        subCategory: variant.subCategory || product.subCategory || '',
+        labelSize: '50x30' as const
+      };
+    });
     
     // Get the active template or fallback to default
     let template = DEFAULT_TEMPLATE_50x30;

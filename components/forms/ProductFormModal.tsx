@@ -25,7 +25,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
   const [selectedSizes, setSelectedSizes] = useState<string[]>(productToEdit?.sizes || []);
   const [sizeInput, setSizeInput] = useState('');
   const [activeSizeCategory, setActiveSizeCategory] = useState<string>('AGE');
-  const [variantStocks, setVariantStocks] = useState<Record<string, { saleStock: number; rentalStock: number }>>({});
+  const [variantStocks, setVariantStocks] = useState<Record<string, { saleStock: number; rentalStock: number; color?: string }>>({});
 
   // Barcode Scanner State
   const [isScannerOpen, setIsScannerOpen] = useState(false);
@@ -190,7 +190,8 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
             }
             initialStocks[size] = {
               saleStock: sib.saleStock,
-              rentalStock: sib.rentalStock
+              rentalStock: sib.rentalStock,
+              color: sib.color || ''
             };
           });
         });
@@ -259,7 +260,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
       setSelectedSizes([...selectedSizes, trimmed]);
       setVariantStocks(prev => ({
         ...prev,
-        [trimmed]: { saleStock: 0, rentalStock: 0 }
+        [trimmed]: { saleStock: 0, rentalStock: 0, color: '' }
       }));
     }
     setSizeInput('');
@@ -436,8 +437,11 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
           return sibSize?.toUpperCase() === size.toUpperCase();
         });
 
+        const variantColor = (variantStocks[size]?.color || '').trim() || (formData.get('color') as string || '').trim();
+
         const variantData = {
           ...baseProductData,
+          color: variantColor,
           sku: variantSku,
           sizes: [size],
           saleStock: variantStocks[size]?.saleStock ?? 0,
@@ -915,7 +919,20 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
                 {selectedSizes.map(size => (
                   <div key={size} className="flex flex-col sm:flex-row sm:items-center gap-3 bg-slate-50 p-3 rounded-2xl border border-slate-100">
                     <span className="text-xs font-black uppercase tracking-widest text-slate-700 min-w-[60px]">{size}</span>
-                    <div className="flex-1 grid grid-cols-2 gap-3">
+                    <div className="flex-1 grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div className="space-y-1">
+                        <label className="text-[7px] font-black uppercase tracking-widest text-slate-400 ml-1">Color (Optional)</label>
+                        <input 
+                          type="text" 
+                          value={variantStocks[size]?.color ?? ''}
+                          onChange={(e) => setVariantStocks(prev => ({
+                            ...prev,
+                            [size]: { ...prev[size], color: e.target.value }
+                          }))}
+                          className="w-full px-3 py-2 bg-white border border-slate-150 focus:border-[#8B5CF6]/30 rounded-xl outline-none transition-all font-black text-slate-700 text-[10px]" 
+                          placeholder="Main Color" 
+                        />
+                      </div>
                       {(productPurpose === 'SALE' || productPurpose === 'HYBRID') && (
                         <div className="space-y-1">
                           <label className="text-[7px] font-black uppercase tracking-widest text-slate-400 ml-1">Sale Stock</label>
