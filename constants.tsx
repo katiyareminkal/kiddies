@@ -49,3 +49,16 @@ export const SUB_CATEGORIES: Record<string, string[]> = {
 };
 
 export const GENDERS = ['Boys', 'Girls', 'Unisex'];
+
+export const CLOTHING_TYPES = [
+  'Half (Short Sleeves/Shorts)',
+  'Full (Long Sleeves/Pants)',
+  'Sleeveless',
+  'Set - Half Top & Half Bottom',
+  'Set - Full Top & Full Bottom',
+  'Set - Half Top & Full Bottom',
+  'Set - Full Top & Half Bottom',
+  'Set - Sleeveless & Shorts',
+  'Set - Sleeveless & Pants',
+  'Other'
+];

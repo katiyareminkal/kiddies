@@ -62,6 +62,7 @@ export interface Product {
   category: string;
   subCategory?: string;
   gender?: string;
+  clothingType?: string;
   brand?: string;
   color?: string;
   material?: string;

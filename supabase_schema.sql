@@ -360,3 +360,6 @@ ALTER TABLE products ADD COLUMN sub_category TEXT;
 
 
 ALTER TABLE products ADD COLUMN gender TEXT;
+
+
+ALTER TABLE products ADD COLUMN clothing_type TEXT;

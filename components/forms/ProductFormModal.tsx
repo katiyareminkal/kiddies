@@ -4,7 +4,7 @@ import { Modal } from '../Shared';
 import { useApp } from '../../store/AppContext';
 import { Product } from '../../types';
 import BarcodeScanner from '../BarcodeScanner';
-import { CATEGORIES, SUB_CATEGORIES, GENDERS } from '../../constants';
+import { CATEGORIES, SUB_CATEGORIES, GENDERS, CLOTHING_TYPES } from '../../constants';
 import { generateDynamicLabelPDF } from '../../utils/pdfLabel';
 import LabelDesigner from './LabelDesigner';
 interface ProductFormModalProps {
@@ -694,6 +694,19 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
                 <option value="">-- Select Gender --</option>
                 {GENDERS.map(g => (
                   <option key={g} value={g}>{g}</option>
+                ))}
+              </select>
+            </div>
+            <div className="space-y-1.5 md:col-span-2">
+              <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Type (Half/Full/Set)</label>
+              <select 
+                name="clothingType" 
+                defaultValue={productToEdit?.clothingType || ''} 
+                className="w-full px-4 py-3 bg-slate-50 border-slate-100 border focus:bg-white focus:border-[#8B5CF6]/30 rounded-2xl outline-none transition-all font-black uppercase tracking-widest text-slate-700 text-[10px] appearance-none"
+              >
+                <option value="">-- Select Clothing Type --</option>
+                {CLOTHING_TYPES.map(t => (
+                  <option key={t} value={t}>{t}</option>
                 ))}
               </select>
             </div>
