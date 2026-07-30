@@ -4,7 +4,7 @@ import { Modal } from '../Shared';
 import { useApp } from '../../store/AppContext';
 import { Product } from '../../types';
 import BarcodeScanner from '../BarcodeScanner';
-import { CATEGORIES } from '../../constants';
+import { CATEGORIES, SUB_CATEGORIES } from '../../constants';
 import { generateDynamicLabelPDF } from '../../utils/pdfLabel';
 import LabelDesigner from './LabelDesigner';
 interface ProductFormModalProps {
@@ -39,6 +39,9 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
   const [previewImage, setPreviewImage] = useState<string | null>(productToEdit?.imageUrl || null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Category and SubCategory State
+  const [selectedCategory, setSelectedCategory] = useState<string>(productToEdit?.category || CATEGORIES[0] || '');
 
   // Label Printing State
   const [printLabelSize, setPrintLabelSize] = useState<'50x30' | '30x50'>('50x30');
@@ -141,6 +144,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
       setSelectedFile(null);
       setIsSaving(false);
       setSavingStatus('');
+      setSelectedCategory(productToEdit?.category || CATEGORIES[0] || '');
 
       // Initialize variant stocks and selected sizes from all siblings
       const initialStocks: Record<string, { saleStock: number; rentalStock: number }> = {};
@@ -202,10 +206,6 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
     
     // Explicit clean mapping for categories to standard 3-letter SKU prefixes
     const categoryPrefixes: Record<string, string> = {
-      'Infants (0-2Y)': 'INF',
-      'Toddlers (2-5Y)': 'TOD',
-      'Kids (5-10Y)': 'KID',
-      'Teens (10-15Y)': 'TEN',
       'Party Wear': 'PTY',
       'Casual Wear': 'CSL',
       'Ethnic & Traditional': 'ETH',
@@ -653,8 +653,35 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
             </div>
             <div className="space-y-1.5">
               <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Category</label>
-              <select name="category" defaultValue={productToEdit?.category} className="w-full px-4 py-3 bg-slate-50 border-slate-100 border focus:bg-white focus:border-[#8B5CF6]/30 rounded-2xl outline-none transition-all font-black uppercase tracking-widest text-slate-700 text-[10px] appearance-none">
+              <select 
+                name="category" 
+                id="category-select" 
+                value={selectedCategory} 
+                onChange={(e) => {
+                  setSelectedCategory(e.target.value);
+                  const subCatSelect = document.getElementById('subcategory-select') as HTMLSelectElement;
+                  if (subCatSelect) subCatSelect.value = '';
+                }} 
+                className="w-full px-4 py-3 bg-slate-50 border-slate-100 border focus:bg-white focus:border-[#8B5CF6]/30 rounded-2xl outline-none transition-all font-black uppercase tracking-widest text-slate-700 text-[10px] appearance-none"
+              >
                 {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+              </select>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Sub Category</label>
+              <select 
+                name="subCategory" 
+                id="subcategory-select" 
+                defaultValue={productToEdit?.subCategory || ''} 
+                className="w-full px-4 py-3 bg-slate-50 border-slate-100 border focus:bg-white focus:border-[#8B5CF6]/30 rounded-2xl outline-none transition-all font-black uppercase tracking-widest text-slate-700 text-[10px] appearance-none"
+              >
+                <option value="">-- Select Sub Category --</option>
+                {(SUB_CATEGORIES[selectedCategory] || []).map(sc => (
+                  <option key={sc} value={sc}>{sc}</option>
+                ))}
               </select>
             </div>
           </div>

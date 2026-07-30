@@ -354,3 +354,6 @@ ALTER TABLE public.supplier_bills ADD COLUMN IF NOT EXISTS image_url TEXT;
 
 
 ALTER TABLE public.suppliers ADD COLUMN IF NOT EXISTS location TEXT, ADD COLUMN IF NOT EXISTS category TEXT;
+
+
+ALTER TABLE products ADD COLUMN sub_category TEXT;

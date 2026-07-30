@@ -60,6 +60,7 @@ export interface Product {
   sku: string;
   barcode: string;
   category: string;
+  subCategory?: string;
   brand?: string;
   color?: string;
   material?: string;
