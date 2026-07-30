@@ -67,44 +67,44 @@ export const DEFAULT_TEMPLATE_50x30: LabelTemplate = {
   labelHeight: 30,
   elements: [
     // --- Left Section (Size & Category) ---
-    { id: 'size_line_l', type: 'line', x: 2, y: 4, width: 4, height: 0.3, borderStyle: 'solid', visible: true },
-    { id: 'size_lbl', type: 'text', x: 9, y: 5, fontSize: 5, isBold: true, align: 'center', visible: true, staticText: 'SIZE' },
-    { id: 'size_line_r', type: 'line', x: 12, y: 4, width: 4, height: 0.3, borderStyle: 'solid', visible: true },
+    { id: 'size_line_l', type: 'line', x: 2, y: 4, width: 4, height: 0.2, borderStyle: 'solid', visible: true },
+    { id: 'size_lbl', type: 'text', x: 9, y: 3.5, fontSize: 5, isBold: true, align: 'center', visible: true, staticText: 'SIZE' },
+    { id: 'size_line_r', type: 'line', x: 12, y: 4, width: 4, height: 0.2, borderStyle: 'solid', visible: true },
     
     // Large Size Value
-    { id: 'size', type: 'text', x: 9, y: 15, fontSize: 20, isBold: true, align: 'center', visible: true, staticText: '' },
+    { id: 'size', type: 'text', x: 9, y: 9.5, fontSize: 18, isBold: true, align: 'center', visible: true, staticText: '' },
     
     // Separator line below size
-    { id: 'div_left', type: 'line', x: 2, y: 18, width: 14, height: 0.3, borderStyle: 'solid', visible: true },
+    { id: 'div_left', type: 'line', x: 2, y: 17, width: 14, height: 0.2, borderStyle: 'solid', visible: true },
     
     // SubCategory Box
-    { id: 'subcat_box', type: 'rect', x: 1.5, y: 22, width: 15, height: 6, borderRadius: 1, borderStyle: 'solid', visible: true },
-    { id: 'subCategory', type: 'text', x: 9, y: 26, fontSize: 5, isBold: true, align: 'center', visible: true, staticText: '' },
+    { id: 'subcat_box', type: 'rect', x: 1.5, y: 20, width: 15, height: 7, borderRadius: 1, borderStyle: 'solid', visible: true },
+    { id: 'subCategory', type: 'text', x: 9, y: 23.2, fontSize: 5, isBold: true, align: 'center', visible: true, staticText: '' },
 
     // --- Vertical Divider ---
     { id: 'div_vert', type: 'line', x: 18, y: 2, width: 0, height: 26, borderStyle: 'dashed', visible: true },
 
     // --- Right Section ---
     // SKU
-    { id: 'sku', type: 'text', x: 34, y: 7, fontSize: 7, isBold: true, align: 'center', visible: true, staticText: 'SKU : ' },
+    { id: 'sku', type: 'text', x: 34, y: 4.5, fontSize: 7, isBold: true, align: 'center', visible: true, staticText: 'SKU : ' },
     
     // Horizontal Solid Divider
-    { id: 'div_r1', type: 'line', x: 20, y: 11, width: 28, height: 0.3, borderStyle: 'solid', visible: true },
+    { id: 'div_r1', type: 'line', x: 20, y: 9.5, width: 28, height: 0.2, borderStyle: 'solid', visible: true },
     
     // Code
-    { id: 'code', type: 'text', x: 34, y: 16, fontSize: 7, isBold: true, align: 'center', visible: true, staticText: 'CODE : ' },
+    { id: 'code', type: 'text', x: 34, y: 12.5, fontSize: 7, isBold: true, align: 'center', visible: true, staticText: 'CODE : ' },
     
     // Horizontal Dashed Divider
-    { id: 'div_r2', type: 'line', x: 20, y: 20, width: 28, height: 0.3, borderStyle: 'dashed', visible: true },
+    { id: 'div_r2', type: 'line', x: 20, y: 17.5, width: 28, height: 0.2, borderStyle: 'dashed', visible: true },
 
     // Price Box
-    { id: 'price_box', type: 'rect', x: 20, y: 22, width: 28, height: 7, borderRadius: 1.5, borderStyle: 'solid', visible: true },
+    { id: 'price_box', type: 'rect', x: 20, y: 20, width: 28, height: 8, borderRadius: 1.5, borderStyle: 'solid', visible: true },
     // Rs Text
-    { id: 'rs_lbl', type: 'text', x: 21.5, y: 26.5, fontSize: 7, isBold: true, align: 'left', visible: true, staticText: 'Rs.' },
+    { id: 'rs_lbl', type: 'text', x: 21.5, y: 23.5, fontSize: 7, isBold: true, align: 'left', visible: true, staticText: 'Rs.' },
     // Vertical Divider inside price box
-    { id: 'div_price', type: 'line', x: 26.5, y: 22, width: 0, height: 7, borderStyle: 'solid', visible: true },
+    { id: 'div_price', type: 'line', x: 26.5, y: 20, width: 0, height: 8, borderStyle: 'solid', visible: true },
     // Price Value
-    { id: 'price', type: 'text', x: 37, y: 27, fontSize: 13, isBold: true, align: 'center', visible: true, staticText: '' }
+    { id: 'price', type: 'text', x: 37, y: 22.5, fontSize: 12, isBold: true, align: 'center', visible: true, staticText: '' }
   ]
 };
 
