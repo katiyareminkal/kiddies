@@ -4,7 +4,7 @@ import { Modal } from '../Shared';
 import { useApp } from '../../store/AppContext';
 import { Product } from '../../types';
 import BarcodeScanner from '../BarcodeScanner';
-import { CATEGORIES, SUB_CATEGORIES } from '../../constants';
+import { CATEGORIES, SUB_CATEGORIES, GENDERS } from '../../constants';
 import { generateDynamicLabelPDF } from '../../utils/pdfLabel';
 import LabelDesigner from './LabelDesigner';
 interface ProductFormModalProps {
@@ -681,6 +681,19 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
                 <option value="">-- Select Sub Category --</option>
                 {(SUB_CATEGORIES[selectedCategory] || []).map(sc => (
                   <option key={sc} value={sc}>{sc}</option>
+                ))}
+              </select>
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Gender</label>
+              <select 
+                name="gender" 
+                defaultValue={productToEdit?.gender || ''} 
+                className="w-full px-4 py-3 bg-slate-50 border-slate-100 border focus:bg-white focus:border-[#8B5CF6]/30 rounded-2xl outline-none transition-all font-black uppercase tracking-widest text-slate-700 text-[10px] appearance-none"
+              >
+                <option value="">-- Select Gender --</option>
+                {GENDERS.map(g => (
+                  <option key={g} value={g}>{g}</option>
                 ))}
               </select>
             </div>

@@ -61,6 +61,7 @@ export interface Product {
   barcode: string;
   category: string;
   subCategory?: string;
+  gender?: string;
   brand?: string;
   color?: string;
   material?: string;

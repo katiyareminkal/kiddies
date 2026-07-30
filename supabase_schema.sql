@@ -357,3 +357,6 @@ ALTER TABLE public.suppliers ADD COLUMN IF NOT EXISTS location TEXT, ADD COLUMN 
 
 
 ALTER TABLE products ADD COLUMN sub_category TEXT;
+
+
+ALTER TABLE products ADD COLUMN gender TEXT;

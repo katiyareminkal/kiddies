@@ -47,3 +47,5 @@ export const SUB_CATEGORIES: Record<string, string[]> = {
   'Footwear': ['Sneakers', 'Sandals', 'Boots', 'Formal Shoes', 'Slippers'],
   'Accessories': ['Caps & Hats', 'Socks', 'Ties & Bowties', 'Hair Accessories', 'Belts']
 };
+
+export const GENDERS = ['Boys', 'Girls', 'Unisex'];
