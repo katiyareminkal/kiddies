@@ -40,8 +40,9 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Category and SubCategory State
+  // Category, Gender and SubCategory State
   const [selectedCategory, setSelectedCategory] = useState<string>(productToEdit?.category || CATEGORIES[0] || '');
+  const [selectedGender, setSelectedGender] = useState<string>(productToEdit?.gender || GENDERS[0] || '');
 
   // Label Printing State
   const [printLabelSize, setPrintLabelSize] = useState<'50x30' | '30x50'>('50x30');
@@ -145,6 +146,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
       setIsSaving(false);
       setSavingStatus('');
       setSelectedCategory(productToEdit?.category || CATEGORIES[0] || '');
+      setSelectedGender(productToEdit?.gender || GENDERS[0] || '');
 
       // Initialize variant stocks and selected sizes from all siblings
       const initialStocks: Record<string, { saleStock: number; rentalStock: number }> = {};
@@ -671,6 +673,24 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1.5">
+              <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Gender</label>
+              <select 
+                name="gender" 
+                value={selectedGender} 
+                onChange={(e) => {
+                  setSelectedGender(e.target.value);
+                  const subCatSelect = document.getElementById('subcategory-select') as HTMLSelectElement;
+                  if (subCatSelect) subCatSelect.value = '';
+                }}
+                className="w-full px-4 py-3 bg-slate-50 border-slate-100 border focus:bg-white focus:border-[#8B5CF6]/30 rounded-2xl outline-none transition-all font-black uppercase tracking-widest text-slate-700 text-[10px] appearance-none"
+              >
+                <option value="">-- Select Gender --</option>
+                {GENDERS.map(g => (
+                  <option key={g} value={g}>{g}</option>
+                ))}
+              </select>
+            </div>
+            <div className="space-y-1.5">
               <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Sub Category</label>
               <select 
                 name="subCategory" 
@@ -679,21 +699,8 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
                 className="w-full px-4 py-3 bg-slate-50 border-slate-100 border focus:bg-white focus:border-[#8B5CF6]/30 rounded-2xl outline-none transition-all font-black uppercase tracking-widest text-slate-700 text-[10px] appearance-none"
               >
                 <option value="">-- Select Sub Category --</option>
-                {(SUB_CATEGORIES[selectedCategory] || []).map(sc => (
+                {((SUB_CATEGORIES[selectedCategory] || {})[selectedGender] || []).map(sc => (
                   <option key={sc} value={sc}>{sc}</option>
-                ))}
-              </select>
-            </div>
-            <div className="space-y-1.5">
-              <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Gender</label>
-              <select 
-                name="gender" 
-                defaultValue={productToEdit?.gender || ''} 
-                className="w-full px-4 py-3 bg-slate-50 border-slate-100 border focus:bg-white focus:border-[#8B5CF6]/30 rounded-2xl outline-none transition-all font-black uppercase tracking-widest text-slate-700 text-[10px] appearance-none"
-              >
-                <option value="">-- Select Gender --</option>
-                {GENDERS.map(g => (
-                  <option key={g} value={g}>{g}</option>
                 ))}
               </select>
             </div>
