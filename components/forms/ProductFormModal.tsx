@@ -4,7 +4,7 @@ import { Modal } from '../Shared';
 import { useApp } from '../../store/AppContext';
 import { Product } from '../../types';
 import BarcodeScanner from '../BarcodeScanner';
-import { CATEGORIES, SUB_CATEGORIES, GENDERS, CLOTHING_TYPES } from '../../constants';
+import { CATEGORIES, SUB_CATEGORIES_BY_GENDER_AND_CATEGORY, GENDERS, CLOTHING_TYPES, CATEGORIES_BY_GENDER } from '../../constants';
 import { generateDynamicLabelPDF } from '../../utils/pdfLabel';
 import LabelDesigner from './LabelDesigner';
 interface ProductFormModalProps {
@@ -41,8 +41,9 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Category, Gender and SubCategory State
-  const [selectedCategory, setSelectedCategory] = useState<string>(productToEdit?.category || CATEGORIES[0] || '');
-  const [selectedGender, setSelectedGender] = useState<string>(productToEdit?.gender || GENDERS[0] || '');
+  const initialGender = productToEdit?.gender || GENDERS[0] || '';
+  const [selectedGender, setSelectedGender] = useState<string>(initialGender);
+  const [selectedCategory, setSelectedCategory] = useState<string>(productToEdit?.category || (CATEGORIES_BY_GENDER[initialGender] || [])[0] || '');
 
   // Label Printing State
   const [printLabelSize, setPrintLabelSize] = useState<'50x30' | '30x50'>('50x30');
@@ -145,8 +146,9 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
       setSelectedFile(null);
       setIsSaving(false);
       setSavingStatus('');
-      setSelectedCategory(productToEdit?.category || CATEGORIES[0] || '');
-      setSelectedGender(productToEdit?.gender || GENDERS[0] || '');
+      const resetGender = productToEdit?.gender || GENDERS[0] || '';
+      setSelectedGender(resetGender);
+      setSelectedCategory(productToEdit?.category || (CATEGORIES_BY_GENDER[resetGender] || [])[0] || '');
 
       // Initialize variant stocks and selected sizes from all siblings
       const initialStocks: Record<string, { saleStock: number; rentalStock: number }> = {};
@@ -654,6 +656,30 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
               <input name="name" defaultValue={productToEdit?.name} required className="w-full px-4 py-3 bg-slate-50 border-slate-100 border focus:bg-white focus:border-[#8B5CF6]/30 rounded-2xl outline-none transition-all font-black uppercase tracking-widest text-slate-700 text-[10px]" placeholder="e.g. Designer Suit" />
             </div>
             <div className="space-y-1.5">
+              <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Gender</label>
+              <select 
+                name="gender" 
+                value={selectedGender} 
+                onChange={(e) => {
+                  const newGender = e.target.value;
+                  setSelectedGender(newGender);
+                  const firstCat = (CATEGORIES_BY_GENDER[newGender] || [])[0] || '';
+                  setSelectedCategory(firstCat);
+                  const subCatSelect = document.getElementById('subcategory-select') as HTMLSelectElement;
+                  if (subCatSelect) subCatSelect.value = '';
+                }}
+                className="w-full px-4 py-3 bg-slate-50 border-slate-100 border focus:bg-white focus:border-[#8B5CF6]/30 rounded-2xl outline-none transition-all font-black uppercase tracking-widest text-slate-700 text-[10px] appearance-none"
+              >
+                <option value="">-- Select Gender --</option>
+                {GENDERS.map(g => (
+                  <option key={g} value={g}>{g}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-1.5">
               <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Category</label>
               <select 
                 name="category" 
@@ -666,28 +692,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
                 }} 
                 className="w-full px-4 py-3 bg-slate-50 border-slate-100 border focus:bg-white focus:border-[#8B5CF6]/30 rounded-2xl outline-none transition-all font-black uppercase tracking-widest text-slate-700 text-[10px] appearance-none"
               >
-                {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
-              </select>
-            </div>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Gender</label>
-              <select 
-                name="gender" 
-                value={selectedGender} 
-                onChange={(e) => {
-                  setSelectedGender(e.target.value);
-                  const subCatSelect = document.getElementById('subcategory-select') as HTMLSelectElement;
-                  if (subCatSelect) subCatSelect.value = '';
-                }}
-                className="w-full px-4 py-3 bg-slate-50 border-slate-100 border focus:bg-white focus:border-[#8B5CF6]/30 rounded-2xl outline-none transition-all font-black uppercase tracking-widest text-slate-700 text-[10px] appearance-none"
-              >
-                <option value="">-- Select Gender --</option>
-                {GENDERS.map(g => (
-                  <option key={g} value={g}>{g}</option>
-                ))}
+                {(CATEGORIES_BY_GENDER[selectedGender] || []).map(c => <option key={c} value={c}>{c}</option>)}
               </select>
             </div>
             <div className="space-y-1.5">
@@ -699,7 +704,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
                 className="w-full px-4 py-3 bg-slate-50 border-slate-100 border focus:bg-white focus:border-[#8B5CF6]/30 rounded-2xl outline-none transition-all font-black uppercase tracking-widest text-slate-700 text-[10px] appearance-none"
               >
                 <option value="">-- Select Sub Category --</option>
-                {((SUB_CATEGORIES[selectedCategory] || {})[selectedGender] || []).map(sc => (
+                {((SUB_CATEGORIES_BY_GENDER_AND_CATEGORY[selectedGender] || {})[selectedCategory] || []).map(sc => (
                   <option key={sc} value={sc}>{sc}</option>
                 ))}
               </select>

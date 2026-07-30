@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { 
   LayoutDashboard, 
@@ -24,67 +23,74 @@ export const NAVIGATION_ITEMS = [
   { label: 'Settings', icon: <Settings size={20} />, id: 'settings' },
 ];
 
-export const CATEGORIES = [
-  'Party Wear',
-  'Casual Wear',
-  'Ethnic & Traditional',
-  'Costumes & Fancy Dress',
-  'Outerwear & Sweaters',
-  'Sleepwear',
-  'Innerwear',
-  'Footwear',
-  'Accessories'
+export const GENDERS = [
+  'Boys',
+  'Girls',
+  'Baby Boys (0–2 Years)',
+  'Baby Girls (0–2 Years)',
+  'Unisex'
 ];
 
-export const SUB_CATEGORIES: Record<string, Record<string, string[]>> = {
-  'Party Wear': {
-    'Boys': ['Suits', 'Tuxedos', 'Blazers', 'Waistcoats', 'Party Sets', 'Other'],
-    'Girls': ['Gowns', 'Party Dresses', 'Sequined Dresses', 'Tulle Skirts', 'Party Sets', 'Other'],
-    'Unisex': ['Party Sets', 'Other']
+export const CATEGORIES_BY_GENDER: Record<string, string[]> = {
+  'Boys': [
+    'Top Wear', 'Bottom Wear', 'Co-ord Sets', 'Ethnic Wear', 'Party Wear', 'Night Wear', 'Winter Wear', 'Sports Wear', 'Swimwear'
+  ],
+  'Girls': [
+    'Top Wear', 'Bottom Wear', 'Dresses', 'Co-ord Sets', 'Ethnic Wear', 'Party Wear', 'Night Wear', 'Winter Wear', 'Sports Wear', 'Swimwear'
+  ],
+  'Baby Boys (0–2 Years)': [
+    'Clothing', 'Accessories'
+  ],
+  'Baby Girls (0–2 Years)': [
+    'Clothing', 'Accessories'
+  ],
+  'Unisex': [
+    'Clothing', 'Accessories'
+  ]
+};
+
+export const CATEGORIES = Array.from(new Set(Object.values(CATEGORIES_BY_GENDER).flat()));
+
+export const SUB_CATEGORIES_BY_GENDER_AND_CATEGORY: Record<string, Record<string, string[]>> = {
+  'Boys': {
+    'Top Wear': ['T-Shirts', 'Polo T-Shirts', 'Casual Shirts', 'Formal Shirts', 'Denim Shirts', 'Kurtas', 'Hoodies', 'Sweatshirts', 'Jackets', 'Blazers', 'Waistcoats'],
+    'Bottom Wear': ['Jeans', 'Trousers', 'Joggers', 'Track Pants', 'Cargo Pants', 'Shorts', 'Capris'],
+    'Co-ord Sets': ['Casual', 'Party', 'Cotton', 'Winter'],
+    'Ethnic Wear': ['Kurta Pajama', 'Kurta Dhoti', 'Sherwani', 'Pathani Suit', 'Nehru Jacket Set'],
+    'Party Wear': ['Suit', 'Blazer Set', 'Tuxedo', 'Party Shirt'],
+    'Night Wear': ['Night Suit', 'Pajama Set', 'Sleepsuit'],
+    'Winter Wear': ['Sweaters', 'Cardigans', 'Hoodies', 'Jackets', 'Thermals'],
+    'Sports Wear': ['Sports T-Shirts', 'Jerseys', 'Shorts', 'Tracksuits'],
+    'Swimwear': ['Swim Shorts', 'Swim Sets']
   },
-  'Casual Wear': {
-    'Boys': ['Co-ord Sets', 'T-Shirts', 'Jeans', 'Shorts', 'Joggers', 'Sweatpants', 'Overalls / Dungarees', 'Other'],
-    'Girls': ['Co-ord Sets', 'T-Shirts', 'Jeans', 'Shorts', 'Tops', 'Leggings', 'Dresses', 'Jumpsuits', 'Rompers', 'Skirts', 'Tunics', 'Joggers', 'Sweatpants', 'Other'],
-    'Unisex': ['Co-ord Sets', 'T-Shirts', 'Jeans', 'Shorts', 'Joggers', 'Sweatpants', 'Rompers', 'Overalls / Dungarees', 'Other']
+  'Girls': {
+    'Top Wear': ['Tops', 'T-Shirts', 'Shirts', 'Tunics', 'Crop Tops', 'Kurtis', 'Hoodies', 'Sweatshirts', 'Jackets'],
+    'Bottom Wear': ['Jeans', 'Leggings', 'Jeggings', 'Shorts', 'Skirts', 'Palazzos', 'Trousers', 'Capris'],
+    'Dresses': ['Casual Dress', 'Party Dress', 'Frock', 'Maxi Dress', 'Gown', 'Denim Dress'],
+    'Co-ord Sets': ['Casual', 'Party', 'Cotton', 'Winter'],
+    'Ethnic Wear': ['Lehenga Choli', 'Sharara Set', 'Kurti Set', 'Anarkali', 'Gown', 'Dhoti Set'],
+    'Party Wear': ['Party Dress', 'Party Frock', 'Designer Gown'],
+    'Night Wear': ['Night Suit', 'Night Dress', 'Pajama Set'],
+    'Winter Wear': ['Sweaters', 'Cardigans', 'Hoodies', 'Jackets', 'Thermals'],
+    'Sports Wear': ['Sports T-Shirts', 'Leggings', 'Tracksuits', 'Activewear'],
+    'Swimwear': ['Swimsuit', 'Swim Set']
   },
-  'Ethnic & Traditional': {
-    'Boys': ['Kurta Sets', 'Sherwanis', 'Dhotis', 'Nehru Jackets', 'Other'],
-    'Girls': ['Lehengas', 'Sarees', 'Salwar Kameez', 'Anarkalis', 'Palazzo Sets', 'Kurta Sets', 'Other'],
-    'Unisex': ['Kurta Sets', 'Other']
+  'Baby Boys (0–2 Years)': {
+    'Clothing': ['Rompers', 'Onesies', 'Bodysuits', 'Sleepsuits', 'Jumpsuits', 'Dungarees', 'T-Shirt & Shorts Set', 'Shirt & Pant Set', 'Kurta Set', 'Winter Set'],
+    'Accessories': ['Caps', 'Bibs', 'Mittens', 'Socks', 'Booties']
   },
-  'Costumes & Fancy Dress': {
-    'Boys': ['Superheroes', 'Animals', 'Professions', 'Historical', 'Cartoon Characters', 'Other'],
-    'Girls': ['Superheroes', 'Animals', 'Professions', 'Fairy Tales', 'Historical', 'Cartoon Characters', 'Other'],
-    'Unisex': ['Animals', 'Professions', 'Historical', 'Cartoon Characters', 'Other']
+  'Baby Girls (0–2 Years)': {
+    'Clothing': ['Rompers', 'Onesies', 'Bodysuits', 'Sleepsuits', 'Jumpsuits', 'Dungarees', 'Frocks', 'Dress Sets', 'Skirt Sets', 'Kurti Sets', 'Winter Set'],
+    'Accessories': ['Headbands', 'Hair Clips', 'Caps', 'Bibs', 'Socks', 'Booties']
   },
-  'Outerwear & Sweaters': {
-    'Boys': ['Jackets', 'Coats', 'Sweaters', 'Cardigans', 'Hoodies', 'Windbreakers', 'Raincoats', 'Vests', 'Pullovers', 'Thermals', 'Other'],
-    'Girls': ['Jackets', 'Coats', 'Sweaters', 'Cardigans', 'Hoodies', 'Windbreakers', 'Raincoats', 'Vests', 'Pullovers', 'Thermals', 'Other'],
-    'Unisex': ['Jackets', 'Coats', 'Sweaters', 'Cardigans', 'Hoodies', 'Windbreakers', 'Raincoats', 'Vests', 'Pullovers', 'Thermals', 'Other']
-  },
-  'Sleepwear': {
-    'Boys': ['Pajama Sets', 'Rompers', 'Onesies', 'Robes', 'Other'],
-    'Girls': ['Pajama Sets', 'Nightgowns', 'Rompers', 'Onesies', 'Sleep Shirts', 'Robes', 'Other'],
-    'Unisex': ['Pajama Sets', 'Rompers', 'Onesies', 'Robes', 'Other']
-  },
-  'Innerwear': {
-    'Boys': ['Briefs', 'Vests', 'Trunks', 'Thermal Underwear', 'Other'],
-    'Girls': ['Bloomers', 'Camisoles', 'Panties', 'Thermal Underwear', 'Other'],
-    'Unisex': ['Vests', 'Thermal Underwear', 'Other']
-  },
-  'Footwear': {
-    'Boys': ['Sneakers', 'Sandals', 'Boots', 'Formal Shoes', 'Slippers', 'Flip Flops', 'Loafers', 'Water Shoes', 'Other'],
-    'Girls': ['Sneakers', 'Sandals', 'Boots', 'Formal Shoes', 'Slippers', 'Flip Flops', 'Mary Janes', 'Loafers', 'Water Shoes', 'Other'],
-    'Unisex': ['Sneakers', 'Sandals', 'Boots', 'Slippers', 'Flip Flops', 'Water Shoes', 'Other']
-  },
-  'Accessories': {
-    'Boys': ['Caps & Hats', 'Socks', 'Ties & Bowties', 'Belts', 'Mittens & Gloves', 'Scarves', 'Sunglasses', 'Suspenders', 'Bags & Backpacks', 'Other'],
-    'Girls': ['Caps & Hats', 'Socks', 'Hair Accessories', 'Belts', 'Mittens & Gloves', 'Scarves', 'Sunglasses', 'Bags & Backpacks', 'Other'],
-    'Unisex': ['Caps & Hats', 'Socks', 'Belts', 'Mittens & Gloves', 'Scarves', 'Sunglasses', 'Bags & Backpacks', 'Other']
+  'Unisex': {
+    'Clothing': ['T-Shirts', 'Co-ord Sets', 'Hoodies', 'Sweatshirts', 'Jackets', 'Thermals', 'Night Suits', 'Raincoats'],
+    'Accessories': ['Caps', 'Hats', 'Socks', 'Gloves', 'Belts', 'Sunglasses', 'Scarves']
   }
 };
 
-export const GENDERS = ['Boys', 'Girls', 'Unisex'];
+// Deprecated: kept for backwards compatibility if needed, but should use SUB_CATEGORIES_BY_GENDER_AND_CATEGORY
+export const SUB_CATEGORIES: Record<string, string[]> = {};
 
 export const CLOTHING_TYPES = [
   'Half (Short Sleeves/Shorts)',
