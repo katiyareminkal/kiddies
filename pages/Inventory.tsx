@@ -123,12 +123,31 @@ const Inventory: React.FC = () => {
   };
 
   const handleTagClick = (product: Product) => {
-    if ((product.sizes || []).length <= 1) {
-      const sizeVal = (product.sizes || [])[0] || 'FREE';
-      triggerDownloadForSize(product, sizeVal);
-    } else {
-      setSizeSelectorProduct(product);
-    }
+    const productsToPrint = (product.sizes?.length ? product.sizes : ['FREE']).map(size => ({
+      name: product.name,
+      sku: product.sku,
+      barcode: product.barcode || '',
+      sellingPrice: product.sellingPrice,
+      purchasePrice: product.purchasePrice,
+      color: product.color || '',
+      size: size,
+      styleCode: '',
+      labelSize: '50x30' as const
+    }));
+    
+    // Get the active template or fallback to default
+    let template = DEFAULT_TEMPLATE_50x30;
+    try {
+      const saved = localStorage.getItem('kiddies_label_template_50x30');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed && Array.isArray(parsed.elements)) {
+          template = parsed;
+        }
+      }
+    } catch(e) {}
+
+    generateDynamicLabelPDF(productsToPrint, template);
   };
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -859,7 +878,7 @@ const Inventory: React.FC = () => {
               </button>
               <button 
                 onClick={() => {
-                  handleQuickPrint(viewProductDetails);
+                  handleTagClick(viewProductDetails);
                   setViewProductDetails(null);
                 }}
                 className="flex-1 h-12 border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-2xl font-black uppercase tracking-widest text-[9px] flex items-center justify-center gap-1.5 transition-all"
