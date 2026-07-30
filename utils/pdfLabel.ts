@@ -75,9 +75,9 @@ export const DEFAULT_TEMPLATE_50x30: LabelTemplate = {
     { id: 'size_box', type: 'rect', x: 2, y: 7, width: 14, height: 11, borderRadius: 1.5, borderStyle: 'solid', visible: true },
     { id: 'size', type: 'text', x: 9, y: 11, fontSize: 16, isBold: true, align: 'center', visible: true, staticText: '' },
     
-    // SubCategory Box & Value
-    { id: 'subcat_box', type: 'rect', x: 1.5, y: 20, width: 15, height: 7, borderRadius: 1, borderStyle: 'solid', visible: true },
-    { id: 'subCategory', type: 'text', x: 9, y: 23.2, fontSize: 5, isBold: true, align: 'center', visible: true, staticText: '' },
+    // Color Box & Value
+    { id: 'color_box', type: 'rect', x: 1.5, y: 20, width: 15, height: 7, borderRadius: 1, borderStyle: 'solid', visible: true },
+    { id: 'color', type: 'text', x: 9, y: 23.2, fontSize: 5, isBold: true, align: 'center', visible: true, staticText: '' },
 
     // --- Vertical Divider ---
     { id: 'div_vert', type: 'line', x: 18, y: 2, width: 0, height: 26, borderStyle: 'dashed', visible: true },
@@ -132,7 +132,7 @@ export const generateDynamicLabelPDF = (products: LabelProduct | LabelProduct[],
         } else if (el.id === 'size' && product.size) {
           text = (el.staticText || '') + product.size.toUpperCase();
         } else if (el.id === 'color' && product.color) {
-          text = (el.staticText || '') + product.color.toUpperCase();
+          text = (el.staticText || '') + product.color.toUpperCase().slice(0, 10);
         } else if (el.id === 'style' && product.styleCode) {
           text = (el.staticText || '') + product.styleCode.toUpperCase();
         } else if (el.id === 'price') {
