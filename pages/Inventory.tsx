@@ -743,12 +743,32 @@ const Inventory: React.FC = () => {
                   <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-widest">Base SKU: {viewProductDetails.sku}</p>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4 border-t border-slate-50 pt-3">
+                <div className="grid grid-cols-2 gap-y-3 gap-x-4 border-t border-slate-50 pt-3">
+                  <div>
+                    <span className="text-[7px] font-black text-slate-400 uppercase tracking-widest block mb-0.5">Gender</span>
+                    <span className="text-[10px] font-black text-slate-700 uppercase tracking-widest">{viewProductDetails.gender || 'N/A'}</span>
+                  </div>
+                  <div>
+                    <span className="text-[7px] font-black text-slate-400 uppercase tracking-widest block mb-0.5">Sub Category</span>
+                    <span className="text-[10px] font-black text-slate-700 uppercase tracking-widest">{viewProductDetails.subCategory || 'N/A'}</span>
+                  </div>
+                  <div>
+                    <span className="text-[7px] font-black text-slate-400 uppercase tracking-widest block mb-0.5">Type</span>
+                    <span className="text-[10px] font-black text-slate-700 uppercase tracking-widest">{viewProductDetails.clothingType || 'N/A'}</span>
+                  </div>
                   <div>
                     <span className="text-[7px] font-black text-slate-400 uppercase tracking-widest block mb-0.5">Brand</span>
                     <span className="text-[10px] font-black text-slate-700 uppercase tracking-widest">{viewProductDetails.brand || 'N/A'}</span>
                   </div>
                   <div>
+                    <span className="text-[7px] font-black text-slate-400 uppercase tracking-widest block mb-0.5">Color</span>
+                    <span className="text-[10px] font-black text-slate-700 uppercase tracking-widest">{viewProductDetails.color || 'N/A'}</span>
+                  </div>
+                  <div>
+                    <span className="text-[7px] font-black text-slate-400 uppercase tracking-widest block mb-0.5">Material</span>
+                    <span className="text-[10px] font-black text-slate-700 uppercase tracking-widest">{viewProductDetails.material || 'N/A'}</span>
+                  </div>
+                  <div className="col-span-2">
                     <span className="text-[7px] font-black text-slate-400 uppercase tracking-widest block mb-0.5">Supplier</span>
                     <span className="text-[10px] font-black text-slate-700 uppercase tracking-widest text-ellipsis overflow-hidden whitespace-nowrap block">
                       {suppliers.find(s => s.id === viewProductDetails.supplierId)?.name || 'N/A'}
