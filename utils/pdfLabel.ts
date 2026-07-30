@@ -61,8 +61,8 @@ export const DEFAULT_TEMPLATE_30x50: LabelTemplate = {
 };
 
 export const DEFAULT_TEMPLATE_50x30: LabelTemplate = {
-  id: 'default_50x30_v3',
-  name: 'Default 50x30 Designer v3',
+  id: 'default_50x30_v4',
+  name: 'Default 50x30 Designer v4',
   labelWidth: 50,
   labelHeight: 30,
   elements: [
@@ -77,7 +77,7 @@ export const DEFAULT_TEMPLATE_50x30: LabelTemplate = {
     
     // Color Box & Value
     { id: 'color_box', type: 'rect', x: 1.5, y: 20, width: 15, height: 7, borderRadius: 1, borderStyle: 'solid', visible: true },
-    { id: 'color', type: 'text', x: 9, y: 23.2, fontSize: 5, isBold: true, align: 'center', visible: true, staticText: '' },
+    { id: 'color', type: 'text', x: 9, y: 22.8, fontSize: 7, isBold: true, align: 'center', visible: true, staticText: '' },
 
     // --- Vertical Divider ---
     { id: 'div_vert', type: 'line', x: 18, y: 2, width: 0, height: 26, borderStyle: 'dashed', visible: true },
@@ -98,11 +98,11 @@ export const DEFAULT_TEMPLATE_50x30: LabelTemplate = {
     // Price Box
     { id: 'price_box', type: 'rect', x: 20, y: 20, width: 28, height: 8, borderRadius: 1.5, borderStyle: 'solid', visible: true },
     // Rs Text
-    { id: 'rs_lbl', type: 'text', x: 21.5, y: 23.5, fontSize: 7, isBold: true, align: 'left', visible: true, staticText: 'Rs.' },
+    { id: 'rs_lbl', type: 'text', x: 21.2, y: 23.0, fontSize: 9, isBold: true, align: 'left', visible: true, staticText: 'Rs.' },
     // Vertical Divider inside price box
-    { id: 'div_price', type: 'line', x: 26.5, y: 20, width: 0, height: 8, borderStyle: 'solid', visible: true },
+    { id: 'div_price', type: 'line', x: 27.5, y: 20, width: 0, height: 8, borderStyle: 'solid', visible: true },
     // Price Value
-    { id: 'price', type: 'text', x: 37, y: 22.5, fontSize: 12, isBold: true, align: 'center', visible: true, staticText: '' }
+    { id: 'price', type: 'text', x: 38.5, y: 22.5, fontSize: 12, isBold: true, align: 'center', visible: true, staticText: '' }
   ]
 };
 
