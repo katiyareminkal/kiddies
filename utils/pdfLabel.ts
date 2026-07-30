@@ -10,6 +10,7 @@ export interface LabelProduct {
   size?: string;
   color?: string;
   styleCode?: string;
+  subCategory?: string;
   labelSize?: '50x30' | '30x50';
 }
 
@@ -60,18 +61,50 @@ export const DEFAULT_TEMPLATE_30x50: LabelTemplate = {
 };
 
 export const DEFAULT_TEMPLATE_50x30: LabelTemplate = {
-  id: 'default_50x30',
-  name: 'Default 50x30 Landscape',
+  id: 'default_50x30_v2',
+  name: 'Default 50x30 Designer',
   labelWidth: 50,
   labelHeight: 30,
   elements: [
-    { id: 'storeName', type: 'text', x: 25, y: 4.5, fontSize: 8, isBold: true, align: 'center', visible: true, staticText: 'KIDDIES' },
-    { id: 'name', type: 'text', x: 25, y: 8, fontSize: 6, isBold: false, align: 'center', visible: true },
-    { id: 'barcode', type: 'barcode', x: 25, y: 10.5, width: 0.18, height: 7, visible: true },
-    { id: 'barcodeText', type: 'text', x: 25, y: 19.5, fontSize: 5, isBold: false, align: 'center', visible: true },
-    { id: 'size', type: 'text', x: 4, y: 24, fontSize: 7, isBold: true, align: 'left', visible: true, staticText: 'SIZE: ' },
-    { id: 'sku', type: 'text', x: 46, y: 24, fontSize: 6, isBold: false, align: 'right', visible: true, staticText: 'SKU: ' },
-    { id: 'price', type: 'text', x: 25, y: 28, fontSize: 9, isBold: true, align: 'center', visible: true, staticText: 'Rs. ' }
+    // --- Left Section (Size & Category) ---
+    { id: 'size_line_l', type: 'line', x: 2, y: 4, width: 4, height: 0.3, borderStyle: 'solid', visible: true },
+    { id: 'size_lbl', type: 'text', x: 9, y: 5, fontSize: 5, isBold: true, align: 'center', visible: true, staticText: 'SIZE' },
+    { id: 'size_line_r', type: 'line', x: 12, y: 4, width: 4, height: 0.3, borderStyle: 'solid', visible: true },
+    
+    // Large Size Value
+    { id: 'size', type: 'text', x: 9, y: 15, fontSize: 20, isBold: true, align: 'center', visible: true, staticText: '' },
+    
+    // Separator line below size
+    { id: 'div_left', type: 'line', x: 2, y: 18, width: 14, height: 0.3, borderStyle: 'solid', visible: true },
+    
+    // SubCategory Box
+    { id: 'subcat_box', type: 'rect', x: 1.5, y: 22, width: 15, height: 6, borderRadius: 1, borderStyle: 'solid', visible: true },
+    { id: 'subCategory', type: 'text', x: 9, y: 26, fontSize: 5, isBold: true, align: 'center', visible: true, staticText: '' },
+
+    // --- Vertical Divider ---
+    { id: 'div_vert', type: 'line', x: 18, y: 2, width: 0, height: 26, borderStyle: 'dashed', visible: true },
+
+    // --- Right Section ---
+    // SKU
+    { id: 'sku', type: 'text', x: 34, y: 7, fontSize: 7, isBold: true, align: 'center', visible: true, staticText: 'SKU : ' },
+    
+    // Horizontal Solid Divider
+    { id: 'div_r1', type: 'line', x: 20, y: 11, width: 28, height: 0.3, borderStyle: 'solid', visible: true },
+    
+    // Code
+    { id: 'code', type: 'text', x: 34, y: 16, fontSize: 7, isBold: true, align: 'center', visible: true, staticText: 'CODE : ' },
+    
+    // Horizontal Dashed Divider
+    { id: 'div_r2', type: 'line', x: 20, y: 20, width: 28, height: 0.3, borderStyle: 'dashed', visible: true },
+
+    // Price Box
+    { id: 'price_box', type: 'rect', x: 20, y: 22, width: 28, height: 7, borderRadius: 1.5, borderStyle: 'solid', visible: true },
+    // Rs Text
+    { id: 'rs_lbl', type: 'text', x: 21.5, y: 26.5, fontSize: 7, isBold: true, align: 'left', visible: true, staticText: 'Rs.' },
+    // Vertical Divider inside price box
+    { id: 'div_price', type: 'line', x: 26.5, y: 22, width: 0, height: 7, borderStyle: 'solid', visible: true },
+    // Price Value
+    { id: 'price', type: 'text', x: 37, y: 27, fontSize: 13, isBold: true, align: 'center', visible: true, staticText: '' }
   ]
 };
 
@@ -114,6 +147,9 @@ export const generateDynamicLabelPDF = (products: LabelProduct | LabelProduct[],
           text = (el.staticText || '') + product.sku.toUpperCase();
         } else if (el.id === 'barcodeText') {
           text = (product.barcode || product.sku).toUpperCase();
+        } else if (el.id === 'subCategory' && product.subCategory) {
+          // Truncate to fit in the small box
+          text = (el.staticText || '') + product.subCategory.toUpperCase().slice(0, 10);
         }
 
         if (text) {
@@ -164,7 +200,13 @@ export const generateDynamicLabelPDF = (products: LabelProduct | LabelProduct[],
         }
 
         if (el.type === 'line') {
-          doc.line(el.x, el.y, el.x + (el.width || 10), el.y);
+          if (el.width === 0 && el.height !== undefined) {
+            // vertical line
+            doc.line(el.x, el.y, el.x, el.y + el.height);
+          } else {
+            // horizontal line
+            doc.line(el.x, el.y, el.x + (el.width || 10), el.y);
+          }
         } else {
           if (el.borderRadius && el.borderRadius > 0) {
             doc.roundedRect(el.x, el.y, el.width || 10, el.height || 10, el.borderRadius, el.borderRadius, 'S');

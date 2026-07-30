@@ -132,6 +132,7 @@ const Inventory: React.FC = () => {
       color: product.color || '',
       size: size,
       styleCode: '',
+      subCategory: product.subCategory || '',
       labelSize: '50x30' as const
     }));
     
