@@ -189,10 +189,8 @@ export const generateDynamicLabelPDF = (products: LabelProduct | LabelProduct[],
           }
         }
       } else if (el.type === 'line' || el.type === 'rect') {
-        doc.setLineWidth(el.type === 'line' ? (el.height || 0.5) : 0.5);
-
         if (el.borderStyle === 'dashed') {
-          doc.setLineDashPattern([2, 2], 0);
+          doc.setLineDashPattern([1.5, 1.5], 0);
         } else if (el.borderStyle === 'dotted') {
           doc.setLineDashPattern([0.5, 1], 0);
         } else {
@@ -202,12 +200,16 @@ export const generateDynamicLabelPDF = (products: LabelProduct | LabelProduct[],
         if (el.type === 'line') {
           if (el.width === 0 && el.height !== undefined) {
             // vertical line
+            doc.setLineWidth(0.2);
             doc.line(el.x, el.y, el.x, el.y + el.height);
           } else {
             // horizontal line
+            const thickness = (el.height && el.height <= 1) ? el.height : 0.2;
+            doc.setLineWidth(thickness);
             doc.line(el.x, el.y, el.x + (el.width || 10), el.y);
           }
         } else {
+          doc.setLineWidth(0.3);
           if (el.borderRadius && el.borderRadius > 0) {
             doc.roundedRect(el.x, el.y, el.width || 10, el.height || 10, el.borderRadius, el.borderRadius, 'S');
           } else {
