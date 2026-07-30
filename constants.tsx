@@ -37,15 +37,15 @@ export const CATEGORIES = [
 ];
 
 export const SUB_CATEGORIES: Record<string, string[]> = {
-  'Party Wear': ['Gowns', 'Suits', 'Tuxedos', 'Party Dresses', 'Blazers'],
-  'Casual Wear': ['T-Shirts', 'Jeans', 'Shorts', 'Tops', 'Leggings', 'Dresses'],
-  'Ethnic & Traditional': ['Kurta Sets', 'Lehengas', 'Sherwanis', 'Dhotis', 'Sarees'],
-  'Costumes & Fancy Dress': ['Superheroes', 'Animals', 'Professions', 'Fairy Tales'],
-  'Outerwear & Sweaters': ['Jackets', 'Coats', 'Sweaters', 'Cardigans', 'Hoodies'],
-  'Sleepwear': ['Pajama Sets', 'Nightgowns', 'Rompers', 'Onesies'],
-  'Innerwear': ['Briefs', 'Vests', 'Bloomers', 'Camisoles'],
-  'Footwear': ['Sneakers', 'Sandals', 'Boots', 'Formal Shoes', 'Slippers'],
-  'Accessories': ['Caps & Hats', 'Socks', 'Ties & Bowties', 'Hair Accessories', 'Belts']
+  'Party Wear': ['Gowns', 'Suits', 'Tuxedos', 'Party Dresses', 'Blazers', 'Waistcoats', 'Sequined Dresses', 'Tulle Skirts', 'Party Sets', 'Other'],
+  'Casual Wear': ['Co-ord Sets', 'T-Shirts', 'Jeans', 'Shorts', 'Tops', 'Leggings', 'Dresses', 'Jumpsuits', 'Rompers', 'Overalls / Dungarees', 'Joggers', 'Sweatpants', 'Skirts', 'Tunics', 'Other'],
+  'Ethnic & Traditional': ['Kurta Sets', 'Lehengas', 'Sherwanis', 'Dhotis', 'Sarees', 'Salwar Kameez', 'Nehru Jackets', 'Anarkalis', 'Palazzo Sets', 'Other'],
+  'Costumes & Fancy Dress': ['Superheroes', 'Animals', 'Professions', 'Fairy Tales', 'Historical', 'Cartoon Characters', 'Other'],
+  'Outerwear & Sweaters': ['Jackets', 'Coats', 'Sweaters', 'Cardigans', 'Hoodies', 'Windbreakers', 'Raincoats', 'Vests', 'Pullovers', 'Thermals', 'Other'],
+  'Sleepwear': ['Pajama Sets', 'Nightgowns', 'Rompers', 'Onesies', 'Sleep Shirts', 'Robes', 'Other'],
+  'Innerwear': ['Briefs', 'Vests', 'Bloomers', 'Camisoles', 'Trunks', 'Panties', 'Thermal Underwear', 'Other'],
+  'Footwear': ['Sneakers', 'Sandals', 'Boots', 'Formal Shoes', 'Slippers', 'Flip Flops', 'Mary Janes', 'Loafers', 'Water Shoes', 'Other'],
+  'Accessories': ['Caps & Hats', 'Socks', 'Ties & Bowties', 'Hair Accessories', 'Belts', 'Mittens & Gloves', 'Scarves', 'Sunglasses', 'Suspenders', 'Bags & Backpacks', 'Other']
 };
 
 export const GENDERS = ['Boys', 'Girls', 'Unisex'];
