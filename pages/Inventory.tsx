@@ -648,6 +648,7 @@ const Inventory: React.FC = () => {
             subCategory: designerConfig.product.subCategory || '',
             labelSize: designerConfig.template.labelWidth === 30 ? '30x50' : '50x30'
           }}
+          initialTemplate={designerConfig.template}
           allProductSizes={designerConfig.sizes}
           onClose={() => setDesignerConfig(null)}
           onPrint={(template, products) => {

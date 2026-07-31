@@ -27,6 +27,7 @@ const MM_TO_PX = 3.7795275591;
 
 interface LabelDesignerProps {
   labelData: LabelProduct;
+  initialTemplate?: LabelTemplate;
   allProductSizes: string[];
   onClose: () => void;
   onPrint: (template: LabelTemplate, products: LabelProduct[]) => void;
@@ -61,7 +62,7 @@ export default function LabelDesignerWrapper(props: LabelDesignerProps) {
   );
 }
 
-function LabelDesigner({ labelData, allProductSizes, onClose, onPrint }: LabelDesignerProps) {
+function LabelDesigner({ labelData, initialTemplate, allProductSizes, onClose, onPrint }: LabelDesignerProps) {
   const [printSizes, setPrintSizes] = useState<string[]>(allProductSizes.length > 0 ? [...allProductSizes] : ['']);
   const [currentPresetName, setCurrentPresetName] = useState<string | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -86,11 +87,12 @@ function LabelDesigner({ labelData, allProductSizes, onClose, onPrint }: LabelDe
   });
 
   const [template, setTemplate] = useState<LabelTemplate>(() => {
+    if (initialTemplate) return initialTemplate;
     try {
       const saved = localStorage.getItem('kiddies_label_template_' + (labelData.labelSize || '30x50'));
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (parsed.id !== 'default_50x30' && parsed.id !== 'default_30x50') return parsed;
+        if (parsed && Array.isArray(parsed.elements)) return parsed;
       }
     } catch (e) { }
     return labelData.labelSize === '50x30' ? DEFAULT_TEMPLATE_50x30 : DEFAULT_TEMPLATE_30x50;
