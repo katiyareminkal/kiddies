@@ -660,7 +660,7 @@ function LabelDesigner({ labelData, initialTemplate, allProductSizes, onClose, o
     } else if (el.type === 'text') {
       let text = el.staticText || '';
       if (el.id === 'name') text = (el.staticText || '') + (labelData.name || '').slice(0, 23).toUpperCase();
-      else if (el.id === 'size') text = (el.staticText || '') + (labelData.size || '').toUpperCase();
+      else if (el.id === 'size') text = (el.staticText || '') + (labelData.size || (printSizes && printSizes[0]) || '30').toUpperCase();
       else if (el.id === 'color' && labelData.color) text = (el.staticText || '') + (labelData.color || '').toUpperCase().slice(0, 10);
       else if (el.id === 'style') text = (el.staticText || '') + (labelData.styleCode || '').toUpperCase();
       else if (el.id === 'price') text = (el.staticText || '') + Number(labelData.sellingPrice || 0).toFixed(2);

@@ -644,6 +644,7 @@ const Inventory: React.FC = () => {
             sellingPrice: designerConfig.product.sellingPrice,
             purchasePrice: designerConfig.product.purchasePrice,
             color: designerConfig.product.color || '',
+            size: (designerConfig.sizes && designerConfig.sizes[0]) || (designerConfig.product.sizes && designerConfig.product.sizes[0]) || '30',
             styleCode: '',
             subCategory: designerConfig.product.subCategory || '',
             labelSize: designerConfig.template.labelWidth === 30 ? '30x50' : '50x30'
