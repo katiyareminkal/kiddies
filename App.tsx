@@ -515,14 +515,19 @@ const AppContent: React.FC = () => {
         <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-[#FACC15]/5 rounded-full blur-[120px]"></div>
         <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-[#FACC15]/5 rounded-full blur-[120px]"></div>
         
-        <div className="relative z-10 flex flex-col items-center">
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.92 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+          className="relative z-10 flex flex-col items-center"
+        >
           <img 
             src="/logo.png"
             alt="Kiddies Logo"
             className="h-16 object-contain drop-shadow-md mb-2"
           />
           <div className="text-[#8B5CF6] text-[8px] font-black uppercase tracking-[0.3em]">Stock Management</div>
-        </div>
+        </motion.div>
       </div>
     );
   }
