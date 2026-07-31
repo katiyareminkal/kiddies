@@ -259,6 +259,13 @@ function LabelDesigner({ labelData, initialTemplate, allProductSizes, onClose, o
   const singleElement = selectedElements.length === 1 ? selectedElements[0] : null;
 
   useEffect(() => {
+    if (initialTemplate) {
+      setTemplate(initialTemplate);
+      setSelectedElementIds([]);
+      setHistoryPast([]);
+      setHistoryFuture([]);
+      return;
+    }
     try {
       const saved = localStorage.getItem('kiddies_label_template_' + (labelData.labelSize || '30x50'));
       if (saved) {
@@ -270,7 +277,7 @@ function LabelDesigner({ labelData, initialTemplate, allProductSizes, onClose, o
     setSelectedElementIds([]);
     setHistoryPast([]);
     setHistoryFuture([]);
-  }, [labelData.labelSize]);
+  }, [labelData.labelSize, initialTemplate]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
