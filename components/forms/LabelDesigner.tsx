@@ -624,6 +624,46 @@ function LabelDesigner({ labelData, initialTemplate, allProductSizes, onClose, o
     setSelectedElementIds([]);
   };
 
+  const getElementLayerLabel = (el: LabelElement): string => {
+    if (el.type === 'text') {
+      let val = el.staticText || '';
+      if (el.id === 'name') val = (el.staticText || '') + (labelData.name || '').slice(0, 15).toUpperCase();
+      else if (el.id === 'size') val = (el.staticText || '') + (labelData.size || (printSizes && printSizes[0]) || '30').toUpperCase();
+      else if (el.id === 'color' && labelData.color) val = (el.staticText || '') + (labelData.color || '').toUpperCase();
+      else if (el.id === 'price') val = (el.staticText || '') + Number(labelData.sellingPrice || 0).toFixed(2);
+      else if (el.id === 'code') val = (el.staticText || '') + '91' + ((labelData.purchasePrice || 0) * 2).toString();
+      else if (el.id === 'sku') val = (el.staticText || '') + (labelData.sku || '').toUpperCase();
+      else if (el.id === 'size_lbl') val = el.staticText || 'SIZE';
+      else if (el.id === 'rs_lbl') val = el.staticText || 'Rs.';
+
+      val = val.trim();
+      if (val) return val;
+      return `Text: ${el.id.replace('custom_', '')}`;
+    }
+
+    if (el.type === 'rect') {
+      if (el.id === 'size_box') return `Size Box (${el.width}×${el.height}mm)`;
+      if (el.id === 'color_box') return `Color Box (${el.width}×${el.height}mm)`;
+      if (el.id === 'price_box') return `Price Box (${el.width}×${el.height}mm)`;
+      return `Box (${el.width || 10}×${el.height || 10}mm)`;
+    }
+
+    if (el.type === 'line') {
+      if (el.id === 'size_line_l') return `Left Line`;
+      if (el.id === 'size_line_r') return `Right Line`;
+      if (el.id === 'div_vert') return `Vertical Line`;
+      if (el.id === 'div_mid') return `Middle Line`;
+      if (el.id === 'div_r1' || el.id === 'div_r2') return `Divider Line`;
+      if (el.id === 'div_price') return `Price Line`;
+      return `Line (${el.width || el.height || 10}mm)`;
+    }
+
+    if (el.type === 'image') return `Image / Icon`;
+    if (el.type === 'barcode') return `Barcode`;
+
+    return el.id;
+  };
+
   const renderPreviewElement = (el: LabelElement, isMini = false) => {
     if (!el.visible) return null;
     const isSelected = !isMini && selectedElementIds.includes(el.id);
@@ -924,29 +964,51 @@ function LabelDesigner({ labelData, initialTemplate, allProductSizes, onClose, o
                     <span className="text-[9px] font-bold uppercase text-slate-700 tracking-widest">Visible on Label</span>
                   </label>
 
+                  {/* Position X and Y */}
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="space-y-1">
+                      <label className="text-[8px] font-black uppercase text-slate-400 tracking-widest ml-1">X Position (mm)</label>
+                      <input type="number" step="0.5" value={singleElement.x} onChange={e => updateSingleElement({ x: Number(e.target.value) })} className="w-full bg-white border border-slate-200 focus:border-[#8B5CF6]/50 rounded-lg p-2 text-[10px] outline-none transition-all shadow-sm font-bold" />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[8px] font-black uppercase text-slate-400 tracking-widest ml-1">Y Position (mm)</label>
+                      <input type="number" step="0.5" value={singleElement.y} onChange={e => updateSingleElement({ y: Number(e.target.value) })} className="w-full bg-white border border-slate-200 focus:border-[#8B5CF6]/50 rounded-lg p-2 text-[10px] outline-none transition-all shadow-sm font-bold" />
+                    </div>
+                  </div>
+
                   {singleElement.type === 'text' && (
                     <div className="space-y-3">
                       <div className="space-y-1">
-                        <label className="text-[8px] font-black uppercase text-slate-400 tracking-widest ml-1">Text / Prefix</label>
-                        <input type="text" value={singleElement.staticText || ''} onChange={e => updateSingleElement({ staticText: e.target.value })} className="w-full bg-white border border-slate-200 focus:border-[#8B5CF6]/50 rounded-lg p-2 text-[10px] outline-none transition-all shadow-sm" />
-                      </div>
-                      <div className="space-y-1">
-                        <label className="text-[8px] font-black uppercase text-slate-400 tracking-widest ml-1">Font Family</label>
-                        <select value={singleElement.fontFamily || 'helvetica'} onChange={e => updateSingleElement({ fontFamily: e.target.value as any })} className="w-full bg-white border border-slate-200 focus:border-[#8B5CF6]/50 rounded-lg p-2 text-[10px] outline-none transition-all shadow-sm">
-                          <option value="helvetica">Helvetica</option>
-                          <option value="times">Times</option>
-                          <option value="courier">Courier</option>
-                        </select>
+                        <label className="text-[8px] font-black uppercase text-slate-400 tracking-widest ml-1">Text / Label Prefix</label>
+                        <input type="text" value={singleElement.staticText || ''} onChange={e => updateSingleElement({ staticText: e.target.value })} placeholder="Custom text or prefix" className="w-full bg-white border border-slate-200 focus:border-[#8B5CF6]/50 rounded-lg p-2 text-[10px] outline-none transition-all shadow-sm font-bold" />
                       </div>
                       <div className="grid grid-cols-2 gap-2">
                         <div className="space-y-1">
-                          <label className="text-[8px] font-black uppercase text-slate-400 tracking-widest ml-1">Font Size</label>
-                          <input type="number" step="0.5" value={singleElement.fontSize || 6} onChange={e => updateSingleElement({ fontSize: Number(e.target.value) })} className="w-full bg-white border border-slate-200 focus:border-[#8B5CF6]/50 rounded-lg p-2 text-[10px] outline-none transition-all shadow-sm" />
+                          <label className="text-[8px] font-black uppercase text-slate-400 tracking-widest ml-1">Alignment</label>
+                          <select value={singleElement.align || 'center'} onChange={e => updateSingleElement({ align: e.target.value as any })} className="w-full bg-white border border-slate-200 focus:border-[#8B5CF6]/50 rounded-lg p-2 text-[10px] outline-none transition-all shadow-sm">
+                            <option value="center">Center</option>
+                            <option value="left">Left</option>
+                            <option value="right">Right</option>
+                          </select>
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-[8px] font-black uppercase text-slate-400 tracking-widest ml-1">Font Family</label>
+                          <select value={singleElement.fontFamily || 'helvetica'} onChange={e => updateSingleElement({ fontFamily: e.target.value as any })} className="w-full bg-white border border-slate-200 focus:border-[#8B5CF6]/50 rounded-lg p-2 text-[10px] outline-none transition-all shadow-sm">
+                            <option value="helvetica">Helvetica</option>
+                            <option value="times">Times</option>
+                            <option value="courier">Courier</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <div className="space-y-1">
+                          <label className="text-[8px] font-black uppercase text-slate-400 tracking-widest ml-1">Font Size (pt)</label>
+                          <input type="number" step="0.5" value={singleElement.fontSize || 6} onChange={e => updateSingleElement({ fontSize: Number(e.target.value) })} className="w-full bg-white border border-slate-200 focus:border-[#8B5CF6]/50 rounded-lg p-2 text-[10px] outline-none transition-all shadow-sm font-bold" />
                         </div>
                         <div className="flex items-end">
                           <label className="flex items-center gap-1.5 cursor-pointer p-2 bg-slate-50 rounded-lg border border-slate-100 hover:border-[#8B5CF6]/30 transition-colors w-full h-[32px]">
                             <input type="checkbox" checked={singleElement.isBold} onChange={e => updateSingleElement({ isBold: e.target.checked })} className="rounded text-[#8B5CF6] w-3 h-3" />
-                            <span className="text-[8px] font-black uppercase text-slate-700 tracking-widest">Bold</span>
+                            <span className="text-[8px] font-black uppercase text-slate-700 tracking-widest">Bold Font</span>
                           </label>
                         </div>
                       </div>
@@ -966,17 +1028,17 @@ function LabelDesigner({ labelData, initialTemplate, allProductSizes, onClose, o
                       <div className="grid grid-cols-2 gap-2">
                         <div className="space-y-1">
                           <label className="text-[8px] font-black uppercase text-slate-400 tracking-widest ml-1">Width (mm)</label>
-                          <input type="number" step="1" value={singleElement.width || 10} onChange={e => updateSingleElement({ width: Number(e.target.value) })} className="w-full bg-white border border-slate-200 focus:border-[#8B5CF6]/50 rounded-lg p-2 text-[10px] outline-none transition-all shadow-sm" />
+                          <input type="number" step="0.5" value={singleElement.width || 10} onChange={e => updateSingleElement({ width: Number(e.target.value) })} className="w-full bg-white border border-slate-200 focus:border-[#8B5CF6]/50 rounded-lg p-2 text-[10px] outline-none transition-all shadow-sm font-bold" />
                         </div>
                         <div className="space-y-1">
-                          <label className="text-[8px] font-black uppercase text-slate-400 tracking-widest ml-1">{singleElement.type === 'line' ? 'Thickness' : 'Height'}</label>
-                          <input type="number" step="0.5" value={singleElement.height || (singleElement.type === 'line' ? 0.5 : 10)} onChange={e => updateSingleElement({ height: Number(e.target.value) })} className="w-full bg-white border border-slate-200 focus:border-[#8B5CF6]/50 rounded-lg p-2 text-[10px] outline-none transition-all shadow-sm" />
+                          <label className="text-[8px] font-black uppercase text-slate-400 tracking-widest ml-1">{singleElement.type === 'line' ? 'Thickness' : 'Height (mm)'}</label>
+                          <input type="number" step="0.5" value={singleElement.height || (singleElement.type === 'line' ? 0.5 : 10)} onChange={e => updateSingleElement({ height: Number(e.target.value) })} className="w-full bg-white border border-slate-200 focus:border-[#8B5CF6]/50 rounded-lg p-2 text-[10px] outline-none transition-all shadow-sm font-bold" />
                         </div>
                       </div>
                       {singleElement.type === 'rect' && (
                         <div className="space-y-1">
                           <label className="text-[8px] font-black uppercase text-slate-400 tracking-widest ml-1">Border Radius (mm)</label>
-                          <input type="number" step="0.5" value={singleElement.borderRadius || 0} onChange={e => updateSingleElement({ borderRadius: Number(e.target.value) })} className="w-full bg-white border border-slate-200 focus:border-[#8B5CF6]/50 rounded-lg p-2 text-[10px] outline-none transition-all shadow-sm" />
+                          <input type="number" step="0.5" value={singleElement.borderRadius || 0} onChange={e => updateSingleElement({ borderRadius: Number(e.target.value) })} className="w-full bg-white border border-slate-200 focus:border-[#8B5CF6]/50 rounded-lg p-2 text-[10px] outline-none transition-all shadow-sm font-bold" />
                         </div>
                       )}
                     </div>
@@ -987,16 +1049,17 @@ function LabelDesigner({ labelData, initialTemplate, allProductSizes, onClose, o
                       <div className="grid grid-cols-2 gap-2">
                         <div className="space-y-1">
                           <label className="text-[8px] font-black uppercase text-slate-400 tracking-widest ml-1">Width (mm)</label>
-                          <input type="number" step="0.5" value={singleElement.width || 10} onChange={e => updateSingleElement({ width: Number(e.target.value) })} className="w-full bg-white border border-slate-200 focus:border-[#8B5CF6]/50 rounded-lg p-2 text-[10px] outline-none transition-all shadow-sm" />
+                          <input type="number" step="0.5" value={singleElement.width || 10} onChange={e => updateSingleElement({ width: Number(e.target.value) })} className="w-full bg-white border border-slate-200 focus:border-[#8B5CF6]/50 rounded-lg p-2 text-[10px] outline-none transition-all shadow-sm font-bold" />
                         </div>
                         <div className="space-y-1">
                           <label className="text-[8px] font-black uppercase text-slate-400 tracking-widest ml-1">Height (mm)</label>
-                          <input type="number" step="0.5" value={singleElement.height || (singleElement.type === 'barcode' ? 7 : 10)} onChange={e => updateSingleElement({ height: Number(e.target.value) })} className="w-full bg-white border border-slate-200 focus:border-[#8B5CF6]/50 rounded-lg p-2 text-[10px] outline-none transition-all shadow-sm" />
+                          <input type="number" step="0.5" value={singleElement.height || (singleElement.type === 'barcode' ? 7 : 10)} onChange={e => updateSingleElement({ height: Number(e.target.value) })} className="w-full bg-white border border-slate-200 focus:border-[#8B5CF6]/50 rounded-lg p-2 text-[10px] outline-none transition-all shadow-sm font-bold" />
                         </div>
                       </div>
                     </div>
                   )}
                 </div>
+              </div>
               </div>
             ) : (
               <div className="text-center py-10 px-3 border-2 border-dashed border-slate-200 rounded-xl opacity-70">
@@ -1066,17 +1129,8 @@ function LabelDesigner({ labelData, initialTemplate, allProductSizes, onClose, o
                     >
                       <div className="flex items-center gap-1.5 min-w-0 w-full mb-1.5 md:mb-0">
                         {el.type === 'text' ? <Type size={12} className={isSelected ? 'text-[#8B5CF6]' : 'text-slate-400'} /> : el.type === 'rect' ? <Square size={12} className={isSelected ? 'text-[#8B5CF6]' : 'text-slate-400'} /> : el.type === 'barcode' ? <span className={`text-[7px] font-black tracking-widest ${isSelected ? 'text-[#8B5CF6]' : 'text-slate-400'}`}>|||</span> : <Minus size={12} className={isSelected ? 'text-[#8B5CF6]' : 'text-slate-400'} />}
-                        <span className={`text-[9px] font-black uppercase tracking-wider truncate ${isSelected ? 'text-[#8B5CF6]' : 'text-slate-655'}`}>
-                          {el.id === 'name' ? 'Product Name' :
-                           el.id === 'price' ? 'MRP Price' :
-                           el.id === 'size' ? 'Garment Size' :
-                           el.id === 'code' ? 'Supplier Code' :
-                           el.id === 'sku' ? 'Product SKU' :
-                           el.id === 'barcode' ? 'Barcode Graphic' :
-                           el.id === 'barcodeText' ? 'Barcode Text' :
-                           el.id === 'storeName' ? 'Store Name' :
-                           el.id === 'style' ? 'Style Code' :
-                           el.staticText ? `Text: ${el.staticText.slice(0, 10)}` : el.id.replace('custom_', '').toUpperCase()}
+                        <span className={`text-[9px] font-black uppercase tracking-wider truncate ${isSelected ? 'text-[#8B5CF6]' : 'text-slate-600'}`}>
+                          {getElementLayerLabel(el)}
                         </span>
                       </div>
                       <div className={`flex items-center gap-0.5 justify-between w-full md:w-auto md:justify-end transition-opacity ${isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
