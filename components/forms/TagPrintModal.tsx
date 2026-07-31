@@ -157,12 +157,17 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
       else if (el.id === 'barcodeText') text = (previewProductData.barcode || previewProductData.sku || '').toUpperCase();
       else if (el.id === 'subCategory' && previewProductData.subCategory) text = (el.staticText || '') + (previewProductData.subCategory || '').toUpperCase().slice(0, 10);
 
+      const fontSizeInMm = (el.fontSize || 6) * 0.352778;
+      const baselineY = el.y + (fontSizeInMm * 0.72);
+      const fontTopMm = baselineY - fontSizeInMm;
+
       return (
         <div
           key={el.id}
           style={{
             ...baseStyle,
-            fontSize: `${(el.fontSize || 6) * 1.3}px`,
+            top: `${fontTopMm * MM_TO_PX}px`,
+            fontSize: `${(el.fontSize || 6) * 1.33}px`,
             fontWeight: el.isBold ? 900 : 'normal',
             fontFamily: el.fontFamily === 'times' ? 'Times New Roman, Times, serif' : el.fontFamily === 'courier' ? 'Courier New, Courier, monospace' : 'Helvetica, Arial, sans-serif',
             whiteSpace: 'nowrap',
@@ -285,19 +290,18 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
             </span>
           </div>
 
-          <div className="bg-slate-150/60 p-6 rounded-2xl border border-slate-200/80 flex items-center justify-center min-h-[160px] overflow-auto shadow-inner">
+          <div className="bg-slate-150/60 p-6 rounded-2xl border border-slate-200/80 flex items-center justify-center min-h-[180px] overflow-hidden shadow-inner">
             <div
               style={{
-                width: `${activePreset.template.labelWidth * MM_TO_PX * scaleFactor}px`,
-                height: `${activePreset.template.labelHeight * MM_TO_PX * scaleFactor}px`,
+                width: `${activePreset.template.labelWidth * MM_TO_PX}px`,
+                height: `${activePreset.template.labelHeight * MM_TO_PX}px`,
                 backgroundColor: '#ffffff',
                 position: 'relative',
                 borderRadius: '4px',
                 boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
-                transform: `scale(1)`,
+                transform: `scale(1.5)`,
                 transformOrigin: 'center center',
-                overflow: 'hidden',
-                zoom: scaleFactor
+                margin: '20px auto'
               }}
             >
               {activePreset.template.elements.map(el => renderPreviewElement(el))}
