@@ -265,16 +265,21 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
         </div>
       );
     } else if (el.type === 'text') {
-      let text = el.staticText || '';
-      if (el.id === 'name') text = (el.staticText || '') + (previewData.name || '').slice(0, 23).toUpperCase();
-      else if (el.id === 'size') text = (el.staticText || '') + (previewData.size || '').toUpperCase();
-      else if (el.id === 'color' && previewData.color) text = (el.staticText || '') + (previewData.color || '').toUpperCase().slice(0, 10);
-      else if (el.id === 'style') text = (el.staticText || '') + (previewData.styleCode || '').toUpperCase();
-      else if (el.id === 'price') text = (el.staticText || '') + Number(previewData.sellingPrice || 0).toFixed(2);
-      else if (el.id === 'code') text = (el.staticText || '') + '91' + ((previewData.purchasePrice || 0) * 2).toString();
-      else if (el.id === 'sku') text = (el.staticText || '') + (previewData.sku || '').toUpperCase();
-      else if (el.id === 'barcodeText') text = (previewData.barcode || previewData.sku || '').toUpperCase();
-      else if (el.id === 'subCategory' && previewData.subCategory) text = (el.staticText || '') + (previewData.subCategory || '').toUpperCase().slice(0, 10);
+      let val = el.customValue !== undefined ? el.customValue : '';
+      if (!val) {
+        if (el.id === 'name') val = (previewData.name || '').slice(0, 23).toUpperCase();
+        else if (el.id === 'size') val = (previewData.size || '').toUpperCase();
+        else if (el.id === 'color' && previewData.color) val = (previewData.color || '').toUpperCase().slice(0, 10);
+        else if (el.id === 'style') val = (previewData.styleCode || '').toUpperCase();
+        else if (el.id === 'price') val = Number(previewData.sellingPrice || 0).toFixed(2);
+        else if (el.id === 'code') val = '91' + ((previewData.purchasePrice || 0) * 2).toString();
+        else if (el.id === 'sku') val = (previewData.sku || '').toUpperCase();
+        else if (el.id === 'barcodeText') val = (previewData.barcode || previewData.sku || '').toUpperCase();
+        else if (el.id === 'subCategory' && previewData.subCategory) val = (previewData.subCategory || '').toUpperCase().slice(0, 10);
+      }
+
+      const prefix = el.staticText || '';
+      const text = prefix + val;
 
       const fontSizeInMm = (el.fontSize || 6) * 0.352778;
       const baselineY = el.y + (fontSizeInMm * 0.72);

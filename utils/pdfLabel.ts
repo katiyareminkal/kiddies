@@ -28,8 +28,8 @@ export interface LabelElement {
   borderStyle?: 'solid' | 'dashed' | 'dotted';
   borderRadius?: number;
   rotation?: number; // angle in degrees
-  visible: boolean;
-  staticText?: string; // for custom static elements
+  staticText?: string; // for custom static elements or prefix
+  customValue?: string; // custom number / text value override
   imageBase64?: string;
 }
 
@@ -200,26 +200,21 @@ export const generateDynamicLabelPDF = (products: LabelProduct | LabelProduct[],
         doc.setFontSize(el.fontSize || 6);
         doc.setTextColor(0, 0, 0);
 
-        let text = el.staticText || '';
-        if (el.id === 'name') {
-          text = (el.staticText || '') + product.name.slice(0, 23).toUpperCase();
-        } else if (el.id === 'size' && product.size) {
-          text = (el.staticText || '') + product.size.toUpperCase();
-        } else if (el.id === 'color' && product.color) {
-          text = (el.staticText || '') + product.color.toUpperCase().slice(0, 10);
-        } else if (el.id === 'style' && product.styleCode) {
-          text = (el.staticText || '') + product.styleCode.toUpperCase();
-        } else if (el.id === 'price') {
-          text = (el.staticText || '') + Number(product.sellingPrice).toFixed(2);
-        } else if (el.id === 'code' && product.purchasePrice) {
-          text = (el.staticText || '') + '91' + (product.purchasePrice * 2);
-        } else if (el.id === 'sku') {
-          text = (el.staticText || '') + product.sku.toUpperCase();
-        } else if (el.id === 'barcodeText') {
-          text = (product.barcode || product.sku).toUpperCase();
-        } else if (el.id === 'subCategory' && product.subCategory) {
-          text = (el.staticText || '') + product.subCategory.toUpperCase().slice(0, 10);
+        let val = el.customValue !== undefined ? el.customValue : '';
+        if (!val) {
+          if (el.id === 'name') val = (product.name || '').slice(0, 23).toUpperCase();
+          else if (el.id === 'size' && product.size) val = product.size.toUpperCase();
+          else if (el.id === 'color' && product.color) val = product.color.toUpperCase().slice(0, 10);
+          else if (el.id === 'style' && product.styleCode) val = product.styleCode.toUpperCase();
+          else if (el.id === 'price') val = Number(product.sellingPrice || 0).toFixed(2);
+          else if (el.id === 'code' && product.purchasePrice) val = '91' + (product.purchasePrice * 2);
+          else if (el.id === 'sku') val = (product.sku || '').toUpperCase();
+          else if (el.id === 'barcodeText') val = (product.barcode || product.sku || '').toUpperCase();
+          else if (el.id === 'subCategory' && product.subCategory) val = (product.subCategory || '').toUpperCase().slice(0, 10);
         }
+
+        const prefix = el.staticText || '';
+        const text = prefix + val;
 
         if (text) {
           // Adjust y coordinate for baseline offset in jsPDF (approx 0.72 of the font height in mm)

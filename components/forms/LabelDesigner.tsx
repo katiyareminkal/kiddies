@@ -698,16 +698,21 @@ function LabelDesigner({ labelData, initialTemplate, allProductSizes, onClose, o
         </div>
       );
     } else if (el.type === 'text') {
-      let text = el.staticText || '';
-      if (el.id === 'name') text = (el.staticText || '') + (labelData.name || '').slice(0, 23).toUpperCase();
-      else if (el.id === 'size') text = (el.staticText || '') + (labelData.size || (printSizes && printSizes[0]) || '30').toUpperCase();
-      else if (el.id === 'color' && labelData.color) text = (el.staticText || '') + (labelData.color || '').toUpperCase().slice(0, 10);
-      else if (el.id === 'style') text = (el.staticText || '') + (labelData.styleCode || '').toUpperCase();
-      else if (el.id === 'price') text = (el.staticText || '') + Number(labelData.sellingPrice || 0).toFixed(2);
-      else if (el.id === 'code') text = (el.staticText || '') + '91' + ((labelData.purchasePrice || 0) * 2).toString();
-      else if (el.id === 'sku') text = (el.staticText || '') + (labelData.sku || '').toUpperCase();
-      else if (el.id === 'barcodeText') text = (labelData.barcode || labelData.sku || '').toUpperCase();
-      else if (el.id === 'subCategory' && labelData.subCategory) text = (el.staticText || '') + (labelData.subCategory || '').toUpperCase().slice(0, 10);
+      let val = el.customValue !== undefined ? el.customValue : '';
+      if (!val) {
+        if (el.id === 'name') val = (labelData.name || '').slice(0, 23).toUpperCase();
+        else if (el.id === 'size') val = (labelData.size || (printSizes && printSizes[0]) || '30').toUpperCase();
+        else if (el.id === 'color' && labelData.color) val = (labelData.color || '').toUpperCase().slice(0, 10);
+        else if (el.id === 'style') val = (labelData.styleCode || '').toUpperCase();
+        else if (el.id === 'price') val = Number(labelData.sellingPrice || 0).toFixed(2);
+        else if (el.id === 'code') val = '91' + ((labelData.purchasePrice || 0) * 2).toString();
+        else if (el.id === 'sku') val = (labelData.sku || '').toUpperCase();
+        else if (el.id === 'barcodeText') val = (labelData.barcode || labelData.sku || '').toUpperCase();
+        else if (el.id === 'subCategory' && labelData.subCategory) val = (labelData.subCategory || '').toUpperCase().slice(0, 10);
+      }
+
+      const prefix = el.staticText || '';
+      const text = prefix + val;
 
       const fontSizeInMm = (el.fontSize || 6) * 0.352778;
       const baselineY = el.y + (fontSizeInMm * 0.72);
@@ -979,8 +984,23 @@ function LabelDesigner({ labelData, initialTemplate, allProductSizes, onClose, o
                   {singleElement.type === 'text' && (
                     <div className="space-y-3">
                       <div className="space-y-1">
-                        <label className="text-[8px] font-black uppercase text-slate-400 tracking-widest ml-1">Text / Label Prefix</label>
-                        <input type="text" value={singleElement.staticText || ''} onChange={e => updateSingleElement({ staticText: e.target.value })} placeholder="Custom text or prefix" className="w-full bg-white border border-slate-200 focus:border-[#8B5CF6]/50 rounded-lg p-2 text-[10px] outline-none transition-all shadow-sm font-bold" />
+                        <label className="text-[8px] font-black uppercase text-slate-400 tracking-widest ml-1">Label Prefix / Header Text</label>
+                        <input type="text" value={singleElement.staticText || ''} onChange={e => updateSingleElement({ staticText: e.target.value })} placeholder="Prefix (e.g. SKU :, CODE :, Rs.)" className="w-full bg-white border border-slate-200 focus:border-[#8B5CF6]/50 rounded-lg p-2 text-[10px] outline-none transition-all shadow-sm font-bold" />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[8px] font-black uppercase text-slate-400 tracking-widest ml-1">Value / Number Override</label>
+                        <input
+                          type="text"
+                          value={singleElement.customValue !== undefined ? singleElement.customValue : ''}
+                          onChange={e => updateSingleElement({ customValue: e.target.value })}
+                          placeholder={`Default: ${
+                            singleElement.id === 'size' ? (labelData.size || printSizes[0] || '30') :
+                            singleElement.id === 'price' ? Number(labelData.sellingPrice || 0).toFixed(2) :
+                            singleElement.id === 'code' ? '91' + ((labelData.purchasePrice || 0) * 2) :
+                            singleElement.id === 'sku' ? (labelData.sku || '') : 'Automatic value'
+                          }`}
+                          className="w-full bg-white border border-slate-200 focus:border-[#8B5CF6]/50 rounded-lg p-2 text-[10px] outline-none transition-all shadow-sm font-bold text-[#8B5CF6]"
+                        />
                       </div>
                       <div className="grid grid-cols-2 gap-2">
                         <div className="space-y-1">
