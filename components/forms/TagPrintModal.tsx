@@ -63,7 +63,7 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed)) {
           parsed.forEach((item: any, idx: number) => {
-            if (item && item.template && item.name) {
+            if (item && item.template && Array.isArray(item.template.elements) && item.name && (item.template.labelWidth || 0) > 0 && (item.template.labelHeight || 0) > 0) {
               list.push({
                 id: `custom_${idx}_${item.name}`,
                 name: item.name,
@@ -603,7 +603,7 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
                           marginBottom: `${activeTemplate.labelHeight * MM_TO_PX * (activeScale - 1)}px`
                         }}
                       >
-                        {activeTemplate.elements.map(el => renderPreviewElement(el, sizeData))}
+                        {(activeTemplate?.elements || []).map(el => renderPreviewElement(el, sizeData))}
                       </div>
                     </div>
                   );
@@ -768,7 +768,7 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
                             }}
                             className="pointer-events-none"
                           >
-                            {tpl.elements.map(el => renderPreviewElement(el, previewData))}
+                            {(tpl.elements || []).map(el => renderPreviewElement(el, previewData))}
                           </div>
                         </div>
 

@@ -28,6 +28,7 @@ export interface LabelElement {
   borderStyle?: 'solid' | 'dashed' | 'dotted';
   borderRadius?: number;
   rotation?: number; // angle in degrees
+  visible: boolean;
   staticText?: string; // for custom static elements or prefix
   customValue?: string; // custom number / text value override
   imageBase64?: string;
