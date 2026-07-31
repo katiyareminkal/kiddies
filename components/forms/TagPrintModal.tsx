@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useRef } from 'react';
 import { Modal } from '../Shared';
-import { Tag, Download, Edit2, Check, LayoutGrid, Layers, Image as ImageIcon, Sparkles, FolderX, Plus, Maximize2, Settings2 } from 'lucide-react';
+import { Tag, Download, Edit2, Check, LayoutGrid, Layers, Image as ImageIcon, Sparkles, FolderX, Plus, Maximize2, Settings2, Sparkle } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import { Product } from '../../types';
 import { 
@@ -30,28 +30,15 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
   if (!product) return null;
 
   const previewRef = useRef<HTMLDivElement>(null);
+  const presetsContainerRef = useRef<HTMLDivElement>(null);
   const [isDownloadingImage, setIsDownloadingImage] = useState(false);
 
-  // Default Product Sizes
+  // Available Product Sizes
   const initialAvailableSizes = useMemo(() => {
     return product.sizes && product.sizes.length > 0 ? product.sizes : ['FREE'];
   }, [product]);
 
-  // Custom added sizes in this modal
-  const [customSizes, setCustomSizes] = useState<string[]>([]);
-  const [customSizeInput, setCustomSizeInput] = useState<string>('');
-
-  const allAvailableSizes = useMemo(() => {
-    return Array.from(new Set([...initialAvailableSizes, ...customSizes]));
-  }, [initialAvailableSizes, customSizes]);
-
   const [selectedSizes, setSelectedSizes] = useState<string[]>(() => [...initialAvailableSizes]);
-
-  // Label Paper Physical Dimension override (e.g. 50x30, 30x50, 40x25, Custom)
-  const [customPaperDim, setCustomPaperDim] = useState<{ width: number; height: number } | null>(null);
-  const [inputWidth, setInputWidth] = useState<string>('50');
-  const [inputHeight, setInputHeight] = useState<string>('30');
-  const [showCustomDimInputs, setShowCustomDimInputs] = useState(false);
 
   // Built-in Presets
   const builtInPresets = useMemo(() => [
@@ -88,62 +75,82 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
   const selectedPreset = allPresets[selectedIndex] || allPresets[0];
 
-  // Active Template with dimension override if active
+  // Paper Dimensions state
+  const [selectedPaperDim, setSelectedPaperDim] = useState<{ width: number; height: number }>({
+    width: selectedPreset.template.labelWidth,
+    height: selectedPreset.template.labelHeight
+  });
+
+  const [customPaperDimOverride, setCustomPaperDimOverride] = useState<{ width: number; height: number } | null>(null);
+  const [inputWidth, setInputWidth] = useState<string>('50');
+  const [inputHeight, setInputHeight] = useState<string>('30');
+  const [showCustomDimInputs, setShowCustomDimInputs] = useState(false);
+
+  // Active Template
   const activeTemplate = useMemo(() => {
-    if (customPaperDim) {
+    if (customPaperDimOverride) {
       return {
         ...selectedPreset.template,
-        labelWidth: customPaperDim.width,
-        labelHeight: customPaperDim.height
+        labelWidth: customPaperDimOverride.width,
+        labelHeight: customPaperDimOverride.height
       };
     }
     return selectedPreset.template;
-  }, [selectedPreset, customPaperDim]);
+  }, [selectedPreset, customPaperDimOverride]);
 
   const selectPreset = (idx: number) => {
     setSelectedIndex(idx);
-    setCustomPaperDim(null); // Reset dimension override to preset's native dimensions
-    setShowCustomDimInputs(false);
+    const p = allPresets[idx];
+    if (p) {
+      setSelectedPaperDim({ width: p.template.labelWidth, height: p.template.labelHeight });
+      setInputWidth(p.template.labelWidth.toString());
+      setInputHeight(p.template.labelHeight.toString());
+    }
+    setCustomPaperDimOverride(null);
   };
 
-  const setPaperDimensions = (w: number, h: number) => {
-    setCustomPaperDim({ width: w, height: h });
+  const handleSelectPaperSize = (w: number, h: number) => {
+    setSelectedPaperDim({ width: w, height: h });
     setInputWidth(w.toString());
     setInputHeight(h.toString());
+  };
+
+  // Option 1: Apply Current Design to Selected Paper Dimensions
+  const handleApplyCurrentDesign = () => {
+    setCustomPaperDimOverride({ width: selectedPaperDim.width, height: selectedPaperDim.height });
+  };
+
+  // Option 2: Create New Layout for Selected Paper Dimensions
+  const handleCreateNewLayout = () => {
+    const newTemplate: LabelTemplate = {
+      id: `new_${selectedPaperDim.width}x${selectedPaperDim.height}_${Date.now()}`,
+      name: `New Layout (${selectedPaperDim.width}×${selectedPaperDim.height}mm)`,
+      labelWidth: selectedPaperDim.width,
+      labelHeight: selectedPaperDim.height,
+      elements: activeTemplate.elements
+    };
+    onClose();
+    onOpenDesigner(newTemplate, selectedSizes);
+  };
+
+  // Option 3: Select From Presets matching selected paper dimensions
+  const handleSelectFromPresets = () => {
+    const matchingIdx = allPresets.findIndex(
+      p => p.template.labelWidth === selectedPaperDim.width && p.template.labelHeight === selectedPaperDim.height
+    );
+    if (matchingIdx !== -1) {
+      selectPreset(matchingIdx);
+    } else if (presetsContainerRef.current) {
+      presetsContainerRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
   };
 
   const handleApplyCustomDimensions = () => {
     const w = parseFloat(inputWidth);
     const h = parseFloat(inputHeight);
     if (!isNaN(w) && w > 10 && !isNaN(h) && h > 10) {
-      setPaperDimensions(w, h);
+      handleSelectPaperSize(w, h);
     }
-  };
-
-  const toggleSize = (size: string) => {
-    if (selectedSizes.includes(size)) {
-      if (selectedSizes.length === 1) return; // Keep at least one
-      setSelectedSizes(selectedSizes.filter(s => s !== size));
-    } else {
-      setSelectedSizes([...selectedSizes, size]);
-    }
-  };
-
-  const toggleAllSizes = () => {
-    if (selectedSizes.length === allAvailableSizes.length) {
-      setSelectedSizes([allAvailableSizes[0]]);
-    } else {
-      setSelectedSizes([...allAvailableSizes]);
-    }
-  };
-
-  const handleAddCustomSize = () => {
-    const trimmed = customSizeInput.trim().toUpperCase();
-    if (trimmed && !allAvailableSizes.includes(trimmed)) {
-      setCustomSizes(prev => [...prev, trimmed]);
-      setSelectedSizes(prev => [...prev, trimmed]);
-    }
-    setCustomSizeInput('');
   };
 
   // Siblings list
@@ -321,15 +328,15 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
               </p>
             </div>
             <span className="bg-[#8B5CF6]/10 text-[#8B5CF6] text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg">
-              {selectedSizes.length} / {allAvailableSizes.length} Sizes Selected
+              {selectedSizes.length} {selectedSizes.length === 1 ? 'Size' : 'Sizes'}
             </span>
           </div>
 
           {/* Paper Dimension Options Bar */}
-          <div className="bg-slate-50 p-3 rounded-2xl border border-slate-200/80 space-y-2.5">
+          <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-200/80 space-y-3">
             <div className="flex items-center justify-between">
-              <label className="text-[9px] font-black uppercase tracking-widest text-slate-700 flex items-center gap-1.5">
-                <Maximize2 size={12} className="text-[#8B5CF6]" /> Label Tag Dimensions (Paper Size)
+              <label className="text-[9.5px] font-black uppercase tracking-widest text-slate-800 flex items-center gap-1.5">
+                <Maximize2 size={12} className="text-[#8B5CF6]" /> Select Paper Dimensions (Tag Size)
               </label>
               <button
                 type="button"
@@ -340,12 +347,13 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
               </button>
             </div>
 
+            {/* Paper Size Quick Pickers */}
             <div className="flex flex-wrap gap-2">
               <button
                 type="button"
-                onClick={() => setPaperDimensions(50, 30)}
+                onClick={() => handleSelectPaperSize(50, 30)}
                 className={`px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all border ${
-                  activeTemplate.labelWidth === 50 && activeTemplate.labelHeight === 30
+                  selectedPaperDim.width === 50 && selectedPaperDim.height === 30
                     ? 'bg-slate-900 text-white border-slate-900 shadow-xs'
                     : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-100'
                 }`}
@@ -355,9 +363,9 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
 
               <button
                 type="button"
-                onClick={() => setPaperDimensions(30, 50)}
+                onClick={() => handleSelectPaperSize(30, 50)}
                 className={`px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all border ${
-                  activeTemplate.labelWidth === 30 && activeTemplate.labelHeight === 50
+                  selectedPaperDim.width === 30 && selectedPaperDim.height === 50
                     ? 'bg-slate-900 text-white border-slate-900 shadow-xs'
                     : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-100'
                 }`}
@@ -367,9 +375,9 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
 
               <button
                 type="button"
-                onClick={() => setPaperDimensions(40, 25)}
+                onClick={() => handleSelectPaperSize(40, 25)}
                 className={`px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all border ${
-                  activeTemplate.labelWidth === 40 && activeTemplate.labelHeight === 25
+                  selectedPaperDim.width === 40 && selectedPaperDim.height === 25
                     ? 'bg-slate-900 text-white border-slate-900 shadow-xs'
                     : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-100'
                 }`}
@@ -403,12 +411,51 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
                 <button
                   type="button"
                   onClick={handleApplyCustomDimensions}
-                  className="px-3 py-1.5 bg-[#8B5CF6] hover:bg-[#7C3AED] text-white rounded-lg text-[8.5px] font-black uppercase tracking-widest"
+                  className="px-3 py-1.5 bg-slate-900 text-white rounded-lg text-[8.5px] font-black uppercase tracking-widest hover:bg-slate-800"
                 >
-                  Apply To Current Design
+                  Set Size
                 </button>
               </div>
             )}
+
+            {/* Options Bar for Selected Paper Size */}
+            <div className="pt-2.5 border-t border-slate-200/80 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-[8.5px] font-black uppercase tracking-widest text-slate-500">
+                  Options for <strong className="text-slate-900 font-extrabold">{selectedPaperDim.width}mm × {selectedPaperDim.height}mm</strong> paper:
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                <button
+                  type="button"
+                  onClick={handleApplyCurrentDesign}
+                  className={`py-2 px-2.5 rounded-xl text-[8.5px] font-black uppercase tracking-widest transition-all border flex items-center justify-center gap-1.5 ${
+                    customPaperDimOverride && customPaperDimOverride.width === selectedPaperDim.width && customPaperDimOverride.height === selectedPaperDim.height
+                      ? 'bg-[#8B5CF6] text-white border-[#8B5CF6] shadow-xs'
+                      : 'bg-white hover:bg-slate-100 text-slate-700 border-slate-200'
+                  }`}
+                >
+                  <Check size={12} className={customPaperDimOverride ? "text-white" : "text-emerald-500"} /> Apply Current
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleCreateNewLayout}
+                  className="py-2 px-2.5 bg-white hover:bg-slate-100 text-slate-700 rounded-xl text-[8.5px] font-black uppercase tracking-widest border border-slate-200 transition-all flex items-center justify-center gap-1.5"
+                >
+                  <Plus size={12} className="text-[#8B5CF6]" /> Create New
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleSelectFromPresets}
+                  className="py-2 px-2.5 bg-white hover:bg-slate-100 text-slate-700 rounded-xl text-[8.5px] font-black uppercase tracking-widest border border-slate-200 transition-all flex items-center justify-center gap-1.5"
+                >
+                  <LayoutGrid size={12} className="text-amber-500" /> From Presets
+                </button>
+              </div>
+            </div>
           </div>
 
           {/* Live Visual Preview Container for All Sizes */}
@@ -489,7 +536,7 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
         </div>
 
         {/* RIGHT COLUMN: Presets List */}
-        <div className="w-full lg:w-72 bg-slate-50 p-4 rounded-2xl border border-slate-150 space-y-4 shrink-0 flex flex-col">
+        <div ref={presetsContainerRef} className="w-full lg:w-72 bg-slate-50 p-4 rounded-2xl border border-slate-150 space-y-4 shrink-0 flex flex-col">
           <div className="flex items-center justify-between border-b border-slate-200/80 pb-2.5">
             <h3 className="text-[11px] font-black uppercase tracking-widest text-slate-800 flex items-center gap-1.5">
               <LayoutGrid size={13} className="text-[#8B5CF6]" /> Design Presets
@@ -509,7 +556,7 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
               <div className="space-y-1.5">
                 {builtInPresets.map((preset) => {
                   const globalIdx = allPresets.findIndex(p => p.id === preset.id);
-                  const isSelected = selectedIndex === globalIdx && !customPaperDim;
+                  const isSelected = selectedIndex === globalIdx && !customPaperDimOverride;
 
                   return (
                     <button
@@ -552,7 +599,7 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
                 <div className="space-y-1.5">
                   {customPresets.map((preset) => {
                     const globalIdx = allPresets.findIndex(p => p.id === preset.id);
-                    const isSelected = selectedIndex === globalIdx && !customPaperDim;
+                    const isSelected = selectedIndex === globalIdx && !customPaperDimOverride;
 
                     return (
                       <button
