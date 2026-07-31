@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useRef } from 'react';
 import { Modal } from '../Shared';
-import { Tag, Download, Edit2, Check, LayoutGrid, Layers, Image as ImageIcon, Sparkles, FolderX } from 'lucide-react';
+import { Tag, Download, Edit2, Check, LayoutGrid, Layers, Image as ImageIcon, Sparkles, FolderX, Plus } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import { Product } from '../../types';
 import { 
@@ -32,12 +32,20 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
   const previewRef = useRef<HTMLDivElement>(null);
   const [isDownloadingImage, setIsDownloadingImage] = useState(false);
 
-  // Available Sizes
-  const availableSizes = useMemo(() => {
+  // Default Product Sizes
+  const initialAvailableSizes = useMemo(() => {
     return product.sizes && product.sizes.length > 0 ? product.sizes : ['FREE'];
   }, [product]);
 
-  const [selectedSizes, setSelectedSizes] = useState<string[]>(() => [...availableSizes]);
+  // Custom added sizes in this modal
+  const [customSizes, setCustomSizes] = useState<string[]>([]);
+  const [customSizeInput, setCustomSizeInput] = useState<string>('');
+
+  const allAvailableSizes = useMemo(() => {
+    return Array.from(new Set([...initialAvailableSizes, ...customSizes]));
+  }, [initialAvailableSizes, customSizes]);
+
+  const [selectedSizes, setSelectedSizes] = useState<string[]>(() => [...initialAvailableSizes]);
 
   // Built-in Presets
   const builtInPresets = useMemo(() => [
@@ -68,7 +76,7 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
     return list;
   }, []);
 
-  // All combined presets array for indexing
+  // Combined presets
   const allPresets = useMemo(() => [...builtInPresets, ...customPresets], [builtInPresets, customPresets]);
 
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
@@ -84,51 +92,45 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
   };
 
   const toggleAllSizes = () => {
-    if (selectedSizes.length === availableSizes.length) {
-      setSelectedSizes([availableSizes[0]]);
+    if (selectedSizes.length === allAvailableSizes.length) {
+      setSelectedSizes([allAvailableSizes[0]]);
     } else {
-      setSelectedSizes([...availableSizes]);
+      setSelectedSizes([...allAvailableSizes]);
     }
   };
 
-  // Prepare preview product data
-  const previewSize = selectedSizes[0] || availableSizes[0] || 'FREE';
+  const handleAddCustomSize = () => {
+    const trimmed = customSizeInput.trim().toUpperCase();
+    if (trimmed && !allAvailableSizes.includes(trimmed)) {
+      setCustomSizes(prev => [...prev, trimmed]);
+      setSelectedSizes(prev => [...prev, trimmed]);
+    }
+    setCustomSizeInput('');
+  };
+
+  // Siblings list
   const siblings = (product as any).variants && (product as any).variants.length > 0
     ? (product as any).variants
     : [product];
 
-  const matchedVariant = siblings.find((v: Product) => (v.sizes || [])[0]?.toUpperCase() === previewSize.toUpperCase()) || product;
-
-  const previewProductData: LabelProduct = {
-    name: matchedVariant.name || product.name,
-    sku: matchedVariant.sku || product.sku,
-    barcode: matchedVariant.barcode || product.barcode || '',
-    sellingPrice: matchedVariant.sellingPrice || product.sellingPrice,
-    purchasePrice: matchedVariant.purchasePrice || product.purchasePrice,
-    color: matchedVariant.color || product.color || '',
-    size: previewSize,
-    styleCode: '',
-    subCategory: matchedVariant.subCategory || product.subCategory || '',
-    labelSize: activePreset.template.labelWidth === 30 ? '30x50' : '50x30'
+  const getVariantProductData = (size: string): LabelProduct => {
+    const variant = siblings.find((v: Product) => (v.sizes || [])[0]?.toUpperCase() === size.toUpperCase()) || product;
+    return {
+      name: variant.name || product.name,
+      sku: variant.sku || product.sku,
+      barcode: variant.barcode || product.barcode || '',
+      sellingPrice: variant.sellingPrice || product.sellingPrice,
+      purchasePrice: variant.purchasePrice || product.purchasePrice,
+      color: variant.color || product.color || '',
+      size: size,
+      styleCode: '',
+      subCategory: variant.subCategory || product.subCategory || '',
+      labelSize: activePreset.template.labelWidth === 30 ? '30x50' : '50x30'
+    };
   };
 
   const handleDownloadPDF = () => {
-    const productsToPrint: LabelProduct[] = selectedSizes.map(size => {
-      const variant = siblings.find((v: Product) => (v.sizes || [])[0]?.toUpperCase() === size.toUpperCase()) || product;
-      return {
-        name: variant.name || product.name,
-        sku: variant.sku || product.sku,
-        barcode: variant.barcode || product.barcode || '',
-        sellingPrice: variant.sellingPrice || product.sellingPrice,
-        purchasePrice: variant.purchasePrice || product.purchasePrice,
-        color: variant.color || product.color || '',
-        size: size,
-        styleCode: '',
-        subCategory: variant.subCategory || product.subCategory || '',
-        labelSize: activePreset.template.labelWidth === 30 ? '30x50' : '50x30'
-      };
-    });
-
+    const productsToPrint: LabelProduct[] = selectedSizes.map(size => getVariantProductData(size));
     generateDynamicLabelPDF(productsToPrint, activePreset.template);
     onClose();
   };
@@ -146,7 +148,7 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
       const image = canvas.toDataURL("image/png");
       const link = document.createElement('a');
       link.href = image;
-      link.download = `Tag_${product.sku.toUpperCase()}_${previewSize}.png`;
+      link.download = `Tag_${product.sku.toUpperCase()}_${selectedSizes.join('_')}.png`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -158,7 +160,7 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
   };
 
   // Preview elements rendering
-  const renderPreviewElement = (el: LabelElement) => {
+  const renderPreviewElement = (el: LabelElement, previewData: LabelProduct) => {
     if (!el.visible) return null;
     const isCentered = (el.type === 'text' && el.align === 'center') || el.type === 'barcode';
     
@@ -179,15 +181,15 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
       );
     } else if (el.type === 'text') {
       let text = el.staticText || '';
-      if (el.id === 'name') text = (el.staticText || '') + (previewProductData.name || '').slice(0, 23).toUpperCase();
-      else if (el.id === 'size') text = (el.staticText || '') + (previewProductData.size || '').toUpperCase();
-      else if (el.id === 'color' && previewProductData.color) text = (el.staticText || '') + (previewProductData.color || '').toUpperCase().slice(0, 10);
-      else if (el.id === 'style') text = (el.staticText || '') + (previewProductData.styleCode || '').toUpperCase();
-      else if (el.id === 'price') text = (el.staticText || '') + Number(previewProductData.sellingPrice || 0).toFixed(2);
-      else if (el.id === 'code') text = (el.staticText || '') + '91' + ((previewProductData.purchasePrice || 0) * 2).toString();
-      else if (el.id === 'sku') text = (el.staticText || '') + (previewProductData.sku || '').toUpperCase();
-      else if (el.id === 'barcodeText') text = (previewProductData.barcode || previewProductData.sku || '').toUpperCase();
-      else if (el.id === 'subCategory' && previewProductData.subCategory) text = (el.staticText || '') + (previewProductData.subCategory || '').toUpperCase().slice(0, 10);
+      if (el.id === 'name') text = (el.staticText || '') + (previewData.name || '').slice(0, 23).toUpperCase();
+      else if (el.id === 'size') text = (el.staticText || '') + (previewData.size || '').toUpperCase();
+      else if (el.id === 'color' && previewData.color) text = (el.staticText || '') + (previewData.color || '').toUpperCase().slice(0, 10);
+      else if (el.id === 'style') text = (el.staticText || '') + (previewData.styleCode || '').toUpperCase();
+      else if (el.id === 'price') text = (el.staticText || '') + Number(previewData.sellingPrice || 0).toFixed(2);
+      else if (el.id === 'code') text = (el.staticText || '') + '91' + ((previewData.purchasePrice || 0) * 2).toString();
+      else if (el.id === 'sku') text = (el.staticText || '') + (previewData.sku || '').toUpperCase();
+      else if (el.id === 'barcodeText') text = (previewData.barcode || previewData.sku || '').toUpperCase();
+      else if (el.id === 'subCategory' && previewData.subCategory) text = (el.staticText || '') + (previewData.subCategory || '').toUpperCase().slice(0, 10);
 
       const fontSizeInMm = (el.fontSize || 6) * 0.352778;
       const baselineY = el.y + (fontSizeInMm * 0.72);
@@ -241,7 +243,7 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
         );
       }
       return (
-        <div key={el.id} style={{ ...baseStyle, width: `${(el.width || 10) * MM_TO_PX}px`, minHeight: '1px', display: 'flex', itemsCenter: 'center' }}>
+        <div key={el.id} style={{ ...baseStyle, width: `${(el.width || 10) * MM_TO_PX}px`, minHeight: '1px', display: 'flex', alignItems: 'center' }}>
           <div style={{ width: '100%', height: 0, borderBottom: `${(el.height && el.height <= 1 ? el.height : 0.2) * MM_TO_PX}px ${bStyle} #1e293b` }} />
         </div>
       );
@@ -264,8 +266,10 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
     return null;
   };
 
+  const activeScale = 1.35;
+
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Print Product Tags" maxWidth="max-w-4xl">
+    <Modal isOpen={isOpen} onClose={onClose} title="Print Product Tags" maxWidth="max-w-5xl">
       <div className="flex flex-col lg:flex-row gap-6 py-1">
         
         {/* LEFT / MAIN COLUMN: Preview & Actions */}
@@ -279,78 +283,109 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
               </p>
             </div>
             <span className="bg-[#8B5CF6]/10 text-[#8B5CF6] text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg">
-              {availableSizes.length} {availableSizes.length === 1 ? 'Size' : 'Sizes'}
+              {selectedSizes.length} / {allAvailableSizes.length} Sizes Selected
             </span>
           </div>
 
-          {/* Live Visual Preview Container */}
+          {/* Live Visual Preview Container for All Sizes */}
           <div className="space-y-2">
             <div className="flex justify-between items-center ml-1">
               <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-1.5">
                 <Layers size={12} /> Live Preview ({activePreset.template.labelWidth}mm × {activePreset.template.labelHeight}mm)
               </label>
               <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">
-                Size: <strong className="text-slate-800">{previewSize}</strong>
+                Showing previews for {selectedSizes.length} {selectedSizes.length === 1 ? 'size' : 'sizes'}
               </span>
             </div>
 
-            <div className="bg-slate-150/60 p-6 rounded-2xl border border-slate-200/80 flex items-center justify-center min-h-[190px] overflow-hidden shadow-inner">
-              <div
-                ref={previewRef}
-                style={{
-                  width: `${activePreset.template.labelWidth * MM_TO_PX}px`,
-                  height: `${activePreset.template.labelHeight * MM_TO_PX}px`,
-                  backgroundColor: '#ffffff',
-                  position: 'relative',
-                  borderRadius: '4px',
-                  boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
-                  transform: `scale(1.5)`,
-                  transformOrigin: 'center center',
-                  margin: '20px auto'
-                }}
-              >
-                {activePreset.template.elements.map(el => renderPreviewElement(el))}
-              </div>
-            </div>
-          </div>
-
-          {/* Sizes Selection */}
-          {availableSizes.length > 1 && (
-            <div className="space-y-2 border-t border-slate-100 pt-3">
-              <div className="flex items-center justify-between ml-1">
-                <label className="text-[9px] font-black uppercase tracking-widest text-slate-400">
-                  Sizes to Print ({selectedSizes.length} of {availableSizes.length})
-                </label>
-                <button
-                  type="button"
-                  onClick={toggleAllSizes}
-                  className="text-[8px] font-bold text-[#8B5CF6] hover:underline uppercase tracking-widest"
-                >
-                  {selectedSizes.length === availableSizes.length ? 'Deselect All' : 'Select All'}
-                </button>
-              </div>
-
-              <div className="flex flex-wrap gap-2">
-                {availableSizes.map(size => {
-                  const isSelected = selectedSizes.includes(size);
+            <div className="bg-slate-150/60 p-4 rounded-2xl border border-slate-200/80 overflow-x-auto shadow-inner hide-scrollbar">
+              <div className="flex items-start gap-6 py-4 px-2 min-w-max">
+                {selectedSizes.map((sz, idx) => {
+                  const sizeData = getVariantProductData(sz);
                   return (
-                    <button
-                      key={size}
-                      type="button"
-                      onClick={() => toggleSize(size)}
-                      className={`px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all border ${
-                        isSelected
-                          ? 'bg-[#8B5CF6] text-white border-[#8B5CF6] shadow-xs'
-                          : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
-                      }`}
-                    >
-                      {isSelected ? `✓ ${size}` : size}
-                    </button>
+                    <div key={sz} className="flex flex-col items-center gap-2.5 shrink-0">
+                      <span className="bg-slate-900 text-white text-[8.5px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full shadow-xs">
+                        Size: {sz}
+                      </span>
+
+                      <div
+                        ref={idx === 0 ? previewRef : undefined}
+                        style={{
+                          width: `${activePreset.template.labelWidth * MM_TO_PX}px`,
+                          height: `${activePreset.template.labelHeight * MM_TO_PX}px`,
+                          backgroundColor: '#ffffff',
+                          position: 'relative',
+                          borderRadius: '4px',
+                          boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
+                          transform: `scale(${activeScale})`,
+                          transformOrigin: 'top left',
+                          marginRight: `${activePreset.template.labelWidth * MM_TO_PX * (activeScale - 1)}px`,
+                          marginBottom: `${activePreset.template.labelHeight * MM_TO_PX * (activeScale - 1)}px`
+                        }}
+                      >
+                        {activePreset.template.elements.map(el => renderPreviewElement(el, sizeData))}
+                      </div>
+                    </div>
                   );
                 })}
               </div>
             </div>
-          )}
+          </div>
+
+          {/* Sizes Selection & Custom Size Adder */}
+          <div className="space-y-3 border-t border-slate-100 pt-3">
+            <div className="flex items-center justify-between ml-1">
+              <label className="text-[9px] font-black uppercase tracking-widest text-slate-400">
+                Sizes to Print ({selectedSizes.length} selected)
+              </label>
+              <button
+                type="button"
+                onClick={toggleAllSizes}
+                className="text-[8px] font-bold text-[#8B5CF6] hover:underline uppercase tracking-widest"
+              >
+                {selectedSizes.length === allAvailableSizes.length ? 'Deselect All' : 'Select All'}
+              </button>
+            </div>
+
+            {/* Custom Size Input */}
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={customSizeInput}
+                onChange={(e) => setCustomSizeInput(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddCustomSize(); } }}
+                placeholder="Add custom size (e.g. 40, 2-3Y, XL) & press Enter"
+                className="flex-1 px-3 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#8B5CF6]/40 rounded-xl outline-none text-[10px] font-black uppercase tracking-widest text-slate-700 transition-all"
+              />
+              <button
+                type="button"
+                onClick={handleAddCustomSize}
+                className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all flex items-center gap-1"
+              >
+                <Plus size={12} /> Add Size
+              </button>
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              {allAvailableSizes.map(size => {
+                const isSelected = selectedSizes.includes(size);
+                return (
+                  <button
+                    key={size}
+                    type="button"
+                    onClick={() => toggleSize(size)}
+                    className={`px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all border ${
+                      isSelected
+                        ? 'bg-[#8B5CF6] text-white border-[#8B5CF6] shadow-xs'
+                        : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
+                    }`}
+                  >
+                    {isSelected ? `✓ ${size}` : size}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
 
           {/* Action Buttons */}
           <div className="pt-3 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-3 gap-2">
@@ -359,7 +394,7 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
               onClick={handleDownloadPDF}
               className="py-3 px-3 bg-[#8B5CF6] hover:bg-[#7C3AED] text-white rounded-2xl text-[9px] font-black uppercase tracking-widest shadow-md shadow-[#8B5CF6]/20 transition-all flex items-center justify-center gap-1.5"
             >
-              <Download size={13} /> PDF ({selectedSizes.length})
+              <Download size={13} /> PDF ({selectedSizes.length} {selectedSizes.length === 1 ? 'Tag' : 'Tags'})
             </button>
 
             <button
