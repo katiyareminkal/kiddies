@@ -472,21 +472,31 @@ function LabelDesigner({ labelData, initialTemplate, allProductSizes, onClose, o
   };
 
   const handleSaveTemplate = () => {
+    const defaultName = currentPresetName ? `${currentPresetName} (Copy)` : `Preset ${template.labelWidth}x${template.labelHeight}`;
     setPromptDialog({
-      message: 'Enter a name for this layout preset:',
-      defaultValue: currentPresetName || '',
+      message: 'Enter a name to save a copy of this design preset:',
+      defaultValue: defaultName,
       onConfirm: (name) => {
-        if (!name.trim()) {
+        const trimmedName = name.trim();
+        if (!trimmedName) {
           setPromptDialog(null);
           return;
         }
-        const newLayouts = [...savedLayouts.filter(l => l.name !== name), { name, template }];
+
+        const templateCopy: LabelTemplate = {
+          ...JSON.parse(JSON.stringify(template)),
+          id: `custom_preset_${Date.now()}`,
+          name: trimmedName,
+          labelWidth: template.labelWidth,
+          labelHeight: template.labelHeight
+        };
+
+        const newLayouts = [...savedLayouts.filter(l => l.name !== trimmedName), { name: trimmedName, template: templateCopy }];
         setSavedLayouts(newLayouts);
         localStorage.setItem('kiddies_saved_layouts', JSON.stringify(newLayouts));
-
-        localStorage.setItem('kiddies_label_template_' + template.labelWidth + 'x' + template.labelHeight, JSON.stringify(template));
-        setCurrentPresetName(name);
-        showToast('Template saved successfully!');
+        localStorage.setItem('kiddies_label_template_' + template.labelWidth + 'x' + template.labelHeight, JSON.stringify(templateCopy));
+        setCurrentPresetName(trimmedName);
+        showToast(`Saved copy as preset "${trimmedName}"!`);
         setPromptDialog(null);
       }
     });
