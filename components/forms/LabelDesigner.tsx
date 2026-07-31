@@ -659,17 +659,35 @@ function LabelDesigner({ labelData, initialTemplate, allProductSizes, onClose, o
       );
     } else if (el.type === 'text') {
       let text = el.staticText || '';
-      if (el.id === 'name') text = (labelData.name || '').slice(0, 23).toUpperCase();
-      if (el.id === 'size') text += (labelData.size || '').toUpperCase();
-      if (el.id === 'color') text += (labelData.color || '').toUpperCase();
-      if (el.id === 'style') text += (labelData.styleCode || '').toUpperCase();
-      if (el.id === 'price') text += Number(labelData.sellingPrice || 0).toFixed(2);
-      if (el.id === 'code') text += '91' + ((labelData.purchasePrice || 0) * 2).toString();
-      if (el.id === 'sku') text += (labelData.sku || '').toUpperCase();
-      if (el.id === 'barcodeText') text = (labelData.barcode || labelData.sku || '').toUpperCase();
+      if (el.id === 'name') text = (el.staticText || '') + (labelData.name || '').slice(0, 23).toUpperCase();
+      else if (el.id === 'size') text = (el.staticText || '') + (labelData.size || '').toUpperCase();
+      else if (el.id === 'color' && labelData.color) text = (el.staticText || '') + (labelData.color || '').toUpperCase().slice(0, 10);
+      else if (el.id === 'style') text = (el.staticText || '') + (labelData.styleCode || '').toUpperCase();
+      else if (el.id === 'price') text = (el.staticText || '') + Number(labelData.sellingPrice || 0).toFixed(2);
+      else if (el.id === 'code') text = (el.staticText || '') + '91' + ((labelData.purchasePrice || 0) * 2).toString();
+      else if (el.id === 'sku') text = (el.staticText || '') + (labelData.sku || '').toUpperCase();
+      else if (el.id === 'barcodeText') text = (labelData.barcode || labelData.sku || '').toUpperCase();
+      else if (el.id === 'subCategory' && labelData.subCategory) text = (el.staticText || '') + (labelData.subCategory || '').toUpperCase().slice(0, 10);
+
+      const fontSizeInMm = (el.fontSize || 6) * 0.352778;
+      const baselineY = el.y + (fontSizeInMm * 0.72);
+      const fontTopMm = baselineY - fontSizeInMm;
 
       return (
-        <div key={el.id} style={{ ...baseStyle, fontSize: `${(el.fontSize || 6) * 1.3}px`, fontWeight: el.isBold ? 900 : 'normal', fontFamily: el.fontFamily === 'times' ? 'Times New Roman, Times, serif' : el.fontFamily === 'courier' ? 'Courier New, Courier, monospace' : 'Helvetica, Arial, sans-serif', whiteSpace: 'nowrap', color: '#1e293b', lineHeight: 1 }} onPointerDown={(e) => handlePointerDown(e, el.id)}>
+        <div
+          key={el.id}
+          style={{
+            ...baseStyle,
+            top: `${fontTopMm * MM_TO_PX}px`,
+            fontSize: `${(el.fontSize || 6) * 1.33}px`,
+            fontWeight: el.isBold ? 900 : 'normal',
+            fontFamily: el.fontFamily === 'times' ? 'Times New Roman, Times, serif' : el.fontFamily === 'courier' ? 'Courier New, Courier, monospace' : 'Helvetica, Arial, sans-serif',
+            whiteSpace: 'nowrap',
+            color: '#1e293b',
+            lineHeight: 1
+          }}
+          onPointerDown={(e) => handlePointerDown(e, el.id)}
+        >
           {text}
         </div>
       );
@@ -682,16 +700,32 @@ function LabelDesigner({ labelData, initialTemplate, allProductSizes, onClose, o
       );
     } else if (el.type === 'line') {
       const bStyle = el.borderStyle === 'dashed' ? 'dashed' : el.borderStyle === 'dotted' ? 'dotted' : 'solid';
+      if (el.width === 0 && el.height !== undefined) {
+        return (
+          <div
+            key={el.id}
+            style={{
+              ...baseStyle,
+              width: 0,
+              height: `${el.height * MM_TO_PX}px`,
+              borderLeft: `0.8px ${bStyle} #1e293b`
+            }}
+            onPointerDown={(e) => handlePointerDown(e, el.id)}
+          >
+            {renderHandle('resizeXY')}
+          </div>
+        );
+      }
       return (
-        <div key={el.id} style={{ ...baseStyle, width: `${(el.width || 10) * MM_TO_PX}px`, minHeight: '10px', display: 'flex', alignItems: 'center' }} onPointerDown={(e) => handlePointerDown(e, el.id)}>
-          <div style={{ width: '100%', height: 0, borderBottom: `${(el.height || 0.5) * MM_TO_PX}px ${bStyle} #1e293b`, pointerEvents: 'none' }} />
+        <div key={el.id} style={{ ...baseStyle, width: `${(el.width || 10) * MM_TO_PX}px`, minHeight: '1px', display: 'flex', alignItems: 'center' }} onPointerDown={(e) => handlePointerDown(e, el.id)}>
+          <div style={{ width: '100%', height: 0, borderBottom: `${(el.height && el.height <= 1 ? el.height : 0.2) * MM_TO_PX}px ${bStyle} #1e293b`, pointerEvents: 'none' }} />
           {renderHandle('resizeX')}
         </div>
       );
     } else if (el.type === 'rect') {
       const bStyle = el.borderStyle === 'dashed' ? 'dashed' : el.borderStyle === 'dotted' ? 'dotted' : 'solid';
       return (
-        <div key={el.id} style={{ ...baseStyle, width: `${(el.width || 10) * MM_TO_PX}px`, height: `${(el.height || 10) * MM_TO_PX}px`, border: `${0.5 * MM_TO_PX}px ${bStyle} #1e293b`, borderRadius: `${(el.borderRadius || 0) * MM_TO_PX}px`, backgroundColor: 'transparent' }} onPointerDown={(e) => handlePointerDown(e, el.id)}>
+        <div key={el.id} style={{ ...baseStyle, width: `${(el.width || 10) * MM_TO_PX}px`, height: `${(el.height || 10) * MM_TO_PX}px`, border: `0.8px ${bStyle} #1e293b`, borderRadius: `${(el.borderRadius || 0) * MM_TO_PX}px`, backgroundColor: 'transparent' }} onPointerDown={(e) => handlePointerDown(e, el.id)}>
           {renderHandle('resizeXY')}
         </div>
       );
