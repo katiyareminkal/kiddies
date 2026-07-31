@@ -456,58 +456,6 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
             </div>
           </div>
 
-          {/* Sizes Selection & Custom Size Adder */}
-          <div className="space-y-3 border-t border-slate-100 pt-3">
-            <div className="flex items-center justify-end ml-1">
-              <button
-                type="button"
-                onClick={toggleAllSizes}
-                className="text-[8px] font-bold text-[#8B5CF6] hover:underline uppercase tracking-widest"
-              >
-                {selectedSizes.length === allAvailableSizes.length ? 'Deselect All Sizes' : 'Select All Sizes'}
-              </button>
-            </div>
-
-            {/* Custom Size Input */}
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={customSizeInput}
-                onChange={(e) => setCustomSizeInput(e.target.value)}
-                onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddCustomSize(); } }}
-                placeholder="Add custom size (e.g. 40, 2-3Y, XL) & press Enter"
-                className="flex-1 px-3 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#8B5CF6]/40 rounded-xl outline-none text-[10px] font-black uppercase tracking-widest text-slate-700 transition-all"
-              />
-              <button
-                type="button"
-                onClick={handleAddCustomSize}
-                className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all flex items-center gap-1"
-              >
-                <Plus size={12} /> Add Size
-              </button>
-            </div>
-
-            <div className="flex flex-wrap gap-2">
-              {allAvailableSizes.map(size => {
-                const isSelected = selectedSizes.includes(size);
-                return (
-                  <button
-                    key={size}
-                    type="button"
-                    onClick={() => toggleSize(size)}
-                    className={`px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all border ${
-                      isSelected
-                        ? 'bg-[#8B5CF6] text-white border-[#8B5CF6] shadow-xs'
-                        : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
-                    }`}
-                  >
-                    {isSelected ? `✓ ${size}` : size}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
           {/* Action Buttons */}
           <div className="pt-3 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-3 gap-2">
             <button
