@@ -247,6 +247,9 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
     }
   };
 
+  // Default preview data for preset thumbnails
+  const previewData = getVariantProductData(selectedSizes[0] || initialAvailableSizes[0] || 'FREE');
+
   // Preview elements rendering
   const renderPreviewElement = (el: LabelElement, previewData: LabelProduct) => {
     if (!el.visible) return null;
