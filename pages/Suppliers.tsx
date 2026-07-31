@@ -37,7 +37,7 @@ const Suppliers: React.FC = () => {
   const [isPaymentOpen, setIsPaymentOpen] = useState(false);
 
   // New Bill Form State
-  const [billItems, setBillItems] = useState<{itemName: string, quantity: number, unitPrice: number, total: number}[]>([{itemName: '', quantity: 1, unitPrice: 0, total: 0}]);
+  const [billItems, setBillItems] = useState<{itemName: string, quantity: string, unitPrice: string, total: number}[]>([{itemName: '', quantity: '1', unitPrice: '', total: 0}]);
   const [billImageFile, setBillImageFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   
@@ -103,6 +103,14 @@ const Suppliers: React.FC = () => {
     else if (paid > 0) status = 'PARTIAL';
 
     try {
+      const itemsForSubmit = billItems
+        .filter(item => item.itemName.trim() !== '')
+        .map(item => ({
+          itemName: item.itemName,
+          quantity: Number(item.quantity) || 0,
+          unitPrice: Number(item.unitPrice) || 0,
+          total: item.total
+        }));
       await addSupplierBill({
         supplierId: selectedSupplier.id,
         billNumber: formData.get('billNumber') as string,
@@ -111,27 +119,32 @@ const Suppliers: React.FC = () => {
         paidAmount: paid,
         status,
         notes: formData.get('notes') as string,
-        items: billItems.filter(item => item.itemName.trim() !== '')
+        items: itemsForSubmit
       }, billImageFile || undefined);
       setIsAddBillOpen(false);
-      setBillItems([{itemName: '', quantity: 1, unitPrice: 0, total: 0}]);
+      setBillItems([{itemName: '', quantity: '1', unitPrice: '', total: 0}]);
       setBillImageFile(null);
+    } catch (err: any) {
+      console.error('Failed to save bill:', err);
+      alert('Failed to save bill: ' + (err?.message || 'Unknown error'));
     } finally {
       setIsUploading(false);
     }
   };
 
-  const updateBillItem = (index: number, field: string, value: string | number) => {
+  const updateBillItem = (index: number, field: string, value: string) => {
     const newItems = [...billItems];
     newItems[index] = { ...newItems[index], [field]: value };
     if (field === 'quantity' || field === 'unitPrice') {
-       newItems[index].total = newItems[index].quantity * newItems[index].unitPrice;
+       const qty = Number(newItems[index].quantity) || 0;
+       const price = Number(newItems[index].unitPrice) || 0;
+       newItems[index].total = qty * price;
     }
     setBillItems(newItems);
   };
 
   const addBillItemRow = () => {
-    setBillItems([...billItems, {itemName: '', quantity: 1, unitPrice: 0, total: 0}]);
+    setBillItems([...billItems, {itemName: '', quantity: '1', unitPrice: '', total: 0}]);
   };
 
   const removeBillItemRow = (index: number) => {
@@ -464,7 +477,7 @@ const Suppliers: React.FC = () => {
                       required 
                       min="1"
                       value={item.quantity}
-                      onChange={e => updateBillItem(index, 'quantity', Number(e.target.value))}
+                      onChange={e => updateBillItem(index, 'quantity', e.target.value)}
                       placeholder="Qty" 
                       className="w-16 px-3 py-2 bg-white rounded-lg border border-slate-200 focus:border-highlight/30 outline-none font-bold text-[10px] text-slate-900"
                     />
@@ -476,7 +489,7 @@ const Suppliers: React.FC = () => {
                           min="0"
                           step="0.01"
                           value={item.unitPrice}
-                          onChange={e => updateBillItem(index, 'unitPrice', Number(e.target.value))}
+                          onChange={e => updateBillItem(index, 'unitPrice', e.target.value)}
                           placeholder="Price" 
                           className="w-full pl-6 pr-2 py-2 bg-white rounded-lg border border-slate-200 focus:border-highlight/30 outline-none font-bold text-[10px] text-slate-900"
                         />
@@ -530,7 +543,7 @@ const Suppliers: React.FC = () => {
           </div>
 
           <div className="flex gap-4 pt-4">
-            <button type="button" onClick={() => { setIsAddBillOpen(false); setBillItems([{itemName: '', quantity: 1, unitPrice: 0, total: 0}]); setBillImageFile(null); }} className="flex-1 h-12 rounded-xl font-black uppercase tracking-widest text-[9px] text-slate-400 hover:bg-slate-50" disabled={isUploading}>Cancel</button>
+            <button type="button" onClick={() => { setIsAddBillOpen(false); setBillItems([{itemName: '', quantity: '1', unitPrice: '', total: 0}]); setBillImageFile(null); }} className="flex-1 h-12 rounded-xl font-black uppercase tracking-widest text-[9px] text-slate-400 hover:bg-slate-50" disabled={isUploading}>Cancel</button>
             <button type="submit" className="banana-btn flex-1 h-12 text-[9px]" disabled={isUploading}>
               {isUploading ? 'Saving...' : 'Save Bill'}
             </button>
