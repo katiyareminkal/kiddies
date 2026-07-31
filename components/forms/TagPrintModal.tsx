@@ -458,16 +458,13 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
 
           {/* Sizes Selection & Custom Size Adder */}
           <div className="space-y-3 border-t border-slate-100 pt-3">
-            <div className="flex items-center justify-between ml-1">
-              <label className="text-[9px] font-black uppercase tracking-widest text-slate-400">
-                Sizes to Print ({selectedSizes.length} selected)
-              </label>
+            <div className="flex items-center justify-end ml-1">
               <button
                 type="button"
                 onClick={toggleAllSizes}
                 className="text-[8px] font-bold text-[#8B5CF6] hover:underline uppercase tracking-widest"
               >
-                {selectedSizes.length === allAvailableSizes.length ? 'Deselect All' : 'Select All'}
+                {selectedSizes.length === allAvailableSizes.length ? 'Deselect All Sizes' : 'Select All Sizes'}
               </button>
             </div>
 
