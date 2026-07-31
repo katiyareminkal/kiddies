@@ -984,7 +984,7 @@ function LabelDesigner({ labelData, initialTemplate, allProductSizes, onClose, o
                   {singleElement.type === 'text' && (
                     <div className="space-y-3">
                       <div className="space-y-1">
-                        <label className="text-[8px] font-black uppercase text-slate-400 tracking-widest ml-1">Label Prefix / Header Text</label>
+                        <label className="text-[8px] font-black uppercase text-slate-400 tracking-widest ml-1">Prefix / Static Text (e.g. Rs., SKU:)</label>
                         <input type="text" value={singleElement.staticText || ''} onChange={e => updateSingleElement({ staticText: e.target.value })} placeholder="Prefix (e.g. SKU :, CODE :, Rs.)" className="w-full bg-white border border-slate-200 focus:border-[#8B5CF6]/50 rounded-lg p-2 text-[10px] outline-none transition-all shadow-sm font-bold" />
                       </div>
                       <div className="space-y-1">
