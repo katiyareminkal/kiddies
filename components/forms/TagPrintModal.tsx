@@ -199,18 +199,21 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
     : [product];
 
   const getVariantProductData = (size: string): LabelProduct => {
-    const variant = siblings.find((v: Product) => (v.sizes || [])[0]?.toUpperCase() === size.toUpperCase()) || product;
+    const target = (siblings && siblings.find((v: any) =>
+      v && (v.size?.toUpperCase() === size.toUpperCase() || (v.sizes && v.sizes.includes(size)))
+    )) || product || {} as any;
+
     return {
-      name: variant.name || product.name,
-      sku: variant.sku || product.sku,
-      barcode: variant.barcode || product.barcode || '',
-      sellingPrice: variant.sellingPrice || product.sellingPrice,
-      purchasePrice: variant.purchasePrice || product.purchasePrice,
-      color: variant.color || product.color || '',
-      size: size,
-      styleCode: '',
-      subCategory: variant.subCategory || product.subCategory || '',
-      labelSize: activeTemplate.labelWidth === 30 ? '30x50' : '50x30'
+      name: target.name || '',
+      sku: target.sku || '',
+      barcode: target.barcode || '',
+      sellingPrice: target.sellingPrice || 0,
+      purchasePrice: target.purchasePrice || 0,
+      color: target.color || '',
+      size: size !== 'FREE' ? size : (target.size || 'FREE'),
+      styleCode: target.styleCode || '',
+      subCategory: target.subCategory || '',
+      labelSize: `${activeTemplate?.labelWidth || 50}x${activeTemplate?.labelHeight || 30}`
     };
   };
 
@@ -266,7 +269,7 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
       );
     } else if (el.type === 'text') {
       let val = el.customValue !== undefined ? el.customValue : '';
-      if (!val) {
+      if (!val && previewData) {
         if (el.id === 'name') val = (previewData.name || '').slice(0, 23).toUpperCase();
         else if (el.id === 'size') val = (previewData.size || '').toUpperCase();
         else if (el.id === 'color' && previewData.color) val = (previewData.color || '').toUpperCase().slice(0, 10);
