@@ -521,8 +521,7 @@ const AppContent: React.FC = () => {
             alt="Kiddies Logo"
             className="h-20 object-contain drop-shadow-md mb-2"
           />
-          <div className="text-[#8B5CF6] text-[8px] font-black uppercase tracking-[0.3em] mb-6">Stock Management</div>
-          <Loader2 size={24} className="text-[#8B5CF6] animate-spin opacity-80" strokeWidth={2.5} />
+          <div className="text-[#8B5CF6] text-[8px] font-black uppercase tracking-[0.3em]">Stock Management</div>
         </div>
       </div>
     );
