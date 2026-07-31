@@ -128,7 +128,6 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
       labelHeight: selectedPaperDim.height,
       elements: activeTemplate.elements
     };
-    onClose();
     onOpenDesigner(newTemplate, selectedSizes);
   };
 
@@ -627,7 +626,6 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
             <button
               type="button"
               onClick={() => {
-                onClose();
                 onOpenDesigner(activeTemplate, selectedSizes);
               }}
               className="py-3 px-3 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-1.5"
