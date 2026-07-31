@@ -9,9 +9,10 @@ interface ModalProps {
   title: string;
   children: React.ReactNode;
   headerActions?: React.ReactNode;
+  maxWidth?: string;
 }
 
-export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children, headerActions }) => {
+export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children, headerActions, maxWidth }) => {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -36,7 +37,7 @@ export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children, 
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.98, y: 10 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="bg-white rounded-2xl shadow-2xl w-[calc(100%-1.5rem)] md:w-full h-auto max-h-[85vh] md:max-h-[90vh] max-w-2xl overflow-hidden border border-slate-100 flex flex-col relative z-10"
+            className={`bg-white rounded-2xl shadow-2xl w-[calc(100%-1.5rem)] md:w-full h-auto max-h-[85vh] md:max-h-[90vh] ${maxWidth || 'max-w-2xl'} overflow-hidden border border-slate-100 flex flex-col relative z-10`}
           >
             <div className="flex items-center justify-between p-3 md:p-4 border-b border-slate-50 shrink-0 bg-white">
               <h2 className="text-sm md:text-base font-semibold text-slate-900 tracking-tight">{title}</h2>

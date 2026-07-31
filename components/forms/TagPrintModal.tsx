@@ -1,6 +1,7 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import { Modal } from '../Shared';
-import { Tag, Download, Edit2, Check, LayoutGrid, Layers, RefreshCw } from 'lucide-react';
+import { Tag, Download, Edit2, Check, LayoutGrid, Layers, Image as ImageIcon, Sparkles, FolderX } from 'lucide-react';
+import html2canvas from 'html2canvas';
 import { Product } from '../../types';
 import { 
   LabelProduct, 
@@ -28,20 +29,25 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
 }) => {
   if (!product) return null;
 
-  // Sizes state
+  const previewRef = useRef<HTMLDivElement>(null);
+  const [isDownloadingImage, setIsDownloadingImage] = useState(false);
+
+  // Available Sizes
   const availableSizes = useMemo(() => {
     return product.sizes && product.sizes.length > 0 ? product.sizes : ['FREE'];
   }, [product]);
 
   const [selectedSizes, setSelectedSizes] = useState<string[]>(() => [...availableSizes]);
 
-  // Load Presets
-  const presets = useMemo(() => {
-    const list: { id: string; name: string; template: LabelTemplate; isBuiltIn?: boolean }[] = [
-      { id: 'default_50x30', name: '50x30 Designer (Default)', template: DEFAULT_TEMPLATE_50x30, isBuiltIn: true },
-      { id: 'default_30x50', name: '30x50 Portrait', template: DEFAULT_TEMPLATE_30x50, isBuiltIn: true }
-    ];
+  // Built-in Presets
+  const builtInPresets = useMemo(() => [
+    { id: 'default_50x30', name: '50x30 Designer (Default)', template: DEFAULT_TEMPLATE_50x30, isBuiltIn: true },
+    { id: 'default_30x50', name: '30x50 Portrait', template: DEFAULT_TEMPLATE_30x50, isBuiltIn: true }
+  ], []);
 
+  // Custom User Presets
+  const customPresets = useMemo(() => {
+    const list: { id: string; name: string; template: LabelTemplate; isBuiltIn?: boolean }[] = [];
     try {
       const saved = localStorage.getItem('kiddies_saved_layouts');
       if (saved) {
@@ -59,12 +65,14 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
         }
       }
     } catch (e) {}
-
     return list;
   }, []);
 
+  // All combined presets array for indexing
+  const allPresets = useMemo(() => [...builtInPresets, ...customPresets], [builtInPresets, customPresets]);
+
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
-  const activePreset = presets[selectedIndex] || presets[0];
+  const activePreset = allPresets[selectedIndex] || allPresets[0];
 
   const toggleSize = (size: string) => {
     if (selectedSizes.includes(size)) {
@@ -123,6 +131,30 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
 
     generateDynamicLabelPDF(productsToPrint, activePreset.template);
     onClose();
+  };
+
+  const handleDownloadPNG = async () => {
+    if (!previewRef.current) return;
+    setIsDownloadingImage(true);
+    try {
+      const canvas = await html2canvas(previewRef.current, {
+        scale: 4,
+        useCORS: true,
+        backgroundColor: '#ffffff'
+      });
+
+      const image = canvas.toDataURL("image/png");
+      const link = document.createElement('a');
+      link.href = image;
+      link.download = `Tag_${product.sku.toUpperCase()}_${previewSize}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (err) {
+      console.error('Failed to generate PNG image', err);
+    } finally {
+      setIsDownloadingImage(false);
+    }
   };
 
   // Preview elements rendering
@@ -209,7 +241,7 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
         );
       }
       return (
-        <div key={el.id} style={{ ...baseStyle, width: `${(el.width || 10) * MM_TO_PX}px`, minHeight: '1px', display: 'flex', alignItems: 'center' }}>
+        <div key={el.id} style={{ ...baseStyle, width: `${(el.width || 10) * MM_TO_PX}px`, minHeight: '1px', display: 'flex', itemsCenter: 'center' }}>
           <div style={{ width: '100%', height: 0, borderBottom: `${(el.height && el.height <= 1 ? el.height : 0.2) * MM_TO_PX}px ${bStyle} #1e293b` }} />
         </div>
       );
@@ -232,142 +264,236 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
     return null;
   };
 
-  const scaleFactor = 1.6; // Scale preview up by 1.6x for clear readability in modal
-
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Print Product Tags">
-      <div className="space-y-6 py-2">
-        {/* Header Summary */}
-        <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-          <div>
-            <h4 className="text-sm font-black text-slate-900 uppercase tracking-tight">{product.name}</h4>
-            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">
-              SKU: {product.sku} • {product.category}
-            </p>
-          </div>
-          <span className="bg-[#8B5CF6]/10 text-[#8B5CF6] text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg">
-            {availableSizes.length} {availableSizes.length === 1 ? 'Size' : 'Sizes'}
-          </span>
-        </div>
-
-        {/* Preset Selector */}
-        <div className="space-y-2">
-          <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-1.5 ml-1">
-            <LayoutGrid size={12} /> Select Label Preset / Design
-          </label>
-          
-          <div className="flex flex-wrap gap-2">
-            {presets.map((preset, idx) => {
-              const isSelected = selectedIndex === idx;
-              return (
-                <button
-                  key={preset.id}
-                  type="button"
-                  onClick={() => setSelectedIndex(idx)}
-                  className={`px-3.5 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all border flex items-center gap-2 ${
-                    isSelected
-                      ? 'bg-slate-900 text-white border-slate-900 shadow-md scale-[1.02]'
-                      : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-slate-50'
-                  }`}
-                >
-                  <span className={`w-2 h-2 rounded-full ${isSelected ? 'bg-[#8B5CF6]' : 'bg-slate-300'}`} />
-                  {preset.name}
-                  {isSelected && <Check size={12} className="ml-1 text-[#8B5CF6]" />}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Live Visual Preview Container */}
-        <div className="space-y-2">
-          <div className="flex justify-between items-center ml-1">
-            <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-1.5">
-              <Layers size={12} /> Live Preview ({activePreset.template.labelWidth}mm × {activePreset.template.labelHeight}mm)
-            </label>
-            <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">
-              Showing preview for size: <strong className="text-slate-800">{previewSize}</strong>
+    <Modal isOpen={isOpen} onClose={onClose} title="Print Product Tags" maxWidth="max-w-4xl">
+      <div className="flex flex-col lg:flex-row gap-6 py-1">
+        
+        {/* LEFT / MAIN COLUMN: Preview & Actions */}
+        <div className="flex-1 space-y-5">
+          {/* Header Summary */}
+          <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+            <div>
+              <h4 className="text-sm font-black text-slate-900 uppercase tracking-tight">{product.name}</h4>
+              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">
+                SKU: {product.sku} • {product.category}
+              </p>
+            </div>
+            <span className="bg-[#8B5CF6]/10 text-[#8B5CF6] text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg">
+              {availableSizes.length} {availableSizes.length === 1 ? 'Size' : 'Sizes'}
             </span>
           </div>
 
-          <div className="bg-slate-150/60 p-6 rounded-2xl border border-slate-200/80 flex items-center justify-center min-h-[180px] overflow-hidden shadow-inner">
-            <div
-              style={{
-                width: `${activePreset.template.labelWidth * MM_TO_PX}px`,
-                height: `${activePreset.template.labelHeight * MM_TO_PX}px`,
-                backgroundColor: '#ffffff',
-                position: 'relative',
-                borderRadius: '4px',
-                boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
-                transform: `scale(1.5)`,
-                transformOrigin: 'center center',
-                margin: '20px auto'
-              }}
-            >
-              {activePreset.template.elements.map(el => renderPreviewElement(el))}
-            </div>
-          </div>
-        </div>
-
-        {/* Sizes Selection */}
-        {availableSizes.length > 1 && (
-          <div className="space-y-2 border-t border-slate-100 pt-4">
-            <div className="flex items-center justify-between ml-1">
-              <label className="text-[9px] font-black uppercase tracking-widest text-slate-400">
-                Select Sizes to Print ({selectedSizes.length} of {availableSizes.length} selected)
+          {/* Live Visual Preview Container */}
+          <div className="space-y-2">
+            <div className="flex justify-between items-center ml-1">
+              <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-1.5">
+                <Layers size={12} /> Live Preview ({activePreset.template.labelWidth}mm × {activePreset.template.labelHeight}mm)
               </label>
-              <button
-                type="button"
-                onClick={toggleAllSizes}
-                className="text-[8px] font-bold text-[#8B5CF6] hover:underline uppercase tracking-widest"
-              >
-                {selectedSizes.length === availableSizes.length ? 'Deselect All' : 'Select All'}
-              </button>
+              <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">
+                Size: <strong className="text-slate-800">{previewSize}</strong>
+              </span>
             </div>
 
-            <div className="flex flex-wrap gap-2">
-              {availableSizes.map(size => {
-                const isSelected = selectedSizes.includes(size);
-                return (
-                  <button
-                    key={size}
-                    type="button"
-                    onClick={() => toggleSize(size)}
-                    className={`px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all border ${
-                      isSelected
-                        ? 'bg-[#8B5CF6] text-white border-[#8B5CF6] shadow-xs'
-                        : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
-                    }`}
-                  >
-                    {isSelected ? `✓ ${size}` : size}
-                  </button>
-                );
-              })}
+            <div className="bg-slate-150/60 p-6 rounded-2xl border border-slate-200/80 flex items-center justify-center min-h-[190px] overflow-hidden shadow-inner">
+              <div
+                ref={previewRef}
+                style={{
+                  width: `${activePreset.template.labelWidth * MM_TO_PX}px`,
+                  height: `${activePreset.template.labelHeight * MM_TO_PX}px`,
+                  backgroundColor: '#ffffff',
+                  position: 'relative',
+                  borderRadius: '4px',
+                  boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
+                  transform: `scale(1.5)`,
+                  transformOrigin: 'center center',
+                  margin: '20px auto'
+                }}
+              >
+                {activePreset.template.elements.map(el => renderPreviewElement(el))}
+              </div>
             </div>
           </div>
-        )}
 
-        {/* Modal Actions */}
-        <div className="pt-3 border-t border-slate-100 flex flex-col sm:flex-row gap-3">
-          <button
-            type="button"
-            onClick={handleDownloadPDF}
-            className="flex-1 py-3 bg-[#8B5CF6] hover:bg-[#7C3AED] text-white rounded-2xl text-[9.5px] font-black uppercase tracking-widest shadow-md shadow-[#8B5CF6]/20 transition-all flex items-center justify-center gap-2"
-          >
-            <Download size={14} /> Download PDF ({selectedSizes.length} {selectedSizes.length === 1 ? 'Tag' : 'Tags'})
-          </button>
-          
-          <button
-            type="button"
-            onClick={() => {
-              onClose();
-              onOpenDesigner(activePreset.template, selectedSizes);
-            }}
-            className="flex-1 py-3 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 rounded-2xl text-[9.5px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2"
-          >
-            <Edit2 size={13} /> Customize Layout
-          </button>
+          {/* Sizes Selection */}
+          {availableSizes.length > 1 && (
+            <div className="space-y-2 border-t border-slate-100 pt-3">
+              <div className="flex items-center justify-between ml-1">
+                <label className="text-[9px] font-black uppercase tracking-widest text-slate-400">
+                  Sizes to Print ({selectedSizes.length} of {availableSizes.length})
+                </label>
+                <button
+                  type="button"
+                  onClick={toggleAllSizes}
+                  className="text-[8px] font-bold text-[#8B5CF6] hover:underline uppercase tracking-widest"
+                >
+                  {selectedSizes.length === availableSizes.length ? 'Deselect All' : 'Select All'}
+                </button>
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                {availableSizes.map(size => {
+                  const isSelected = selectedSizes.includes(size);
+                  return (
+                    <button
+                      key={size}
+                      type="button"
+                      onClick={() => toggleSize(size)}
+                      className={`px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all border ${
+                        isSelected
+                          ? 'bg-[#8B5CF6] text-white border-[#8B5CF6] shadow-xs'
+                          : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
+                      }`}
+                    >
+                      {isSelected ? `✓ ${size}` : size}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Action Buttons */}
+          <div className="pt-3 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-3 gap-2">
+            <button
+              type="button"
+              onClick={handleDownloadPDF}
+              className="py-3 px-3 bg-[#8B5CF6] hover:bg-[#7C3AED] text-white rounded-2xl text-[9px] font-black uppercase tracking-widest shadow-md shadow-[#8B5CF6]/20 transition-all flex items-center justify-center gap-1.5"
+            >
+              <Download size={13} /> PDF ({selectedSizes.length})
+            </button>
+
+            <button
+              type="button"
+              onClick={handleDownloadPNG}
+              disabled={isDownloadingImage}
+              className="py-3 px-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl text-[9px] font-black uppercase tracking-widest shadow-md shadow-emerald-600/20 transition-all flex items-center justify-center gap-1.5"
+            >
+              <ImageIcon size={13} /> {isDownloadingImage ? 'Generating...' : 'Image (PNG)'}
+            </button>
+            
+            <button
+              type="button"
+              onClick={() => {
+                onClose();
+                onOpenDesigner(activePreset.template, selectedSizes);
+              }}
+              className="py-3 px-3 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-1.5"
+            >
+              <Edit2 size={13} /> Customize
+            </button>
+          </div>
         </div>
+
+        {/* RIGHT COLUMN: Presets List */}
+        <div className="w-full lg:w-72 bg-slate-50 p-4 rounded-2xl border border-slate-150 space-y-4 shrink-0 flex flex-col">
+          <div className="flex items-center justify-between border-b border-slate-200/80 pb-2.5">
+            <h3 className="text-[11px] font-black uppercase tracking-widest text-slate-800 flex items-center gap-1.5">
+              <LayoutGrid size={13} className="text-[#8B5CF6]" /> Design Presets
+            </h3>
+            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">
+              {allPresets.length} Total
+            </span>
+          </div>
+
+          <div className="space-y-4 flex-1 overflow-y-auto max-h-[350px] lg:max-h-none pr-1">
+            {/* Built-in Layouts */}
+            <div className="space-y-2">
+              <span className="text-[8px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-1 ml-1">
+                <Sparkles size={10} className="text-amber-500" /> Standard Templates
+              </span>
+
+              <div className="space-y-1.5">
+                {builtInPresets.map((preset) => {
+                  const globalIdx = allPresets.findIndex(p => p.id === preset.id);
+                  const isSelected = selectedIndex === globalIdx;
+
+                  return (
+                    <button
+                      key={preset.id}
+                      type="button"
+                      onClick={() => setSelectedIndex(globalIdx)}
+                      className={`w-full p-3 rounded-xl text-left transition-all border flex items-center justify-between ${
+                        isSelected
+                          ? 'bg-slate-900 text-white border-slate-900 shadow-md scale-[1.01]'
+                          : 'bg-white text-slate-700 border-slate-200 hover:border-slate-300 hover:bg-slate-100/80'
+                      }`}
+                    >
+                      <div className="space-y-0.5">
+                        <p className="text-[9.5px] font-black uppercase tracking-wider leading-tight">{preset.name}</p>
+                        <p className={`text-[8px] font-semibold tracking-widest uppercase ${isSelected ? 'text-slate-400' : 'text-slate-400'}`}>
+                          {preset.template.labelWidth}mm × {preset.template.labelHeight}mm
+                        </p>
+                      </div>
+
+                      {isSelected ? (
+                        <div className="w-5 h-5 rounded-full bg-[#8B5CF6] text-white flex items-center justify-center shrink-0">
+                          <Check size={11} strokeWidth={3} />
+                        </div>
+                      ) : (
+                        <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">Select</span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Custom Saved Presets */}
+            <div className="space-y-2 pt-2 border-t border-slate-200/80">
+              <span className="text-[8px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-1 ml-1">
+                <Tag size={10} className="text-[#8B5CF6]" /> Custom Presets
+              </span>
+
+              {customPresets.length > 0 ? (
+                <div className="space-y-1.5">
+                  {customPresets.map((preset) => {
+                    const globalIdx = allPresets.findIndex(p => p.id === preset.id);
+                    const isSelected = selectedIndex === globalIdx;
+
+                    return (
+                      <button
+                        key={preset.id}
+                        type="button"
+                        onClick={() => setSelectedIndex(globalIdx)}
+                        className={`w-full p-3 rounded-xl text-left transition-all border flex items-center justify-between ${
+                          isSelected
+                            ? 'bg-slate-900 text-white border-slate-900 shadow-md scale-[1.01]'
+                            : 'bg-white text-slate-700 border-slate-200 hover:border-slate-300 hover:bg-slate-100/80'
+                        }`}
+                      >
+                        <div className="space-y-0.5">
+                          <p className="text-[9.5px] font-black uppercase tracking-wider leading-tight">{preset.name}</p>
+                          <p className={`text-[8px] font-semibold tracking-widest uppercase ${isSelected ? 'text-slate-400' : 'text-slate-400'}`}>
+                            {preset.template.labelWidth}mm × {preset.template.labelHeight}mm
+                          </p>
+                        </div>
+
+                        {isSelected ? (
+                          <div className="w-5 h-5 rounded-full bg-[#8B5CF6] text-white flex items-center justify-center shrink-0">
+                            <Check size={11} strokeWidth={3} />
+                          </div>
+                        ) : (
+                          <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">Select</span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="p-3.5 bg-white rounded-xl border border-dashed border-slate-200 text-center space-y-1.5">
+                  <div className="w-7 h-7 rounded-lg bg-slate-50 text-slate-300 flex items-center justify-center mx-auto">
+                    <FolderX size={14} />
+                  </div>
+                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">No Custom Presets Found</p>
+                  <p className="text-[7.5px] text-slate-400 font-semibold leading-normal">
+                    Save custom designs in the Label Designer to list them here!
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
       </div>
     </Modal>
   );
