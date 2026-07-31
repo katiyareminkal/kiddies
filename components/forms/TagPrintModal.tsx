@@ -658,27 +658,54 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
                 <Sparkles size={10} className="text-amber-500" /> Standard Templates
               </span>
 
-              <div className="space-y-1.5">
+              <div className="space-y-2">
                 {builtInPresets.map((preset) => {
                   const globalIdx = allPresets.findIndex(p => p.id === preset.id);
                   const isSelected = selectedIndex === globalIdx;
+                  const tpl = preset.template;
+                  const maxDim = 40;
+                  const scale = Math.min(
+                    maxDim / (tpl.labelWidth * MM_TO_PX),
+                    maxDim / (tpl.labelHeight * MM_TO_PX)
+                  );
 
                   return (
                     <button
                       key={preset.id}
                       type="button"
                       onClick={() => selectPreset(globalIdx)}
-                      className={`w-full p-3 rounded-xl text-left transition-all border flex items-center justify-between ${
+                      className={`w-full p-2.5 rounded-xl text-left transition-all border flex items-center gap-3 ${
                         isSelected
                           ? 'bg-slate-900 text-white border-slate-900 shadow-md scale-[1.01]'
                           : 'bg-white text-slate-700 border-slate-200 hover:border-slate-300 hover:bg-slate-100/80'
                       }`}
                     >
-                      <div className="space-y-0.5">
-                        <p className="text-[9.5px] font-black uppercase tracking-wider leading-tight">{preset.name}</p>
-                        <p className={`text-[8px] font-semibold tracking-widest uppercase ${isSelected ? 'text-slate-400' : 'text-slate-400'}`}>
-                          {preset.template.labelWidth}mm × {preset.template.labelHeight}mm
-                        </p>
+                      {/* Mini Live Preview Box */}
+                      <div className={`w-11 h-11 rounded-lg flex items-center justify-center shrink-0 overflow-hidden relative border ${isSelected ? 'bg-slate-800 border-slate-700' : 'bg-slate-100 border-slate-200/80'}`}>
+                        <div
+                          style={{
+                            width: `${tpl.labelWidth * MM_TO_PX}px`,
+                            height: `${tpl.labelHeight * MM_TO_PX}px`,
+                            backgroundColor: '#ffffff',
+                            position: 'relative',
+                            borderRadius: '2px',
+                            boxShadow: '0 2px 5px rgba(0,0,0,0.15)',
+                            transform: `scale(${scale})`,
+                            transformOrigin: 'center center'
+                          }}
+                          className="pointer-events-none"
+                        >
+                          {tpl.elements.map(el => renderPreviewElement(el, previewData))}
+                        </div>
+                      </div>
+
+                      <div className="space-y-1 flex-1 min-w-0">
+                        <p className="text-[9.5px] font-black uppercase tracking-wider leading-tight truncate">{preset.name}</p>
+                        <span className={`inline-block px-1.5 py-0.5 rounded text-[7.5px] font-black uppercase tracking-widest ${
+                          isSelected ? 'bg-slate-800 text-amber-400 border border-slate-700' : 'bg-slate-100 text-slate-600 border border-slate-200'
+                        }`}>
+                          {tpl.labelWidth}mm × {tpl.labelHeight}mm
+                        </span>
                       </div>
 
                       {isSelected ? (
@@ -686,7 +713,7 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
                           <Check size={11} strokeWidth={3} />
                         </div>
                       ) : (
-                        <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">Select</span>
+                        <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest shrink-0">Select</span>
                       )}
                     </button>
                   );
@@ -701,27 +728,54 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
               </span>
 
               {customPresets.length > 0 ? (
-                <div className="space-y-1.5">
+                <div className="space-y-2">
                   {customPresets.map((preset) => {
                     const globalIdx = allPresets.findIndex(p => p.id === preset.id);
                     const isSelected = selectedIndex === globalIdx;
+                    const tpl = preset.template;
+                    const maxDim = 40;
+                    const scale = Math.min(
+                      maxDim / (tpl.labelWidth * MM_TO_PX),
+                      maxDim / (tpl.labelHeight * MM_TO_PX)
+                    );
 
                     return (
                       <button
                         key={preset.id}
                         type="button"
                         onClick={() => selectPreset(globalIdx)}
-                        className={`w-full p-3 rounded-xl text-left transition-all border flex items-center justify-between ${
+                        className={`w-full p-2.5 rounded-xl text-left transition-all border flex items-center gap-3 ${
                           isSelected
                             ? 'bg-slate-900 text-white border-slate-900 shadow-md scale-[1.01]'
                             : 'bg-white text-slate-700 border-slate-200 hover:border-slate-300 hover:bg-slate-100/80'
                         }`}
                       >
-                        <div className="space-y-0.5">
-                          <p className="text-[9.5px] font-black uppercase tracking-wider leading-tight">{preset.name}</p>
-                          <p className={`text-[8px] font-semibold tracking-widest uppercase ${isSelected ? 'text-slate-400' : 'text-slate-400'}`}>
-                            {preset.template.labelWidth}mm × {preset.template.labelHeight}mm
-                          </p>
+                        {/* Mini Live Preview Box */}
+                        <div className={`w-11 h-11 rounded-lg flex items-center justify-center shrink-0 overflow-hidden relative border ${isSelected ? 'bg-slate-800 border-slate-700' : 'bg-slate-100 border-slate-200/80'}`}>
+                          <div
+                            style={{
+                              width: `${tpl.labelWidth * MM_TO_PX}px`,
+                              height: `${tpl.labelHeight * MM_TO_PX}px`,
+                              backgroundColor: '#ffffff',
+                              position: 'relative',
+                              borderRadius: '2px',
+                              boxShadow: '0 2px 5px rgba(0,0,0,0.15)',
+                              transform: `scale(${scale})`,
+                              transformOrigin: 'center center'
+                            }}
+                            className="pointer-events-none"
+                          >
+                            {tpl.elements.map(el => renderPreviewElement(el, previewData))}
+                          </div>
+                        </div>
+
+                        <div className="space-y-1 flex-1 min-w-0">
+                          <p className="text-[9.5px] font-black uppercase tracking-wider leading-tight truncate">{preset.name}</p>
+                          <span className={`inline-block px-1.5 py-0.5 rounded text-[7.5px] font-black uppercase tracking-widest ${
+                            isSelected ? 'bg-[#8B5CF6]/30 text-purple-300 border border-[#8B5CF6]/50' : 'bg-purple-50 text-[#8B5CF6] border border-purple-200/60'
+                          }`}>
+                            {tpl.labelWidth}mm × {tpl.labelHeight}mm
+                          </span>
                         </div>
 
                         {isSelected ? (
@@ -729,7 +783,7 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
                             <Check size={11} strokeWidth={3} />
                           </div>
                         ) : (
-                          <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">Select</span>
+                          <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest shrink-0">Select</span>
                         )}
                       </button>
                     );
