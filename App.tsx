@@ -15,24 +15,24 @@ import Login from './pages/Login';
 import More from './pages/More';
 import { Modal } from './components/Shared';
 import { motion, AnimatePresence } from 'motion/react';
-import { 
-  LayoutDashboard, 
-  Package, 
-  FileText, 
-  AlertTriangle, 
-  Clock, 
-  ShoppingBag, 
-  RefreshCcw, 
-  CheckCircle2, 
-  Bell, 
-  Info, 
-  Menu, 
-  Search, 
-  Settings as SettingsIcon, 
-  ChevronDown, 
-  ShieldCheck, 
-  User, 
-  LogOut, 
+import {
+  LayoutDashboard,
+  Package,
+  FileText,
+  AlertTriangle,
+  Clock,
+  ShoppingBag,
+  RefreshCcw,
+  CheckCircle2,
+  Bell,
+  Info,
+  Menu,
+  Search,
+  Settings as SettingsIcon,
+  ChevronDown,
+  ShieldCheck,
+  User,
+  LogOut,
   Trash2,
   Heart,
   Star,
@@ -60,7 +60,7 @@ const Logo: React.FC<{ size?: 'sm' | 'md' | 'lg', onClick?: () => void }> = ({ s
     md: { img: 'h-12', sub: 'text-[7px]', w: 'w-3' },
     lg: { img: 'h-16', sub: 'text-[8px]', w: 'w-4' }
   };
-  
+
   const current = sizeClasses[size];
 
   return (
@@ -98,8 +98,8 @@ const Sidebar: React.FC<{ activeTab: string; onTabChange: (id: string) => void }
               onClick={() => onTabChange(item.id)}
               className={`
                 relative w-full flex items-center gap-3 px-4 py-3 rounded-xl text-[12px] font-bold transition-all duration-300 group
-                ${isActive 
-                  ? 'bg-[#8B5CF6]/10 text-[#8B5CF6]' 
+                ${isActive
+                  ? 'bg-[#8B5CF6]/10 text-[#8B5CF6]'
                   : 'text-slate-400 hover:text-slate-900 hover:bg-slate-50'
                 }
               `}
@@ -108,15 +108,15 @@ const Sidebar: React.FC<{ activeTab: string; onTabChange: (id: string) => void }
                 ${isActive ? 'text-[#8B5CF6]' : 'text-slate-300 group-hover:text-slate-900'} 
                 transition-colors duration-200
               `}>
-                {React.isValidElement(item.icon) 
-                  ? React.cloneElement(item.icon as React.ReactElement<any>, { 
-                      size: 16, 
-                      strokeWidth: isActive ? 2.5 : 2 
-                    })
+                {React.isValidElement(item.icon)
+                  ? React.cloneElement(item.icon as React.ReactElement<any>, {
+                    size: 16,
+                    strokeWidth: isActive ? 2.5 : 2
+                  })
                   : item.icon
                 }
               </span>
-              
+
               <span className="tracking-widest uppercase text-[10px] font-bold">{item.label}</span>
               {isActive && (
                 <div className="absolute right-2 w-1.5 h-1.5 bg-[#8B5CF6] rounded-full"></div>
@@ -157,7 +157,7 @@ const TopBar: React.FC<{ activeTab: string; onTabChange: (id: string) => void }>
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
-  
+
   const unreadCount = notifications.filter(n => !n.isRead).length;
 
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
@@ -168,7 +168,7 @@ const TopBar: React.FC<{ activeTab: string; onTabChange: (id: string) => void }>
   useEffect(() => {
     setIsStandalone(window.matchMedia('(display-mode: standalone)').matches || (navigator as any).standalone);
     setIsIOSDevice(/iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream);
-    
+
     const handleBeforeInstallPrompt = (e: any) => {
       e.preventDefault();
       setDeferredPrompt(e);
@@ -214,21 +214,21 @@ const TopBar: React.FC<{ activeTab: string; onTabChange: (id: string) => void }>
             <Logo size="sm" onClick={() => onTabChange('dashboard')} />
           </div>
         )}
-        
+
         <div className={`
           ${isSearchOpen ? 'flex absolute inset-0 bg-white px-4' : 'hidden sm:flex'} 
           items-center bg-slate-50 sm:bg-slate-50 rounded-none sm:rounded-xl px-4 py-2 w-full max-w-md focus-within:bg-white transition-all border-b sm:border border-slate-100 sm:border-transparent focus-within:border-[#8B5CF6]/20 group z-50
         `}>
           <Search size={16} className="text-slate-400 mr-3 group-focus-within:text-[#8B5CF6]" />
-          <input 
+          <input
             ref={searchInputRef}
-            type="text" 
-            placeholder="Search anything..." 
+            type="text"
+            placeholder="Search anything..."
             className="bg-transparent text-xs outline-none flex-1 placeholder:text-slate-400 text-slate-700 font-medium"
           />
           {isSearchOpen && (
-            <button 
-              onClick={(e) => { e.stopPropagation(); setIsSearchOpen(false); }} 
+            <button
+              onClick={(e) => { e.stopPropagation(); setIsSearchOpen(false); }}
               className="text-[10px] font-black text-[#8B5CF6] ml-4 uppercase tracking-widest"
             >
               Cancel
@@ -238,7 +238,7 @@ const TopBar: React.FC<{ activeTab: string; onTabChange: (id: string) => void }>
 
         {/* Small search trigger for mobile */}
         {!isSearchOpen && (
-          <button 
+          <button
             onClick={() => setIsSearchOpen(true)}
             className="sm:hidden p-2 text-slate-400 hover:bg-slate-50 rounded-xl transition-all"
           >
@@ -246,60 +246,60 @@ const TopBar: React.FC<{ activeTab: string; onTabChange: (id: string) => void }>
           </button>
         )}
       </div>
-      
-      <div className="flex items-center gap-2 md:gap-4" ref={dropdownRef}>
-          <div className="relative">
-            <button 
-              onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
-              className={`p-2 rounded-xl transition-all relative ${isNotificationsOpen ? 'bg-[#8B5CF6]/10 text-[#8B5CF6]' : 'text-slate-400 hover:bg-slate-50'}`}
-            >
-              <Bell size={20} />
-              {unreadCount > 0 && (
-                <span className="absolute top-1 right-1 w-4 h-4 bg-[#FF7B7B] text-white text-[8px] font-bold flex items-center justify-center rounded-full border-2 border-white">
-                  {unreadCount}
-                </span>
-              )}
-            </button>
 
-            {isNotificationsOpen && (
-              <div className="fixed md:absolute left-4 md:left-auto right-4 md:right-0 top-16 md:top-full mt-2 w-auto md:w-80 bg-white shadow-2xl rounded-2xl border border-slate-100 overflow-hidden animate-in fade-in slide-in-from-top-2 origin-top-right z-50">
-                <div className="p-4 border-b border-slate-50 flex items-center justify-between bg-slate-50/50">
-                  <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-900">Notifications</h4>
-                  {unreadCount > 0 && (
-                    <button onClick={markNotificationsAsRead} className="text-[9px] font-bold text-[#8B5CF6] hover:underline">Mark all as read</button>
-                  )}
-                </div>
-                <div className="max-h-[300px] overflow-y-auto">
-                  {notifications.length > 0 ? (
-                    notifications.map((note) => (
-                      <div key={note.id} className={`p-4 border-b border-slate-50 hover:bg-slate-50 transition-colors cursor-pointer ${!note.isRead ? 'bg-[#8B5CF6]/5' : ''}`}>
-                        <h5 className="text-[11px] font-bold text-slate-900">{note.title}</h5>
-                        <p className="text-[10px] text-slate-500 mt-1 leading-relaxed">{note.message}</p>
-                        <p className="text-[8px] text-slate-400 mt-2 font-bold uppercase tracking-widest">
-                          {formatDistanceToNow(parseISO(note.timestamp), { addSuffix: true })}
-                        </p>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="p-8 text-center">
-                      <Bell size={32} className="mx-auto text-slate-200 mb-2" />
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">No notifications</p>
+      <div className="flex items-center gap-2 md:gap-4" ref={dropdownRef}>
+        <div className="relative">
+          <button
+            onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
+            className={`p-2 rounded-xl transition-all relative ${isNotificationsOpen ? 'bg-[#8B5CF6]/10 text-[#8B5CF6]' : 'text-slate-400 hover:bg-slate-50'}`}
+          >
+            <Bell size={20} />
+            {unreadCount > 0 && (
+              <span className="absolute top-1 right-1 w-4 h-4 bg-[#FF7B7B] text-white text-[8px] font-bold flex items-center justify-center rounded-full border-2 border-white">
+                {unreadCount}
+              </span>
+            )}
+          </button>
+
+          {isNotificationsOpen && (
+            <div className="fixed md:absolute left-4 md:left-auto right-4 md:right-0 top-16 md:top-full mt-2 w-auto md:w-80 bg-white shadow-2xl rounded-2xl border border-slate-100 overflow-hidden animate-in fade-in slide-in-from-top-2 origin-top-right z-50">
+              <div className="p-4 border-b border-slate-50 flex items-center justify-between bg-slate-50/50">
+                <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-900">Notifications</h4>
+                {unreadCount > 0 && (
+                  <button onClick={markNotificationsAsRead} className="text-[9px] font-bold text-[#8B5CF6] hover:underline">Mark all as read</button>
+                )}
+              </div>
+              <div className="max-h-[300px] overflow-y-auto">
+                {notifications.length > 0 ? (
+                  notifications.map((note) => (
+                    <div key={note.id} className={`p-4 border-b border-slate-50 hover:bg-slate-50 transition-colors cursor-pointer ${!note.isRead ? 'bg-[#8B5CF6]/5' : ''}`}>
+                      <h5 className="text-[11px] font-bold text-slate-900">{note.title}</h5>
+                      <p className="text-[10px] text-slate-500 mt-1 leading-relaxed">{note.message}</p>
+                      <p className="text-[8px] text-slate-400 mt-2 font-bold uppercase tracking-widest">
+                        {formatDistanceToNow(parseISO(note.timestamp), { addSuffix: true })}
+                      </p>
                     </div>
-                  )}
-                </div>
-                {notifications.length > 0 && (
-                  <div className="p-3 bg-slate-50 text-center border-t border-slate-50">
-                    <button onClick={clearNotifications} className="text-[9px] font-bold text-slate-400 hover:text-rose-500 transition-colors uppercase tracking-widest">Clear All</button>
+                  ))
+                ) : (
+                  <div className="p-8 text-center">
+                    <Bell size={32} className="mx-auto text-slate-200 mb-2" />
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">No notifications</p>
                   </div>
                 )}
               </div>
-            )}
-          </div>
+              {notifications.length > 0 && (
+                <div className="p-3 bg-slate-50 text-center border-t border-slate-50">
+                  <button onClick={clearNotifications} className="text-[9px] font-bold text-slate-400 hover:text-rose-500 transition-colors uppercase tracking-widest">Clear All</button>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
 
         <div className="h-8 w-[1px] bg-slate-100 mx-2"></div>
 
         <div className="relative">
-          <button 
+          <button
             onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
             className="flex items-center gap-3 hover:bg-slate-50 p-1 rounded-xl transition-all"
           >
@@ -312,7 +312,7 @@ const TopBar: React.FC<{ activeTab: string; onTabChange: (id: string) => void }>
             </div>
             <ChevronDown size={14} className="text-slate-400" />
           </button>
-          
+
           {isUserMenuOpen && (
             <div className="absolute right-0 top-full mt-2 w-48 bg-white shadow-xl rounded-2xl border border-slate-100 py-2 animate-in fade-in slide-in-from-top-2 origin-top-right">
               <div className="px-4 py-2 border-b border-slate-50 mb-1">
@@ -336,7 +336,7 @@ const TopBar: React.FC<{ activeTab: string; onTabChange: (id: string) => void }>
 
 const BottomNav: React.FC<{ activeTab: string; onTabChange: (id: string) => void }> = ({ activeTab, onTabChange }) => {
   const { currentUser } = useApp();
-  
+
   const bottomNavItems = [
     { id: 'dashboard', label: 'Home', icon: <LayoutDashboard size={20} /> },
     { id: 'sales', label: 'Sales', icon: <ShoppingBag size={20} /> },
@@ -377,7 +377,7 @@ const ResetPasswordScreen: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    
+
     if (password.length < 6) {
       setError('Password must be at least 6 characters long.');
       return;
@@ -390,7 +390,7 @@ const ResetPasswordScreen: React.FC = () => {
     setIsUpdating(true);
     const ok = await updatePassword(password);
     setIsUpdating(false);
-    
+
     if (ok) {
       alert('Password reset successfully! You can now log in.');
       window.location.hash = '#dashboard';
@@ -408,7 +408,7 @@ const ResetPasswordScreen: React.FC = () => {
       <div className="absolute top-20 right-20 text-[#FFD93D] opacity-60 animate-pulse">
         <Sun size={80} strokeWidth={1.5} />
       </div>
-      
+
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -493,11 +493,11 @@ const AppContent: React.FC = () => {
         setActiveTab(hash);
       }
     };
-    
+
     window.addEventListener('hashchange', handleHashChange);
     // Initial check
     handleHashChange();
-    
+
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
 
@@ -514,20 +514,24 @@ const AppContent: React.FC = () => {
         {/* Abstract Background Elements */}
         <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-[#FACC15]/5 rounded-full blur-[120px]"></div>
         <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-[#FACC15]/5 rounded-full blur-[120px]"></div>
-        
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.92 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-          className="relative z-10 flex flex-col items-center"
-        >
-          <img 
+
+        <div className="relative z-10 flex flex-col items-center">
+          <motion.img
             src="/logo.png"
             alt="Kiddies Logo"
-            className="h-16 object-contain drop-shadow-md mb-2"
+            initial={{ opacity: 0.5, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{
+              duration: 1,
+              ease: "easeInOut",
+              repeat: Infinity,
+              repeatType: "reverse"
+            }}
+            className="h-20 object-contain drop-shadow-md mb-2"
           />
-          <div className="text-[#8B5CF6] text-[8px] font-black uppercase tracking-[0.3em]">Stock Management</div>
-        </motion.div>
+          <div className="text-[#8B5CF6] text-[8px] font-black uppercase tracking-[0.3em] mb-6">Stock Management</div>
+          <Loader2 size={24} className="text-[#8B5CF6] animate-spin opacity-80" strokeWidth={2.5} />
+        </div>
       </div>
     );
   }

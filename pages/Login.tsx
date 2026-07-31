@@ -30,7 +30,7 @@ const Login: React.FC = () => {
     e.preventDefault();
     setError('');
     setSuccessMessage('');
-    
+
     if (!fullName.trim()) {
       setError('Full name is required');
       return;
@@ -49,7 +49,7 @@ const Login: React.FC = () => {
       });
 
       if (error) throw error;
-      
+
       setSuccessMessage('Registration successful! You can now log in.');
       setIsSignUp(false);
       setFullName('');
@@ -113,7 +113,7 @@ const Login: React.FC = () => {
       >
         {/* Logo Section */}
         <div className="flex flex-col items-center mb-8">
-          <img src="/logo.png" alt="Kiddies Logo" className="h-16 object-contain mb-2" />
+          <img src="/logo.png" alt="Kiddies Logo" className="h-20 object-contain mb-2" />
           <div className="flex items-center gap-3 text-[#A084E8] text-[10px] font-bold uppercase tracking-[0.3em]">
             <div className="h-[1.5px] w-6 bg-[#A084E8]/30"></div>
             kids wear
@@ -202,9 +202,9 @@ const Login: React.FC = () => {
                 </div>
                 <span className="text-sm text-[#4A5568] font-medium">Remember me</span>
               </label>
-              <button 
-                type="button" 
-                onClick={handleForgotPassword} 
+              <button
+                type="button"
+                onClick={handleForgotPassword}
                 className="text-sm text-[#A084E8] font-semibold hover:underline"
               >
                 Forgot Password?
@@ -240,12 +240,12 @@ const Login: React.FC = () => {
         <div className="mt-8 text-center">
           <p className="text-sm text-[#718096]">
             {isSignUp ? 'Already have an account?' : "Don't have an account?"}{' '}
-            <button 
+            <button
               onClick={() => {
                 setIsSignUp(!isSignUp);
                 setError('');
                 setSuccessMessage('');
-              }} 
+              }}
               className="text-[#A084E8] font-bold hover:underline"
             >
               {isSignUp ? 'Login' : 'Sign up'}
