@@ -1060,7 +1060,6 @@ function LabelDesigner({ labelData, initialTemplate, allProductSizes, onClose, o
                   )}
                 </div>
               </div>
-              </div>
             ) : (
               <div className="text-center py-10 px-3 border-2 border-dashed border-slate-200 rounded-xl opacity-70">
                 <Move size={24} strokeWidth={1.5} className="mx-auto mb-2 text-slate-300" />
