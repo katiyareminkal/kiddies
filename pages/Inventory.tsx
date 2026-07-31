@@ -39,6 +39,8 @@ import html2canvas from 'html2canvas';
 
 import { StockEntryModal } from '../components/forms/StockEntryModal';
 import LabelDesigner from '../components/forms/LabelDesigner';
+import { TagPrintModal } from '../components/forms/TagPrintModal';
+import { LabelTemplate } from '../utils/pdfLabel';
 
 const Inventory: React.FC = () => {
   const { products, addProduct, updateProduct, deleteProduct, suppliers, settings } = useApp();
@@ -48,8 +50,8 @@ const Inventory: React.FC = () => {
   
   const [selectedProduct, setSelectedProduct] = useState<string | null>(null);
   const [productToEdit, setProductToEdit] = useState<Product | null>(null);
-  const [printProduct, setPrintProduct] = useState<Product | null>(null);
-  const [sizeSelectorProduct, setSizeSelectorProduct] = useState<Product | null>(null);
+  const [tagPrintProduct, setTagPrintProduct] = useState<Product | null>(null);
+  const [designerConfig, setDesignerConfig] = useState<{ product: Product; template: LabelTemplate; sizes: string[] } | null>(null);
   const [downloadingProduct, setDownloadingProduct] = useState<{ product: Product; sizes: string[] } | null>(null);
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
   const [viewProductDetails, setViewProductDetails] = useState<Product | null>(null);
@@ -123,39 +125,7 @@ const Inventory: React.FC = () => {
   };
 
   const handleTagClick = (product: Product) => {
-    const siblings = (product as any).variants && (product as any).variants.length > 0
-      ? (product as any).variants
-      : [product];
-
-    const productsToPrint = (product.sizes?.length ? product.sizes : ['FREE']).map(size => {
-      const variant = siblings.find((v: Product) => (v.sizes || [])[0]?.toUpperCase() === size.toUpperCase()) || product;
-      return {
-        name: variant.name,
-        sku: variant.sku,
-        barcode: variant.barcode || '',
-        sellingPrice: variant.sellingPrice,
-        purchasePrice: variant.purchasePrice,
-        color: variant.color || product.color || '',
-        size: size,
-        styleCode: '',
-        subCategory: variant.subCategory || product.subCategory || '',
-        labelSize: '50x30' as const
-      };
-    });
-    
-    // Get the active template or fallback to default
-    let template = DEFAULT_TEMPLATE_50x30;
-    try {
-      const saved = localStorage.getItem('kiddies_label_template_50x30');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (parsed && parsed.id === 'default_50x30_v4' && Array.isArray(parsed.elements)) {
-          template = parsed;
-        }
-      }
-    } catch(e) {}
-
-    generateDynamicLabelPDF(productsToPrint, template);
+    setTagPrintProduct(product);
   };
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -654,77 +624,37 @@ const Inventory: React.FC = () => {
         product={products.find(p => p.id === selectedProduct) || null}
       />
 
-      {printProduct && (
+      <TagPrintModal
+        isOpen={!!tagPrintProduct}
+        onClose={() => setTagPrintProduct(null)}
+        product={tagPrintProduct}
+        onOpenDesigner={(template, sizes) => {
+          if (tagPrintProduct) {
+            setDesignerConfig({ product: tagPrintProduct, template, sizes });
+          }
+        }}
+      />
+
+      {designerConfig && (
         <LabelDesigner 
           labelData={{
-            name: printProduct.name,
-            sku: printProduct.sku,
-            barcode: printProduct.barcode || '',
-            sellingPrice: printProduct.sellingPrice,
-            purchasePrice: printProduct.purchasePrice,
-            color: printProduct.color || '',
+            name: designerConfig.product.name,
+            sku: designerConfig.product.sku,
+            barcode: designerConfig.product.barcode || '',
+            sellingPrice: designerConfig.product.sellingPrice,
+            purchasePrice: designerConfig.product.purchasePrice,
+            color: designerConfig.product.color || '',
             styleCode: '',
-            labelSize: '50x30'
+            subCategory: designerConfig.product.subCategory || '',
+            labelSize: designerConfig.template.labelWidth === 30 ? '30x50' : '50x30'
           }}
-          allProductSizes={printProduct.sizes}
-          onClose={() => setPrintProduct(null)}
+          allProductSizes={designerConfig.sizes}
+          onClose={() => setDesignerConfig(null)}
           onPrint={(template, products) => {
             generateDynamicLabelPDF(products, template);
-            setPrintProduct(null);
+            setDesignerConfig(null);
           }}
         />
-      )}
-
-      {sizeSelectorProduct && (
-        <Modal 
-          isOpen={!!sizeSelectorProduct}
-          onClose={() => setSizeSelectorProduct(null)}
-          title="Print Product Tag"
-        >
-          <div className="space-y-5 py-2">
-            <div>
-              <h4 className="text-[12px] font-black text-slate-800 uppercase tracking-widest leading-tight">{sizeSelectorProduct.name}</h4>
-              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">Select which size tag you want to download:</p>
-            </div>
-
-            <div className="flex flex-wrap gap-2 py-1">
-              {sizeSelectorProduct.sizes.map(size => (
-                <button
-                  key={size}
-                  onClick={() => {
-                    triggerDownloadForSize(sizeSelectorProduct, size);
-                    setSizeSelectorProduct(null);
-                  }}
-                  className="flex-1 min-w-[70px] py-3 bg-slate-50 hover:bg-[#8B5CF6]/5 border border-slate-200 hover:border-[#8B5CF6]/35 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-700 transition-all shadow-sm flex flex-col items-center justify-center gap-1 group"
-                >
-                  <span className="text-[#8B5CF6] group-hover:scale-110 transition-transform font-bold text-xs">{size}</span>
-                  <span className="text-[7px] text-slate-400">Download</span>
-                </button>
-              ))}
-            </div>
-
-            <div className="pt-3 border-t border-slate-100 flex flex-col sm:flex-row gap-2">
-              <button
-                onClick={() => {
-                  triggerDownloadForMultipleSizes(sizeSelectorProduct, sizeSelectorProduct.sizes);
-                  setSizeSelectorProduct(null);
-                }}
-                className="flex-1 py-3 bg-[#8B5CF6] hover:bg-[#7C3AED] text-white rounded-2xl text-[9px] font-black uppercase tracking-widest shadow-md shadow-[#8B5CF6]/20 transition-all flex items-center justify-center gap-1.5"
-              >
-                Download All ({sizeSelectorProduct.sizes.length} Sizes)
-              </button>
-              <button
-                onClick={() => {
-                  setPrintProduct(sizeSelectorProduct);
-                  setSizeSelectorProduct(null);
-                }}
-                className="flex-1 py-3 bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-1.5"
-              >
-                Customize Layout
-              </button>
-            </div>
-          </div>
-        </Modal>
       )}
 
       {lightboxImage && (
