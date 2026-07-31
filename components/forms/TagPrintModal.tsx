@@ -383,93 +383,42 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
             </span>
           </div>
 
-          {/* Paper Dimension Options Bar */}
+          {/* Custom Paper Size */}
           <div className="bg-slate-50 p-3 rounded-2xl border border-slate-200/80 space-y-2.5">
-            <div className="flex items-center justify-between">
-              <label className="text-[9px] font-black uppercase tracking-widest text-slate-800 flex items-center gap-1.5">
-                <Maximize2 size={12} className="text-[#8B5CF6]" /> Select Paper Dimensions (Tag Size)
-              </label>
-              <button
-                type="button"
-                onClick={() => setShowCustomDimInputs(!showCustomDimInputs)}
-                className="text-[8px] font-bold text-[#8B5CF6] hover:underline uppercase tracking-widest flex items-center gap-1"
-              >
-                <Settings2 size={10} /> {showCustomDimInputs ? 'Hide Custom Input' : 'Set Custom W×H'}
-              </button>
-            </div>
+            <label className="text-[9px] font-black uppercase tracking-widest text-slate-800 flex items-center gap-1.5">
+              <Settings2 size={12} className="text-[#8B5CF6]" /> Custom Paper Size
+            </label>
 
-            {/* Paper Size Quick Pickers */}
-            <div className="flex flex-wrap gap-2">
-              <button
-                type="button"
-                onClick={() => handleSelectPaperSize(50, 30)}
-                className={`px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all border ${
-                  selectedPaperDim.width === 50 && selectedPaperDim.height === 30
-                    ? 'bg-slate-900 text-white border-slate-900 shadow-xs'
-                    : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-100'
-                }`}
-              >
-                50mm × 30mm (Landscape)
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleSelectPaperSize(30, 50)}
-                className={`px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all border ${
-                  selectedPaperDim.width === 30 && selectedPaperDim.height === 50
-                    ? 'bg-slate-900 text-white border-slate-900 shadow-xs'
-                    : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-100'
-                }`}
-              >
-                30mm × 50mm (Portrait)
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleSelectPaperSize(40, 25)}
-                className={`px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all border ${
-                  selectedPaperDim.width === 40 && selectedPaperDim.height === 25
-                    ? 'bg-slate-900 text-white border-slate-900 shadow-xs'
-                    : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-100'
-                }`}
-              >
-                40mm × 25mm (Compact)
-              </button>
-            </div>
-
-            {/* Custom Dimensions Form */}
-            {showCustomDimInputs && (
-              <div className="flex items-center gap-2 pt-2 border-t border-slate-200/60">
-                <div className="flex items-center gap-1.5 flex-1">
-                  <span className="text-[8px] font-bold text-slate-500 uppercase">W:</span>
-                  <input
-                    type="number"
-                    value={inputWidth}
-                    onChange={(e) => setInputWidth(e.target.value)}
-                    placeholder="Width mm"
-                    className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-[9px] font-bold outline-none focus:border-[#8B5CF6]"
-                  />
-                  <span className="text-[8px] font-bold text-slate-500 uppercase">mm × H:</span>
-                  <input
-                    type="number"
-                    value={inputHeight}
-                    onChange={(e) => setInputHeight(e.target.value)}
-                    placeholder="Height mm"
-                    className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-[9px] font-bold outline-none focus:border-[#8B5CF6]"
-                  />
-                  <span className="text-[8px] font-bold text-slate-500 uppercase">mm</span>
-                </div>
-                <button
-                  type="button"
-                  onClick={handleApplyCustomDimensions}
-                  className="px-3 py-1.5 bg-slate-900 text-white rounded-lg text-[8.5px] font-black uppercase tracking-widest hover:bg-slate-800"
-                >
-                  Set Size
-                </button>
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5 flex-1">
+                <span className="text-[8px] font-bold text-slate-500 uppercase">W:</span>
+                <input
+                  type="number"
+                  value={inputWidth}
+                  onChange={(e) => setInputWidth(e.target.value)}
+                  placeholder="Width mm"
+                  className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-[9px] font-bold outline-none focus:border-[#8B5CF6]"
+                />
+                <span className="text-[8px] font-bold text-slate-500 uppercase">mm × H:</span>
+                <input
+                  type="number"
+                  value={inputHeight}
+                  onChange={(e) => setInputHeight(e.target.value)}
+                  placeholder="Height mm"
+                  className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-[9px] font-bold outline-none focus:border-[#8B5CF6]"
+                />
+                <span className="text-[8px] font-bold text-slate-500 uppercase">mm</span>
               </div>
-            )}
+              <button
+                type="button"
+                onClick={handleApplyCustomDimensions}
+                className="px-3 py-1.5 bg-slate-900 text-white rounded-lg text-[8.5px] font-black uppercase tracking-widest hover:bg-slate-800"
+              >
+                Set Size
+              </button>
+            </div>
 
-            {/* Options Bar for Selected Paper Size */}
+            {/* Current Paper Size & Actions */}
             <div className="pt-2 border-t border-slate-200/80 space-y-1.5">
               <div className="flex items-center justify-between">
                 <span className="text-[8.5px] font-black uppercase tracking-widest text-slate-500">
@@ -661,7 +610,7 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
             {/* Built-in Layouts */}
             <div className="space-y-2">
               <span className="text-[8px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-1 ml-1">
-                <Sparkles size={10} className="text-amber-500" /> Standard Templates
+                <Sparkles size={10} className="text-amber-500" /> Default
               </span>
 
               <div className="space-y-2">
@@ -687,21 +636,22 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
                       }`}
                     >
                       {/* Mini Live Preview Box */}
-                      <div className={`w-11 h-11 rounded-lg flex items-center justify-center shrink-0 overflow-hidden relative border ${isSelected ? 'bg-slate-800 border-slate-700' : 'bg-slate-100 border-slate-200/80'}`}>
+                      <div className={`w-11 h-11 rounded-lg shrink-0 overflow-hidden relative border ${isSelected ? 'bg-slate-800 border-slate-700' : 'bg-slate-100 border-slate-200/80'}`}>
                         <div
                           style={{
                             width: `${tpl.labelWidth * MM_TO_PX}px`,
                             height: `${tpl.labelHeight * MM_TO_PX}px`,
                             backgroundColor: '#ffffff',
-                            position: 'relative',
+                            position: 'absolute',
+                            top: '50%',
+                            left: '50%',
                             borderRadius: '2px',
-                            boxShadow: '0 2px 5px rgba(0,0,0,0.15)',
-                            transform: `scale(${scale})`,
+                            transform: `translate(-50%, -50%) scale(${scale})`,
                             transformOrigin: 'center center'
                           }}
                           className="pointer-events-none"
                         >
-                          {tpl.elements.map(el => renderPreviewElement(el, previewData))}
+                          {(tpl.elements || []).map(el => renderPreviewElement(el, previewData))}
                         </div>
                       </div>
 
@@ -757,16 +707,17 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
                         }`}
                       >
                         {/* Mini Live Preview Box */}
-                        <div className={`w-11 h-11 rounded-lg flex items-center justify-center shrink-0 overflow-hidden relative border ${isSelected ? 'bg-slate-800 border-slate-700' : 'bg-slate-100 border-slate-200/80'}`}>
+                        <div className={`w-11 h-11 rounded-lg shrink-0 overflow-hidden relative border ${isSelected ? 'bg-slate-800 border-slate-700' : 'bg-slate-100 border-slate-200/80'}`}>
                           <div
                             style={{
                               width: `${tpl.labelWidth * MM_TO_PX}px`,
                               height: `${tpl.labelHeight * MM_TO_PX}px`,
                               backgroundColor: '#ffffff',
-                              position: 'relative',
+                              position: 'absolute',
+                              top: '50%',
+                              left: '50%',
                               borderRadius: '2px',
-                              boxShadow: '0 2px 5px rgba(0,0,0,0.15)',
-                              transform: `scale(${scale})`,
+                              transform: `translate(-50%, -50%) scale(${scale})`,
                               transformOrigin: 'center center'
                             }}
                             className="pointer-events-none"
