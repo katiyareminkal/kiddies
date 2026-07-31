@@ -334,86 +334,110 @@ const Inventory: React.FC = () => {
       {/* Product List */}
       {viewLayout === 'GRID' ? (
         <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-3 transition-all duration-300">
-          {groupedProducts.map(product => (
+          {groupedProducts.map(product => {
+            const totalStock = product.saleStock + product.rentalStock;
+            const isOutOfStock = totalStock === 0;
+            const isLowStock = totalStock > 0 && totalStock <= (product.minStockAlert || 5);
+
+            return (
              <div 
               key={product.id} 
-              className="bg-white border border-slate-150 rounded-xl p-2.5 pb-3 flex flex-col gap-2 group cursor-pointer hover:border-[#8B5CF6]/30 hover:shadow-lg hover:shadow-[#8B5CF6]/5 transition-all duration-300 h-[230px] w-full overflow-hidden"
+              className="group relative bg-white rounded-2xl overflow-hidden cursor-pointer transition-all duration-500 hover:shadow-xl hover:shadow-slate-200/60 hover:-translate-y-1 border border-slate-100 hover:border-slate-200"
               onClick={() => setViewProductDetails(product)}
+              style={{ minHeight: '260px' }}
             >
-              {/* Product Image Container (Fixed Height) */}
-              <div className="h-24 bg-slate-50/80 rounded-lg relative overflow-hidden transition-all duration-500 shadow-inner group/img flex items-center justify-center shrink-0">
+              {/* Product Image Area */}
+              <div className="relative h-32 bg-gradient-to-br from-slate-50 via-slate-50/80 to-slate-100/60 overflow-hidden">
                 {product.imageUrl ? (
                   <img 
                     src={product.imageUrl} 
                     alt={product.name} 
-                    className="w-full h-full object-contain p-1.5 group-hover:scale-105 transition-transform duration-500 ease-in-out" 
+                    className="w-full h-full object-contain p-3 group-hover:scale-110 transition-transform duration-700 ease-out" 
                     referrerPolicy="no-referrer" 
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-slate-300 group-hover:text-[#8B5CF6] transition-colors duration-500">
-                    <Package size={28} strokeWidth={1} />
+                  <div className="w-full h-full flex items-center justify-center">
+                    <div className="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center group-hover:bg-[#8B5CF6]/10 transition-colors duration-500">
+                      <Package size={22} strokeWidth={1.2} className="text-slate-300 group-hover:text-[#8B5CF6] transition-colors duration-500" />
+                    </div>
                   </div>
                 )}
                 
-                {/* Purpose Badge Overlaid on Image */}
-                <div className="absolute bottom-1.5 left-1.5">
-                  <span className={`text-[6px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded shadow-sm ${
+                {/* Top-left badges */}
+                <div className="absolute top-2 left-2 flex flex-col gap-1">
+                  <span className={`text-[6.5px] font-black uppercase tracking-[0.08em] px-2 py-[3px] rounded-md backdrop-blur-sm shadow-sm ${
                     product.purpose === 'SALE' 
-                      ? 'bg-emerald-500 text-white' 
+                      ? 'bg-emerald-500/90 text-white' 
                       : product.purpose === 'RENTAL' 
-                        ? 'bg-blue-500 text-white' 
-                        : 'bg-amber-500 text-white'
+                        ? 'bg-blue-500/90 text-white' 
+                        : 'bg-amber-500/90 text-white'
                   }`}>
-                    {product.purpose === 'SALE' ? 'Sell' : product.purpose === 'RENTAL' ? 'Rent' : 'Hybrid'}
+                    {product.purpose === 'SALE' ? 'Sale' : product.purpose === 'RENTAL' ? 'Rent' : 'Hybrid'}
+                  </span>
+                  {isOutOfStock && (
+                    <span className="text-[6px] font-black uppercase tracking-[0.08em] px-2 py-[3px] rounded-md bg-rose-500/90 text-white backdrop-blur-sm shadow-sm">
+                      Out of Stock
+                    </span>
+                  )}
+                  {isLowStock && (
+                    <span className="text-[6px] font-black uppercase tracking-[0.08em] px-2 py-[3px] rounded-md bg-amber-500/90 text-white backdrop-blur-sm shadow-sm">
+                      Low Stock
+                    </span>
+                  )}
+                </div>
+
+                {/* Top-right: Sizes count pill */}
+                <div className="absolute top-2 right-2">
+                  <span className="text-[7px] font-black uppercase tracking-widest px-2 py-[3px] rounded-md bg-white/80 text-slate-600 backdrop-blur-sm shadow-sm border border-white/40">
+                    {product.sizes.length} {product.sizes.length === 1 ? 'Size' : 'Sizes'}
                   </span>
                 </div>
 
-                {/* Stock Warning Badge */}
-                {product.saleStock + product.rentalStock === 0 && (
-                  <div className="absolute top-1.5 left-1.5 bg-rose-500 text-white text-[5px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded shadow-sm">
-                    Out
-                  </div>
-                )}
+                {/* Gradient fade at bottom of image */}
+                <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white to-transparent pointer-events-none" />
               </div>
 
-              {/* Product Details Area (Fixed Heights to avoid shifting) */}
-              <div className="flex flex-col flex-1 justify-between py-0.5 px-0.5 min-w-0">
-                <div>
-                  <div className="flex items-center justify-between text-[7px] font-bold text-slate-400 uppercase tracking-widest gap-1">
-                    <span className="truncate">{product.category}</span>
-                    <span className="shrink-0 bg-slate-50 border border-slate-100 px-1 py-0.5 rounded text-slate-500 font-black">{product.sizes.length} {product.sizes.length === 1 ? 'Size' : 'Sizes'}</span>
-                  </div>
-                  
-                  <h4 className="text-[10px] font-black text-slate-800 tracking-tight leading-snug truncate mt-0.5 group-hover:text-[#8B5CF6] transition-colors" title={product.name}>
-                    {product.name}
-                  </h4>
-                </div>
+              {/* Product Info Area */}
+              <div className="px-3 pb-3 pt-1 flex flex-col gap-2">
+                {/* Category */}
+                <span className="text-[7px] font-bold text-slate-400 uppercase tracking-[0.1em] truncate">
+                  {product.category}{product.brand ? ` • ${product.brand}` : ''}
+                </span>
+                
+                {/* Name */}
+                <h4 className="text-[11px] font-extrabold text-slate-800 tracking-tight leading-snug line-clamp-2 group-hover:text-[#8B5CF6] transition-colors duration-300" title={product.name}>
+                  {product.name}
+                </h4>
 
-                {/* Price and Stock row */}
-                <div className="flex items-center justify-between mt-1 pt-1.5 border-t border-slate-50">
-                  <div className="flex flex-col">
-                    <span className="text-[5px] font-black text-slate-400 uppercase tracking-widest">Price</span>
-                    <span className="text-[10px] font-black text-slate-900 font-mono tracking-tight">{formatCurrency(product.sellingPrice)}</span>
+                {/* Price + Stock Row */}
+                <div className="flex items-end justify-between mt-auto">
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-[6px] font-bold text-slate-400 uppercase tracking-widest">Price</span>
+                    <span className="text-[13px] font-black text-slate-900 tracking-tight leading-none">
+                      {formatCurrency(product.sellingPrice)}
+                    </span>
                   </div>
-                  <div className="text-right flex flex-col">
-                    <span className="text-[5px] font-black text-slate-400 uppercase tracking-widest">Stock</span>
-                    <span className={`text-[9px] font-black ${product.saleStock + product.rentalStock === 0 ? 'text-rose-500' : 'text-slate-700'}`}>
-                      {product.saleStock + product.rentalStock} Pcs
+                  <div className="flex items-center gap-1.5 bg-slate-50 px-2 py-1 rounded-lg">
+                    <div className={`w-1.5 h-1.5 rounded-full ${isOutOfStock ? 'bg-rose-500' : isLowStock ? 'bg-amber-400' : 'bg-emerald-400'}`} />
+                    <span className={`text-[9px] font-black tabular-nums ${isOutOfStock ? 'text-rose-500' : 'text-slate-700'}`}>
+                      {totalStock}
                     </span>
                   </div>
                 </div>
+              </div>
 
-                {/* Action Bar */}
-                <div className="flex items-center justify-between gap-1.5 mt-2 pt-2 border-t border-slate-100 shrink-0">
+              {/* Hover Action Bar — slides up from bottom */}
+              <div className="absolute bottom-0 left-0 right-0 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out">
+                <div className="bg-white/90 backdrop-blur-md border-t border-slate-100 px-2.5 py-2 flex items-center gap-1.5">
                   <button 
                     onClick={(e) => {
                       e.stopPropagation();
                       setViewProductDetails(product);
                     }}
-                    className="flex-1 py-1 bg-slate-50 hover:bg-slate-100 border border-slate-200/60 rounded-md text-slate-600 flex items-center justify-center transition-all h-6"
+                    className="flex-1 py-1.5 bg-slate-100 hover:bg-slate-200 rounded-lg text-slate-600 flex items-center justify-center transition-all"
                     title="View Details"
                   >
-                    <Eye size={10} strokeWidth={2.5} />
+                    <Eye size={11} strokeWidth={2.5} />
                   </button>
                   <button 
                     onClick={(e) => {
@@ -421,17 +445,17 @@ const Inventory: React.FC = () => {
                       setProductToEdit(product);
                       setIsProductModalOpen(true);
                     }}
-                    className="flex-1 py-1 bg-slate-900 hover:bg-slate-800 rounded-md text-white flex items-center justify-center shadow-sm transition-all h-6"
+                    className="flex-1 py-1.5 bg-slate-900 hover:bg-slate-800 rounded-lg text-white flex items-center justify-center shadow-sm transition-all"
                     title="Edit Product"
                   >
-                    <Edit2 size={9} strokeWidth={2.5} />
+                    <Edit2 size={10} strokeWidth={2.5} />
                   </button>
                   <button 
                     onClick={(e) => {
                       e.stopPropagation();
                       handleTagClick(product);
                     }}
-                    className="flex-1 py-1 bg-[#8B5CF6]/10 hover:bg-[#8B5CF6]/20 rounded-md text-[#8B5CF6] flex items-center justify-center transition-all h-6"
+                    className="flex-1 py-1.5 bg-[#8B5CF6] hover:bg-[#7C3AED] rounded-lg text-white flex items-center justify-center shadow-sm transition-all"
                     title="Print Tags"
                   >
                     <Tag size={10} strokeWidth={2.5} />
@@ -444,7 +468,7 @@ const Inventory: React.FC = () => {
                           deleteProduct(product.id);
                         }
                       }}
-                      className="flex-1 py-1 bg-rose-50 hover:bg-rose-100 rounded-md text-rose-500 flex items-center justify-center transition-all h-6"
+                      className="flex-1 py-1.5 bg-rose-50 hover:bg-rose-100 rounded-lg text-rose-500 flex items-center justify-center transition-all"
                       title="Delete Product"
                     >
                       <Trash2 size={10} strokeWidth={2.5} />
@@ -453,7 +477,8 @@ const Inventory: React.FC = () => {
                 </div>
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
       ) : (
         <div className="bg-white rounded-xl md:rounded-2xl border border-slate-50 shadow-sm overflow-hidden">
