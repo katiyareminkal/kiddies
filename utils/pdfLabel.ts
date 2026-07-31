@@ -42,21 +42,37 @@ export interface LabelTemplate {
 }
 
 export const DEFAULT_TEMPLATE_30x50: LabelTemplate = {
-  id: 'default_30x50',
-  name: 'Default 30x50 Portrait',
+  id: 'default_30x50_v4',
+  name: 'Default 30x50 Vertical v4',
   labelWidth: 30,
   labelHeight: 50,
   elements: [
-    { id: 'storeName', type: 'text', x: 15, y: 5, fontSize: 6, isBold: true, align: 'center', visible: true, staticText: 'KIDDIES' },
-    { id: 'name', type: 'text', x: 15, y: 9, fontSize: 5, isBold: false, align: 'center', visible: true },
-    { id: 'size', type: 'text', x: 15, y: 13, fontSize: 5, isBold: false, align: 'center', visible: true, staticText: 'SIZE: ' },
-    { id: 'color', type: 'text', x: 15, y: 16, fontSize: 5, isBold: false, align: 'center', visible: true, staticText: 'COLOR: ' },
-    { id: 'style', type: 'text', x: 15, y: 19, fontSize: 5, isBold: false, align: 'center', visible: true, staticText: 'STYLE: ' },
-    { id: 'price', type: 'text', x: 15, y: 24, fontSize: 8, isBold: true, align: 'center', visible: true, staticText: 'Rs. ' },
-    { id: 'code', type: 'text', x: 15, y: 28, fontSize: 5, isBold: true, align: 'center', visible: true, staticText: 'CODE: 91' },
-    { id: 'barcode', type: 'barcode', x: 15, y: 32, width: 0.16, height: 7, visible: true },
-    { id: 'barcodeText', type: 'text', x: 15, y: 42, fontSize: 4.5, isBold: false, align: 'center', visible: true },
-    { id: 'sku', type: 'text', x: 15, y: 45, fontSize: 4.5, isBold: false, align: 'center', visible: true, staticText: 'SKU: ' },
+    // Top Section - SIZE Header
+    { id: 'size_line_l', type: 'line', x: 4, y: 4, width: 5, height: 0.2, borderStyle: 'solid', visible: true },
+    { id: 'size_lbl', type: 'text', x: 15, y: 3.5, fontSize: 5, isBold: true, align: 'center', visible: true, staticText: 'SIZE' },
+    { id: 'size_line_r', type: 'line', x: 21, y: 4, width: 5, height: 0.2, borderStyle: 'solid', visible: true },
+    
+    // Size Box & Value
+    { id: 'size_box', type: 'rect', x: 5, y: 6.5, width: 20, height: 12, borderRadius: 1.5, borderStyle: 'solid', visible: true },
+    { id: 'size', type: 'text', x: 15, y: 10.5, fontSize: 16, isBold: true, align: 'center', visible: true, staticText: '' },
+    
+    // Color Box & Value
+    { id: 'color_box', type: 'rect', x: 5, y: 19.5, width: 20, height: 6.5, borderRadius: 1, borderStyle: 'solid', visible: true },
+    { id: 'color', type: 'text', x: 15, y: 22.2, fontSize: 7, isBold: true, align: 'center', visible: true, staticText: '' },
+
+    // Middle Dashed Divider
+    { id: 'div_mid', type: 'line', x: 3, y: 27.5, width: 24, height: 0.2, borderStyle: 'dashed', visible: true },
+
+    // SKU & Code Section
+    { id: 'sku', type: 'text', x: 15, y: 30.5, fontSize: 7, isBold: true, align: 'center', visible: true, staticText: 'SKU : ' },
+    { id: 'div_r1', type: 'line', x: 5, y: 33.5, width: 20, height: 0.2, borderStyle: 'solid', visible: true },
+    { id: 'code', type: 'text', x: 15, y: 36.5, fontSize: 7, isBold: true, align: 'center', visible: true, staticText: 'CODE : ' },
+
+    // Bottom Price Box
+    { id: 'price_box', type: 'rect', x: 3, y: 40.5, width: 24, height: 7.5, borderRadius: 1.5, borderStyle: 'solid', visible: true },
+    { id: 'rs_lbl', type: 'text', x: 4.2, y: 43.2, fontSize: 8.5, isBold: true, align: 'left', visible: true, staticText: 'Rs.' },
+    { id: 'div_price', type: 'line', x: 10.5, y: 40.5, width: 0, height: 7.5, borderStyle: 'solid', visible: true },
+    { id: 'price', type: 'text', x: 18, y: 43.0, fontSize: 11, isBold: true, align: 'center', visible: true, staticText: '' }
   ]
 };
 
