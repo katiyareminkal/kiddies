@@ -519,7 +519,7 @@ const AppContent: React.FC = () => {
           <img 
             src="/logo.png"
             alt="Kiddies Logo"
-            className="h-20 object-contain drop-shadow-md mb-2"
+            className="h-12 object-contain drop-shadow-md mb-2"
           />
           <div className="text-[#8B5CF6] text-[8px] font-black uppercase tracking-[0.3em]">Stock Management</div>
         </div>

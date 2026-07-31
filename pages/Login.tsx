@@ -113,7 +113,7 @@ const Login: React.FC = () => {
       >
         {/* Logo Section */}
         <div className="flex flex-col items-center mb-8">
-          <img src="/logo.png" alt="Kiddies Logo" className="h-20 object-contain mb-2" />
+          <img src="/logo.png" alt="Kiddies Logo" className="h-12 object-contain mb-2" />
           <div className="flex items-center gap-3 text-[#A084E8] text-[10px] font-bold uppercase tracking-[0.3em]">
             <div className="h-[1.5px] w-6 bg-[#A084E8]/30"></div>
             kids wear
