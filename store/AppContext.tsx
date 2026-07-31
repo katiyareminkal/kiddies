@@ -52,6 +52,7 @@ interface AppContextType extends AppState {
   deleteRental: (id: string) => Promise<void>;
   deleteCreditNote: (id: string) => Promise<void>;
   addSupplierBill: (bill: Omit<SupplierBill, 'id' | 'createdAt' | 'items'> & { items: Omit<SupplierBillItem, 'id' | 'billId' | 'createdAt'>[] }, imageFile?: File) => Promise<void>;
+  updateSupplierBill: (billId: string, bill: Partial<Omit<SupplierBill, 'id' | 'createdAt' | 'items'>> & { items?: Omit<SupplierBillItem, 'id' | 'billId' | 'createdAt'>[] }, imageFile?: File) => Promise<void>;
   addPaymentToSupplierBill: (billId: string, amount: number) => Promise<void>;
   deleteSupplierBill: (id: string) => Promise<void>;
 }
@@ -945,6 +946,53 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
   };
 
+  const updateSupplierBill = async (
+    billId: string, 
+    bill: Partial<Omit<SupplierBill, 'id' | 'createdAt' | 'items'>> & { items?: Omit<SupplierBillItem, 'id' | 'billId' | 'createdAt'>[] }, 
+    imageFile?: File
+  ) => {
+    try {
+      let imageUrl = bill.imageUrl;
+      if (imageFile) {
+        imageUrl = await uploadImage(imageFile, `supplier_bills/${bill.supplierId || 'edit'}_${Date.now()}`);
+      }
+
+      const updateData: any = {};
+      if (bill.billNumber !== undefined) updateData.bill_number = bill.billNumber;
+      if (bill.date !== undefined) updateData.date = bill.date;
+      if (bill.totalAmount !== undefined) updateData.total_amount = bill.totalAmount;
+      if (bill.paidAmount !== undefined) updateData.paid_amount = bill.paidAmount;
+      if (bill.status !== undefined) updateData.status = bill.status;
+      if (bill.notes !== undefined) updateData.notes = bill.notes;
+      if (imageUrl !== undefined) updateData.image_url = imageUrl;
+
+      if (Object.keys(updateData).length > 0) {
+        const { error } = await supabase.from('supplier_bills').update(updateData).eq('id', billId);
+        if (error) throw error;
+      }
+
+      if (bill.items) {
+        await supabase.from('supplier_bill_items').delete().eq('bill_id', billId);
+        if (bill.items.length > 0) {
+          const itemsToInsert = bill.items.map(item => ({
+            bill_id: billId,
+            item_name: item.itemName,
+            quantity: item.quantity,
+            unit_price: item.unitPrice,
+            total: item.total
+          }));
+          const { error: itemsError } = await supabase.from('supplier_bill_items').insert(itemsToInsert);
+          if (itemsError) throw itemsError;
+        }
+      }
+
+      await fetchAllData();
+    } catch (error) {
+      console.error('Error updating supplier bill:', error);
+      throw error;
+    }
+  };
+
   const addPaymentToSupplierBill = async (billId: string, amount: number) => {
     try {
       const bill = state.supplierBills.find(b => b.id === billId);
@@ -1741,7 +1789,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       importData, resetData, markNotificationsAsRead, clearNotifications,
       uploadImage, linkSaleItemToProduct, returnSale, processPartialReturnOrExchange,
       deleteSale, deleteRental, deleteCreditNote,
-      addSupplierBill, addPaymentToSupplierBill, deleteSupplierBill,
+      addSupplierBill, updateSupplierBill, addPaymentToSupplierBill, deleteSupplierBill,
       updatePassword,
       addCreditNote,
       consumeStoreCredit,

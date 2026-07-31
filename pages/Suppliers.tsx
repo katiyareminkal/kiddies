@@ -22,7 +22,7 @@ import {
 import { Supplier, SupplierBill } from '../types';
 
 const Suppliers: React.FC = () => {
-  const { suppliers, addSupplier, updateSupplier, deleteSupplier, products, supplierBills, addSupplierBill, addPaymentToSupplierBill, deleteSupplierBill, settings } = useApp();
+  const { suppliers, addSupplier, updateSupplier, deleteSupplier, products, supplierBills, addSupplierBill, updateSupplierBill, addPaymentToSupplierBill, deleteSupplierBill, settings } = useApp();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   
@@ -36,7 +36,10 @@ const Suppliers: React.FC = () => {
   const [paymentBill, setPaymentBill] = useState<SupplierBill | null>(null);
   const [isPaymentOpen, setIsPaymentOpen] = useState(false);
 
-  // New Bill Form State
+  // New Bill & Edit Bill Form State
+  const [editingBill, setEditingBill] = useState<SupplierBill | null>(null);
+  const [isEditBillOpen, setIsEditBillOpen] = useState(false);
+  const [viewingBillImage, setViewingBillImage] = useState<string | null>(null);
   const [billItems, setBillItems] = useState<{itemName: string, quantity: string, unitPrice: string, total: number}[]>([{itemName: '', quantity: '1', unitPrice: '', total: 0}]);
   const [billImageFile, setBillImageFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -127,6 +130,60 @@ const Suppliers: React.FC = () => {
     } catch (err: any) {
       console.error('Failed to save bill:', err);
       alert('Failed to save bill: ' + (err?.message || 'Unknown error'));
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleOpenEditBill = (bill: SupplierBill) => {
+    setEditingBill(bill);
+    setBillItems(
+      bill.items && bill.items.length > 0 
+        ? bill.items.map(i => ({ itemName: i.itemName, quantity: String(i.quantity), unitPrice: String(i.unitPrice), total: i.total }))
+        : [{ itemName: '', quantity: '1', unitPrice: '', total: 0 }]
+    );
+    setBillImageFile(null);
+    setIsEditBillOpen(true);
+  };
+
+  const handleUpdateBill = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!editingBill) return;
+    setIsUploading(true);
+    const formData = new FormData(e.currentTarget);
+    const paid = Number(formData.get('paidAmount') || 0);
+    const total = billItems.reduce((acc, item) => acc + item.total, 0);
+    
+    let status: 'UNPAID' | 'PARTIAL' | 'PAID' = 'UNPAID';
+    if (paid >= total) status = 'PAID';
+    else if (paid > 0) status = 'PARTIAL';
+
+    try {
+      const itemsForSubmit = billItems
+        .filter(item => item.itemName.trim() !== '')
+        .map(item => ({
+          itemName: item.itemName,
+          quantity: Number(item.quantity) || 0,
+          unitPrice: Number(item.unitPrice) || 0,
+          total: item.total
+        }));
+      await updateSupplierBill(editingBill.id, {
+        supplierId: editingBill.supplierId,
+        billNumber: formData.get('billNumber') as string,
+        date: formData.get('date') as string,
+        totalAmount: total,
+        paidAmount: paid,
+        status,
+        notes: formData.get('notes') as string,
+        items: itemsForSubmit
+      }, billImageFile || undefined);
+      setIsEditBillOpen(false);
+      setEditingBill(null);
+      setBillItems([{itemName: '', quantity: '1', unitPrice: '', total: 0}]);
+      setBillImageFile(null);
+    } catch (err: any) {
+      console.error('Failed to update bill:', err);
+      alert('Failed to update bill: ' + (err?.message || 'Unknown error'));
     } finally {
       setIsUploading(false);
     }
@@ -401,11 +458,24 @@ const Suppliers: React.FC = () => {
                       </td>
                       <td className="px-6 py-4 text-right">
                          <div className="flex items-center justify-end gap-2">
-                            {bill.imageUrl && (
-                              <a href={bill.imageUrl} target="_blank" rel="noreferrer" className="text-[9px] font-black uppercase tracking-widest text-emerald-600 hover:bg-emerald-50 px-3 py-1.5 rounded-lg transition-colors border border-transparent hover:border-emerald-200">
-                                View Bill
-                              </a>
-                            )}
+                             {bill.imageUrl && (
+                               <button 
+                                 type="button"
+                                 onClick={() => setViewingBillImage(bill.imageUrl || null)}
+                                 className="text-[9px] font-black uppercase tracking-widest text-emerald-600 hover:bg-emerald-50 px-2.5 py-1.5 rounded-lg transition-colors border border-transparent hover:border-emerald-200 flex items-center gap-1"
+                                 title="View Bill Image"
+                               >
+                                 <FileText size={12} /> View Bill
+                               </button>
+                             )}
+                             <button 
+                               type="button"
+                               onClick={() => handleOpenEditBill(bill)}
+                               className="text-[9px] font-black uppercase tracking-widest text-indigo-600 hover:bg-indigo-50 px-2.5 py-1.5 rounded-lg transition-colors border border-transparent hover:border-indigo-200 flex items-center gap-1"
+                               title="Edit Bill"
+                             >
+                               <Pencil size={12} /> Edit
+                             </button>
                             {bill.status !== 'PAID' && (
                                <button 
                                  onClick={() => { setPaymentBill(bill); setIsPaymentOpen(true); }}
@@ -592,6 +662,144 @@ const Suppliers: React.FC = () => {
               <button type="submit" className="banana-btn flex-1 h-12 text-[9px]">Record Payment</button>
             </div>
           </form>
+        </Modal>
+      )}
+      {/* Edit Bill Modal */}
+      {editingBill && (
+        <Modal isOpen={isEditBillOpen} onClose={() => { setIsEditBillOpen(false); setEditingBill(null); setBillItems([{itemName: '', quantity: '1', unitPrice: '', total: 0}]); setBillImageFile(null); }} title={`Edit Bill #${editingBill.billNumber}`} size="lg">
+          <form onSubmit={handleUpdateBill} className="space-y-6">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="text-[9px] font-black uppercase text-slate-400 tracking-widest ml-1">Bill Number *</label>
+                <input name="billNumber" required defaultValue={editingBill.billNumber} className="w-full px-4 py-3 bg-slate-50 border border-transparent focus:bg-white focus:border-highlight/30 rounded-xl outline-none transition-all font-bold text-slate-900 text-[11px]" placeholder="INV-001" />
+              </div>
+              <div className="space-y-2">
+                <label className="text-[9px] font-black uppercase text-slate-400 tracking-widest ml-1">Date *</label>
+                <input name="date" type="date" required defaultValue={editingBill.date} className="w-full px-4 py-3 bg-slate-50 border border-transparent focus:bg-white focus:border-highlight/30 rounded-xl outline-none transition-all font-bold text-slate-900 text-[11px]" />
+              </div>
+            </div>
+
+            <div className="space-y-3">
+               <div className="flex justify-between items-center">
+                  <label className="text-[9px] font-black uppercase text-slate-400 tracking-widest ml-1">Bill Items</label>
+               </div>
+               <div className="bg-slate-50 rounded-xl p-2 space-y-2">
+                 {billItems.map((item, index) => (
+                   <div key={index} className="flex gap-2 items-center">
+                      <input 
+                        type="text" 
+                        required 
+                        value={item.itemName}
+                        onChange={e => updateBillItem(index, 'itemName', e.target.value)}
+                        placeholder="Item Name" 
+                        className="flex-1 px-3 py-2 bg-white rounded-lg border border-slate-200 focus:border-highlight/30 outline-none font-bold text-[10px] text-slate-900"
+                      />
+                      <input 
+                        type="number" 
+                        required 
+                        min="1"
+                        value={item.quantity}
+                        onChange={e => updateBillItem(index, 'quantity', e.target.value)}
+                        placeholder="Qty" 
+                        className="w-16 px-3 py-2 bg-white rounded-lg border border-slate-200 focus:border-highlight/30 outline-none font-bold text-[10px] text-slate-900"
+                      />
+                      <div className="relative w-24">
+                          <IndianRupee className="absolute left-2 top-1/2 -translate-y-1/2 text-slate-400" size={10} />
+                          <input 
+                            type="number" 
+                            required 
+                            min="0"
+                            step="0.01"
+                            value={item.unitPrice}
+                            onChange={e => updateBillItem(index, 'unitPrice', e.target.value)}
+                            placeholder="Price" 
+                            className="w-full pl-6 pr-2 py-2 bg-white rounded-lg border border-slate-200 focus:border-highlight/30 outline-none font-bold text-[10px] text-slate-900"
+                          />
+                      </div>
+                      <div className="w-20 text-right font-mono font-bold text-[10px] text-slate-600">
+                         {formatCurrency(item.total)}
+                      </div>
+                      <button 
+                        type="button" 
+                        onClick={() => removeBillItemRow(index)}
+                        className={`p-2 rounded-lg transition-colors ${billItems.length > 1 ? 'text-slate-400 hover:text-rose-500 hover:bg-rose-50' : 'text-slate-200 cursor-not-allowed'}`}
+                      >
+                         <Trash2 size={12} strokeWidth={3} />
+                      </button>
+                   </div>
+                 ))}
+                 <button type="button" onClick={addBillItemRow} className="w-full py-2 border-2 border-dashed border-slate-200 rounded-lg text-[9px] font-black uppercase tracking-widest text-slate-400 hover:text-highlight hover:border-highlight/30 hover:bg-highlight/5 transition-all">
+                    + Add Another Item
+                 </button>
+               </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4 items-end">
+              <div className="space-y-2">
+                <label className="text-[9px] font-black uppercase text-slate-400 tracking-widest ml-1">Amount Paid</label>
+                <div className="relative group">
+                  <IndianRupee className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-highlight" size={14} strokeWidth={2.5} />
+                  <input name="paidAmount" type="number" min={0} step="0.01" defaultValue={editingBill.paidAmount} className="w-full pl-9 pr-4 py-3 bg-slate-50 border border-transparent focus:bg-white focus:border-highlight/30 rounded-xl outline-none transition-all font-bold text-slate-900 text-[11px]" placeholder="0.00" />
+                </div>
+              </div>
+              <div className="bg-slate-900 text-white p-3 rounded-xl flex justify-between items-center shadow-banana">
+                 <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">Total Bill</span>
+                 <span className="text-lg font-display font-black text-highlight">{formatCurrency(billItems.reduce((acc, item) => acc + item.total, 0))}</span>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <label className="text-[9px] font-black uppercase text-slate-400 tracking-widest ml-1">Notes (Optional)</label>
+              <input name="notes" defaultValue={editingBill.notes || ''} className="w-full px-4 py-3 bg-slate-50 border border-transparent focus:bg-white focus:border-highlight/30 rounded-xl outline-none transition-all font-bold text-slate-900 text-[11px]" placeholder="Any remarks" />
+            </div>
+            
+            <div className="space-y-2">
+              <label className="text-[9px] font-black uppercase text-slate-400 tracking-widest ml-1">Bill Image / Document</label>
+              {editingBill.imageUrl && (
+                <div className="flex items-center gap-3 p-3 bg-emerald-50 border border-emerald-100 rounded-xl mb-2">
+                  <FileText className="text-emerald-600" size={20} />
+                  <div className="flex-1 overflow-hidden">
+                    <p className="text-[10px] font-bold text-emerald-900 truncate">Current Attached File</p>
+                    <a href={editingBill.imageUrl} target="_blank" rel="noreferrer" className="text-[9px] font-bold text-emerald-600 hover:underline">View Attachment</a>
+                  </div>
+                  <button type="button" onClick={() => setViewingBillImage(editingBill.imageUrl || null)} className="px-3 py-1 bg-emerald-600 text-white text-[9px] font-black uppercase rounded-lg">Preview</button>
+                </div>
+              )}
+              <div className="relative group">
+                <input 
+                  type="file" 
+                  accept="image/*"
+                  onChange={(e) => setBillImageFile(e.target.files ? e.target.files[0] : null)}
+                  className="w-full px-4 py-3 bg-slate-50 border border-transparent focus:bg-white focus:border-highlight/30 rounded-xl outline-none transition-all font-bold text-slate-900 text-[11px] file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-[9px] file:font-black file:uppercase file:tracking-widest file:bg-slate-900 file:text-white hover:file:bg-slate-800 cursor-pointer" 
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-4 pt-4">
+              <button type="button" onClick={() => { setIsEditBillOpen(false); setEditingBill(null); setBillItems([{itemName: '', quantity: '1', unitPrice: '', total: 0}]); setBillImageFile(null); }} className="flex-1 h-12 rounded-xl font-black uppercase tracking-widest text-[9px] text-slate-400 hover:bg-slate-50" disabled={isUploading}>Cancel</button>
+              <button type="submit" className="banana-btn flex-1 h-12 text-[9px]" disabled={isUploading}>
+                {isUploading ? 'Updating...' : 'Update Bill'}
+              </button>
+            </div>
+          </form>
+        </Modal>
+      )}
+
+      {/* Bill Image View Modal */}
+      {viewingBillImage && (
+        <Modal isOpen={!!viewingBillImage} onClose={() => setViewingBillImage(null)} title="Bill Attachment Preview" size="lg">
+          <div className="space-y-4 text-center">
+            <div className="max-h-[70vh] overflow-auto rounded-2xl border border-slate-100 bg-slate-900 p-2 flex items-center justify-center">
+              <img src={viewingBillImage} alt="Bill Attachment" className="max-w-full max-h-[65vh] object-contain rounded-xl" />
+            </div>
+            <div className="flex gap-4 pt-2">
+              <a href={viewingBillImage} target="_blank" rel="noreferrer" className="banana-btn flex-1 h-12 text-[9px] justify-center">
+                Open Full Resolution Image
+              </a>
+              <button type="button" onClick={() => setViewingBillImage(null)} className="h-12 px-6 rounded-xl font-black uppercase tracking-widest text-[9px] text-slate-400 hover:bg-slate-50 border border-slate-200">
+                Close
+              </button>
+            </div>
+          </div>
         </Modal>
       )}
     </div>
