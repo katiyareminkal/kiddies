@@ -122,6 +122,64 @@ export const DEFAULT_TEMPLATE_50x30: LabelTemplate = {
   ]
 };
 
+export const adaptTemplateToDimensions = (
+  baseTemplate: LabelTemplate,
+  newW: number,
+  newH: number
+): LabelTemplate => {
+  let template = baseTemplate;
+  const isTargetLandscape = newW >= newH;
+  const isBaseLandscape = template.labelWidth >= template.labelHeight;
+
+  // Auto-switch base template orientation if orientation changed
+  if (isTargetLandscape !== isBaseLandscape) {
+    template = isTargetLandscape ? DEFAULT_TEMPLATE_50x30 : DEFAULT_TEMPLATE_30x50;
+  }
+
+  const scaleX = newW / template.labelWidth;
+  const scaleY = newH / template.labelHeight;
+  const scaleFont = Math.min(scaleX, scaleY);
+
+  const adaptedElements: LabelElement[] = template.elements.map(el => {
+    const newEl: LabelElement = {
+      ...el,
+      x: Number((el.x * scaleX).toFixed(2)),
+      y: Number((el.y * scaleY).toFixed(2))
+    };
+
+    if (el.width !== undefined) {
+      // For vertical lines (width === 0), adjust height
+      if (el.type === 'line' && el.width === 0 && el.height !== undefined) {
+        newEl.height = Number((el.height * scaleY).toFixed(2));
+      } else if (el.width > 0) {
+        newEl.width = Number((el.width * scaleX).toFixed(2));
+      }
+    }
+
+    if (el.height !== undefined && el.height > 0 && el.type !== 'line') {
+      newEl.height = Number((el.height * scaleY).toFixed(2));
+    }
+
+    if (el.fontSize !== undefined) {
+      newEl.fontSize = Number((el.fontSize * scaleFont).toFixed(2));
+    }
+
+    if (el.borderRadius !== undefined) {
+      newEl.borderRadius = Number((el.borderRadius * scaleFont).toFixed(2));
+    }
+
+    return newEl;
+  });
+
+  return {
+    id: `adapted_${newW}x${newH}_${template.id}`,
+    name: `${template.name} (${newW}×${newH}mm)`,
+    labelWidth: newW,
+    labelHeight: newH,
+    elements: adaptedElements
+  };
+};
+
 export const generateDynamicLabelPDF = (products: LabelProduct | LabelProduct[], template: LabelTemplate) => {
   const productArray = Array.isArray(products) ? products : [products];
   if (productArray.length === 0) return;

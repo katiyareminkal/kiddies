@@ -9,7 +9,8 @@ import {
   LabelElement, 
   DEFAULT_TEMPLATE_50x30, 
   DEFAULT_TEMPLATE_30x50, 
-  generateDynamicLabelPDF 
+  generateDynamicLabelPDF,
+  adaptTemplateToDimensions
 } from '../../utils/pdfLabel';
 
 const MM_TO_PX = 3.7795275591;
@@ -86,17 +87,10 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
   const [inputHeight, setInputHeight] = useState<string>('30');
   const [showCustomDimInputs, setShowCustomDimInputs] = useState(false);
 
-  // Active Template
+  // Active Template - automatically adapted to selectedPaperDim
   const activeTemplate = useMemo(() => {
-    if (customPaperDimOverride) {
-      return {
-        ...selectedPreset.template,
-        labelWidth: customPaperDimOverride.width,
-        labelHeight: customPaperDimOverride.height
-      };
-    }
-    return selectedPreset.template;
-  }, [selectedPreset, customPaperDimOverride]);
+    return adaptTemplateToDimensions(selectedPreset.template, selectedPaperDim.width, selectedPaperDim.height);
+  }, [selectedPreset, selectedPaperDim]);
 
   const selectPreset = (idx: number) => {
     setSelectedIndex(idx);
