@@ -18,7 +18,9 @@ import {
   Wallet,
   Smartphone,
   Landmark,
-  UserPlus
+  UserPlus,
+  LayoutGrid,
+  List
 } from 'lucide-react';
 import { formatCurrency } from '../../utils/helpers';
 import { SalesChannel, PaymentMethod, PaymentStatus, OrderStatus } from '../../types';
@@ -55,6 +57,9 @@ export const CreateBillModal: React.FC<CreateBillModalProps> = ({ isOpen, onClos
   const [newCustPhone, setNewCustPhone] = useState('');
   const [newCustEmail, setNewCustEmail] = useState('');
   const [newCustAddress, setNewCustAddress] = useState('');
+
+  // Product catalog view mode
+  const [productViewMode, setProductViewMode] = useState<'grid' | 'list'>('grid');
 
   // Custom/Manual Item states
   const [isCustomFormOpen, setIsCustomFormOpen] = useState(false);
@@ -604,7 +609,7 @@ export const CreateBillModal: React.FC<CreateBillModalProps> = ({ isOpen, onClos
           {/* Main Content Area */}
           <div style={{ display: 'flex', flexDirection: 'row', gap: '16px', flex: 1, minHeight: 0, overflow: 'hidden' }}>
             {/* Product Selection Column */}
-            <div className={`${terminalTab === 'PRODUCTS' ? 'flex' : 'hidden lg:flex'} flex-col gap-2.5`} style={{ flex: 3, minWidth: 0, minHeight: 0 }}>
+            <div className={`${terminalTab === 'PRODUCTS' ? 'flex' : 'hidden lg:flex'} flex-col gap-2.5`} style={{ flex: 2.5, minWidth: 0, minHeight: 0 }}>
               {/* Search & Categories */}
               <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 <div className="flex gap-2">
@@ -617,6 +622,22 @@ export const CreateBillModal: React.FC<CreateBillModalProps> = ({ isOpen, onClos
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
                     />
+                  </div>
+                  <div className="flex bg-white border border-slate-100 rounded-2xl p-1 shadow-sm shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => setProductViewMode('grid')}
+                      className={`w-8 h-8 rounded-xl flex items-center justify-center transition-all ${productViewMode === 'grid' ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+                    >
+                      <LayoutGrid size={14} strokeWidth={2.5} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setProductViewMode('list')}
+                      className={`w-8 h-8 rounded-xl flex items-center justify-center transition-all ${productViewMode === 'list' ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+                    >
+                      <List size={14} strokeWidth={2.5} />
+                    </button>
                   </div>
                   <button
                     onClick={() => setIsScannerOpen(true)}
@@ -652,10 +673,10 @@ export const CreateBillModal: React.FC<CreateBillModalProps> = ({ isOpen, onClos
                 </div>
               </div>
 
-              {/* Product Grid */}
-              <div style={{ flex: 1, overflowY: 'auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(105px, 1fr))', gap: '8px', alignContent: 'start', paddingBottom: '4px', paddingRight: '4px' }} className="hide-scrollbar">
+              {/* Product Grid / List View */}
+              <div style={{ flex: 1, overflowY: 'auto', paddingBottom: '4px', paddingRight: '4px' }} className="hide-scrollbar">
                 {filteredProducts.length === 0 ? (
-                  <div style={{ gridColumn: '1 / -1', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 20px', background: 'white', borderRadius: '1.5rem', border: '1px border-slate-100', textAlign: 'center' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 20px', background: 'white', borderRadius: '1.5rem', border: '1px border-slate-100', textAlign: 'center' }}>
                     <Package size={32} className="text-slate-200 mb-2" />
                     <h4 className="text-[10px] font-black text-slate-800 uppercase tracking-wider">No matching products found</h4>
                     <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mt-1 mb-4">Would you like to add a manual custom item instead?</p>
@@ -667,45 +688,93 @@ export const CreateBillModal: React.FC<CreateBillModalProps> = ({ isOpen, onClos
                       Add Manual Item
                     </button>
                   </div>
-                ) : filteredProducts.map(product => {
-                  const cartItem = cart.find(item => item.productId === product.id);
-                  return (
-                    <div
-                      key={product.id}
-                      className={`nano-card p-2 flex flex-col gap-1.5 group cursor-pointer transition-all duration-300 relative ${cartItem ? 'bg-highlight/5' : 'bg-white'}`}
-                      onClick={() => addToCart(product.id)}
-                    >
-                      <div className={`aspect-square bg-slate-50 rounded-xl overflow-hidden shrink-0 group-hover:scale-105 transition-all duration-500 relative ${cartItem ? 'border-2 border-highlight shadow-lg shadow-highlight/20 scale-105' : 'border border-slate-100'}`}>
-                        {product.imageUrl ? (
-                          <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-slate-200">
-                            <Package size={20} strokeWidth={1} />
+                ) : productViewMode === 'grid' ? (
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(105px, 1fr))', gap: '8px', alignContent: 'start' }}>
+                    {filteredProducts.map(product => {
+                      const cartItem = cart.find(item => item.productId === product.id);
+                      return (
+                        <div
+                          key={product.id}
+                          className={`nano-card p-2 flex flex-col gap-1.5 group cursor-pointer transition-all duration-300 relative ${cartItem ? 'bg-highlight/5' : 'bg-white'}`}
+                          onClick={() => addToCart(product.id)}
+                        >
+                          <div className={`aspect-square bg-slate-50 rounded-xl overflow-hidden shrink-0 group-hover:scale-105 transition-all duration-500 relative ${cartItem ? 'border-2 border-highlight shadow-lg shadow-highlight/20 scale-105' : 'border border-slate-100'}`}>
+                            {product.imageUrl ? (
+                              <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center text-slate-200">
+                                <Package size={20} strokeWidth={1} />
+                              </div>
+                            )}
+                            {cartItem && (
+                              <div className="absolute top-1 left-1 bg-highlight text-slate-900 text-[8px] font-black px-1.5 py-0.5 rounded-md shadow-md border border-white/50">
+                                x{cartItem.quantity}
+                              </div>
+                            )}
                           </div>
-                        )}
-                        {cartItem && (
-                          <div className="absolute top-1 left-1 bg-highlight text-slate-900 text-[8px] font-black px-1.5 py-0.5 rounded-md shadow-md border border-white/50">
-                            x{cartItem.quantity}
+                          <div className="min-w-0 px-0.5">
+                            <h4 className="text-[8px] font-black text-slate-900 uppercase tracking-tight truncate group-hover:text-highlight transition-colors">{product.name}</h4>
+                            <p className="text-[9px] font-black text-slate-900 font-mono mt-0.5">{formatCurrency(product.sellingPrice)}</p>
                           </div>
-                        )}
-                      </div>
-                      <div className="min-w-0 px-0.5">
-                        <h4 className="text-[8px] font-black text-slate-900 uppercase tracking-tight truncate group-hover:text-highlight transition-colors">{product.name}</h4>
-                        <p className="text-[9px] font-black text-slate-900 font-mono mt-0.5">{formatCurrency(product.sellingPrice)}</p>
-                      </div>
-                      {cartItem && (
-                        <div className="absolute top-1 right-1 z-10" onClick={(e) => e.stopPropagation()}>
-                          <button
-                            onClick={() => removeFromCart(product.id)}
-                            className="w-5 h-5 flex items-center justify-center bg-rose-500 text-white rounded-md shadow-lg active:scale-90 transition-all"
+                          {cartItem && (
+                            <div className="absolute top-1 right-1 z-10" onClick={(e) => e.stopPropagation()}>
+                              <button
+                                onClick={() => removeFromCart(product.id)}
+                                className="w-5 h-5 flex items-center justify-center bg-rose-500 text-white rounded-md shadow-lg active:scale-90 transition-all"
                           >
-                            <X size={10} strokeWidth={3} />
-                          </button>
+                              <X size={10} strokeWidth={3} />
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                  </div>
+                ) : (
+                  /* List View */
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                    {filteredProducts.map(product => {
+                      const cartItem = cart.find(item => item.productId === product.id);
+                      return (
+                        <div
+                          key={product.id}
+                          className={`flex items-center gap-3 p-2.5 rounded-xl cursor-pointer transition-all duration-200 group ${cartItem ? 'bg-highlight/10 border border-highlight/20 shadow-sm' : 'bg-white border border-slate-100 hover:border-slate-200 hover:shadow-sm'}`}
+                          onClick={() => addToCart(product.id)}
+                        >
+                          <div className={`w-10 h-10 rounded-lg overflow-hidden shrink-0 ${cartItem ? 'border-2 border-highlight shadow-md' : 'border border-slate-100'}`}>
+                            {product.imageUrl ? (
+                              <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                            ) : (
+                              <div className="w-full h-full bg-slate-50 flex items-center justify-center text-slate-200">
+                                <Package size={16} strokeWidth={1} />
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h4 className="text-[9px] font-black text-slate-900 uppercase tracking-tight truncate group-hover:text-[#8B5CF6] transition-colors">{product.name}</h4>
+                            <p className="text-[8px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">{product.sku || product.category}</p>
+                          </div>
+                          <p className="text-[10px] font-black text-slate-900 font-mono shrink-0">{formatCurrency(product.sellingPrice)}</p>
+                          {cartItem ? (
+                            <div className="flex items-center gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
+                              <button onClick={() => removeFromCart(product.id)} className="w-6 h-6 rounded-md bg-white border border-slate-200 flex items-center justify-center text-slate-600 hover:text-slate-900 transition-all shadow-sm">
+                                <Minus size={10} strokeWidth={3} />
+                              </button>
+                              <span className="text-[10px] font-black text-slate-900 w-6 text-center font-mono">{cartItem.quantity}</span>
+                              <button onClick={() => addToCart(product.id)} className="w-6 h-6 rounded-md bg-white border border-slate-200 flex items-center justify-center text-slate-600 hover:text-[#8B5CF6] transition-all shadow-sm">
+                                <Plus size={10} strokeWidth={3} />
+                              </button>
+                            </div>
+                          ) : (
+                            <div className="w-6 h-6 rounded-md bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-300 group-hover:bg-[#8B5CF6] group-hover:border-[#8B5CF6] group-hover:text-white transition-all shrink-0">
+                              <Plus size={12} strokeWidth={3} />
+                            </div>
+                          )}
                         </div>
-                      )}
-                    </div>
-                  );
-                })}
+                      );
+                    })}
+                  </div>
+                )}
               </div>
 
               {/* Floating review bar on mobile */}
@@ -732,7 +801,7 @@ export const CreateBillModal: React.FC<CreateBillModalProps> = ({ isOpen, onClos
             </div>
 
             {/* Cart/Basket Column */}
-            <div className={`${terminalTab === 'BASKET' ? 'flex' : 'hidden lg:flex'} flex-col`} style={{ flex: 1.5, minWidth: '300px', background: 'white', borderRadius: '1.5rem', border: '1px solid #E2E8F0', overflow: 'hidden' }}>
+            <div className={`${terminalTab === 'BASKET' ? 'flex' : 'hidden lg:flex'} flex-col`} style={{ flex: 2, minWidth: '340px', background: 'white', borderRadius: '1.5rem', border: '1px solid #E2E8F0', overflow: 'hidden' }}>
               {/* Basket Header */}
               <div style={{ padding: '12px 16px', borderBottom: '1px solid #F8FAFC', flexShrink: 0 }}>
                 <div className="flex items-center justify-between">
@@ -744,7 +813,7 @@ export const CreateBillModal: React.FC<CreateBillModalProps> = ({ isOpen, onClos
               </div>
 
               {/* Cart Items */}
-              <div style={{ flex: 1, overflowY: 'auto', padding: '8px', display: 'flex', flexDirection: 'column', gap: '6px' }} className="hide-scrollbar">
+              <div style={{ flex: 1, overflowY: 'auto', padding: '10px', display: 'flex', flexDirection: 'column', gap: '8px' }} className="hide-scrollbar">
                 {cartItems.length === 0 ? (
                   <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', opacity: 0.4, padding: '24px' }}>
                     <ShoppingBag size={24} strokeWidth={1} className="text-slate-300 mb-2" />
@@ -753,9 +822,9 @@ export const CreateBillModal: React.FC<CreateBillModalProps> = ({ isOpen, onClos
                   </div>
                 ) : (
                   cartItems.map(item => (
-                    <div key={item.productId} className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 p-2 bg-white rounded-xl border border-slate-100/60 shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
-                      <div className="flex items-center gap-2.5">
-                        <div className="w-10 h-10 rounded-lg overflow-hidden border border-slate-100 shrink-0 bg-[#F8FAFC]">
+                    <div key={item.productId} className="flex flex-col sm:flex-row sm:items-center gap-2.5 sm:gap-3 p-3 bg-white rounded-xl border border-slate-100/60 shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 rounded-lg overflow-hidden border border-slate-100 shrink-0 bg-[#F8FAFC]">
                           {item.product?.imageUrl ? (
                             <img src={item.product.imageUrl} className="w-full h-full object-cover" />
                           ) : (
@@ -765,25 +834,25 @@ export const CreateBillModal: React.FC<CreateBillModalProps> = ({ isOpen, onClos
                           )}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <h4 className="text-[10px] font-black text-slate-900 uppercase truncate leading-tight">{item.product?.name}</h4>
-                          <p className="text-[9px] font-bold text-slate-400 font-mono mt-0.5">{formatCurrency(item.product?.sellingPrice || 0)}</p>
+                          <h4 className="text-[11px] font-black text-slate-900 uppercase truncate leading-tight">{item.product?.name}</h4>
+                          <p className="text-[10px] font-bold text-slate-400 font-mono mt-0.5">{formatCurrency(item.product?.sellingPrice || 0)} each</p>
                         </div>
                       </div>
                       
                       <div className="flex items-center justify-between sm:justify-end gap-3 mt-1 sm:mt-0 pt-2 sm:pt-0 border-t sm:border-0 border-slate-50">
                         <div className="flex items-center gap-0.5 bg-[#F8FAFC] rounded-lg p-0.5 border border-slate-100 shrink-0">
-                          <button onClick={() => removeFromCart(item.productId)} disabled={item.quantity <= 1} className="w-7 h-7 rounded-md bg-white border border-slate-200 flex items-center justify-center text-slate-600 hover:text-slate-900 disabled:opacity-30 transition-all shadow-sm">
+                          <button onClick={() => removeFromCart(item.productId)} disabled={item.quantity <= 1} className="w-8 h-8 rounded-md bg-white border border-slate-200 flex items-center justify-center text-slate-600 hover:text-slate-900 disabled:opacity-30 transition-all shadow-sm">
                             <Minus size={12} strokeWidth={3} />
                           </button>
-                          <span className="text-[11px] font-black text-slate-900 w-8 text-center font-mono">{item.quantity}</span>
-                          <button onClick={() => addToCart(item.productId)} className="w-7 h-7 rounded-md bg-white border border-slate-200 flex items-center justify-center text-slate-600 hover:text-highlight transition-all shadow-sm">
+                          <span className="text-xs font-black text-slate-900 w-9 text-center font-mono">{item.quantity}</span>
+                          <button onClick={() => addToCart(item.productId)} className="w-8 h-8 rounded-md bg-white border border-slate-200 flex items-center justify-center text-slate-600 hover:text-highlight transition-all shadow-sm">
                             <Plus size={12} strokeWidth={3} />
                           </button>
                         </div>
-                        <div className="flex items-center gap-2 shrink-0">
-                          <span className="text-[11px] font-black text-slate-900 font-mono min-w-[3rem] text-right">{formatCurrency((item.product?.sellingPrice || 0) * item.quantity)}</span>
-                          <button onClick={() => deleteFromCart(item.productId)} className="w-7 h-7 rounded-lg bg-rose-50 flex items-center justify-center text-rose-500 hover:bg-rose-100 transition-colors">
-                            <Trash2 size={12} strokeWidth={2.5} />
+                        <div className="flex items-center gap-2.5 shrink-0">
+                          <span className="text-xs font-black text-slate-900 font-mono min-w-[3.5rem] text-right">{formatCurrency((item.product?.sellingPrice || 0) * item.quantity)}</span>
+                          <button onClick={() => deleteFromCart(item.productId)} className="w-8 h-8 rounded-lg bg-rose-50 flex items-center justify-center text-rose-500 hover:bg-rose-100 transition-colors">
+                            <Trash2 size={13} strokeWidth={2.5} />
                           </button>
                         </div>
                       </div>
