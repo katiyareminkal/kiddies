@@ -29,7 +29,9 @@ import {
   Store,
   Printer,
   MessageCircle,
-  Undo2
+  Undo2,
+  LayoutGrid,
+  List
 } from 'lucide-react';
 import { formatCurrency } from '../utils/helpers';
 import { format, parseISO, isAfter, isBefore, isSameDay } from 'date-fns';
@@ -39,6 +41,7 @@ const Sales: React.FC = () => {
   const { sales, products, customers, updateOrderStatus } = useApp();
   const [isAddingSale, setIsAddingSale] = useState(false);
   const [historySearchTerm, setHistorySearchTerm] = useState('');
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [showFilters, setShowFilters] = useState(false);
   const [filterStartDate, setFilterStartDate] = useState('');
   const [filterEndDate, setFilterEndDate] = useState('');
@@ -132,6 +135,33 @@ const Sales: React.FC = () => {
             onChange={(e) => setHistorySearchTerm(e.target.value)}
           />
         </div>
+
+        {/* View Switcher: Card View / List View */}
+        <div className="flex items-center p-1 bg-white border border-slate-100 rounded-2xl shadow-sm">
+          <button
+            onClick={() => setViewMode('grid')}
+            className={`p-2.5 rounded-xl transition-all ${
+              viewMode === 'grid'
+                ? 'bg-slate-900 text-white shadow-md'
+                : 'text-slate-400 hover:text-slate-700'
+            }`}
+            title="Card View"
+          >
+            <LayoutGrid size={15} strokeWidth={2.5} />
+          </button>
+          <button
+            onClick={() => setViewMode('list')}
+            className={`p-2.5 rounded-xl transition-all ${
+              viewMode === 'list'
+                ? 'bg-slate-900 text-white shadow-md'
+                : 'text-slate-400 hover:text-slate-700'
+            }`}
+            title="List View"
+          >
+            <List size={15} strokeWidth={2.5} />
+          </button>
+        </div>
+
         <button
           onClick={() => setShowFilters(!showFilters)}
           className={`px-6 rounded-2xl border transition-all flex items-center gap-2 text-[10px] font-black uppercase tracking-widest ${showFilters ? 'bg-slate-900 text-white border-slate-900 shadow-lg' : 'bg-white text-slate-400 border-slate-100 hover:border-slate-200'}`}
@@ -207,74 +237,159 @@ const Sales: React.FC = () => {
         </div>
       )}
 
-      {/* Sales List */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filteredSales.map(sale => {
-          const customer = customers.find(c => c.id === sale.customerId);
-          const channelIcon = (() => {
-            switch (sale.channel) {
-              case SalesChannel.AMAZON: return <Globe size={12} className="text-orange-500" />;
-              case SalesChannel.FLIPKART: return <Globe size={12} className="text-blue-500" />;
-              case SalesChannel.WEBSITE: return <Globe size={12} className="text-emerald-500" />;
-              default: return <Store size={12} className="text-slate-400" />;
-            }
-          })();
+      {/* Sales Display (Cards / List View) */}
+      {viewMode === 'list' ? (
+        <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-slate-50/70 border-b border-slate-100 text-[8.5px] font-black text-slate-400 uppercase tracking-widest">
+                  <th className="py-3 px-4">Invoice #</th>
+                  <th className="py-3 px-4">Customer</th>
+                  <th className="py-3 px-4">Date</th>
+                  <th className="py-3 px-4">Items Summary</th>
+                  <th className="py-3 px-4 text-center">Channel</th>
+                  <th className="py-3 px-4 text-center">Status</th>
+                  <th className="py-3 px-4 text-right">Total Amount</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100/60">
+                {filteredSales.map(sale => {
+                  const customer = customers.find(c => c.id === sale.customerId);
+                  const channelIcon = (() => {
+                    switch (sale.channel) {
+                      case SalesChannel.AMAZON: return <Globe size={11} className="text-amber-500" />;
+                      case SalesChannel.FLIPKART: return <Globe size={11} className="text-blue-500" />;
+                      case SalesChannel.WEBSITE: return <Globe size={11} className="text-emerald-500" />;
+                      default: return <Store size={11} className="text-purple-500" />;
+                    }
+                  })();
 
-          return (
-            <div 
-              key={sale.id} 
-              className="nano-card p-5 group hover:border-highlight/50 transition-all cursor-pointer"
-              onClick={() => setSelectedSaleId(sale.id)}
-            >
-              <div className="flex justify-between items-start mb-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="p-2 bg-slate-50 rounded-lg group-hover:bg-highlight group-hover:text-primary transition-all">
-                    <ShoppingBag size={14} strokeWidth={2.5} />
-                  </div>
-                  <div>
-                    <p className="text-[8px] font-black text-slate-300 uppercase tracking-widest">{sale.invoiceNumber}</p>
-                    <h4 className="text-[11px] font-black text-slate-900 uppercase tracking-tight">{customer?.name || 'Guest Customer'}</h4>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <p className="text-[12px] font-black text-slate-900 font-mono tracking-tight">{formatCurrency(sale.totalAmount)}</p>
-                  <p className="text-[8px] font-black text-slate-300 uppercase tracking-widest mt-0.5">{format(parseISO(sale.date), 'MMM dd, HH:mm')}</p>
-                </div>
-              </div>
+                  return (
+                    <tr 
+                      key={sale.id}
+                      onClick={() => setSelectedSaleId(sale.id)}
+                      className="hover:bg-purple-50/30 transition-colors cursor-pointer group"
+                    >
+                      <td className="py-3 px-4 font-mono text-[10px] font-black text-[#8B5CF6]">
+                        {sale.invoiceNumber}
+                      </td>
+                      <td className="py-3 px-4 font-black text-[11px] text-slate-800 uppercase tracking-tight group-hover:text-[#8B5CF6] transition-colors">
+                        {customer?.name || 'Guest Customer'}
+                      </td>
+                      <td className="py-3 px-4 text-[9px] font-bold text-slate-400 uppercase tracking-wider">
+                        {format(parseISO(sale.date), 'MMM dd, HH:mm')}
+                      </td>
+                      <td className="py-3 px-4">
+                        <div className="flex flex-wrap gap-1">
+                          {sale.items.slice(0, 2).map((item, i) => (
+                            <span key={i} className="text-[7.5px] font-bold text-slate-600 bg-slate-50 border border-slate-100 px-1.5 py-0.5 rounded-md">
+                              {item.quantity}x {item.name}
+                            </span>
+                          ))}
+                          {sale.items.length > 2 && (
+                            <span className="text-[7.5px] font-bold text-slate-400 bg-slate-50 px-1.5 py-0.5 rounded-md">
+                              +{sale.items.length - 2}
+                            </span>
+                          )}
+                        </div>
+                      </td>
+                      <td className="py-3 px-4 text-center">
+                        <span className="inline-flex items-center gap-1 bg-slate-50 border border-slate-100 px-2 py-0.5 rounded-lg text-[8px] font-black text-slate-500 uppercase tracking-wider">
+                          {channelIcon}
+                          {sale.channel}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4 text-center">
+                        <span className={`inline-block text-[8px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-lg border ${
+                          sale.orderStatus === OrderStatus.COMPLETED ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
+                          sale.orderStatus === OrderStatus.CANCELLED ? 'bg-rose-50 text-rose-600 border-rose-100' :
+                          'bg-amber-50 text-amber-600 border-amber-100'
+                        }`}>
+                          {sale.orderStatus}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4 text-right font-mono font-black text-[11px] text-slate-900">
+                        {formatCurrency(sale.totalAmount)}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      ) : (
+        /* Sales Cards Grid */
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+          {filteredSales.map(sale => {
+            const customer = customers.find(c => c.id === sale.customerId);
+            const channelIcon = (() => {
+              switch (sale.channel) {
+                case SalesChannel.AMAZON: return <Globe size={11} className="text-amber-500" />;
+                case SalesChannel.FLIPKART: return <Globe size={11} className="text-blue-500" />;
+                case SalesChannel.WEBSITE: return <Globe size={11} className="text-emerald-500" />;
+                default: return <Store size={11} className="text-purple-500" />;
+              }
+            })();
 
-              <div className="space-y-3">
-                <div className="flex flex-wrap gap-1.5">
-                  {sale.items.slice(0, 2).map((item, i) => (
-                    <span key={i} className="text-[8px] font-black text-slate-400 uppercase tracking-widest bg-slate-50 px-2 py-1 rounded-md">
-                      {item.quantity}x {item.name}
-                    </span>
-                  ))}
-                  {sale.items.length > 2 && (
-                    <span className="text-[8px] font-black text-slate-300 uppercase tracking-widest px-2 py-1">
-                      +{sale.items.length - 2} more
-                    </span>
-                  )}
-                </div>
-
-                <div className="flex items-center justify-between pt-4 border-t border-slate-50">
-                  <div className="flex items-center gap-2">
-                    <div className="flex items-center gap-1 bg-slate-50 px-2 py-1 rounded-md">
-                      {channelIcon}
-                      <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">{sale.channel}</span>
+            return (
+              <div 
+                key={sale.id} 
+                className="bg-white rounded-2xl border border-slate-100/80 p-3.5 shadow-sm hover:shadow-lg hover:shadow-purple-500/5 hover:border-[#8B5CF6]/30 transition-all duration-200 cursor-pointer group flex flex-col justify-between min-h-[110px]"
+                onClick={() => setSelectedSaleId(sale.id)}
+              >
+                <div>
+                  <div className="flex items-start justify-between gap-2 mb-2">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <div className="w-8 h-8 rounded-xl bg-purple-50 text-[#8B5CF6] group-hover:bg-[#8B5CF6] group-hover:text-white transition-colors flex items-center justify-center shrink-0">
+                        <ShoppingBag size={14} strokeWidth={2.2} />
+                      </div>
+                      <div className="min-w-0">
+                        <h4 className="text-[11px] font-black text-slate-800 uppercase tracking-tight truncate group-hover:text-[#8B5CF6] transition-colors">{customer?.name || 'Guest Customer'}</h4>
+                        <p className="text-[8px] font-bold text-slate-400 font-mono tracking-widest">{sale.invoiceNumber}</p>
+                      </div>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <p className="text-[11px] font-black text-slate-900 font-mono tracking-tight">{formatCurrency(sale.totalAmount)}</p>
+                      <p className="text-[7.5px] font-bold text-slate-400 uppercase tracking-widest">{format(parseISO(sale.date), 'MMM dd, HH:mm')}</p>
                     </div>
                   </div>
-                  <span className={`text-[8px] font-black uppercase tracking-widest px-2 py-1 rounded-md ${sale.orderStatus === OrderStatus.COMPLETED ? 'bg-emerald-50 text-emerald-500' :
-                      sale.orderStatus === OrderStatus.CANCELLED ? 'bg-rose-50 text-rose-500' :
-                        'bg-amber-50 text-amber-500'
-                    }`}>
+
+                  {/* Items Summary Pills */}
+                  <div className="flex flex-wrap gap-1 my-1.5">
+                    {sale.items.slice(0, 2).map((item, i) => (
+                      <span key={i} className="text-[7.5px] font-bold text-slate-600 bg-slate-50 border border-slate-100 px-1.5 py-0.5 rounded-md truncate max-w-[130px]">
+                        {item.quantity}x {item.name}
+                      </span>
+                    ))}
+                    {sale.items.length > 2 && (
+                      <span className="text-[7.5px] font-bold text-slate-400 bg-slate-50 px-1.5 py-0.5 rounded-md">
+                        +{sale.items.length - 2}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Card Footer */}
+                <div className="flex items-center justify-between pt-2 mt-1 border-t border-slate-100/60">
+                  <div className="flex items-center gap-1 bg-slate-50 border border-slate-100 px-2 py-0.5 rounded-lg">
+                    {channelIcon}
+                    <span className="text-[7.5px] font-black text-slate-500 uppercase tracking-wider">{sale.channel}</span>
+                  </div>
+                  <span className={`text-[7.5px] font-black uppercase tracking-wider px-2 py-0.5 rounded-lg border ${
+                    sale.orderStatus === OrderStatus.COMPLETED ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
+                    sale.orderStatus === OrderStatus.CANCELLED ? 'bg-rose-50 text-rose-600 border-rose-100' :
+                    'bg-amber-50 text-amber-600 border-amber-100'
+                  }`}>
                     {sale.orderStatus}
                   </span>
                 </div>
               </div>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      )}
 
       {filteredSales.length === 0 && (
         <div className="py-20 text-center">
