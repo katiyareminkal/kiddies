@@ -444,7 +444,11 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
           return sibSize?.toUpperCase() === size.toUpperCase();
         });
 
-        const variantColor = (variantStocks[size]?.color || '').trim() || (formData.get('color') as string || '').trim();
+        const formColor = (formData.get('color') as string || '').trim();
+        let variantColor = formColor;
+        if (variantStocks[size]?.color && variantStocks[size].color.trim() !== '' && variantStocks[size].color.trim() !== (productToEdit?.color || '')) {
+          variantColor = variantStocks[size].color.trim();
+        }
 
         const variantData = {
           ...baseProductData,
@@ -528,6 +532,8 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
     const sellingPrice = Number(formData.get('sellingPrice')) || 0;
     const purchasePrice = Number(formData.get('purchasePrice')) || 0;
     const color = formData.get('color') as string || '';
+    const material = formData.get('material') as string || '';
+    const gender = selectedGender || (formData.get('gender') as string) || '';
     const subCategory = formData.get('subCategory') as string || '';
     const size = printGarmentSize || (selectedSizes.length > 0 ? selectedSizes[0] : '');
 
@@ -538,6 +544,8 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
       sellingPrice,
       purchasePrice,
       color,
+      material,
+      gender,
       subCategory,
       styleCode: '',
       sizesToPrint: selectedSizes.length > 0 ? [...selectedSizes] : [''], 
