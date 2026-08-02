@@ -33,7 +33,7 @@ import { CATEGORIES } from '../constants';
 import { Product } from '../types';
 import { auth } from '../firebase';
 import BarcodeScanner from '../components/BarcodeScanner';
-import { generateDynamicLabelPDF, DEFAULT_TEMPLATE_50x30 } from '../utils/pdfLabel';
+import { generateDynamicLabelPDF, DEFAULT_TEMPLATE_50x30, getEffectiveGender } from '../utils/pdfLabel';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
@@ -873,7 +873,7 @@ const Inventory: React.FC = () => {
                     if (el.id === 'name') text = (downloadingProduct.product.name || '').slice(0, 23).toUpperCase();
                     if (el.id === 'size') text += (size || '').toUpperCase();
                     if (el.id === 'color') {
-                      const displayColor = (downloadingProduct.product.color || downloadingProduct.product.material || downloadingProduct.product.gender || '').trim();
+                      const displayColor = (downloadingProduct.product.color || downloadingProduct.product.material || getEffectiveGender(downloadingProduct.product) || '').trim();
                       text += displayColor.toUpperCase();
                     }
                     if (el.id === 'style') text += '';

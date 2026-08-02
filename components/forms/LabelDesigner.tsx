@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Move, Type, Square, Minus, Trash2, Save, Printer, CheckSquare, Layers, ChevronUp, ChevronDown, Eye, EyeOff, Download, Undo, Redo, RotateCw, LayoutGrid, FileDown, ZoomIn, ZoomOut, ImagePlus, Maximize2, Minimize2, Sticker, Shirt, Baby, ShoppingBag, Tag, Heart, Star, Smile, Scissors, IndianRupee, DollarSign, Euro, PoundSterling, Gift, Crown, Truck, Phone, Plus } from 'lucide-react';
-import { LabelProduct, LabelTemplate, LabelElement, DEFAULT_TEMPLATE_30x50, DEFAULT_TEMPLATE_50x30, ensureSubCategoryElement } from '../../utils/pdfLabel';
+import { LabelProduct, LabelTemplate, LabelElement, DEFAULT_TEMPLATE_30x50, DEFAULT_TEMPLATE_50x30, ensureSubCategoryElement, getEffectiveGender } from '../../utils/pdfLabel';
 import html2canvas from 'html2canvas';
 
 const ICON_LIBRARY = [
@@ -642,7 +642,7 @@ function LabelDesigner({ labelData, initialTemplate, allProductSizes, onClose, o
       if (el.id === 'name') val = (el.staticText || '') + (labelData.name || '').slice(0, 15).toUpperCase();
       else if (el.id === 'size') val = (el.staticText || '') + (labelData.size || (printSizes && printSizes[0]) || '30').toUpperCase();
       else if (el.id === 'color') {
-        const displayColor = (labelData.color || labelData.material || labelData.gender || '').trim();
+        const displayColor = (labelData.color || labelData.material || getEffectiveGender(labelData) || '').trim();
         if (displayColor) val = (el.staticText || '') + displayColor.toUpperCase();
       }
       else if (el.id === 'price') val = (el.staticText || '') + Number(labelData.sellingPrice || 0).toFixed(2);
@@ -718,7 +718,7 @@ function LabelDesigner({ labelData, initialTemplate, allProductSizes, onClose, o
         if (el.id === 'name') val = (labelData.name || '').slice(0, 23).toUpperCase();
         else if (el.id === 'size') val = (labelData.size || (printSizes && printSizes[0]) || '30').toUpperCase();
         else if (el.id === 'color') {
-          const displayColor = (labelData.color || labelData.material || labelData.gender || '').trim();
+          const displayColor = (labelData.color || labelData.material || getEffectiveGender(labelData) || '').trim();
           if (displayColor) val = displayColor.toUpperCase().slice(0, 12);
         }
         else if (el.id === 'style') val = (labelData.styleCode || '').toUpperCase();

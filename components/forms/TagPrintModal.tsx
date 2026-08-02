@@ -10,7 +10,8 @@ import {
   DEFAULT_TEMPLATE_50x30, 
   DEFAULT_TEMPLATE_30x50, 
   generateDynamicLabelPDF,
-  adaptTemplateToDimensions
+  adaptTemplateToDimensions,
+  getEffectiveGender
 } from '../../utils/pdfLabel';
 
 const MM_TO_PX = 3.7795275591;
@@ -278,7 +279,7 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
         if (el.id === 'name') val = (previewData.name || '').slice(0, 23).toUpperCase();
         else if (el.id === 'size') val = (previewData.size || '').toUpperCase();
         else if (el.id === 'color') {
-          const displayColor = (previewData.color || previewData.material || previewData.gender || '').trim();
+          const displayColor = (previewData.color || previewData.material || getEffectiveGender(previewData) || '').trim();
           if (displayColor) val = displayColor.toUpperCase().slice(0, 12);
         }
         else if (el.id === 'style') val = (previewData.styleCode || '').toUpperCase();

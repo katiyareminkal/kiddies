@@ -242,6 +242,20 @@ export const adaptTemplateToDimensions = (
   };
 };
 
+export const getEffectiveGender = (product: { gender?: string; category?: string; subCategory?: string }): string => {
+  const g = (product.gender || '').trim();
+  if (g) return g;
+
+  const cat = (product.category || '').toLowerCase();
+  const sub = (product.subCategory || '').toLowerCase();
+  
+  if (cat.includes('boy') || sub.includes('boy')) return 'Boys';
+  if (cat.includes('girl') || sub.includes('girl') || cat.includes('frock') || cat.includes('gown')) return 'Girls';
+  if (cat.includes('baby') || cat.includes('infant') || sub.includes('romper')) return 'Babies';
+  
+  return '';
+};
+
 export const generateDynamicLabelPDF = (products: LabelProduct | LabelProduct[], rawTemplate: LabelTemplate) => {
   const productArray = Array.isArray(products) ? products : [products];
   if (productArray.length === 0) return;
@@ -272,7 +286,7 @@ export const generateDynamicLabelPDF = (products: LabelProduct | LabelProduct[],
           if (el.id === 'name') val = (product.name || '').slice(0, 23).toUpperCase();
           else if (el.id === 'size' && product.size) val = product.size.toUpperCase();
           else if (el.id === 'color') {
-            const fallbackColor = (product.color || product.material || product.gender || '').trim();
+            const fallbackColor = (product.color || product.material || getEffectiveGender(product) || '').trim();
             if (fallbackColor) val = fallbackColor.toUpperCase().slice(0, 12);
           }
           else if (el.id === 'style' && product.styleCode) val = product.styleCode.toUpperCase();
