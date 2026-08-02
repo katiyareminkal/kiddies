@@ -9,6 +9,8 @@ export interface LabelProduct {
   purchasePrice?: number;
   size?: string;
   color?: string;
+  material?: string;
+  gender?: string;
   styleCode?: string;
   subCategory?: string;
   labelSize?: '50x30' | '30x50';
@@ -269,7 +271,10 @@ export const generateDynamicLabelPDF = (products: LabelProduct | LabelProduct[],
         if (!val) {
           if (el.id === 'name') val = (product.name || '').slice(0, 23).toUpperCase();
           else if (el.id === 'size' && product.size) val = product.size.toUpperCase();
-          else if (el.id === 'color' && product.color) val = product.color.toUpperCase().slice(0, 10);
+          else if (el.id === 'color') {
+            const fallbackColor = (product.color || product.material || product.gender || '').trim();
+            if (fallbackColor) val = fallbackColor.toUpperCase().slice(0, 12);
+          }
           else if (el.id === 'style' && product.styleCode) val = product.styleCode.toUpperCase();
           else if (el.id === 'price') val = Number(product.sellingPrice || 0).toFixed(2);
           else if (el.id === 'code' && product.purchasePrice) val = '91' + (product.purchasePrice * 2);

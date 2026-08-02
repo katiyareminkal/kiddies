@@ -210,6 +210,8 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
       sellingPrice: target.sellingPrice || 0,
       purchasePrice: target.purchasePrice || 0,
       color: target.color || '',
+      material: target.material || '',
+      gender: target.gender || '',
       size: size !== 'FREE' ? size : (target.size || 'FREE'),
       styleCode: target.styleCode || '',
       subCategory: target.subCategory || '',
@@ -275,7 +277,10 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
       if (!val && previewData) {
         if (el.id === 'name') val = (previewData.name || '').slice(0, 23).toUpperCase();
         else if (el.id === 'size') val = (previewData.size || '').toUpperCase();
-        else if (el.id === 'color' && previewData.color) val = (previewData.color || '').toUpperCase().slice(0, 10);
+        else if (el.id === 'color') {
+          const displayColor = (previewData.color || previewData.material || previewData.gender || '').trim();
+          if (displayColor) val = displayColor.toUpperCase().slice(0, 12);
+        }
         else if (el.id === 'style') val = (previewData.styleCode || '').toUpperCase();
         else if (el.id === 'price') val = Number(previewData.sellingPrice || 0).toFixed(2);
         else if (el.id === 'code') val = '91' + ((previewData.purchasePrice || 0) * 2).toString();

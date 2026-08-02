@@ -641,7 +641,10 @@ function LabelDesigner({ labelData, initialTemplate, allProductSizes, onClose, o
       let val = el.staticText || '';
       if (el.id === 'name') val = (el.staticText || '') + (labelData.name || '').slice(0, 15).toUpperCase();
       else if (el.id === 'size') val = (el.staticText || '') + (labelData.size || (printSizes && printSizes[0]) || '30').toUpperCase();
-      else if (el.id === 'color' && labelData.color) val = (el.staticText || '') + (labelData.color || '').toUpperCase();
+      else if (el.id === 'color') {
+        const displayColor = (labelData.color || labelData.material || labelData.gender || '').trim();
+        if (displayColor) val = (el.staticText || '') + displayColor.toUpperCase();
+      }
       else if (el.id === 'price') val = (el.staticText || '') + Number(labelData.sellingPrice || 0).toFixed(2);
       else if (el.id === 'code') val = (el.staticText || '') + '91' + ((labelData.purchasePrice || 0) * 2).toString();
       else if (el.id === 'sku') val = (el.staticText || '') + (labelData.sku || '').toUpperCase();
@@ -714,7 +717,10 @@ function LabelDesigner({ labelData, initialTemplate, allProductSizes, onClose, o
       if (!val) {
         if (el.id === 'name') val = (labelData.name || '').slice(0, 23).toUpperCase();
         else if (el.id === 'size') val = (labelData.size || (printSizes && printSizes[0]) || '30').toUpperCase();
-        else if (el.id === 'color' && labelData.color) val = (labelData.color || '').toUpperCase().slice(0, 10);
+        else if (el.id === 'color') {
+          const displayColor = (labelData.color || labelData.material || labelData.gender || '').trim();
+          if (displayColor) val = displayColor.toUpperCase().slice(0, 12);
+        }
         else if (el.id === 'style') val = (labelData.styleCode || '').toUpperCase();
         else if (el.id === 'price') val = Number(labelData.sellingPrice || 0).toFixed(2);
         else if (el.id === 'code') val = '91' + ((labelData.purchasePrice || 0) * 2).toString();

@@ -872,7 +872,10 @@ const Inventory: React.FC = () => {
                     let text = el.staticText || '';
                     if (el.id === 'name') text = (downloadingProduct.product.name || '').slice(0, 23).toUpperCase();
                     if (el.id === 'size') text += (size || '').toUpperCase();
-                    if (el.id === 'color') text += (downloadingProduct.product.color || '').toUpperCase();
+                    if (el.id === 'color') {
+                      const displayColor = (downloadingProduct.product.color || downloadingProduct.product.material || downloadingProduct.product.gender || '').trim();
+                      text += displayColor.toUpperCase();
+                    }
                     if (el.id === 'style') text += '';
                     if (el.id === 'price') text += Number(downloadingProduct.product.sellingPrice || 0).toFixed(2);
                     if (el.id === 'code') text += '91' + ((downloadingProduct.product.purchasePrice || 0) * 2).toString();
