@@ -13,7 +13,11 @@ import {
   X,
   ScanLine,
   Minus,
-  Trash2
+  Trash2,
+  CreditCard,
+  Wallet,
+  Smartphone,
+  Landmark
 } from 'lucide-react';
 import { formatCurrency } from '../../utils/helpers';
 import { SalesChannel, PaymentMethod, PaymentStatus, OrderStatus } from '../../types';
@@ -38,6 +42,11 @@ export const CreateBillModal: React.FC<CreateBillModalProps> = ({ isOpen, onClos
   const [isScannerOpen, setIsScannerOpen] = useState(false);
   const [terminalTab, setTerminalTab] = useState<'PRODUCTS' | 'BASKET'>('PRODUCTS');
   const [transactionDate, setTransactionDate] = useState<string>(() => new Date().toISOString().split('T')[0]);
+
+  // Payment method & Partial payment state
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<PaymentMethod>(PaymentMethod.CASH);
+  const [isPartialPayment, setIsPartialPayment] = useState<boolean>(false);
+  const [partialPaidAmountInput, setPartialPaidAmountInput] = useState<string>('');
 
   // Custom/Manual Item states
   const [isCustomFormOpen, setIsCustomFormOpen] = useState(false);
@@ -134,6 +143,21 @@ export const CreateBillModal: React.FC<CreateBillModalProps> = ({ isOpen, onClos
 
   const finalAmountToPay = total - creditApplied;
 
+  const actualPaidAmount = useMemo(() => {
+    if (!isPartialPayment) return finalAmountToPay;
+    const parsed = parseFloat(partialPaidAmountInput);
+    if (isNaN(parsed) || parsed < 0) return 0;
+    return Math.min(parsed, finalAmountToPay);
+  }, [isPartialPayment, partialPaidAmountInput, finalAmountToPay]);
+
+  const remainingDue = Math.max(0, finalAmountToPay - actualPaidAmount);
+
+  const paymentStatusToSave = useMemo(() => {
+    if (actualPaidAmount >= finalAmountToPay) return PaymentStatus.PAID;
+    if (actualPaidAmount > 0) return PaymentStatus.PARTIAL;
+    return PaymentStatus.UNPAID;
+  }, [actualPaidAmount, finalAmountToPay]);
+
   const addToCart = (productId: string) => {
     setCart(prev => {
       const existing = prev.find(item => item.productId === productId);
@@ -177,9 +201,9 @@ export const CreateBillModal: React.FC<CreateBillModalProps> = ({ isOpen, onClos
         marketplaceFees: 0,
         taxTotal: tax,
         discount: discountAmount,
-        paidAmount: total,
-        paymentStatus: PaymentStatus.PAID,
-        paymentMethod: PaymentMethod.CASH,
+        paidAmount: actualPaidAmount,
+        paymentStatus: paymentStatusToSave,
+        paymentMethod: selectedPaymentMethod,
         date: new Date(transactionDate + 'T12:00:00').toISOString(),
         orderStatus: OrderStatus.COMPLETED,
       });
@@ -754,9 +778,88 @@ export const CreateBillModal: React.FC<CreateBillModalProps> = ({ isOpen, onClos
                   )}
                 </div>
 
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '2px dashed #E2E8F0', marginTop: '6px', paddingTop: '6px' }}>
-                  <span style={{ fontSize: '10px', fontWeight: 900, color: '#1E293B', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{useCredit ? 'Final Due' : 'Total'}</span>
-                  <span style={{ fontSize: '20px', fontWeight: 900, color: '#8B5CF6', fontFamily: 'monospace', letterSpacing: '-0.02em', lineHeight: 1 }}>{formatCurrency(useCredit ? finalAmountToPay : total)}</span>
+                {/* Payment Method Selector */}
+                <div className="mt-2 space-y-1.5 border-t border-slate-100 pt-2">
+                  <label className="text-[8px] font-black uppercase text-slate-400 tracking-widest block">Payment Method</label>
+                  <div className="grid grid-cols-4 gap-1">
+                    {[
+                      { id: PaymentMethod.CASH, label: 'Cash', icon: <Wallet size={11} /> },
+                      { id: PaymentMethod.UPI, label: 'UPI', icon: <Smartphone size={11} /> },
+                      { id: PaymentMethod.CARD, label: 'Card', icon: <CreditCard size={11} /> },
+                      { id: PaymentMethod.BANK_TRANSFER, label: 'Bank', icon: <Landmark size={11} /> },
+                    ].map(pm => (
+                      <button
+                        key={pm.id}
+                        type="button"
+                        onClick={() => setSelectedPaymentMethod(pm.id)}
+                        className={`py-1.5 px-1 rounded-lg text-[8px] font-black uppercase tracking-wider flex items-center justify-center gap-1 transition-all border ${
+                          selectedPaymentMethod === pm.id
+                            ? 'bg-slate-900 text-white border-slate-900 shadow-sm'
+                            : 'bg-slate-50 text-slate-500 border-slate-100 hover:bg-slate-100'
+                        }`}
+                      >
+                        {pm.icon}
+                        <span>{pm.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Payment Type: Full vs Partial */}
+                <div className="mt-2 space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <label className="text-[8px] font-black uppercase text-slate-400 tracking-widest">Payment Amount</label>
+                    <div className="flex bg-slate-100 rounded-lg p-0.5">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsPartialPayment(false);
+                          setPartialPaidAmountInput('');
+                        }}
+                        className={`px-2 py-0.5 text-[8px] font-black uppercase rounded-md transition-all ${!isPartialPayment ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500'}`}
+                      >
+                        Full Paid
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsPartialPayment(true);
+                          if (!partialPaidAmountInput) {
+                            setPartialPaidAmountInput((finalAmountToPay / 2).toString());
+                          }
+                        }}
+                        className={`px-2 py-0.5 text-[8px] font-black uppercase rounded-md transition-all ${isPartialPayment ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500'}`}
+                      >
+                        Partial Pay
+                      </button>
+                    </div>
+                  </div>
+
+                  {isPartialPayment && (
+                    <div className="p-2 bg-amber-50/70 border border-amber-100 rounded-xl space-y-1.5 animate-nano">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[8.5px] font-black uppercase text-slate-600 tracking-wider">Received (₹):</span>
+                        <input
+                          type="number"
+                          placeholder="Amount received..."
+                          value={partialPaidAmountInput}
+                          onChange={(e) => setPartialPaidAmountInput(e.target.value)}
+                          className="flex-1 bg-white border border-amber-200 rounded-lg px-2 py-1 text-[10px] font-mono font-bold text-slate-900 outline-none focus:border-[#8B5CF6]"
+                        />
+                      </div>
+                      <div className="flex justify-between items-center text-[9px] pt-1 border-t border-amber-200/50">
+                        <span className="font-bold text-slate-500">Paid: <strong className="text-emerald-600 font-mono">{formatCurrency(actualPaidAmount)}</strong></span>
+                        <span className="font-bold text-slate-500">Due: <strong className="text-rose-600 font-mono font-black">{formatCurrency(remainingDue)}</strong></span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '2px dashed #E2E8F0', marginTop: '8px', paddingTop: '6px' }}>
+                  <span style={{ fontSize: '10px', fontWeight: 900, color: '#1E293B', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{isPartialPayment ? 'Paid / Due' : (useCredit ? 'Final Due' : 'Total')}</span>
+                  <span style={{ fontSize: '20px', fontWeight: 900, color: isPartialPayment ? '#D97706' : '#8B5CF6', fontFamily: 'monospace', letterSpacing: '-0.02em', lineHeight: 1 }}>
+                    {isPartialPayment ? formatCurrency(actualPaidAmount) : formatCurrency(useCredit ? finalAmountToPay : total)}
+                  </span>
                 </div>
 
                 <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
@@ -771,7 +874,7 @@ export const CreateBillModal: React.FC<CreateBillModalProps> = ({ isOpen, onClos
                     disabled={cartItems.length === 0}
                     style={{ flex: 1, height: '40px', background: cartItems.length === 0 ? '#94A3B8' : '#1E293B', color: 'white', borderRadius: '12px', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', border: 'none', cursor: cartItems.length === 0 ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', opacity: cartItems.length === 0 ? 0.5 : 1 }}
                   >
-                    <CheckCircle size={14} strokeWidth={2.5} /> Pay Now
+                    <CheckCircle size={14} strokeWidth={2.5} /> {isPartialPayment ? `Pay ${formatCurrency(actualPaidAmount)}` : 'Pay Now'}
                   </button>
                 </div>
               </div>
