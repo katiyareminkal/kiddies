@@ -40,10 +40,13 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Category, Gender and SubCategory State
+  // Category, Gender, SubCategory, ClothingType, and Supplier State
   const initialGender = productToEdit?.gender || GENDERS[0] || '';
   const [selectedGender, setSelectedGender] = useState<string>(initialGender);
   const [selectedCategory, setSelectedCategory] = useState<string>(productToEdit?.category || (CATEGORIES_BY_GENDER[initialGender] || [])[0] || '');
+  const [selectedSubCategory, setSelectedSubCategory] = useState<string>(productToEdit?.subCategory || '');
+  const [selectedClothingType, setSelectedClothingType] = useState<string>(productToEdit?.clothingType || '');
+  const [selectedSupplierId, setSelectedSupplierId] = useState<string>(productToEdit?.supplierId || '');
 
   // Label Printing State
   const [printLabelSize, setPrintLabelSize] = useState<'50x30' | '30x50'>('50x30');
@@ -149,6 +152,9 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
       const resetGender = productToEdit?.gender || GENDERS[0] || '';
       setSelectedGender(resetGender);
       setSelectedCategory(productToEdit?.category || (CATEGORIES_BY_GENDER[resetGender] || [])[0] || '');
+      setSelectedSubCategory(productToEdit?.subCategory || '');
+      setSelectedClothingType(productToEdit?.clothingType || '');
+      setSelectedSupplierId(productToEdit?.supplierId || '');
 
       // Initialize variant stocks and selected sizes from all siblings
       const initialStocks: Record<string, { saleStock: number; rentalStock: number }> = {};
@@ -672,13 +678,12 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
                   setSelectedGender(newGender);
                   const firstCat = (CATEGORIES_BY_GENDER[newGender] || [])[0] || '';
                   setSelectedCategory(firstCat);
-                  const subCatSelect = document.getElementById('subcategory-select') as HTMLSelectElement;
-                  if (subCatSelect) subCatSelect.value = '';
+                  setSelectedSubCategory('');
                 }}
                 className="w-full px-4 py-3 bg-slate-50 border-slate-100 border focus:bg-white focus:border-[#8B5CF6]/30 rounded-2xl outline-none transition-all font-black uppercase tracking-widest text-slate-700 text-[10px] appearance-none"
               >
                 <option value="">-- Select Gender --</option>
-                {GENDERS.map(g => (
+                {Array.from(new Set([...GENDERS, ...(selectedGender ? [selectedGender] : [])])).map(g => (
                   <option key={g} value={g}>{g}</option>
                 ))}
               </select>
@@ -694,12 +699,15 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
                 value={selectedCategory} 
                 onChange={(e) => {
                   setSelectedCategory(e.target.value);
-                  const subCatSelect = document.getElementById('subcategory-select') as HTMLSelectElement;
-                  if (subCatSelect) subCatSelect.value = '';
+                  setSelectedSubCategory('');
                 }} 
                 className="w-full px-4 py-3 bg-slate-50 border-slate-100 border focus:bg-white focus:border-[#8B5CF6]/30 rounded-2xl outline-none transition-all font-black uppercase tracking-widest text-slate-700 text-[10px] appearance-none"
               >
-                {(CATEGORIES_BY_GENDER[selectedGender] || []).map(c => <option key={c} value={c}>{c}</option>)}
+                <option value="">-- Select Category --</option>
+                {Array.from(new Set([
+                  ...(CATEGORIES_BY_GENDER[selectedGender] || CATEGORIES || []),
+                  ...(selectedCategory ? [selectedCategory] : [])
+                ])).map(c => <option key={c} value={c}>{c}</option>)}
               </select>
             </div>
             <div className="space-y-1.5">
@@ -707,11 +715,15 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
               <select 
                 name="subCategory" 
                 id="subcategory-select" 
-                defaultValue={productToEdit?.subCategory || ''} 
+                value={selectedSubCategory} 
+                onChange={(e) => setSelectedSubCategory(e.target.value)}
                 className="w-full px-4 py-3 bg-slate-50 border-slate-100 border focus:bg-white focus:border-[#8B5CF6]/30 rounded-2xl outline-none transition-all font-black uppercase tracking-widest text-slate-700 text-[10px] appearance-none"
               >
                 <option value="">-- Select Sub Category --</option>
-                {((SUB_CATEGORIES_BY_GENDER_AND_CATEGORY[selectedGender] || {})[selectedCategory] || []).map(sc => (
+                {Array.from(new Set([
+                  ...(((SUB_CATEGORIES_BY_GENDER_AND_CATEGORY[selectedGender] || {})[selectedCategory]) || []),
+                  ...(selectedSubCategory ? [selectedSubCategory] : [])
+                ])).map(sc => (
                   <option key={sc} value={sc}>{sc}</option>
                 ))}
               </select>
@@ -720,11 +732,15 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
               <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Type (Half/Full/Set)</label>
               <select 
                 name="clothingType" 
-                defaultValue={productToEdit?.clothingType || ''} 
+                value={selectedClothingType} 
+                onChange={(e) => setSelectedClothingType(e.target.value)}
                 className="w-full px-4 py-3 bg-slate-50 border-slate-100 border focus:bg-white focus:border-[#8B5CF6]/30 rounded-2xl outline-none transition-all font-black uppercase tracking-widest text-slate-700 text-[10px] appearance-none"
               >
                 <option value="">-- Select Clothing Type --</option>
-                {CLOTHING_TYPES.map(t => (
+                {Array.from(new Set([
+                  ...CLOTHING_TYPES,
+                  ...(selectedClothingType ? [selectedClothingType] : [])
+                ])).map(t => (
                   <option key={t} value={t}>{t}</option>
                 ))}
               </select>
@@ -892,7 +908,12 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
 
           <div className="space-y-1.5 border-t border-slate-50 pt-4">
             <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Supplier</label>
-            <select name="supplierId" defaultValue={productToEdit?.supplierId} className="w-full px-4 py-3 bg-slate-50 border-slate-100 border focus:bg-white focus:border-[#8B5CF6]/30 rounded-2xl outline-none transition-all font-black uppercase tracking-widest text-slate-700 text-[10px] appearance-none">
+            <select 
+              name="supplierId" 
+              value={selectedSupplierId} 
+              onChange={(e) => setSelectedSupplierId(e.target.value)}
+              className="w-full px-4 py-3 bg-slate-50 border-slate-100 border focus:bg-white focus:border-[#8B5CF6]/30 rounded-2xl outline-none transition-all font-black uppercase tracking-widest text-slate-700 text-[10px] appearance-none"
+            >
               <option value="">Select Supplier (Optional)</option>
               {suppliers.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
             </select>
