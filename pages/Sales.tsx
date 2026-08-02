@@ -33,7 +33,8 @@ import {
   LayoutGrid,
   List,
   Download,
-  Info
+  Info,
+  Edit2
 } from 'lucide-react';
 import { formatCurrency } from '../utils/helpers';
 import { format, parseISO, isAfter, isBefore, isSameDay } from 'date-fns';
@@ -80,6 +81,7 @@ const Sales: React.FC = () => {
   }, [sales]);
 
   const activeOrders = sales.filter(s => s.orderStatus !== OrderStatus.COMPLETED && s.orderStatus !== OrderStatus.CANCELLED).length;
+  const totalPendingPayments = sales.filter(s => s.paymentStatus !== PaymentStatus.PAID && s.paymentStatus !== PaymentStatus.REFUNDED).reduce((acc, s) => acc + (s.totalAmount - (s.paidAmount || 0)), 0);
 
   const handleExportSales = () => {
     if (filteredSales.length === 0) return alert('No sales records to export');
@@ -199,25 +201,25 @@ const Sales: React.FC = () => {
           <h3 className={`text-lg font-black tracking-tight font-mono ${activeOrders > 0 ? 'text-amber-600' : 'text-slate-900'}`}>{activeOrders}</h3>
         </div>
 
-        {/* Average Ticket */}
+        {/* Pending Payments */}
         <div className="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm hover:border-[#8B5CF6]/30 hover:shadow-md transition-all relative group/card">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-1.5">
-              <span className="text-[9px] font-black uppercase text-slate-400 tracking-widest">Average Ticket</span>
+              <span className="text-[9px] font-black uppercase text-slate-400 tracking-widest">Pending Payments</span>
               <div className="relative group/tooltip">
                 <Info size={11} className="text-slate-300 hover:text-[#8B5CF6] transition-colors cursor-pointer" />
                 <div className="absolute right-0 sm:left-1/2 sm:-translate-x-1/2 bottom-full mb-2 hidden group-hover/tooltip:block w-48 p-2.5 bg-slate-900/95 text-white text-[9px] font-medium leading-relaxed rounded-xl shadow-xl z-30 backdrop-blur-md pointer-events-none animate-in fade-in duration-150">
-                  Average order value (AOV = Total Revenue ÷ Total Order Count).
+                  Total unpaid or balance amounts pending from sales orders.
                   <div className="absolute top-full right-3 sm:left-1/2 sm:-translate-x-1/2 border-4 border-transparent border-t-slate-900/95"></div>
                 </div>
               </div>
             </div>
-            <div className="w-7 h-7 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center">
-              <Tag size={14} strokeWidth={2.5} />
+            <div className={`w-7 h-7 rounded-xl flex items-center justify-center ${totalPendingPayments > 0 ? 'bg-rose-50 text-rose-500' : 'bg-slate-50 text-slate-400'}`}>
+              <AlertCircle size={14} strokeWidth={2.5} />
             </div>
           </div>
-          <h3 className="text-lg font-black text-slate-900 tracking-tight font-mono">
-            {formatCurrency(sales.length > 0 ? sales.reduce((acc, s) => acc + s.totalAmount, 0) / sales.length : 0)}
+          <h3 className={`text-lg font-black tracking-tight font-mono ${totalPendingPayments > 0 ? 'text-rose-600' : 'text-slate-900'}`}>
+            {formatCurrency(totalPendingPayments)}
           </h3>
         </div>
       </div>
@@ -713,12 +715,13 @@ const ReturnExchangeModal: React.FC<{
 
 // Sub-component for Sale Details Modal to keep it clean
 const SaleDetailsModal: React.FC<{ saleId: string; onClose: () => void }> = ({ saleId, onClose }) => {
-  const { sales, customers, products, linkSaleItemToProduct, returnSale, storeProfile } = useApp();
+  const { sales, customers, products, linkSaleItemToProduct, returnSale, updateOrderStatus, updateSale, storeProfile } = useApp();
   const sale = sales.find(s => s.id === saleId);
   const customer = customers.find(c => c.id === sale?.customerId);
   const [linkingItemId, setLinkingItemId] = useState<string | null>(null);
   const [linkSearchTerm, setLinkSearchTerm] = useState('');
   const [isProcessingReturn, setIsProcessingReturn] = useState(false);
+  const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
   const [returnModalState, setReturnModalState] = useState<{isOpen: boolean; itemIndex: number; item: any}>({isOpen: false, itemIndex: -1, item: null});
 
   if (!sale) return null;
@@ -923,6 +926,60 @@ const SaleDetailsModal: React.FC<{ saleId: string; onClose: () => void }> = ({ s
              <div className="text-right">
                 <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">Total Amount</p>
                 <p className="text-sm font-black text-slate-900 tracking-tight mt-1">{formatCurrency(sale.totalAmount)}</p>
+             </div>
+          </div>
+
+          {/* Quick Edit Order & Payment Status */}
+          <div className="p-4 bg-purple-50/50 border border-purple-100 rounded-2xl space-y-3">
+             <div className="flex items-center justify-between">
+                <p className="text-[9px] font-black uppercase tracking-widest text-purple-900 flex items-center gap-1.5">
+                   <Edit2 size={12} className="text-[#8B5CF6]" /> Edit Status & Payment
+                </p>
+                {isUpdatingStatus && <span className="text-[8px] font-bold text-purple-600 uppercase tracking-widest animate-pulse">Saving...</span>}
+             </div>
+             <div className="grid grid-cols-2 gap-3">
+                <div>
+                   <label className="text-[8px] font-black uppercase tracking-widest text-slate-400 mb-1 block">Order Status</label>
+                   <select 
+                      value={sale.orderStatus}
+                      onChange={async (e) => {
+                        setIsUpdatingStatus(true);
+                        try {
+                          await updateSale(sale.id, { orderStatus: e.target.value as OrderStatus });
+                        } catch (err) {
+                          alert('Failed to update status');
+                        } finally {
+                          setIsUpdatingStatus(false);
+                        }
+                      }}
+                      className="w-full bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-800 outline-none focus:border-[#8B5CF6]"
+                   >
+                      {Object.values(OrderStatus).map(st => (
+                        <option key={st} value={st}>{st}</option>
+                      ))}
+                   </select>
+                </div>
+                <div>
+                   <label className="text-[8px] font-black uppercase tracking-widest text-slate-400 mb-1 block">Payment Status</label>
+                   <select 
+                      value={sale.paymentStatus}
+                      onChange={async (e) => {
+                        setIsUpdatingStatus(true);
+                        try {
+                          await updateSale(sale.id, { paymentStatus: e.target.value as PaymentStatus });
+                        } catch (err) {
+                          alert('Failed to update payment status');
+                        } finally {
+                          setIsUpdatingStatus(false);
+                        }
+                      }}
+                      className="w-full bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-800 outline-none focus:border-[#8B5CF6]"
+                   >
+                      {Object.values(PaymentStatus).map(pst => (
+                        <option key={pst} value={pst}>{pst}</option>
+                      ))}
+                   </select>
+                </div>
              </div>
           </div>
 

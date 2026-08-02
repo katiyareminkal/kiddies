@@ -33,6 +33,7 @@ interface AppContextType extends AppState {
   consumeStoreCredit: (customerId: string, amountToConsume: number, invoiceNumber: string) => Promise<void>;
   addExpense: (expense: Omit<Expense, 'id' | 'date'> & { date?: string }) => Promise<void>;
   updateOrderStatus: (saleId: string, status: OrderStatus) => Promise<void>;
+  updateSale: (id: string, updates: Partial<Sale>) => Promise<void>;
   addPaymentToSale: (saleId: string, amount: number) => Promise<void>;
   addRental: (rental: Omit<Rental, 'id' | 'invoiceNumber' | 'date' | 'status' | 'lateFee' | 'actualReturnDate'>, imageFiles?: File[]) => Promise<void>;
   updateRental: (id: string, updates: Partial<Rental>) => Promise<void>;
@@ -1265,6 +1266,23 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       console.error('Error updating order status:', error);
     }
   };
+  const updateSale = async (id: string, updates: Partial<Sale>) => {
+    try {
+      const dbUpdates: any = {};
+      if (updates.orderStatus !== undefined) dbUpdates.order_status = updates.orderStatus;
+      if (updates.paymentStatus !== undefined) dbUpdates.payment_status = updates.paymentStatus;
+      if (updates.paymentMethod !== undefined) dbUpdates.payment_method = updates.paymentMethod;
+      if (updates.paidAmount !== undefined) dbUpdates.paid_amount = updates.paidAmount;
+      if (updates.channel !== undefined) dbUpdates.channel = updates.channel;
+
+      const { error } = await supabase.from('sales').update(dbUpdates).eq('id', id);
+      if (error) throw error;
+      await fetchAllData();
+    } catch (error) {
+      console.error('Error updating sale:', error);
+      throw error;
+    }
+  };
   const returnSale = async (saleId: string) => {
     try {
       const sale = state.sales.find(s => s.id === saleId);
@@ -1783,7 +1801,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       addCustomer,
       addSupplier,
       updateSupplier,
-      addSale, updateOrderStatus, addPaymentToSale,
+      addSale, updateOrderStatus, updateSale, addPaymentToSale,
       addRental, updateRental, returnRental,
       updateStock, updateStoreProfile, updateSettings,
       importData, resetData, markNotificationsAsRead, clearNotifications,
