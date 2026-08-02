@@ -34,7 +34,9 @@ import {
   List,
   Download,
   Info,
-  Edit2
+  Edit2,
+  Phone,
+  CheckCircle2
 } from 'lucide-react';
 import { formatCurrency } from '../utils/helpers';
 import { format, parseISO, isAfter, isBefore, isSameDay } from 'date-fns';
@@ -357,6 +359,7 @@ const Sales: React.FC = () => {
               <tbody className="divide-y divide-slate-100/60">
                 {filteredSales.map(sale => {
                   const customer = customers.find(c => c.id === sale.customerId);
+                  const dueAmount = Math.max(0, sale.totalAmount - (sale.paidAmount || 0));
                   const channelIcon = (() => {
                     switch (sale.channel) {
                       case SalesChannel.AMAZON: return <Globe size={11} className="text-amber-500" />;
@@ -375,8 +378,13 @@ const Sales: React.FC = () => {
                       <td className="py-3 px-4 font-mono text-[10px] font-black text-[#8B5CF6]">
                         {sale.invoiceNumber}
                       </td>
-                      <td className="py-3 px-4 font-black text-[11px] text-slate-800 uppercase tracking-tight group-hover:text-[#8B5CF6] transition-colors">
-                        {customer?.name || 'Guest Customer'}
+                      <td className="py-3 px-4">
+                        <p className="font-black text-[11px] text-slate-800 uppercase tracking-tight group-hover:text-[#8B5CF6] transition-colors">{customer?.name || 'Guest Customer'}</p>
+                        {customer?.phone && (
+                          <p className="text-[8.5px] font-bold text-slate-400 font-mono flex items-center gap-1 mt-0.5">
+                            <Phone size={9} /> {customer.phone}
+                          </p>
+                        )}
                       </td>
                       <td className="py-3 px-4 text-[9px] font-bold text-slate-400 uppercase tracking-wider">
                         {format(parseISO(sale.date), 'MMM dd, HH:mm')}
@@ -402,13 +410,21 @@ const Sales: React.FC = () => {
                         </span>
                       </td>
                       <td className="py-3 px-4 text-center">
-                        <span className={`inline-block text-[8px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-lg border ${
-                          sale.orderStatus === OrderStatus.COMPLETED ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
-                          sale.orderStatus === OrderStatus.CANCELLED ? 'bg-rose-50 text-rose-600 border-rose-100' :
-                          'bg-amber-50 text-amber-600 border-amber-100'
-                        }`}>
-                          {sale.orderStatus}
-                        </span>
+                        <div className="flex flex-col items-center gap-1">
+                          <span className={`inline-block text-[8px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-lg border ${
+                            sale.paymentStatus === PaymentStatus.PAID ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
+                            sale.paymentStatus === PaymentStatus.PARTIAL ? 'bg-amber-50 text-amber-700 border-amber-200' :
+                            sale.paymentStatus === PaymentStatus.REFUNDED ? 'bg-slate-50 text-slate-500 border-slate-200' :
+                            'bg-rose-50 text-rose-600 border-rose-100'
+                          }`}>
+                            {sale.paymentStatus === PaymentStatus.PAID ? 'PAID' : sale.paymentStatus}
+                          </span>
+                          {(sale.paymentStatus === PaymentStatus.PARTIAL || sale.paymentStatus === PaymentStatus.UNPAID) && (
+                            <span className="text-[8px] font-bold text-rose-500 font-mono">
+                              Due: {formatCurrency(dueAmount)}
+                            </span>
+                          )}
+                        </div>
                       </td>
                       <td className="py-3 px-4 text-right font-mono font-black text-[11px] text-slate-900">
                         {formatCurrency(sale.totalAmount)}
@@ -425,6 +441,7 @@ const Sales: React.FC = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
           {filteredSales.map(sale => {
             const customer = customers.find(c => c.id === sale.customerId);
+            const dueAmount = Math.max(0, sale.totalAmount - (sale.paidAmount || 0));
             const channelIcon = (() => {
               switch (sale.channel) {
                 case SalesChannel.AMAZON: return <Globe size={11} className="text-amber-500" />;
@@ -437,7 +454,7 @@ const Sales: React.FC = () => {
             return (
               <div 
                 key={sale.id} 
-                className="bg-white rounded-2xl border border-slate-100/80 p-3.5 shadow-sm hover:shadow-lg hover:shadow-purple-500/5 hover:border-[#8B5CF6]/30 transition-all duration-200 cursor-pointer group flex flex-col justify-between min-h-[110px]"
+                className="bg-white rounded-2xl border border-slate-100/80 p-3.5 shadow-sm hover:shadow-lg hover:shadow-purple-500/5 hover:border-[#8B5CF6]/30 transition-all duration-200 cursor-pointer group flex flex-col justify-between min-h-[125px]"
                 onClick={() => setSelectedSaleId(sale.id)}
               >
                 <div>
@@ -448,7 +465,13 @@ const Sales: React.FC = () => {
                       </div>
                       <div className="min-w-0">
                         <h4 className="text-[11px] font-black text-slate-800 uppercase tracking-tight truncate group-hover:text-[#8B5CF6] transition-colors">{customer?.name || 'Guest Customer'}</h4>
-                        <p className="text-[8px] font-bold text-slate-400 font-mono tracking-widest">{sale.invoiceNumber}</p>
+                        {customer?.phone ? (
+                          <p className="text-[8px] font-bold text-slate-400 font-mono flex items-center gap-1">
+                            <Phone size={8} /> {customer.phone}
+                          </p>
+                        ) : (
+                          <p className="text-[8px] font-bold text-slate-400 font-mono tracking-widest">{sale.invoiceNumber}</p>
+                        )}
                       </div>
                     </div>
                     <div className="text-right shrink-0">
@@ -478,13 +501,16 @@ const Sales: React.FC = () => {
                     {channelIcon}
                     <span className="text-[7.5px] font-black text-slate-500 uppercase tracking-wider">{sale.channel}</span>
                   </div>
-                  <span className={`text-[7.5px] font-black uppercase tracking-wider px-2 py-0.5 rounded-lg border ${
-                    sale.orderStatus === OrderStatus.COMPLETED ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
-                    sale.orderStatus === OrderStatus.CANCELLED ? 'bg-rose-50 text-rose-600 border-rose-100' :
-                    'bg-amber-50 text-amber-600 border-amber-100'
-                  }`}>
-                    {sale.orderStatus}
-                  </span>
+                  <div className="flex items-center gap-1.5">
+                    <span className={`text-[7.5px] font-black uppercase tracking-wider px-2 py-0.5 rounded-lg border ${
+                      sale.paymentStatus === PaymentStatus.PAID ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
+                      sale.paymentStatus === PaymentStatus.PARTIAL ? 'bg-amber-50 text-amber-700 border-amber-200' :
+                      sale.paymentStatus === PaymentStatus.REFUNDED ? 'bg-slate-50 text-slate-500 border-slate-200' :
+                      'bg-rose-50 text-rose-600 border-rose-100'
+                    }`}>
+                      {sale.paymentStatus === PaymentStatus.PAID ? 'PAID' : (dueAmount > 0 ? `DUE ₹${dueAmount}` : sale.paymentStatus)}
+                    </span>
+                  </div>
                 </div>
               </div>
             );
@@ -715,13 +741,14 @@ const ReturnExchangeModal: React.FC<{
 
 // Sub-component for Sale Details Modal to keep it clean
 const SaleDetailsModal: React.FC<{ saleId: string; onClose: () => void }> = ({ saleId, onClose }) => {
-  const { sales, customers, products, linkSaleItemToProduct, returnSale, updateOrderStatus, updateSale, storeProfile } = useApp();
+  const { sales, customers, products, linkSaleItemToProduct, returnSale, updateOrderStatus, updateSale, addPaymentToSale, storeProfile } = useApp();
   const sale = sales.find(s => s.id === saleId);
   const customer = customers.find(c => c.id === sale?.customerId);
   const [linkingItemId, setLinkingItemId] = useState<string | null>(null);
   const [linkSearchTerm, setLinkSearchTerm] = useState('');
   const [isProcessingReturn, setIsProcessingReturn] = useState(false);
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
+  const [paymentInput, setPaymentInput] = useState<string>('');
   const [returnModalState, setReturnModalState] = useState<{isOpen: boolean; itemIndex: number; item: any}>({isOpen: false, itemIndex: -1, item: null});
 
   if (!sale) return null;
@@ -918,15 +945,74 @@ const SaleDetailsModal: React.FC<{ saleId: string; onClose: () => void }> = ({ s
         </div>
 
         <div className="p-6 overflow-y-auto flex-1 space-y-6">
-          <div className="flex justify-between items-center p-4 bg-slate-50 rounded-2xl">
-             <div>
-                <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">Customer</p>
-                <p className="text-xs font-bold text-slate-900 uppercase tracking-tight mt-1">{customer?.name || 'Guest Customer'}</p>
+          {/* Customer Details & Payment Overview Header */}
+          <div className="p-4 bg-slate-50 rounded-2xl space-y-3">
+             <div className="flex justify-between items-start">
+                <div>
+                   <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">Customer Details</p>
+                   <p className="text-xs font-black text-slate-900 uppercase tracking-tight mt-0.5">{customer?.name || 'Guest Customer'}</p>
+                   {customer?.phone && (
+                     <p className="text-[9.5px] font-bold text-slate-600 font-mono flex items-center gap-1.5 mt-1">
+                       <Phone size={10} className="text-[#8B5CF6]" /> {customer.phone}
+                     </p>
+                   )}
+                   {customer?.email && (
+                     <p className="text-[9px] font-semibold text-slate-400 mt-0.5">{customer.email}</p>
+                   )}
+                   {customer?.address && (
+                     <p className="text-[9px] font-medium text-slate-500 mt-0.5 line-clamp-1">{customer.address}</p>
+                   )}
+                </div>
+                <div className="text-right">
+                   <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">Total Bill</p>
+                   <p className="text-sm font-black text-slate-900 tracking-tight mt-0.5 font-mono">{formatCurrency(sale.totalAmount)}</p>
+                </div>
              </div>
-             <div className="text-right">
-                <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">Total Amount</p>
-                <p className="text-sm font-black text-slate-900 tracking-tight mt-1">{formatCurrency(sale.totalAmount)}</p>
+
+             {/* Detailed Payment Breakdown: Paid & Due Balance */}
+             <div className="pt-3 border-t border-slate-200/60 flex items-center justify-between text-[10px]">
+                <div className="flex items-center gap-3">
+                   <span className="font-bold text-slate-500">Paid: <strong className="text-emerald-600 font-mono">{formatCurrency(sale.paidAmount || 0)}</strong></span>
+                   <span className="font-bold text-slate-500">Due: <strong className={`font-mono ${Math.max(0, sale.totalAmount - (sale.paidAmount || 0)) > 0 ? 'text-rose-600 font-black' : 'text-slate-700'}`}>{formatCurrency(Math.max(0, sale.totalAmount - (sale.paidAmount || 0)))}</strong></span>
+                </div>
+                <span className={`text-[8px] font-black uppercase tracking-wider px-2 py-0.5 rounded-lg border ${
+                   sale.paymentStatus === PaymentStatus.PAID ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
+                   sale.paymentStatus === PaymentStatus.PARTIAL ? 'bg-amber-50 text-amber-700 border-amber-200' :
+                   sale.paymentStatus === PaymentStatus.REFUNDED ? 'bg-slate-50 text-slate-500 border-slate-200' :
+                   'bg-rose-50 text-rose-600 border-rose-100'
+                }`}>
+                   {sale.paymentStatus}
+                </span>
              </div>
+
+             {/* Quick Record Payment Input if balance due */}
+             {Math.max(0, sale.totalAmount - (sale.paidAmount || 0)) > 0 && (
+                <div className="pt-2 flex items-center gap-2">
+                   <input
+                      type="number"
+                      placeholder="Enter payment amount..."
+                      value={paymentInput}
+                      onChange={(e) => setPaymentInput(e.target.value)}
+                      className="flex-1 bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-[10px] font-mono font-bold text-slate-900 outline-none focus:border-[#8B5CF6]"
+                   />
+                   <button
+                      type="button"
+                      onClick={async () => {
+                         const amt = Number(paymentInput);
+                         if (!amt || amt <= 0) return alert('Enter a valid payment amount');
+                         try {
+                            await addPaymentToSale(sale.id, amt);
+                            setPaymentInput('');
+                         } catch (err) {
+                            alert('Failed to record payment');
+                         }
+                      }}
+                      className="px-3 py-1.5 bg-emerald-600 text-white rounded-xl text-[9px] font-black uppercase tracking-wider hover:bg-emerald-700 transition-colors flex items-center gap-1 shrink-0"
+                   >
+                      <CreditCard size={11} /> Record Payment
+                   </button>
+                </div>
+             )}
           </div>
 
           {/* Quick Edit Order & Payment Status */}
