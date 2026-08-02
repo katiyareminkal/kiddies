@@ -1,4 +1,5 @@
 import React, { useState, useRef, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { Plus, X, Upload, ScanLine, Edit2, Image as ImageIcon, Palette, CheckCircle2, RefreshCcw } from 'lucide-react';
 import { Modal } from '../Shared';
 import { useApp } from '../../store/AppContext';
@@ -507,13 +508,13 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
         }
       }
 
+      onClose();
+      setPreviewImage(null);
+      setSelectedFile(null);
       setSuccessMessage(productToEdit ? 'Product updated successfully!' : 'Product added successfully!');
       setTimeout(() => {
         setSuccessMessage(null);
-        onClose();
-        setPreviewImage(null);
-        setSelectedFile(null);
-      }, 2000);
+      }, 1800);
     } catch (error: any) {
       console.error('Save error:', error);
       let msg = error?.message || error?.details || (typeof error === 'object' ? JSON.stringify(error) : String(error));
@@ -593,23 +594,24 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
 
   return (
     <>
+      {successMessage && createPortal(
+        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[9999] pointer-events-none animate-in slide-in-from-top-4 fade-in duration-300">
+          <div className="bg-slate-900/90 backdrop-blur-xl border border-slate-700/50 text-white rounded-full px-5 py-2.5 shadow-2xl shadow-slate-950/50 flex items-center gap-3">
+            <div className="w-6 h-6 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center shrink-0">
+              <CheckCircle2 size={14} strokeWidth={2.5} />
+            </div>
+            <span className="text-[11px] font-bold tracking-wider text-slate-100 uppercase">{successMessage}</span>
+          </div>
+        </div>,
+        document.body
+      )}
+
       <Modal 
         isOpen={isOpen} 
         onClose={onClose} 
         title={productToEdit ? "Edit Product" : "New Product"}
         headerActions={headerActions}
       >
-        {successMessage && (
-          <div className="absolute inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-6 rounded-[2rem]">
-            <div className="bg-white rounded-3xl p-8 text-center shadow-2xl animate-nano max-w-[280px] w-full">
-              <div className="w-12 h-12 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-3">
-                <CheckCircle2 size={24} strokeWidth={2.5} />
-              </div>
-              <h3 className="text-sm font-black text-slate-900 mb-1 uppercase tracking-tight">Success!</h3>
-              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{successMessage}</p>
-            </div>
-          </div>
-        )}
         <form ref={formRef} onSubmit={handleSaveProduct} className="space-y-4 max-h-[70vh] overflow-y-auto px-1 scrollbar-hide">
           {/* Image Upload Section */}
           <div className="space-y-1.5">
