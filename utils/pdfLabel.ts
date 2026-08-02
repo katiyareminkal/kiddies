@@ -126,18 +126,52 @@ export const DEFAULT_TEMPLATE_50x30: LabelTemplate = {
   ]
 };
 
+export const ensureSubCategoryElement = (tpl: LabelTemplate): LabelTemplate => {
+  if (tpl.elements.some(e => e.id === 'subCategory')) return tpl;
+
+  const isPortrait = tpl.labelHeight >= tpl.labelWidth;
+  const skuElement = tpl.elements.find(e => e.id === 'sku');
+  const x = skuElement ? skuElement.x : (isPortrait ? 15 : 34);
+  const y = skuElement ? Math.max(1, skuElement.y - 3) : (isPortrait ? 28.0 : 2.2);
+
+  const subCatEl: LabelElement = {
+    id: 'subCategory',
+    type: 'text',
+    x,
+    y,
+    fontSize: isPortrait ? 6 : 5.5,
+    isBold: true,
+    align: 'center',
+    visible: true,
+    staticText: ''
+  };
+
+  const skuIdx = tpl.elements.findIndex(e => e.id === 'sku');
+  const newElements = [...tpl.elements];
+  if (skuIdx >= 0) {
+    newElements.splice(skuIdx, 0, subCatEl);
+  } else {
+    newElements.push(subCatEl);
+  }
+
+  return {
+    ...tpl,
+    elements: newElements
+  };
+};
+
 export const adaptTemplateToDimensions = (
   baseTemplate: LabelTemplate,
   newW: number,
   newH: number
 ): LabelTemplate => {
-  let template = baseTemplate;
+  let template = ensureSubCategoryElement(baseTemplate);
   const isTargetLandscape = newW >= newH;
   const isBaseLandscape = template.labelWidth >= template.labelHeight;
 
   // Auto-switch base template orientation if orientation changed
   if (isTargetLandscape !== isBaseLandscape) {
-    template = isTargetLandscape ? DEFAULT_TEMPLATE_50x30 : DEFAULT_TEMPLATE_30x50;
+    template = ensureSubCategoryElement(isTargetLandscape ? DEFAULT_TEMPLATE_50x30 : DEFAULT_TEMPLATE_30x50);
   }
 
   const scaleX = newW / template.labelWidth;
@@ -184,9 +218,11 @@ export const adaptTemplateToDimensions = (
   };
 };
 
-export const generateDynamicLabelPDF = (products: LabelProduct | LabelProduct[], template: LabelTemplate) => {
+export const generateDynamicLabelPDF = (products: LabelProduct | LabelProduct[], rawTemplate: LabelTemplate) => {
   const productArray = Array.isArray(products) ? products : [products];
   if (productArray.length === 0) return;
+
+  const template = ensureSubCategoryElement(rawTemplate);
 
   const doc = new jsPDF({
     orientation: template.labelWidth > template.labelHeight ? 'landscape' : 'portrait',

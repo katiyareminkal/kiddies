@@ -387,6 +387,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
         name,
         barcode: formData.get('barcode') as string || '',
         category: formData.get('category') as string || '',
+        subCategory: formData.get('subCategory') as string || '',
         brand: formData.get('brand') as string || '',
         color: formData.get('color') as string || '',
         material: formData.get('material') as string || '',
@@ -521,6 +522,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
     const sellingPrice = Number(formData.get('sellingPrice')) || 0;
     const purchasePrice = Number(formData.get('purchasePrice')) || 0;
     const color = formData.get('color') as string || '';
+    const subCategory = formData.get('subCategory') as string || '';
     const size = printGarmentSize || (selectedSizes.length > 0 ? selectedSizes[0] : '');
 
     setLabelData({
@@ -530,6 +532,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
       sellingPrice,
       purchasePrice,
       color,
+      subCategory,
       styleCode: '',
       sizesToPrint: selectedSizes.length > 0 ? [...selectedSizes] : [''], 
       labelSize: printLabelSize,

@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Move, Type, Square, Minus, Trash2, Save, Printer, CheckSquare, Layers, ChevronUp, ChevronDown, Eye, EyeOff, Download, Undo, Redo, RotateCw, LayoutGrid, FileDown, ZoomIn, ZoomOut, ImagePlus, Maximize2, Minimize2, Sticker, Shirt, Baby, ShoppingBag, Tag, Heart, Star, Smile, Scissors, IndianRupee, DollarSign, Euro, PoundSterling, Gift, Crown, Truck, Phone, Plus } from 'lucide-react';
-import { LabelProduct, LabelTemplate, LabelElement, DEFAULT_TEMPLATE_30x50, DEFAULT_TEMPLATE_50x30 } from '../../utils/pdfLabel';
+import { LabelProduct, LabelTemplate, LabelElement, DEFAULT_TEMPLATE_30x50, DEFAULT_TEMPLATE_50x30, ensureSubCategoryElement } from '../../utils/pdfLabel';
 import html2canvas from 'html2canvas';
 
 const ICON_LIBRARY = [
@@ -87,15 +87,27 @@ function LabelDesigner({ labelData, initialTemplate, allProductSizes, onClose, o
   });
 
   const [template, setTemplate] = useState<LabelTemplate>(() => {
-    if (initialTemplate) return initialTemplate;
-    try {
-      const saved = localStorage.getItem('kiddies_label_template_' + (labelData.labelSize || '30x50'));
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (parsed && Array.isArray(parsed.elements)) return parsed;
+    let tpl: LabelTemplate;
+    if (initialTemplate) {
+      tpl = initialTemplate;
+    } else {
+      try {
+        const saved = localStorage.getItem('kiddies_label_template_' + (labelData.labelSize || '30x50'));
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (parsed && Array.isArray(parsed.elements)) {
+            tpl = parsed;
+          } else {
+            tpl = labelData.labelSize === '50x30' ? DEFAULT_TEMPLATE_50x30 : DEFAULT_TEMPLATE_30x50;
+          }
+        } else {
+          tpl = labelData.labelSize === '50x30' ? DEFAULT_TEMPLATE_50x30 : DEFAULT_TEMPLATE_30x50;
+        }
+      } catch (e) {
+        tpl = labelData.labelSize === '50x30' ? DEFAULT_TEMPLATE_50x30 : DEFAULT_TEMPLATE_30x50;
       }
-    } catch (e) { }
-    return labelData.labelSize === '50x30' ? DEFAULT_TEMPLATE_50x30 : DEFAULT_TEMPLATE_30x50;
+    }
+    return ensureSubCategoryElement(tpl);
   });
 
   const isDirty = useMemo(() => {
