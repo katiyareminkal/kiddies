@@ -392,8 +392,10 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
       const baseProductData = {
         name,
         barcode: formData.get('barcode') as string || '',
+        gender: selectedGender || (formData.get('gender') as string) || '',
         category: formData.get('category') as string || '',
         subCategory: formData.get('subCategory') as string || '',
+        clothingType: formData.get('clothingType') as string || '',
         brand: formData.get('brand') as string || '',
         color: formData.get('color') as string || '',
         material: formData.get('material') as string || '',
