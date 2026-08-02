@@ -32,7 +32,8 @@ import {
   Undo2,
   LayoutGrid,
   List,
-  Download
+  Download,
+  Info
 } from 'lucide-react';
 import { formatCurrency } from '../utils/helpers';
 import { format, parseISO, isAfter, isBefore, isSameDay } from 'date-fns';
@@ -138,9 +139,19 @@ const Sales: React.FC = () => {
 
       {/* KPI Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <div className="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm hover:border-[#8B5CF6]/30 hover:shadow-md transition-all">
+        {/* Today's Revenue */}
+        <div className="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm hover:border-[#8B5CF6]/30 hover:shadow-md transition-all relative group/card">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-[9px] font-black uppercase text-slate-400 tracking-widest">Today's Revenue</span>
+            <div className="flex items-center gap-1.5">
+              <span className="text-[9px] font-black uppercase text-slate-400 tracking-widest">Today's Revenue</span>
+              <div className="relative group/tooltip">
+                <Info size={11} className="text-slate-300 hover:text-[#8B5CF6] transition-colors cursor-pointer" />
+                <div className="absolute left-0 sm:left-1/2 sm:-translate-x-1/2 bottom-full mb-2 hidden group-hover/tooltip:block w-48 p-2.5 bg-slate-900/95 text-white text-[9px] font-medium leading-relaxed rounded-xl shadow-xl z-30 backdrop-blur-md pointer-events-none animate-in fade-in duration-150">
+                  Total net sales revenue collected from all completed orders today.
+                  <div className="absolute top-full left-3 sm:left-1/2 sm:-translate-x-1/2 border-4 border-transparent border-t-slate-900/95"></div>
+                </div>
+              </div>
+            </div>
             <div className="w-7 h-7 rounded-xl bg-emerald-50 text-emerald-500 flex items-center justify-center">
               <IndianRupee size={14} strokeWidth={2.5} />
             </div>
@@ -148,9 +159,19 @@ const Sales: React.FC = () => {
           <h3 className="text-lg font-black text-slate-900 tracking-tight font-mono">{formatCurrency(todaySales)}</h3>
         </div>
 
-        <div className="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm hover:border-[#8B5CF6]/30 hover:shadow-md transition-all">
+        {/* Total Orders */}
+        <div className="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm hover:border-[#8B5CF6]/30 hover:shadow-md transition-all relative group/card">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-[9px] font-black uppercase text-slate-400 tracking-widest">Total Orders</span>
+            <div className="flex items-center gap-1.5">
+              <span className="text-[9px] font-black uppercase text-slate-400 tracking-widest">Total Orders</span>
+              <div className="relative group/tooltip">
+                <Info size={11} className="text-slate-300 hover:text-[#8B5CF6] transition-colors cursor-pointer" />
+                <div className="absolute left-0 sm:left-1/2 sm:-translate-x-1/2 bottom-full mb-2 hidden group-hover/tooltip:block w-48 p-2.5 bg-slate-900/95 text-white text-[9px] font-medium leading-relaxed rounded-xl shadow-xl z-30 backdrop-blur-md pointer-events-none animate-in fade-in duration-150">
+                  Total count of all sales orders recorded across all channels.
+                  <div className="absolute top-full left-3 sm:left-1/2 sm:-translate-x-1/2 border-4 border-transparent border-t-slate-900/95"></div>
+                </div>
+              </div>
+            </div>
             <div className="w-7 h-7 rounded-xl bg-purple-50 text-[#8B5CF6] flex items-center justify-center">
               <ShoppingBag size={14} strokeWidth={2.5} />
             </div>
@@ -158,9 +179,19 @@ const Sales: React.FC = () => {
           <h3 className="text-lg font-black text-slate-900 tracking-tight font-mono">{sales.length}</h3>
         </div>
 
-        <div className="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm hover:border-[#8B5CF6]/30 hover:shadow-md transition-all">
+        {/* Active Orders */}
+        <div className="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm hover:border-[#8B5CF6]/30 hover:shadow-md transition-all relative group/card">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-[9px] font-black uppercase text-slate-400 tracking-widest">Active Orders</span>
+            <div className="flex items-center gap-1.5">
+              <span className="text-[9px] font-black uppercase text-slate-400 tracking-widest">Active Orders</span>
+              <div className="relative group/tooltip">
+                <Info size={11} className="text-slate-300 hover:text-[#8B5CF6] transition-colors cursor-pointer" />
+                <div className="absolute left-0 sm:left-1/2 sm:-translate-x-1/2 bottom-full mb-2 hidden group-hover/tooltip:block w-48 p-2.5 bg-slate-900/95 text-white text-[9px] font-medium leading-relaxed rounded-xl shadow-xl z-30 backdrop-blur-md pointer-events-none animate-in fade-in duration-150">
+                  Orders currently pending, processing, or awaiting shipping/fulfillment.
+                  <div className="absolute top-full left-3 sm:left-1/2 sm:-translate-x-1/2 border-4 border-transparent border-t-slate-900/95"></div>
+                </div>
+              </div>
+            </div>
             <div className={`w-7 h-7 rounded-xl flex items-center justify-center ${activeOrders > 0 ? 'bg-amber-50 text-amber-500' : 'bg-slate-50 text-slate-400'}`}>
               <Clock size={14} strokeWidth={2.5} />
             </div>
@@ -168,9 +199,19 @@ const Sales: React.FC = () => {
           <h3 className={`text-lg font-black tracking-tight font-mono ${activeOrders > 0 ? 'text-amber-600' : 'text-slate-900'}`}>{activeOrders}</h3>
         </div>
 
-        <div className="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm hover:border-[#8B5CF6]/30 hover:shadow-md transition-all">
+        {/* Average Ticket */}
+        <div className="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm hover:border-[#8B5CF6]/30 hover:shadow-md transition-all relative group/card">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-[9px] font-black uppercase text-slate-400 tracking-widest">Average Ticket</span>
+            <div className="flex items-center gap-1.5">
+              <span className="text-[9px] font-black uppercase text-slate-400 tracking-widest">Average Ticket</span>
+              <div className="relative group/tooltip">
+                <Info size={11} className="text-slate-300 hover:text-[#8B5CF6] transition-colors cursor-pointer" />
+                <div className="absolute right-0 sm:left-1/2 sm:-translate-x-1/2 bottom-full mb-2 hidden group-hover/tooltip:block w-48 p-2.5 bg-slate-900/95 text-white text-[9px] font-medium leading-relaxed rounded-xl shadow-xl z-30 backdrop-blur-md pointer-events-none animate-in fade-in duration-150">
+                  Average order value (AOV = Total Revenue ÷ Total Order Count).
+                  <div className="absolute top-full right-3 sm:left-1/2 sm:-translate-x-1/2 border-4 border-transparent border-t-slate-900/95"></div>
+                </div>
+              </div>
+            </div>
             <div className="w-7 h-7 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center">
               <Tag size={14} strokeWidth={2.5} />
             </div>
