@@ -31,7 +31,8 @@ import {
   MessageCircle,
   Undo2,
   LayoutGrid,
-  List
+  List,
+  Download
 } from 'lucide-react';
 import { formatCurrency } from '../utils/helpers';
 import { format, parseISO, isAfter, isBefore, isSameDay } from 'date-fns';
@@ -79,6 +80,33 @@ const Sales: React.FC = () => {
 
   const activeOrders = sales.filter(s => s.orderStatus !== OrderStatus.COMPLETED && s.orderStatus !== OrderStatus.CANCELLED).length;
 
+  const handleExportSales = () => {
+    if (filteredSales.length === 0) return alert('No sales records to export');
+    const headers = ['Invoice Number', 'Customer', 'Date', 'Total Amount', 'Items Count', 'Channel', 'Status', 'Payment Method'];
+    const rows = filteredSales.map(s => {
+      const cust = customers.find(c => c.id === s.customerId);
+      return [
+        s.invoiceNumber,
+        `"${cust?.name || 'Guest Customer'}"`,
+        `"${format(parseISO(s.date), 'yyyy-MM-dd HH:mm')}"`,
+        s.totalAmount,
+        s.items.reduce((sum, item) => sum + item.quantity, 0),
+        s.channel,
+        s.orderStatus,
+        s.paymentMethod
+      ];
+    });
+
+    const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `sales_report_${format(new Date(), 'yyyy-MM-dd')}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
 
 
 
@@ -88,36 +116,66 @@ const Sales: React.FC = () => {
       <div className="flex items-center justify-between py-2">
         <div>
           <h1 className="text-xl font-bold text-slate-900 tracking-tight">Sales</h1>
-          <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest mt-0.5">Order History</p>
+          <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest mt-0.5">Order History & Transactions</p>
         </div>
-        <button
-          onClick={() => setIsAddingSale(true)}
-          className="banana-btn shadow-banana"
-        >
-          <Plus size={14} strokeWidth={2.5} className="mr-2" /> New Sale
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleExportSales}
+            className="px-4 py-2 bg-white border border-slate-200 hover:border-slate-300 text-slate-700 rounded-xl text-[10px] font-black uppercase tracking-wider flex items-center gap-2 transition-all shadow-xs"
+            title="Export Sales CSV"
+          >
+            <Download size={13} strokeWidth={2.5} />
+            <span className="hidden sm:inline">Export</span>
+          </button>
+          <button
+            onClick={() => setIsAddingSale(true)}
+            className="banana-btn shadow-banana"
+          >
+            <Plus size={14} strokeWidth={2.5} className="mr-2" /> New Sale
+          </button>
+        </div>
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <div className="nano-card p-4 group hover:bg-slate-900 transition-all duration-300">
-          <p className="text-[9px] font-semibold uppercase text-slate-400 tracking-widest mb-0.5 group-hover:text-slate-500 transition-colors">Today's Revenue</p>
-          <h3 className="text-lg font-bold text-slate-900 group-hover:text-white transition-colors tracking-tight font-mono">{formatCurrency(todaySales)}</h3>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <div className="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm hover:border-[#8B5CF6]/30 hover:shadow-md transition-all">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[9px] font-black uppercase text-slate-400 tracking-widest">Today's Revenue</span>
+            <div className="w-7 h-7 rounded-xl bg-emerald-50 text-emerald-500 flex items-center justify-center">
+              <IndianRupee size={14} strokeWidth={2.5} />
+            </div>
+          </div>
+          <h3 className="text-lg font-black text-slate-900 tracking-tight font-mono">{formatCurrency(todaySales)}</h3>
         </div>
 
-        <div className="nano-card p-4 group hover:bg-slate-900 transition-all duration-300">
-          <p className="text-[9px] font-semibold uppercase text-slate-400 tracking-widest mb-0.5 group-hover:text-slate-500 transition-colors">Total Orders</p>
-          <h3 className="text-lg font-bold text-slate-900 group-hover:text-white transition-colors tracking-tight">{sales.length}</h3>
+        <div className="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm hover:border-[#8B5CF6]/30 hover:shadow-md transition-all">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[9px] font-black uppercase text-slate-400 tracking-widest">Total Orders</span>
+            <div className="w-7 h-7 rounded-xl bg-purple-50 text-[#8B5CF6] flex items-center justify-center">
+              <ShoppingBag size={14} strokeWidth={2.5} />
+            </div>
+          </div>
+          <h3 className="text-lg font-black text-slate-900 tracking-tight font-mono">{sales.length}</h3>
         </div>
 
-        <div className="nano-card p-4 group hover:bg-slate-900 transition-all duration-300">
-          <p className="text-[9px] font-semibold uppercase text-slate-400 tracking-widest mb-0.5 group-hover:text-slate-500 transition-colors">Active Orders</p>
-          <h3 className={`text-lg font-bold group-hover:text-white transition-colors tracking-tight ${activeOrders > 0 ? 'text-amber-500' : 'text-slate-900'}`}>{activeOrders}</h3>
+        <div className="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm hover:border-[#8B5CF6]/30 hover:shadow-md transition-all">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[9px] font-black uppercase text-slate-400 tracking-widest">Active Orders</span>
+            <div className={`w-7 h-7 rounded-xl flex items-center justify-center ${activeOrders > 0 ? 'bg-amber-50 text-amber-500' : 'bg-slate-50 text-slate-400'}`}>
+              <Clock size={14} strokeWidth={2.5} />
+            </div>
+          </div>
+          <h3 className={`text-lg font-black tracking-tight font-mono ${activeOrders > 0 ? 'text-amber-600' : 'text-slate-900'}`}>{activeOrders}</h3>
         </div>
 
-        <div className="nano-card p-4 group hover:bg-slate-900 transition-all duration-300">
-          <p className="text-[9px] font-semibold uppercase text-slate-400 tracking-widest mb-0.5 group-hover:text-slate-500 transition-colors">Average Ticket</p>
-          <h3 className="text-lg font-bold text-slate-900 group-hover:text-white transition-colors tracking-tight font-mono">
+        <div className="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm hover:border-[#8B5CF6]/30 hover:shadow-md transition-all">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[9px] font-black uppercase text-slate-400 tracking-widest">Average Ticket</span>
+            <div className="w-7 h-7 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center">
+              <Tag size={14} strokeWidth={2.5} />
+            </div>
+          </div>
+          <h3 className="text-lg font-black text-slate-900 tracking-tight font-mono">
             {formatCurrency(sales.length > 0 ? sales.reduce((acc, s) => acc + s.totalAmount, 0) / sales.length : 0)}
           </h3>
         </div>
