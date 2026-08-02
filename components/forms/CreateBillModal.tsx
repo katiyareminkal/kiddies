@@ -17,7 +17,8 @@ import {
   CreditCard,
   Wallet,
   Smartphone,
-  Landmark
+  Landmark,
+  UserPlus
 } from 'lucide-react';
 import { formatCurrency } from '../../utils/helpers';
 import { SalesChannel, PaymentMethod, PaymentStatus, OrderStatus } from '../../types';
@@ -29,7 +30,7 @@ interface CreateBillModalProps {
 }
 
 export const CreateBillModal: React.FC<CreateBillModalProps> = ({ isOpen, onClose }) => {
-  const { products, customers, addSale, addProduct, creditNotes, consumeStoreCredit, sales, settings } = useApp();
+  const { products, customers, addSale, addProduct, addCustomer, creditNotes, consumeStoreCredit, sales, settings } = useApp();
   const [cart, setCart] = useState<{ productId: string; quantity: number; customName?: string; customPrice?: number; isCustomPrice?: boolean }[]>([]);
   const [useCredit, setUseCredit] = useState(false);
   const [creditAmountInput, setCreditAmountInput] = useState<string>('');
@@ -47,6 +48,13 @@ export const CreateBillModal: React.FC<CreateBillModalProps> = ({ isOpen, onClos
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<PaymentMethod>(PaymentMethod.CASH);
   const [isPartialPayment, setIsPartialPayment] = useState<boolean>(false);
   const [partialPaidAmountInput, setPartialPaidAmountInput] = useState<string>('');
+
+  // Add New Customer inline form state
+  const [isAddingCustomer, setIsAddingCustomer] = useState(false);
+  const [newCustName, setNewCustName] = useState('');
+  const [newCustPhone, setNewCustPhone] = useState('');
+  const [newCustEmail, setNewCustEmail] = useState('');
+  const [newCustAddress, setNewCustAddress] = useState('');
 
   // Custom/Manual Item states
   const [isCustomFormOpen, setIsCustomFormOpen] = useState(false);
@@ -140,6 +148,20 @@ export const CreateBillModal: React.FC<CreateBillModalProps> = ({ isOpen, onClos
       setCreditAmountInput('');
     }
   }, [useCredit]);
+
+  // Auto-reset all values when basket becomes empty
+  React.useEffect(() => {
+    if (cart.length === 0) {
+      setDiscountValue(0);
+      setDiscountType('PERCENT');
+      setUseCredit(false);
+      setCreditAmountInput('');
+      setIsPartialPayment(false);
+      setPartialPaidAmountInput('');
+      setSelectedPaymentMethod(PaymentMethod.CASH);
+      setIncludeGst(true);
+    }
+  }, [cart.length]);
 
   const finalAmountToPay = total - creditApplied;
 
@@ -400,19 +422,99 @@ export const CreateBillModal: React.FC<CreateBillModalProps> = ({ isOpen, onClos
                 <span className="text-[7px] font-black text-slate-400 uppercase tracking-widest">Customer</span>
                 <select
                   value={selectedCustomerId}
-                  onChange={(e) => setSelectedCustomerId(e.target.value)}
+                  onChange={(e) => {
+                    if (e.target.value === '__ADD_NEW__') {
+                      setIsAddingCustomer(true);
+                    } else {
+                      setSelectedCustomerId(e.target.value);
+                    }
+                  }}
                   className="bg-transparent text-[9px] font-bold text-slate-900 border-none outline-none cursor-pointer focus:ring-0 text-right p-0"
                 >
                   <option value="GUEST">Walk-in (Guest)</option>
                   {customers.map(c => (
                     <option key={c.id} value={c.id}>{c.name}</option>
                   ))}
+                  <option value="__ADD_NEW__">➕ Add New Customer</option>
                 </select>
               </div>
               <div className="w-8 h-8 rounded-xl bg-slate-900 flex items-center justify-center font-black text-highlight text-[10px] shrink-0">
                 {selectedCustomerId === 'GUEST' ? 'W' : customers.find(c => c.id === selectedCustomerId)?.name.charAt(0)}
               </div>
             </div>
+
+            {/* Inline Add New Customer Form */}
+            {isAddingCustomer && (
+              <div className="mx-3 mb-2 p-3 bg-purple-50/60 border border-purple-100 rounded-2xl space-y-2 animate-nano">
+                <div className="flex items-center justify-between">
+                  <p className="text-[9px] font-black uppercase text-purple-900 tracking-widest flex items-center gap-1">
+                    <UserPlus size={12} className="text-[#8B5CF6]" /> Add New Customer
+                  </p>
+                  <button type="button" onClick={() => setIsAddingCustomer(false)} className="p-0.5 text-slate-400 hover:text-slate-600">
+                    <X size={12} />
+                  </button>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <input
+                    type="text"
+                    placeholder="Name *"
+                    value={newCustName}
+                    onChange={(e) => setNewCustName(e.target.value)}
+                    className="bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-[10px] font-bold text-slate-900 outline-none focus:border-[#8B5CF6] placeholder:text-slate-300"
+                  />
+                  <input
+                    type="tel"
+                    placeholder="Phone *"
+                    value={newCustPhone}
+                    onChange={(e) => setNewCustPhone(e.target.value)}
+                    className="bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-[10px] font-bold text-slate-900 outline-none focus:border-[#8B5CF6] placeholder:text-slate-300"
+                  />
+                  <input
+                    type="email"
+                    placeholder="Email (optional)"
+                    value={newCustEmail}
+                    onChange={(e) => setNewCustEmail(e.target.value)}
+                    className="bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-[10px] font-bold text-slate-900 outline-none focus:border-[#8B5CF6] placeholder:text-slate-300"
+                  />
+                  <input
+                    type="text"
+                    placeholder="Address (optional)"
+                    value={newCustAddress}
+                    onChange={(e) => setNewCustAddress(e.target.value)}
+                    className="bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-[10px] font-bold text-slate-900 outline-none focus:border-[#8B5CF6] placeholder:text-slate-300"
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    if (!newCustName.trim() || !newCustPhone.trim()) {
+                      return alert('Name and Phone are required');
+                    }
+                    try {
+                      const newId = await addCustomer({
+                        name: newCustName.trim(),
+                        phone: newCustPhone.trim(),
+                        email: newCustEmail.trim(),
+                        address: newCustAddress.trim(),
+                      });
+                      if (newId) {
+                        setSelectedCustomerId(newId);
+                      }
+                      setNewCustName('');
+                      setNewCustPhone('');
+                      setNewCustEmail('');
+                      setNewCustAddress('');
+                      setIsAddingCustomer(false);
+                    } catch (err) {
+                      alert('Failed to add customer');
+                    }
+                  }}
+                  className="w-full py-1.5 bg-[#8B5CF6] text-white rounded-xl text-[9px] font-black uppercase tracking-wider hover:bg-[#7C3AED] transition-colors flex items-center justify-center gap-1"
+                >
+                  <UserPlus size={11} /> Save & Select Customer
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Cart Preview Row at Top */}
