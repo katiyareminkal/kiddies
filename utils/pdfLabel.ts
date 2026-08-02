@@ -43,8 +43,8 @@ export interface LabelTemplate {
 }
 
 export const DEFAULT_TEMPLATE_30x50: LabelTemplate = {
-  id: 'default_30x50_v4',
-  name: 'Default 30x50 Vertical v4',
+  id: 'default_30x50_v5',
+  name: 'Default 30x50 Vertical v5',
   labelWidth: 30,
   labelHeight: 50,
   elements: [
@@ -62,12 +62,13 @@ export const DEFAULT_TEMPLATE_30x50: LabelTemplate = {
     { id: 'color', type: 'text', x: 15, y: 22.2, fontSize: 7, isBold: true, align: 'center', visible: true, staticText: '' },
 
     // Middle Dashed Divider
-    { id: 'div_mid', type: 'line', x: 3, y: 27.5, width: 24, height: 0.2, borderStyle: 'dashed', visible: true },
+    { id: 'div_mid', type: 'line', x: 3, y: 26.5, width: 24, height: 0.2, borderStyle: 'dashed', visible: true },
 
-    // SKU & Code Section
-    { id: 'sku', type: 'text', x: 15, y: 30.5, fontSize: 7, isBold: true, align: 'center', visible: true, staticText: 'SKU : ' },
-    { id: 'div_r1', type: 'line', x: 5, y: 33.5, width: 20, height: 0.2, borderStyle: 'solid', visible: true },
-    { id: 'code', type: 'text', x: 15, y: 36.5, fontSize: 7, isBold: true, align: 'center', visible: true, staticText: 'CODE : ' },
+    // SubCategory & SKU & Code Section
+    { id: 'subCategory', type: 'text', x: 15, y: 28.0, fontSize: 6, isBold: true, align: 'center', visible: true, staticText: '' },
+    { id: 'sku', type: 'text', x: 15, y: 31.0, fontSize: 6.5, isBold: true, align: 'center', visible: true, staticText: 'SKU : ' },
+    { id: 'div_r1', type: 'line', x: 5, y: 34.0, width: 20, height: 0.2, borderStyle: 'solid', visible: true },
+    { id: 'code', type: 'text', x: 15, y: 37.0, fontSize: 6.5, isBold: true, align: 'center', visible: true, staticText: 'CODE : ' },
 
     // Bottom Price Box
     { id: 'price_box', type: 'rect', x: 3, y: 40.5, width: 24, height: 7.5, borderRadius: 1.5, borderStyle: 'solid', visible: true },
@@ -78,8 +79,8 @@ export const DEFAULT_TEMPLATE_30x50: LabelTemplate = {
 };
 
 export const DEFAULT_TEMPLATE_50x30: LabelTemplate = {
-  id: 'default_50x30_v4',
-  name: 'Default 50x30 Designer v4',
+  id: 'default_50x30_v5',
+  name: 'Default 50x30 Designer v5',
   labelWidth: 50,
   labelHeight: 30,
   elements: [
@@ -100,8 +101,10 @@ export const DEFAULT_TEMPLATE_50x30: LabelTemplate = {
     { id: 'div_vert', type: 'line', x: 18, y: 2, width: 0, height: 26, borderStyle: 'dashed', visible: true },
 
     // --- Right Section ---
+    // Sub Category
+    { id: 'subCategory', type: 'text', x: 34, y: 2.2, fontSize: 5.5, isBold: true, align: 'center', visible: true, staticText: '' },
     // SKU
-    { id: 'sku', type: 'text', x: 34, y: 4.5, fontSize: 7, isBold: true, align: 'center', visible: true, staticText: 'SKU : ' },
+    { id: 'sku', type: 'text', x: 34, y: 5.5, fontSize: 6.5, isBold: true, align: 'center', visible: true, staticText: 'SKU : ' },
     
     // Horizontal Solid Divider
     { id: 'div_r1', type: 'line', x: 20, y: 9.5, width: 28, height: 0.2, borderStyle: 'solid', visible: true },
