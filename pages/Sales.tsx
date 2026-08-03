@@ -171,52 +171,63 @@ const Sales: React.FC = () => {
             </div>
 
             {showExportMenu && (
-              <div className="absolute right-0 mt-2 w-52 bg-white rounded-2xl shadow-xl border border-slate-100 p-2 z-50 animate-nano space-y-2">
-                {/* Format Selector */}
-                <div className="flex items-center justify-between bg-slate-50 p-1 rounded-xl border border-slate-100">
-                  <span className="text-[8px] font-black uppercase text-slate-400 pl-1.5">Format</span>
-                  <div className="flex gap-1">
+              <div className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-slate-100 p-2.5 z-50 animate-nano space-y-2.5">
+                {/* Highlighted Format Selector: Formatted vs Simple */}
+                <div className="bg-slate-50 p-1 rounded-xl border border-slate-100 space-y-1">
+                  <div className="text-[7.5px] font-black uppercase tracking-widest text-slate-400 px-1">Select Format</div>
+                  <div className="grid grid-cols-2 gap-1">
                     <button
+                      type="button"
                       onClick={() => setExportFormat('excel')}
-                      className={`px-2 py-0.5 rounded-lg text-[8.5px] font-black uppercase transition-all ${
-                        exportFormat === 'excel' ? 'bg-[#8B5CF6] text-white shadow-xs' : 'text-slate-400 hover:text-slate-700'
+                      className={`py-1.5 px-1.5 rounded-lg text-[8.5px] font-black uppercase tracking-wider transition-all flex flex-col items-center justify-center ${
+                        exportFormat === 'excel'
+                          ? 'bg-[#8B5CF6] text-white shadow-xs'
+                          : 'bg-white text-slate-500 border border-slate-100 hover:border-slate-200'
                       }`}
                     >
-                      Excel
+                      <span>Excel</span>
+                      <span className={`text-[7px] font-mono font-bold mt-0.5 px-1 rounded ${exportFormat === 'excel' ? 'bg-white/20 text-white' : 'text-purple-600 bg-purple-50'}`}>★ Formatted</span>
                     </button>
+
                     <button
+                      type="button"
                       onClick={() => setExportFormat('csv')}
-                      className={`px-2 py-0.5 rounded-lg text-[8.5px] font-black uppercase transition-all ${
-                        exportFormat === 'csv' ? 'bg-slate-900 text-white shadow-xs' : 'text-slate-400 hover:text-slate-700'
+                      className={`py-1.5 px-1.5 rounded-lg text-[8.5px] font-black uppercase tracking-wider transition-all flex flex-col items-center justify-center ${
+                        exportFormat === 'csv'
+                          ? 'bg-slate-900 text-white shadow-xs'
+                          : 'bg-white text-slate-500 border border-slate-100 hover:border-slate-200'
                       }`}
                     >
-                      CSV
+                      <span>CSV</span>
+                      <span className={`text-[7px] font-mono font-bold mt-0.5 px-1 rounded ${exportFormat === 'csv' ? 'bg-white/20 text-white' : 'text-slate-500 bg-slate-100'}`}>Simple</span>
                     </button>
                   </div>
                 </div>
 
-                {/* Minimalist Time Options */}
-                <div className="space-y-0.5">
-                  {[
-                    { id: 'today', title: 'Today', icon: '📅' },
-                    { id: 'week', title: 'This Week', icon: '🗓️' },
-                    { id: 'month', title: 'This Month', icon: '📆' },
-                    { id: 'year', title: 'This Year', icon: '📊' },
-                    { id: 'custom', title: 'Current View', icon: '⚡' },
-                    { id: 'all', title: 'All Time', icon: '🌐' },
-                  ].map(opt => (
-                    <button
-                      key={opt.id}
-                      onClick={() => {
-                        handleExportTimeframe(opt.id as DatePresetTimeframe, exportFormat);
-                        setShowExportMenu(false);
-                      }}
-                      className="w-full text-left px-2.5 py-1.5 rounded-xl hover:bg-purple-50/60 text-slate-800 transition-colors flex items-center gap-2 group"
-                    >
-                      <span className="text-xs shrink-0">{opt.icon}</span>
-                      <span className="text-[10px] font-extrabold uppercase tracking-wider">{opt.title}</span>
-                    </button>
-                  ))}
+                {/* Minimalist Time Range Options */}
+                <div>
+                  <div className="text-[7.5px] font-black uppercase tracking-widest text-slate-400 px-1 mb-1">Download Period</div>
+                  <div className="space-y-0.5">
+                    {[
+                      { id: 'today', title: 'Today' },
+                      { id: 'week', title: 'This Week' },
+                      { id: 'month', title: 'This Month' },
+                      { id: 'year', title: 'This Year' },
+                      { id: 'all', title: 'All Time' },
+                    ].map(opt => (
+                      <button
+                        key={opt.id}
+                        onClick={() => {
+                          handleExportTimeframe(opt.id as DatePresetTimeframe, exportFormat);
+                          setShowExportMenu(false);
+                        }}
+                        className="w-full text-left px-2.5 py-1.5 rounded-xl hover:bg-purple-50 text-slate-900 font-black text-[9.5px] uppercase tracking-wider transition-colors flex items-center justify-between"
+                      >
+                        <span>{opt.title}</span>
+                        <span className="text-[8px] font-mono font-bold text-slate-300">↓</span>
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
             )}
