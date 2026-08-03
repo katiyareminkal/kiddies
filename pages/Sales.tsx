@@ -177,19 +177,19 @@ const Sales: React.FC = () => {
 
             {showExportMenu && (
               <div className="absolute right-0 mt-2 w-48 bg-white rounded-2xl shadow-xl border border-slate-100 p-2 z-50 animate-nano space-y-2">
-                {/* Format Selector with Hover Tooltips */}
+                {/* Format Selector - Text Only */}
                 <div className="grid grid-cols-2 gap-1 bg-slate-50 p-1 rounded-xl border border-slate-100">
                   <div className="relative group/fmt1">
                     <button
                       type="button"
                       onClick={() => setExportFormat('excel')}
-                      className={`w-full py-1 rounded-lg text-[9px] font-black uppercase transition-all flex items-center justify-center gap-1 ${
+                      className={`w-full py-1 rounded-lg text-[9px] font-black uppercase tracking-wider transition-all text-center ${
                         exportFormat === 'excel'
                           ? 'bg-[#8B5CF6] text-white shadow-xs'
                           : 'text-slate-500 hover:text-slate-800'
                       }`}
                     >
-                      📊 Excel
+                      Excel
                     </button>
                     <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover/fmt1:flex items-center px-2 py-0.5 bg-slate-900 text-white text-[7.5px] font-bold uppercase tracking-wider rounded shadow-md whitespace-nowrap z-50 pointer-events-none">
                       Formatted Report (Colors & Headers)
@@ -201,13 +201,13 @@ const Sales: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => setExportFormat('csv')}
-                      className={`w-full py-1 rounded-lg text-[9px] font-black uppercase transition-all flex items-center justify-center gap-1 ${
+                      className={`w-full py-1 rounded-lg text-[9px] font-black uppercase tracking-wider transition-all text-center ${
                         exportFormat === 'csv'
                           ? 'bg-slate-900 text-white shadow-xs'
                           : 'text-slate-500 hover:text-slate-800'
                       }`}
                     >
-                      📄 CSV
+                      CSV
                     </button>
                     <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover/fmt2:flex items-center px-2 py-0.5 bg-slate-900 text-white text-[7.5px] font-bold uppercase tracking-wider rounded shadow-md whitespace-nowrap z-50 pointer-events-none">
                       Simple Raw Data File
@@ -216,14 +216,14 @@ const Sales: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Minimalist Icon-based Time Range Options with Tooltips */}
-                <div className="grid grid-cols-5 gap-1">
+                {/* Minimalist Time Options - Text & Numbers Only */}
+                <div className="space-y-0.5">
                   {[
-                    { id: 'today', icon: '📅', tip: 'Today' },
-                    { id: 'week', icon: '🗓️', tip: 'This Week' },
-                    { id: 'month', icon: '📆', tip: 'This Month' },
-                    { id: 'year', icon: '📊', tip: 'This Year' },
-                    { id: 'all', icon: '🌐', tip: 'All Time' },
+                    { id: 'today', title: 'Today', tip: "Download Today's Sales" },
+                    { id: 'week', title: '7 Days', tip: 'Download Last 7 Days Sales' },
+                    { id: 'month', title: '30 Days', tip: 'Download Last 30 Days Sales' },
+                    { id: 'year', title: '1 Year', tip: 'Download Current Year Sales' },
+                    { id: 'all', title: 'All Time', tip: 'Download Full Sales History' },
                   ].map(opt => (
                     <div key={opt.id} className="relative group/titem">
                       <button
@@ -231,13 +231,13 @@ const Sales: React.FC = () => {
                           handleExportTimeframe(opt.id as DatePresetTimeframe, exportFormat);
                           setShowExportMenu(false);
                         }}
-                        className="w-full h-9 rounded-xl hover:bg-purple-50 flex items-center justify-center text-sm transition-transform hover:scale-110 active:scale-95"
+                        className="w-full text-left px-2.5 py-1.5 rounded-xl hover:bg-purple-50 text-slate-800 font-black text-[9.5px] uppercase tracking-wider transition-colors flex items-center justify-between"
                       >
-                        {opt.icon}
+                        <span>{opt.title}</span>
+                        <span className="text-[8px] font-mono text-slate-300">↓</span>
                       </button>
-                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover/titem:flex items-center px-2 py-0.5 bg-slate-900 text-white text-[7.5px] font-bold uppercase tracking-wider rounded shadow-md whitespace-nowrap z-50 pointer-events-none">
+                      <div className="absolute right-full top-1/2 -translate-y-1/2 mr-1.5 hidden group-hover/titem:flex items-center px-2 py-0.5 bg-slate-900 text-white text-[7.5px] font-bold uppercase tracking-wider rounded shadow-md whitespace-nowrap z-50 pointer-events-none">
                         {opt.tip}
-                        <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-900"></div>
                       </div>
                     </div>
                   ))}
@@ -340,26 +340,25 @@ const Sales: React.FC = () => {
         </div>
       </div>
 
-      {/* Quick Date Presets Bar with Icon & Hover Info */}
+      {/* Quick Date Presets Bar - Text & Numbers Only */}
       <div className="flex items-center gap-1.5 overflow-x-auto hide-scrollbar">
         {[
-          { id: 'ALL', icon: '🌐', label: 'All', tip: 'Show All Sales History' },
-          { id: 'TODAY', icon: '📅', label: 'Today', tip: "Filter Today's Sales" },
-          { id: 'WEEK', icon: '🗓️', label: 'Week', tip: "Filter This Week's Sales" },
-          { id: 'MONTH', icon: '📆', label: 'Month', tip: "Filter This Month's Sales" },
-          { id: 'YEAR', icon: '📊', label: 'Year', tip: "Filter This Year's Sales" },
+          { id: 'ALL', label: 'All', tip: 'Show All Transactions' },
+          { id: 'TODAY', label: 'Today', tip: "Show Today's Orders" },
+          { id: 'WEEK', label: '7 Days', tip: 'Show Last 7 Days Orders' },
+          { id: 'MONTH', label: '30 Days', tip: 'Show Last 30 Days Orders' },
+          { id: 'YEAR', label: '1 Year', tip: 'Show Current Year Orders' },
         ].map(p => (
           <div key={p.id} className="relative group/pill flex-shrink-0">
             <button
               onClick={() => applyDatePreset(p.id as any)}
-              className={`px-2.5 py-1 rounded-xl text-[9px] font-black uppercase tracking-wider whitespace-nowrap transition-all border flex items-center gap-1 ${
+              className={`px-3 py-1 rounded-xl text-[9px] font-black uppercase tracking-wider whitespace-nowrap transition-all border ${
                 activeDatePreset === p.id
                   ? 'bg-slate-900 text-white border-slate-900 shadow-xs'
                   : 'bg-white text-slate-500 border-slate-200 hover:border-slate-300 hover:text-slate-900'
               }`}
             >
-              <span className="text-xs leading-none">{p.icon}</span>
-              <span>{p.label}</span>
+              {p.label}
             </button>
             <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover/pill:flex items-center px-2 py-0.5 bg-slate-900 text-white text-[7.5px] font-bold uppercase tracking-wider rounded shadow-md whitespace-nowrap z-50 pointer-events-none">
               {p.tip}
