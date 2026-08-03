@@ -1,10 +1,10 @@
 import React, { useMemo, useState } from 'react';
 import { useApp } from '../store/AppContext';
 import { formatCurrency } from '../utils/helpers';
-import { 
-  Package, 
-  ShoppingBag, 
-  Users, 
+import {
+  Package,
+  ShoppingBag,
+  Users,
   AlertTriangle,
   ArrowRight,
   TrendingUp,
@@ -22,13 +22,13 @@ import {
   FileSpreadsheet,
   Wallet
 } from 'lucide-react';
-import { 
-  BarChart, 
-  Bar, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
   ResponsiveContainer,
   Legend
 } from 'recharts';
@@ -158,7 +158,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
   const handlePresetChange = (preset: string) => {
     setFilterPreset(preset);
     const today = new Date();
-    
+
     if (preset === 'TODAY') {
       const todayStr = format(today, 'yyyy-MM-dd');
       setStartDateFilter(todayStr);
@@ -209,9 +209,9 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
       ...rentals.map(r => r.date),
       ...stockLogs.map(l => l.date)
     ].map(d => new Date(d).getTime());
-    
+
     if (dates.length === 0) return { first: '', last: '' };
-    
+
     return {
       first: format(new Date(Math.min(...dates)), 'yyyy-MM-dd'),
       last: format(new Date(Math.max(...dates)), 'yyyy-MM-dd')
@@ -267,7 +267,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
   const validFilteredSales = filteredSales.filter(s => s.orderStatus !== OrderStatus.RETURNED && s.orderStatus !== OrderStatus.CANCELLED);
   const salesToShow = (startDateFilter || endDateFilter) ? validFilteredSales : todaySales;
   const todaySalesAmount = salesToShow.reduce((acc, s) => acc + s.netPayout, 0);
-  
+
   const todayProfit = salesToShow.reduce((acc, s) => {
     const saleCost = (s.items || []).reduce((sum, item) => {
       const prod = products.find(p => p.id === item.productId);
@@ -279,7 +279,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
 
   const salesTitle = (startDateFilter || endDateFilter) ? "Period Sales" : "Today's Sales";
   const salesSubText = (startDateFilter || endDateFilter) ? `${salesToShow.length} orders in period` : `${todaySales.length} orders today`;
-  
+
   // 3. Active Rentals
   const activeRentals = rentals.filter(r => r.status === 'ACTIVE');
   const activeRentalsToShow = (startDateFilter || endDateFilter)
@@ -289,14 +289,14 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
   // 4. Returns Due
   const dueTodayRentals = activeRentals.filter(r => isToday(parseISO(r.expectedReturnDate)));
   const overdueRentals = activeRentals.filter(r => isPast(parseISO(r.expectedReturnDate)) && !isToday(parseISO(r.expectedReturnDate)));
-  
+
   const returnsInPeriod = activeRentals.filter(r => {
     const d = parseISO(r.expectedReturnDate);
     if (startDateFilter && d < parseISO(startDateFilter)) return false;
     if (endDateFilter && d > parseISO(endDateFilter)) return false;
     return true;
   });
-  
+
   const returnsDueCount = (startDateFilter || endDateFilter) ? returnsInPeriod.length : (dueTodayRentals.length + overdueRentals.length);
   const returnsDueTitle = (startDateFilter || endDateFilter) ? "Returns in Period" : "Returns Due";
   const returnsDueSubText = (startDateFilter || endDateFilter) ? "Expected returns in period" : `${overdueRentals.length} Overdue / ${dueTodayRentals.length} Today`;
@@ -345,7 +345,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
       const start = startDateFilter ? parseISO(startDateFilter) : subDays(new Date(), 30);
       const end = endDateFilter ? parseISO(endDateFilter) : new Date();
       const diffDays = differenceInDays(end, start);
-      
+
       if (diffDays <= 14) {
         for (let i = 0; i <= diffDays; i++) {
           const date = addDays(start, i);
@@ -364,21 +364,21 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
           const startPeriod = addDays(start, i * intervalDays);
           const endPeriod = addDays(start, Math.min((i + 1) * intervalDays, diffDays));
           const dateStr = `${format(startPeriod, 'MMM dd')} - ${format(endPeriod, 'MMM dd')}`;
-          
+
           const periodSales = sales
             .filter(s => {
               const d = parseISO(s.date);
               return (d >= startPeriod && d <= endPeriod);
             })
             .reduce((sum, s) => sum + s.netPayout, 0);
-            
+
           const periodRentals = rentals
             .filter(r => {
               const d = parseISO(r.date);
               return (d >= startPeriod && d <= endPeriod);
             })
             .reduce((sum, r) => sum + r.paidAmount, 0);
-            
+
           data.push({ name: dateStr, Sales: periodSales, Rentals: periodRentals });
         }
       }
@@ -395,11 +395,11 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
         const dailyRentals = rentals
           .filter(r => isSameDay(parseISO(r.date), date))
           .reduce((sum, r) => sum + r.paidAmount, 0);
-        
-        data.push({ 
-          name: dateStr, 
-          Sales: dailySales || Math.floor(Math.random() * 2000), 
-          Rentals: dailyRentals || Math.floor(Math.random() * 1000) 
+
+        data.push({
+          name: dateStr,
+          Sales: dailySales || Math.floor(Math.random() * 2000),
+          Rentals: dailyRentals || Math.floor(Math.random() * 1000)
         });
       }
     } else if (timeframe === 'MONTHLY') {
@@ -407,25 +407,25 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
       for (let i = 3; i >= 0; i--) {
         const startOfPeriod = subDays(new Date(), (i + 1) * 7);
         const endOfPeriod = subDays(new Date(), i * 7);
-        
+
         const periodSales = sales
           .filter(s => {
             const d = parseISO(s.date);
             return (d >= startOfPeriod && d <= endOfPeriod);
           })
           .reduce((sum, s) => sum + s.netPayout, 0);
-          
+
         const periodRentals = rentals
           .filter(r => {
             const d = parseISO(r.date);
             return (d >= startOfPeriod && d <= endOfPeriod);
           })
           .reduce((sum, r) => sum + r.paidAmount, 0);
-          
-        data.push({ 
-          name: `Week ${4 - i}`, 
-          Sales: periodSales || Math.floor(Math.random() * 8000 + 2000), 
-          Rentals: periodRentals || Math.floor(Math.random() * 4000 + 1000) 
+
+        data.push({
+          name: `Week ${4 - i}`,
+          Sales: periodSales || Math.floor(Math.random() * 8000 + 2000),
+          Rentals: periodRentals || Math.floor(Math.random() * 4000 + 1000)
         });
       }
     } else {
@@ -433,19 +433,19 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
       for (let i = 11; i >= 0; i--) {
         const date = subMonths(new Date(), i);
         const dateStr = format(date, 'MMM');
-        
+
         const periodSales = sales
           .filter(s => isSameMonth(parseISO(s.date), date))
           .reduce((sum, s) => sum + s.netPayout, 0);
-          
+
         const periodRentals = rentals
           .filter(r => isSameMonth(parseISO(r.date), date))
           .reduce((sum, r) => sum + r.paidAmount, 0);
-          
-        data.push({ 
-          name: dateStr, 
-          Sales: periodSales || Math.floor(Math.random() * 30000 + 5000), 
-          Rentals: periodRentals || Math.floor(Math.random() * 15000 + 2000) 
+
+        data.push({
+          name: dateStr,
+          Sales: periodSales || Math.floor(Math.random() * 30000 + 5000),
+          Rentals: periodRentals || Math.floor(Math.random() * 15000 + 2000)
         });
       }
     }
@@ -455,15 +455,15 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
   // Combined Recent Feed 
   const recentActivities = useMemo(() => {
     const feeds = [];
-    sales.slice(0, 3).forEach(s => feeds.push({ id: s.id, type: 'Sale Generated', time: s.date, icon: <ShoppingBag size={14}/>, color: 'text-emerald-500 bg-emerald-50' }));
-    rentals.slice(0, 3).forEach(r => feeds.push({ id: r.id, type: r.status === 'RETURNED' ? 'Return Completed' : 'Rental Booked', time: r.date, icon: <Undo2 size={14}/>, color: 'text-indigo-500 bg-indigo-50' }));
-    stockLogs.slice(0, 3).forEach(l => feeds.push({ id: l.id, type: 'New Stock Added', time: l.date, icon: <Package size={14}/>, color: 'text-amber-500 bg-amber-50' }));
+    sales.slice(0, 3).forEach(s => feeds.push({ id: s.id, type: 'Sale Generated', time: s.date, icon: <ShoppingBag size={14} />, color: 'text-emerald-500 bg-emerald-50' }));
+    rentals.slice(0, 3).forEach(r => feeds.push({ id: r.id, type: r.status === 'RETURNED' ? 'Return Completed' : 'Rental Booked', time: r.date, icon: <Undo2 size={14} />, color: 'text-indigo-500 bg-indigo-50' }));
+    stockLogs.slice(0, 3).forEach(l => feeds.push({ id: l.id, type: 'New Stock Added', time: l.date, icon: <Package size={14} />, color: 'text-amber-500 bg-amber-50' }));
     return feeds.sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime()).slice(0, 4);
   }, [sales, rentals, stockLogs]);
 
   return (
     <div className="space-y-6 pb-20 animate-nano">
-      
+
       {showBackupAlert && (
         <div className="bg-[#8B5CF6]/10 border border-[#8B5CF6]/20 backdrop-blur-md rounded-2xl p-4 md:p-5 flex flex-col sm:flex-row items-center justify-between gap-4 animate-nano">
           <div className="flex items-center gap-3">
@@ -476,13 +476,13 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
             </div>
           </div>
           <div className="flex items-center gap-2 w-full sm:w-auto">
-            <button 
+            <button
               onClick={handleExcelBackup}
               className="flex-1 sm:flex-none px-4 py-2.5 bg-[#8B5CF6] text-white hover:bg-[#7C3AED] transition-colors rounded-xl text-[8px] font-black uppercase tracking-widest shadow-lg shadow-[#8B5CF6]/20 whitespace-nowrap"
             >
               Backup Now
             </button>
-            <button 
+            <button
               onClick={() => setShowBackupAlert(false)}
               className="px-3 py-2.5 hover:bg-slate-100 text-slate-400 hover:text-slate-900 transition-colors rounded-xl text-[8px] font-black uppercase tracking-widest whitespace-nowrap"
             >
@@ -491,14 +491,14 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
           </div>
         </div>
       )}
-      
+
       {/* Date Range Filter Header */}
       <div className="bg-white border border-slate-100 rounded-2xl p-4 md:p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h2 className="text-base font-black text-slate-900 tracking-tight">Overview Dashboard</h2>
           <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest mt-0.5">Performance & Operations</p>
         </div>
-        
+
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex flex-col gap-1">
             <div className="relative">
@@ -529,8 +529,8 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
             <>
               <div className="flex items-center gap-2 bg-slate-50 border border-slate-100/50 rounded-xl px-3 py-1.5 shadow-sm">
                 <span className="text-[8px] font-black uppercase text-slate-400 tracking-widest">From</span>
-                <input 
-                  type="date" 
+                <input
+                  type="date"
                   value={startDateFilter}
                   onChange={(e) => setStartDateFilter(e.target.value)}
                   className="bg-transparent text-[10px] font-bold text-slate-700 outline-none uppercase"
@@ -538,8 +538,8 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
               </div>
               <div className="flex items-center gap-3 bg-slate-50 border border-slate-100/50 rounded-xl px-3 py-1.5 shadow-sm">
                 <span className="text-[8px] font-black uppercase text-slate-400 tracking-widest">To</span>
-                <input 
-                  type="date" 
+                <input
+                  type="date"
                   value={endDateFilter}
                   onChange={(e) => setEndDateFilter(e.target.value)}
                   className="bg-transparent text-[10px] font-bold text-slate-700 outline-none uppercase"
@@ -549,371 +549,368 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
           )}
         </div>
       </div>
-      
+
       {/* 1. Quick Actions Overview (Mobile Friendly Horizontal Scroll) */}
       <div className="flex gap-3 overflow-x-auto hide-scrollbar pb-2 pt-2 -mx-2 px-2 snap-x">
         <button onClick={() => setIsProductModalOpen(true)} className="snap-start shrink-0 flex flex-col items-center justify-center p-3 w-20 md:w-24 bg-white border border-slate-100 rounded-2xl shadow-sm hover:border-highlight hover:shadow-md transition-all group">
-           <div className="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center mb-2 group-hover:scale-110 transition-transform"><PlusCircle size={20} strokeWidth={2.5}/></div>
-           <span className="text-[9px] font-bold text-slate-600 text-center leading-tight">Add<br/>Product</span>
+          <div className="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center mb-2 group-hover:scale-110 transition-transform"><PlusCircle size={20} strokeWidth={2.5} /></div>
+          <span className="text-[9px] font-bold text-slate-600 text-center leading-tight">Add<br />Product</span>
         </button>
         <button onClick={() => setIsCreateBillModalOpen(true)} className="snap-start shrink-0 flex flex-col items-center justify-center p-3 w-20 md:w-24 bg-white border border-slate-100 rounded-2xl shadow-sm hover:border-highlight hover:shadow-md transition-all group">
-           <div className="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center mb-2 group-hover:scale-110 transition-transform"><ShoppingBag size={20} strokeWidth={2.5}/></div>
-           <span className="text-[9px] font-bold text-slate-600 text-center leading-tight">Create<br/>Bill</span>
+          <div className="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center mb-2 group-hover:scale-110 transition-transform"><ShoppingBag size={20} strokeWidth={2.5} /></div>
+          <span className="text-[9px] font-bold text-slate-600 text-center leading-tight">Create<br />Bill</span>
         </button>
         <button onClick={() => setIsNewRentalModalOpen(true)} className="snap-start shrink-0 flex flex-col items-center justify-center p-3 w-20 md:w-24 bg-white border border-slate-100 rounded-2xl shadow-sm hover:border-highlight hover:shadow-md transition-all group">
-           <div className="w-10 h-10 bg-rose-50 text-rose-600 rounded-xl flex items-center justify-center mb-2 group-hover:scale-110 transition-transform"><Calendar size={20} strokeWidth={2.5}/></div>
-           <span className="text-[9px] font-bold text-slate-600 text-center leading-tight">Rental<br/>Booking</span>
+          <div className="w-10 h-10 bg-rose-50 text-rose-600 rounded-xl flex items-center justify-center mb-2 group-hover:scale-110 transition-transform"><Calendar size={20} strokeWidth={2.5} /></div>
+          <span className="text-[9px] font-bold text-slate-600 text-center leading-tight">Rental<br />Booking</span>
         </button>
         <button onClick={() => setIsReturnRentalModalOpen(true)} className="snap-start shrink-0 flex flex-col items-center justify-center p-3 w-20 md:w-24 bg-white border border-slate-100 rounded-2xl shadow-sm hover:border-highlight hover:shadow-md transition-all group">
-           <div className="w-10 h-10 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center mb-2 group-hover:scale-110 transition-transform"><Undo2 size={20} strokeWidth={2.5}/></div>
-           <span className="text-[9px] font-bold text-slate-600 text-center leading-tight">Return<br/>Rental</span>
+          <div className="w-10 h-10 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center mb-2 group-hover:scale-110 transition-transform"><Undo2 size={20} strokeWidth={2.5} /></div>
+          <span className="text-[9px] font-bold text-slate-600 text-center leading-tight">Return<br />Rental</span>
         </button>
         <button onClick={() => setIsStockModalOpen(true)} className="snap-start shrink-0 flex flex-col items-center justify-center p-3 w-20 md:w-24 bg-white border border-slate-100 rounded-2xl shadow-sm hover:border-highlight hover:shadow-md transition-all group">
-           <div className="w-10 h-10 bg-teal-50 text-teal-600 rounded-xl flex items-center justify-center mb-2 group-hover:scale-110 transition-transform"><Package size={20} strokeWidth={2.5}/></div>
-           <span className="text-[9px] font-bold text-slate-600 text-center leading-tight">Stock<br/>Entry</span>
+          <div className="w-10 h-10 bg-teal-50 text-teal-600 rounded-xl flex items-center justify-center mb-2 group-hover:scale-110 transition-transform"><Package size={20} strokeWidth={2.5} /></div>
+          <span className="text-[9px] font-bold text-slate-600 text-center leading-tight">Stock<br />Entry</span>
         </button>
         <button onClick={() => setIsCustomerModalOpen(true)} className="snap-start shrink-0 flex flex-col items-center justify-center p-3 w-20 md:w-24 bg-white border border-slate-100 rounded-2xl shadow-sm hover:border-highlight hover:shadow-md transition-all group">
-           <div className="w-10 h-10 bg-sky-50 text-sky-600 rounded-xl flex items-center justify-center mb-2 group-hover:scale-110 transition-transform"><Users size={20} strokeWidth={2.5}/></div>
-           <span className="text-[9px] font-bold text-slate-600 text-center leading-tight">Add<br/>Customer</span>
+          <div className="w-10 h-10 bg-sky-50 text-sky-600 rounded-xl flex items-center justify-center mb-2 group-hover:scale-110 transition-transform"><Users size={20} strokeWidth={2.5} /></div>
+          <span className="text-[9px] font-bold text-slate-600 text-center leading-tight">Add<br />Customer</span>
         </button>
         <button onClick={() => setIsRecordExpenseModalOpen(true)} className="snap-start shrink-0 flex flex-col items-center justify-center p-3 w-20 md:w-24 bg-white border border-slate-100 rounded-2xl shadow-sm hover:border-highlight hover:shadow-md transition-all group">
-           <div className="w-10 h-10 bg-rose-50 text-rose-700 rounded-xl flex items-center justify-center mb-2 group-hover:scale-110 transition-transform"><Wallet size={20} strokeWidth={2.5}/></div>
-           <span className="text-[9px] font-bold text-slate-600 text-center leading-tight">Cash Out /<br/>Expense</span>
+          <div className="w-10 h-10 bg-rose-50 text-rose-700 rounded-xl flex items-center justify-center mb-2 group-hover:scale-110 transition-transform"><Wallet size={20} strokeWidth={2.5} /></div>
+          <span className="text-[9px] font-bold text-slate-600 text-center leading-tight">Cash Out /<br />Expense</span>
         </button>
       </div>
 
       {/* 2. Top Summary Cards (Dense) */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
-          <div onClick={() => navigate('inventory')} className="bg-white p-3.5 md:p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between cursor-pointer hover:border-highlight hover:shadow-md transition-all group">
-              <div className="flex justify-between items-start mb-2">
-                 <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest group-hover:text-highlight transition-colors">Total Stock</h4>
-                 <div className="p-1.5 bg-slate-50 text-slate-600 rounded-lg group-hover:bg-highlight group-hover:text-slate-900 transition-colors"><Package size={14}/></div>
-              </div>
-              <div>
-                  <h3 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">{availableStock} <span className="text-[10px] font-bold text-slate-400">Pcs</span></h3>
-                  <div className="flex flex-wrap gap-x-1.5 gap-y-1 mt-1.5">
-                    <span className="text-[8px] font-black text-indigo-600 bg-indigo-50 border border-indigo-100/30 px-1.5 py-0.5 rounded-lg uppercase tracking-wider">
-                      Valuation: {formatMoney(stockValuation)}
-                    </span>
-                  </div>
-                  <p className="text-[7px] font-bold text-amber-500 mt-2 uppercase tracking-widest">{lowStockProducts.length} low stock items</p>
-              </div>
+        <div onClick={() => navigate('inventory')} className="bg-white p-3.5 md:p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between cursor-pointer hover:border-highlight hover:shadow-md transition-all group">
+          <div className="flex justify-between items-start mb-2">
+            <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest group-hover:text-highlight transition-colors">Total Stock</h4>
+            <div className="p-1.5 bg-slate-50 text-slate-600 rounded-lg group-hover:bg-highlight group-hover:text-slate-900 transition-colors"><Package size={14} /></div>
           </div>
-          <div onClick={() => navigate('reports')} className="bg-white p-3.5 md:p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between cursor-pointer hover:border-highlight hover:shadow-md transition-all group">
-              <div className="flex justify-between items-start mb-2">
-                 <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest group-hover:text-highlight transition-colors">{salesTitle}</h4>
-                 <div className="p-1.5 bg-emerald-50 text-emerald-600 rounded-lg group-hover:bg-highlight group-hover:text-slate-900 transition-colors"><TrendingUp size={14}/></div>
-              </div>
-              <div>
-                  <h3 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">{formatMoney(todaySalesAmount)}</h3>
-                  <div className="flex flex-wrap gap-x-1.5 gap-y-1 mt-1.5">
-                    <span className="text-[8px] font-black text-emerald-600 bg-emerald-50 border border-emerald-100/30 px-1.5 py-0.5 rounded-lg uppercase tracking-wider">
-                      Profit: {formatMoney(todayProfit)}
-                    </span>
-                    <span className="text-[8px] font-black text-[#8B5CF6] bg-[#8B5CF6]/5 border border-[#8B5CF6]/10 px-1.5 py-0.5 rounded-lg uppercase tracking-wider">
-                      Margin: {todayProfitPercent.toFixed(1)}%
-                    </span>
-                  </div>
-                  <p className="text-[7px] font-bold text-slate-400 mt-2 uppercase tracking-widest">{salesSubText}</p>
-              </div>
+          <div>
+            <h3 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">{availableStock} <span className="text-[10px] font-bold text-slate-400">Pcs</span></h3>
+            <div className="flex flex-wrap gap-x-1.5 gap-y-1 mt-1.5">
+              <span className="text-[8px] font-black text-indigo-600 bg-indigo-50 border border-indigo-100/30 px-1.5 py-0.5 rounded-lg uppercase tracking-wider">
+                Valuation: {formatMoney(stockValuation)}
+              </span>
+            </div>
+            <p className="text-[7px] font-bold text-amber-500 mt-2 uppercase tracking-widest">{lowStockProducts.length} low stock items</p>
           </div>
-          <div onClick={() => navigate('rentals')} className="bg-white p-3.5 md:p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between cursor-pointer hover:border-highlight hover:shadow-md transition-all group">
-              <div className="flex justify-between items-start mb-2">
-                 <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest group-hover:text-highlight transition-colors">Active Rentals</h4>
-                 <div className="p-1.5 bg-rose-50 text-rose-600 rounded-lg group-hover:bg-highlight group-hover:text-slate-900 transition-colors"><ShoppingBag size={14}/></div>
-              </div>
-              <div>
-                  <h3 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">{activeRentalsToShow.length}</h3>
-                  <div className="flex flex-wrap gap-x-1.5 gap-y-1 mt-1.5">
-                    <span className="text-[8px] font-black text-rose-600 bg-rose-50 border border-rose-100/30 px-1.5 py-0.5 rounded-lg uppercase tracking-wider">
-                      Value: {formatMoney(activeRentalsValue)}
-                    </span>
-                  </div>
-                  <p className="text-[7px] font-bold text-slate-400 mt-2 uppercase tracking-widest">Currently Rented</p>
-              </div>
+        </div>
+        <div onClick={() => navigate('reports')} className="bg-white p-3.5 md:p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between cursor-pointer hover:border-highlight hover:shadow-md transition-all group">
+          <div className="flex justify-between items-start mb-2">
+            <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest group-hover:text-highlight transition-colors">{salesTitle}</h4>
+            <div className="p-1.5 bg-emerald-50 text-emerald-600 rounded-lg group-hover:bg-highlight group-hover:text-slate-900 transition-colors"><TrendingUp size={14} /></div>
           </div>
-          <div onClick={() => navigate('rentals')} className="bg-white p-3.5 md:p-5 rounded-2xl border border-rose-100 bg-rose-50/20 shadow-sm flex flex-col justify-between cursor-pointer hover:border-rose-300 hover:shadow-md transition-all group">
-              <div className="flex justify-between items-start mb-2">
-                 <h4 className="text-[10px] font-bold text-rose-500 uppercase tracking-widest">{returnsDueTitle}</h4>
-                 <div className="p-1.5 bg-rose-100 text-rose-600 rounded-lg group-hover:bg-rose-200 transition-colors"><AlertTriangle size={14}/></div>
-              </div>
-              <div>
-                  <h3 className="text-xl md:text-2xl font-black text-rose-600 tracking-tight">{returnsDueCount}</h3>
-                  <div className="flex flex-wrap gap-x-1.5 gap-y-1 mt-1.5">
-                    <span className="text-[8px] font-black text-rose-600 bg-rose-50 border border-rose-100/30 px-1.5 py-0.5 rounded-lg uppercase tracking-wider">
-                      Value: {formatMoney(returnsDueValue)}
-                    </span>
-                  </div>
-                  <p className="text-[7px] font-bold text-rose-500 mt-2 uppercase tracking-widest">{returnsDueSubText}</p>
-              </div>
+          <div>
+            <h3 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">{formatMoney(todaySalesAmount)}</h3>
+            <div className="flex flex-wrap gap-x-1.5 gap-y-1 mt-1.5">
+              <span className="text-[8px] font-black text-emerald-600 bg-emerald-50 border border-emerald-100/30 px-1.5 py-0.5 rounded-lg uppercase tracking-wider">
+                Profit: {formatMoney(todayProfit)}
+              </span>
+              <span className="text-[8px] font-black text-[#8B5CF6] bg-[#8B5CF6]/5 border border-[#8B5CF6]/10 px-1.5 py-0.5 rounded-lg uppercase tracking-wider">
+                Margin: {todayProfitPercent.toFixed(1)}%
+              </span>
+            </div>
+            <p className="text-[7px] font-bold text-slate-400 mt-2 uppercase tracking-widest">{salesSubText}</p>
           </div>
-          <div onClick={() => navigate('reports')} className="bg-white p-3.5 md:p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between cursor-pointer hover:border-highlight hover:shadow-md transition-all group">
-              <div className="flex justify-between items-start mb-2">
-                 <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest group-hover:text-highlight transition-colors">Pending Payments</h4>
-                 <div className="p-1.5 bg-amber-50 text-amber-600 rounded-lg group-hover:bg-highlight group-hover:text-slate-900 transition-colors"><IndianRupee size={14}/></div>
-              </div>
-              <div>
-                  <h3 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">{formatMoney(totalPendingPayments)}</h3>
-                  <div className="flex flex-wrap gap-x-1.5 gap-y-1 mt-1.5">
-                    <span className="text-[8px] font-black text-amber-600 bg-amber-50 border border-amber-100/30 px-1.5 py-0.5 rounded-lg uppercase tracking-wider">
-                      {customersWithCredit} Customers
-                    </span>
-                  </div>
-                  <p className="text-[7px] font-bold text-amber-500 mt-2 uppercase tracking-widest">Pending credit bills</p>
-              </div>
+        </div>
+        <div onClick={() => navigate('rentals')} className="bg-white p-3.5 md:p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between cursor-pointer hover:border-highlight hover:shadow-md transition-all group">
+          <div className="flex justify-between items-start mb-2">
+            <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest group-hover:text-highlight transition-colors">Active Rentals</h4>
+            <div className="p-1.5 bg-rose-50 text-rose-600 rounded-lg group-hover:bg-highlight group-hover:text-slate-900 transition-colors"><ShoppingBag size={14} /></div>
           </div>
-          <div onClick={() => navigate('customers')} className="bg-white p-3.5 md:p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between cursor-pointer hover:border-highlight hover:shadow-md transition-all group">
-              <div className="flex justify-between items-start mb-2">
-                 <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest group-hover:text-highlight transition-colors">{customersTitle}</h4>
-                 <div className="p-1.5 bg-sky-50 text-sky-600 rounded-lg group-hover:bg-highlight group-hover:text-slate-900 transition-colors"><Users size={14}/></div>
-              </div>
-              <div>
-                  <h3 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">{customersCountToShow}</h3>
-                  <div className="flex flex-wrap gap-x-1.5 gap-y-1 mt-1.5">
-                    <span className="text-[8px] font-black text-emerald-650 bg-emerald-50 border border-emerald-100/30 px-1.5 py-0.5 rounded-lg uppercase tracking-wider">
-                      Repeat: {repeatCustomersCount}
-                    </span>
-                    <span className="text-[8px] font-black text-indigo-650 bg-indigo-50 border border-indigo-100/30 px-1.5 py-0.5 rounded-lg uppercase tracking-wider">
-                      New: {newCustomersCount}
-                    </span>
-                  </div>
-                  <p className="text-[7px] font-bold text-sky-500 mt-2 uppercase tracking-widest">{customersSubText}</p>
-              </div>
+          <div>
+            <h3 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">{activeRentalsToShow.length}</h3>
+            <div className="flex flex-wrap gap-x-1.5 gap-y-1 mt-1.5">
+              <span className="text-[8px] font-black text-rose-600 bg-rose-50 border border-rose-100/30 px-1.5 py-0.5 rounded-lg uppercase tracking-wider">
+                Value: {formatMoney(activeRentalsValue)}
+              </span>
+            </div>
+            <p className="text-[7px] font-bold text-slate-400 mt-2 uppercase tracking-widest">Currently Rented</p>
           </div>
-          <div onClick={() => navigate('reports')} className="bg-white p-3.5 md:p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between cursor-pointer hover:border-highlight hover:shadow-md transition-all group">
-              <div className="flex justify-between items-start mb-2">
-                 <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest group-hover:text-[#10B981] transition-colors">Net Income</h4>
-                 <div className="p-1.5 bg-emerald-50 text-emerald-600 rounded-lg group-hover:bg-[#10B981] group-hover:text-white transition-colors"><TrendingUp size={14}/></div>
-              </div>
-              <div>
-                  <h3 className={`text-xl md:text-2xl font-black tracking-tight ${todayProfit - totalExpensesAmount >= 0 ? 'text-[#10B981]' : 'text-rose-600'}`}>
-                    {formatMoney(todayProfit - totalExpensesAmount)}
-                  </h3>
-                  <div className="flex flex-wrap gap-x-1.5 gap-y-1 mt-1.5">
-                    <span className={`text-[8px] font-black px-1.5 py-0.5 rounded-lg uppercase tracking-wider ${
-                      todayProfit - totalExpensesAmount >= 0 
-                        ? 'text-emerald-600 bg-emerald-50 border border-emerald-100/30' 
-                        : 'text-rose-650 bg-rose-50 border border-rose-100/30'
-                    }`}>
-                      {todayProfit - totalExpensesAmount >= 0 ? 'Surplus' : 'Deficit'}
-                    </span>
-                  </div>
-                  <p className="text-[7px] font-bold text-slate-400 mt-2 uppercase tracking-widest">Profit minus expenses</p>
-              </div>
+        </div>
+        <div onClick={() => navigate('rentals')} className="bg-white p-3.5 md:p-5 rounded-2xl border border-rose-100 bg-rose-50/20 shadow-sm flex flex-col justify-between cursor-pointer hover:border-rose-300 hover:shadow-md transition-all group">
+          <div className="flex justify-between items-start mb-2">
+            <h4 className="text-[10px] font-bold text-rose-500 uppercase tracking-widest">{returnsDueTitle}</h4>
+            <div className="p-1.5 bg-rose-100 text-rose-600 rounded-lg group-hover:bg-rose-200 transition-colors"><AlertTriangle size={14} /></div>
           </div>
-          <div onClick={() => navigate('reports')} className="bg-white p-3.5 md:p-5 rounded-2xl border border-rose-100 bg-rose-50/10 shadow-sm flex flex-col justify-between cursor-pointer hover:border-rose-300 hover:shadow-md transition-all group">
-              <div className="flex justify-between items-start mb-2">
-                 <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest group-hover:text-rose-600 transition-colors">{expensesTitle}</h4>
-                 <div className="p-1.5 bg-rose-100 text-rose-700 rounded-lg"><Wallet size={14}/></div>
-              </div>
-              <div>
-                  <h3 className="text-xl md:text-2xl font-black text-rose-700 tracking-tight">{formatMoney(totalExpensesAmount)}</h3>
-                  <div className="flex flex-wrap gap-x-1.5 gap-y-1 mt-1.5">
-                    <span className="text-[8px] font-black text-rose-650 bg-rose-50 border border-rose-100/30 px-1.5 py-0.5 rounded-lg uppercase tracking-wider">
-                      {expensesToShow.length} Records
-                    </span>
-                  </div>
-                  <p className="text-[7px] font-bold text-rose-500 mt-2 uppercase tracking-widest">{expensesSubText}</p>
-              </div>
+          <div>
+            <h3 className="text-xl md:text-2xl font-black text-rose-600 tracking-tight">{returnsDueCount}</h3>
+            <div className="flex flex-wrap gap-x-1.5 gap-y-1 mt-1.5">
+              <span className="text-[8px] font-black text-rose-600 bg-rose-50 border border-rose-100/30 px-1.5 py-0.5 rounded-lg uppercase tracking-wider">
+                Value: {formatMoney(returnsDueValue)}
+              </span>
+            </div>
+            <p className="text-[7px] font-bold text-rose-500 mt-2 uppercase tracking-widest">{returnsDueSubText}</p>
           </div>
+        </div>
+        <div onClick={() => navigate('reports')} className="bg-white p-3.5 md:p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between cursor-pointer hover:border-highlight hover:shadow-md transition-all group">
+          <div className="flex justify-between items-start mb-2">
+            <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest group-hover:text-highlight transition-colors">Pending Payments</h4>
+            <div className="p-1.5 bg-amber-50 text-amber-600 rounded-lg group-hover:bg-highlight group-hover:text-slate-900 transition-colors"><IndianRupee size={14} /></div>
+          </div>
+          <div>
+            <h3 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">{formatMoney(totalPendingPayments)}</h3>
+            <div className="flex flex-wrap gap-x-1.5 gap-y-1 mt-1.5">
+              <span className="text-[8px] font-black text-amber-600 bg-amber-50 border border-amber-100/30 px-1.5 py-0.5 rounded-lg uppercase tracking-wider">
+                {customersWithCredit} Customers
+              </span>
+            </div>
+            <p className="text-[7px] font-bold text-amber-500 mt-2 uppercase tracking-widest">Pending credit bills</p>
+          </div>
+        </div>
+        <div onClick={() => navigate('customers')} className="bg-white p-3.5 md:p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between cursor-pointer hover:border-highlight hover:shadow-md transition-all group">
+          <div className="flex justify-between items-start mb-2">
+            <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest group-hover:text-highlight transition-colors">{customersTitle}</h4>
+            <div className="p-1.5 bg-sky-50 text-sky-600 rounded-lg group-hover:bg-highlight group-hover:text-slate-900 transition-colors"><Users size={14} /></div>
+          </div>
+          <div>
+            <h3 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">{customersCountToShow}</h3>
+            <div className="flex flex-wrap gap-x-1.5 gap-y-1 mt-1.5">
+              <span className="text-[8px] font-black text-emerald-650 bg-emerald-50 border border-emerald-100/30 px-1.5 py-0.5 rounded-lg uppercase tracking-wider">
+                Repeat: {repeatCustomersCount}
+              </span>
+              <span className="text-[8px] font-black text-indigo-650 bg-indigo-50 border border-indigo-100/30 px-1.5 py-0.5 rounded-lg uppercase tracking-wider">
+                New: {newCustomersCount}
+              </span>
+            </div>
+            <p className="text-[7px] font-bold text-sky-500 mt-2 uppercase tracking-widest">{customersSubText}</p>
+          </div>
+        </div>
+        <div onClick={() => navigate('reports')} className="bg-white p-3.5 md:p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between cursor-pointer hover:border-highlight hover:shadow-md transition-all group">
+          <div className="flex justify-between items-start mb-2">
+            <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest group-hover:text-[#10B981] transition-colors">Net Income</h4>
+            <div className="p-1.5 bg-emerald-50 text-emerald-600 rounded-lg group-hover:bg-[#10B981] group-hover:text-white transition-colors"><TrendingUp size={14} /></div>
+          </div>
+          <div>
+            <h3 className={`text-xl md:text-2xl font-black tracking-tight ${todayProfit - totalExpensesAmount >= 0 ? 'text-[#10B981]' : 'text-rose-600'}`}>
+              {formatMoney(todayProfit - totalExpensesAmount)}
+            </h3>
+            <div className="flex flex-wrap gap-x-1.5 gap-y-1 mt-1.5">
+              <span className={`text-[8px] font-black px-1.5 py-0.5 rounded-lg uppercase tracking-wider ${todayProfit - totalExpensesAmount >= 0
+                  ? 'text-emerald-600 bg-emerald-50 border border-emerald-100/30'
+                  : 'text-rose-650 bg-rose-50 border border-rose-100/30'
+                }`}>
+                {todayProfit - totalExpensesAmount >= 0 ? 'Surplus' : 'Deficit'}
+              </span>
+            </div>
+            <p className="text-[7px] font-bold text-slate-400 mt-2 uppercase tracking-widest">Profit minus expenses</p>
+          </div>
+        </div>
+        <div onClick={() => navigate('reports')} className="bg-white p-3.5 md:p-5 rounded-2xl border border-rose-100 bg-rose-50/10 shadow-sm flex flex-col justify-between cursor-pointer hover:border-rose-300 hover:shadow-md transition-all group">
+          <div className="flex justify-between items-start mb-2">
+            <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest group-hover:text-rose-600 transition-colors">{expensesTitle}</h4>
+            <div className="p-1.5 bg-rose-100 text-rose-700 rounded-lg"><Wallet size={14} /></div>
+          </div>
+          <div>
+            <h3 className="text-xl md:text-2xl font-black text-rose-700 tracking-tight">{formatMoney(totalExpensesAmount)}</h3>
+            <div className="flex flex-wrap gap-x-1.5 gap-y-1 mt-1.5">
+              <span className="text-[8px] font-black text-rose-650 bg-rose-50 border border-rose-100/30 px-1.5 py-0.5 rounded-lg uppercase tracking-wider">
+                {expensesToShow.length} Records
+              </span>
+            </div>
+            <p className="text-[7px] font-bold text-rose-500 mt-2 uppercase tracking-widest">{expensesSubText}</p>
+          </div>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-         {/* 3. Sales & Earnings Graph */}
-         <div className="lg:col-span-8 bg-white p-4 md:p-6 rounded-2xl border border-slate-100 shadow-sm">
-             <div className="flex justify-between items-center mb-6">
-                <h3 className="text-sm font-bold text-slate-900 tracking-tight">Sales & Earnings</h3>
-                <div className="relative">
-                  <select 
-                    value={timeframe} 
-                    onChange={(e) => setTimeframe(e.target.value as 'WEEKLY' | 'MONTHLY' | 'YEARLY')}
-                    className="appearance-none bg-slate-50 border border-slate-100 hover:border-slate-200 px-3 py-1.5 pr-8 rounded-lg text-[10px] font-bold text-slate-500 uppercase outline-none cursor-pointer transition-all shadow-sm font-sans"
-                  >
-                    <option value="WEEKLY">Weekly</option>
-                    <option value="MONTHLY">Monthly</option>
-                    <option value="YEARLY">Yearly</option>
-                  </select>
-                  <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={10} strokeWidth={3} />
-                </div>
-             </div>
-             <div className="h-[220px] w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={salesGraphData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 700, fill: '#94a3b8' }} dy={10} />
-                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 700, fill: '#94a3b8' }} tickFormatter={(val) => `₹${val/1000}k`} />
-                    <Tooltip cursor={{ fill: '#f8fafc' }} contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
-                    <Legend iconType="circle" wrapperStyle={{ fontSize: '10px', fontWeight: 700, textTransform: 'uppercase' }} />
-                    <Bar dataKey="Sales" stackId="a" fill="#10b981" radius={[0, 0, 4, 4]} />
-                    <Bar dataKey="Rentals" stackId="a" fill="#3b82f6" radius={[4, 4, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-             </div>
-         </div>
-
-         {/* 4. Upcoming Events Reminder */}
-          <div className="lg:col-span-4 bg-gradient-to-br from-indigo-50 to-purple-50 p-4 md:p-6 rounded-2xl border border-indigo-100 shadow-sm flex flex-col">
-            <div className="flex items-center gap-2 mb-2">
-                <PartyPopper size={18} className="text-indigo-600" />
-                <h3 className="text-sm font-bold text-indigo-900 tracking-tight">Upcoming Events</h3>
-            </div>
-            <p className="text-[10px] text-indigo-700/70 font-bold uppercase tracking-widest mb-4">Click an event to view stocking strategy</p>
-            
-            <div className="space-y-3 overflow-y-auto max-h-[350px] pr-1">
-                {UPCOMING_EVENTS.map((event, idx) => {
-                  const isExpanded = expandedEventIdx === idx;
-                  return (
-                    <div 
-                      key={event.title} 
-                      onClick={() => setExpandedEventIdx(isExpanded ? null : idx)}
-                      className={`p-3 rounded-xl border cursor-pointer transition-all ${event.bgClass} ${
-                        isExpanded ? 'bg-white border-indigo-200 shadow-md ring-1 ring-indigo-100' : 'hover:bg-white/80 border-white/60'
-                      }`}
-                    >
-                      <div className="flex justify-between items-start gap-2">
-                        <div>
-                          <p className="text-xs font-black text-slate-800">{event.title}</p>
-                          <p className="text-[9px] text-slate-500 font-bold mt-0.5">{event.focus}</p>
-                        </div>
-                        <span className={`text-[8px] font-black px-2 py-0.5 rounded-lg uppercase tracking-wider whitespace-nowrap ${event.badgeClass}`}>
-                          {event.period}
-                        </span>
-                      </div>
-                      
-                      {isExpanded && (
-                        <div className="mt-3 pt-3 border-t border-slate-100 space-y-3 animate-nano">
-                          <div>
-                            <p className="text-[8px] font-black uppercase text-slate-400 tracking-widest">Stocking Strategy</p>
-                            <p className="text-[10px] text-slate-600 font-bold leading-relaxed mt-1">{event.strategy}</p>
-                          </div>
-                          {event.stockSuggestion && (
-                            <div>
-                              <p className="text-[8px] font-black uppercase text-indigo-500 tracking-widest">Recommended Stock Addition</p>
-                              <p className="text-[10px] text-slate-600 font-bold leading-relaxed mt-1">{event.stockSuggestion}</p>
-                            </div>
-                          )}
-                          {event.bundleIdea && (
-                            <div>
-                              <p className="text-[8px] font-black uppercase text-emerald-600 tracking-widest">Bundling / Up-sell Idea</p>
-                              <p className="text-[10px] text-slate-600 font-bold leading-relaxed mt-1">{event.bundleIdea}</p>
-                            </div>
-                          )}
-                          <div>
-                            <p className="text-[8px] font-black uppercase text-slate-400 tracking-widest">Prep Checklist</p>
-                            <ul className="list-disc list-inside text-[9px] text-slate-500 font-semibold space-y-1 mt-1">
-                              {event.checklist.map((item, cIdx) => (
-                                <li key={cIdx}>{item}</li>
-                              ))}
-                            </ul>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
+        {/* 3. Sales & Earnings Graph */}
+        <div className="lg:col-span-8 bg-white p-4 md:p-6 rounded-2xl border border-slate-100 shadow-sm">
+          <div className="flex justify-between items-center mb-6">
+            <h3 className="text-sm font-bold text-slate-900 tracking-tight">Sales & Earnings</h3>
+            <div className="relative">
+              <select
+                value={timeframe}
+                onChange={(e) => setTimeframe(e.target.value as 'WEEKLY' | 'MONTHLY' | 'YEARLY')}
+                className="appearance-none bg-slate-50 border border-slate-100 hover:border-slate-200 px-3 py-1.5 pr-8 rounded-lg text-[10px] font-bold text-slate-500 uppercase outline-none cursor-pointer transition-all shadow-sm font-sans"
+              >
+                <option value="WEEKLY">Weekly</option>
+                <option value="MONTHLY">Monthly</option>
+                <option value="YEARLY">Yearly</option>
+              </select>
+              <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={10} strokeWidth={3} />
             </div>
           </div>
+          <div className="h-[220px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={salesGraphData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 700, fill: '#94a3b8' }} dy={10} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 700, fill: '#94a3b8' }} tickFormatter={(val) => `₹${val / 1000}k`} />
+                <Tooltip cursor={{ fill: '#f8fafc' }} contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
+                <Legend iconType="circle" wrapperStyle={{ fontSize: '10px', fontWeight: 700, textTransform: 'uppercase' }} />
+                <Bar dataKey="Sales" stackId="a" fill="#10b981" radius={[0, 0, 4, 4]} />
+                <Bar dataKey="Rentals" stackId="a" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* 4. Upcoming Events Reminder */}
+        <div className="lg:col-span-4 bg-gradient-to-br from-indigo-50 to-purple-50 p-4 md:p-6 rounded-2xl border border-indigo-100 shadow-sm flex flex-col">
+          <div className="flex items-center gap-2 mb-2">
+            <PartyPopper size={18} className="text-indigo-600" />
+            <h3 className="text-sm font-bold text-indigo-900 tracking-tight">Upcoming Events</h3>
+          </div>
+          <p className="text-[10px] text-indigo-700/70 font-bold uppercase tracking-widest mb-4">Click an event to view stocking strategy</p>
+
+          <div className="space-y-3 overflow-y-auto max-h-[350px] pr-1">
+            {UPCOMING_EVENTS.map((event, idx) => {
+              const isExpanded = expandedEventIdx === idx;
+              return (
+                <div
+                  key={event.title}
+                  onClick={() => setExpandedEventIdx(isExpanded ? null : idx)}
+                  className={`p-3 rounded-xl border cursor-pointer transition-all ${event.bgClass} ${isExpanded ? 'bg-white border-indigo-200 shadow-md ring-1 ring-indigo-100' : 'hover:bg-white/80 border-white/60'
+                    }`}
+                >
+                  <div className="flex justify-between items-start gap-2">
+                    <div>
+                      <p className="text-xs font-black text-slate-800">{event.title}</p>
+                      <p className="text-[9px] text-slate-500 font-bold mt-0.5">{event.focus}</p>
+                    </div>
+                    <span className={`text-[8px] font-black px-2 py-0.5 rounded-lg uppercase tracking-wider whitespace-nowrap ${event.badgeClass}`}>
+                      {event.period}
+                    </span>
+                  </div>
+
+                  {isExpanded && (
+                    <div className="mt-3 pt-3 border-t border-slate-100 space-y-3 animate-nano">
+                      <div>
+                        <p className="text-[8px] font-black uppercase text-slate-400 tracking-widest">Stocking Strategy</p>
+                        <p className="text-[10px] text-slate-600 font-bold leading-relaxed mt-1">{event.strategy}</p>
+                      </div>
+                      {event.stockSuggestion && (
+                        <div>
+                          <p className="text-[8px] font-black uppercase text-indigo-500 tracking-widest">Recommended Stock Addition</p>
+                          <p className="text-[10px] text-slate-600 font-bold leading-relaxed mt-1">{event.stockSuggestion}</p>
+                        </div>
+                      )}
+                      {event.bundleIdea && (
+                        <div>
+                          <p className="text-[8px] font-black uppercase text-emerald-600 tracking-widest">Bundling / Up-sell Idea</p>
+                          <p className="text-[10px] text-slate-600 font-bold leading-relaxed mt-1">{event.bundleIdea}</p>
+                        </div>
+                      )}
+                      <div>
+                        <p className="text-[8px] font-black uppercase text-slate-400 tracking-widest">Prep Checklist</p>
+                        <ul className="list-disc list-inside text-[9px] text-slate-500 font-semibold space-y-1 mt-1">
+                          {event.checklist.map((item, cIdx) => (
+                            <li key={cIdx}>{item}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-         {/* 5. Rental Management Section */}
-         <div className="bg-white p-4 md:p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col">
-             <div className="flex justify-between items-center mb-4">
-                <h3 className="text-sm font-bold text-slate-900 tracking-tight">Active Rentals Tracker</h3>
-             </div>
-             
-             <div className="overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0">
-                 <table className="w-full text-left">
-                     <thead>
-                         <tr className="border-b border-slate-50">
-                             <th className="pb-3 text-[9px] font-bold text-slate-400 uppercase tracking-widest min-w-[100px]">Customer</th>
-                             <th className="pb-3 text-[9px] font-bold text-slate-400 uppercase tracking-widest min-w-[120px]">Item</th>
-                             <th className="pb-3 text-[9px] font-bold text-slate-400 uppercase tracking-widest">Return Date</th>
-                             <th className="pb-3 text-[9px] font-bold text-slate-400 uppercase tracking-widest text-right">Status</th>
-                         </tr>
-                     </thead>
-                     <tbody className="divide-y divide-slate-50">
-                         {activeRentals.slice(0, 5).length > 0 ? activeRentals.slice(0, 5).map(rental => {
-                             const isDue = isToday(parseISO(rental.expectedReturnDate));
-                             const isOverdue = isPast(parseISO(rental.expectedReturnDate)) && !isToday(parseISO(rental.expectedReturnDate));
-                             const cust = customers.find(c => c.id === rental.customerId)?.name || 'Unknown';
-                             const prod = products.find(p => p.id === rental.productId)?.name || 'Unknown Item';
-                             
-                             return (
-                                 <tr key={rental.id} className="group">
-                                    <td className="py-3 text-[10px] font-bold text-slate-900 truncate max-w-[100px]">{cust}</td>
-                                    <td className="py-3 text-[10px] font-semibold text-slate-600 truncate max-w-[120px]">{prod}</td>
-                                    <td className="py-3 text-[10px] font-bold text-slate-900">
-                                        {isDue ? 'Today' : format(parseISO(rental.expectedReturnDate), 'MMM dd')}
-                                    </td>
-                                    <td className="py-3 text-right">
-                                        <span className={`text-[8px] font-black px-2 py-1 rounded-md uppercase tracking-widest ${
-                                            isOverdue ? 'bg-rose-100 text-rose-700' : 
-                                            isDue ? 'bg-amber-100 text-amber-700' : 
-                                            'bg-emerald-100 text-emerald-700'
-                                        }`}>
-                                            {isOverdue ? 'Overdue' : isDue ? 'Due Today' : 'Active'}
-                                        </span>
-                                    </td>
-                                 </tr>
-                             )
-                         }) : (
-                             <tr><td colSpan={4} className="py-6 text-center text-[10px] text-slate-400 font-bold uppercase tracking-widest">No active rentals right now</td></tr>
-                         )}
-                     </tbody>
-                 </table>
-             </div>
-         </div>
+        {/* 5. Rental Management Section */}
+        <div className="bg-white p-4 md:p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-sm font-bold text-slate-900 tracking-tight">Active Rentals Tracker</h3>
+          </div>
 
-         {/* 6. Inventory Alerts & Recent Activity */}
-         <div className="flex flex-col gap-6">
-            
-            {/* Inventory Alerts */}
-            <div className="bg-white p-4 md:p-6 rounded-2xl border border-rose-100 shadow-sm">
-                <div className="flex items-center gap-2 mb-4">
-                    <AlertTriangle size={16} className="text-rose-500" />
-                    <h3 className="text-sm font-bold text-rose-900 tracking-tight">Inventory Alerts</h3>
-                </div>
-                {outOfStockProducts.length === 0 && lowStockProducts.length === 0 ? (
-                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">All stock levels look good.</p>
-                ) : (
-                    <div className="space-y-3">
-                        {outOfStockProducts.slice(0,2).map(p => (
-                            <div key={p.id} className="flex justify-between border-b border-rose-50 pb-2">
-                                <span className="text-[10px] font-bold text-slate-700 truncate">{p.name} <span className="text-rose-500">(Sizes: {p.sizes.join(', ')})</span></span>
-                                <span className="text-[9px] font-black bg-rose-100 text-rose-700 px-2 py-0.5 rounded uppercase flex-shrink-0">Out of Stock</span>
-                            </div>
-                        ))}
-                        {lowStockProducts.slice(0,3).map(p => (
-                            <div key={p.id} className="flex justify-between border-b border-rose-50 pb-2">
-                                <span className="text-[10px] font-bold text-slate-700 truncate">{p.name}</span>
-                                <span className="text-[9px] font-black bg-amber-100 text-amber-700 px-2 py-0.5 rounded uppercase flex-shrink-0">{p.saleStock + p.rentalStock} Left</span>
-                            </div>
-                        ))}
-                    </div>
+          <div className="overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0">
+            <table className="w-full text-left">
+              <thead>
+                <tr className="border-b border-slate-50">
+                  <th className="pb-3 text-[9px] font-bold text-slate-400 uppercase tracking-widest min-w-[100px]">Customer</th>
+                  <th className="pb-3 text-[9px] font-bold text-slate-400 uppercase tracking-widest min-w-[120px]">Item</th>
+                  <th className="pb-3 text-[9px] font-bold text-slate-400 uppercase tracking-widest">Return Date</th>
+                  <th className="pb-3 text-[9px] font-bold text-slate-400 uppercase tracking-widest text-right">Status</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-50">
+                {activeRentals.slice(0, 5).length > 0 ? activeRentals.slice(0, 5).map(rental => {
+                  const isDue = isToday(parseISO(rental.expectedReturnDate));
+                  const isOverdue = isPast(parseISO(rental.expectedReturnDate)) && !isToday(parseISO(rental.expectedReturnDate));
+                  const cust = customers.find(c => c.id === rental.customerId)?.name || 'Unknown';
+                  const prod = products.find(p => p.id === rental.productId)?.name || 'Unknown Item';
+
+                  return (
+                    <tr key={rental.id} className="group">
+                      <td className="py-3 text-[10px] font-bold text-slate-900 truncate max-w-[100px]">{cust}</td>
+                      <td className="py-3 text-[10px] font-semibold text-slate-600 truncate max-w-[120px]">{prod}</td>
+                      <td className="py-3 text-[10px] font-bold text-slate-900">
+                        {isDue ? 'Today' : format(parseISO(rental.expectedReturnDate), 'MMM dd')}
+                      </td>
+                      <td className="py-3 text-right">
+                        <span className={`text-[8px] font-black px-2 py-1 rounded-md uppercase tracking-widest ${isOverdue ? 'bg-rose-100 text-rose-700' :
+                            isDue ? 'bg-amber-100 text-amber-700' :
+                              'bg-emerald-100 text-emerald-700'
+                          }`}>
+                          {isOverdue ? 'Overdue' : isDue ? 'Due Today' : 'Active'}
+                        </span>
+                      </td>
+                    </tr>
+                  )
+                }) : (
+                  <tr><td colSpan={4} className="py-6 text-center text-[10px] text-slate-400 font-bold uppercase tracking-widest">No active rentals right now</td></tr>
                 )}
-            </div>
+              </tbody>
+            </table>
+          </div>
+        </div>
 
-            {/* Recent Activity */}
-            <div className="bg-white p-4 justify-between h-full rounded-2xl border border-slate-100 shadow-sm flex flex-col">
-                <h3 className="text-sm font-bold text-slate-900 tracking-tight mb-4">Recent Activity Feed</h3>
-                <div className="space-y-4">
-                    {recentActivities.length > 0 ? recentActivities.map((act, i) => (
-                        <div key={`${act.id}-${i}`} className="flex items-start gap-3">
-                            <div className={`p-2 rounded-xl mt-0.5 ${act.color}`}>
-                                {act.icon}
-                            </div>
-                            <div>
-                                <p className="text-xs font-bold text-slate-800">{act.type}</p>
-                                <p className="text-[9px] text-slate-400 font-bold mt-1 uppercase tracking-widest">{format(parseISO(act.time), 'MMM dd, h:mm a')}</p>
-                            </div>
-                        </div>
-                    )) : (
-                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">No recent activity.</p>
-                    )}
-                </div>
+        {/* 6. Inventory Alerts & Recent Activity */}
+        <div className="flex flex-col gap-6">
+
+          {/* Inventory Alerts */}
+          <div className="bg-white p-4 md:p-6 rounded-2xl border border-rose-100 shadow-sm">
+            <div className="flex items-center gap-2 mb-4">
+              <AlertTriangle size={16} className="text-rose-500" />
+              <h3 className="text-sm font-bold text-rose-900 tracking-tight">Inventory Alerts</h3>
             </div>
-         </div>
+            {outOfStockProducts.length === 0 && lowStockProducts.length === 0 ? (
+              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">All stock levels look good.</p>
+            ) : (
+              <div className="space-y-3">
+                {outOfStockProducts.slice(0, 2).map(p => (
+                  <div key={p.id} className="flex justify-between border-b border-rose-50 pb-2">
+                    <span className="text-[10px] font-bold text-slate-700 truncate">{p.name} <span className="text-rose-500">(Sizes: {p.sizes.join(', ')})</span></span>
+                    <span className="text-[9px] font-black bg-rose-100 text-rose-700 px-2 py-0.5 rounded uppercase flex-shrink-0">Out of Stock</span>
+                  </div>
+                ))}
+                {lowStockProducts.slice(0, 3).map(p => (
+                  <div key={p.id} className="flex justify-between border-b border-rose-50 pb-2">
+                    <span className="text-[10px] font-bold text-slate-700 truncate">{p.name}</span>
+                    <span className="text-[9px] font-black bg-amber-100 text-amber-700 px-2 py-0.5 rounded uppercase flex-shrink-0">{p.saleStock + p.rentalStock} Left</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Recent Activity */}
+          <div className="bg-white p-4 justify-between h-full rounded-2xl border border-slate-100 shadow-sm flex flex-col">
+            <h3 className="text-sm font-bold text-slate-900 tracking-tight mb-4">Recent Activity Feed</h3>
+            <div className="space-y-4">
+              {recentActivities.length > 0 ? recentActivities.map((act, i) => (
+                <div key={`${act.id}-${i}`} className="flex items-start gap-3">
+                  <div className={`p-2 rounded-xl mt-0.5 ${act.color}`}>
+                    {act.icon}
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-slate-800">{act.type}</p>
+                    <p className="text-[9px] text-slate-400 font-bold mt-1 uppercase tracking-widest">{format(parseISO(act.time), 'MMM dd, h:mm a')}</p>
+                  </div>
+                </div>
+              )) : (
+                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">No recent activity.</p>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
 
       <ProductFormModal isOpen={isProductModalOpen} onClose={() => setIsProductModalOpen(false)} />
