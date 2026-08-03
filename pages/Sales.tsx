@@ -150,84 +150,97 @@ const Sales: React.FC = () => {
           <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest mt-0.5">Order History & Transactions</p>
         </div>
         <div className="flex items-center gap-2">
-          {/* Enhanced Export Menu Dropdown */}
+          {/* Minimalist Download Menu Dropdown */}
           <div className="relative">
             <div className="flex items-center bg-white border border-slate-200 hover:border-slate-300 rounded-xl overflow-hidden shadow-xs">
-              <button
-                onClick={() => handleExportTimeframe(activeDatePreset === 'ALL' ? 'all' : (activeDatePreset.toLowerCase() as DatePresetTimeframe), exportFormat)}
-                className="px-3.5 py-2 text-slate-700 hover:bg-slate-50 text-[10px] font-black uppercase tracking-wider flex items-center gap-2 transition-all border-r border-slate-100"
-                title="Download Sales Report"
-              >
-                <Download size={13} strokeWidth={2.5} className="text-[#8B5CF6]" />
-                <span className="hidden sm:inline">Download Report</span>
-              </button>
+              <div className="relative group/dl">
+                <button
+                  onClick={() => handleExportTimeframe(activeDatePreset === 'ALL' ? 'all' : (activeDatePreset.toLowerCase() as DatePresetTimeframe), exportFormat)}
+                  className="p-2.5 text-slate-700 hover:bg-slate-50 transition-all border-r border-slate-100 flex items-center justify-center"
+                >
+                  <Download size={15} strokeWidth={2.5} className="text-[#8B5CF6]" />
+                </button>
+                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover/dl:flex items-center px-2.5 py-1 bg-slate-900 text-white text-[8px] font-bold uppercase tracking-wider rounded-lg shadow-xl whitespace-nowrap z-50 pointer-events-none animate-nano">
+                  Download Report ({exportFormat === 'excel' ? 'Excel Formatted' : 'CSV Simple'})
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-900"></div>
+                </div>
+              </div>
+
               <button
                 onClick={() => setShowExportMenu(!showExportMenu)}
-                className="px-2 py-2 text-slate-500 hover:bg-slate-50 hover:text-slate-800 transition-colors"
-                title="Choose Date Range & Format"
+                className="px-2 py-2.5 text-slate-500 hover:bg-slate-50 hover:text-slate-800 transition-colors"
+                title="Options"
               >
                 <ChevronDown size={12} className={`transition-transform duration-200 ${showExportMenu ? 'rotate-180' : ''}`} />
               </button>
             </div>
 
             {showExportMenu && (
-              <div className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-slate-100 p-2.5 z-50 animate-nano space-y-2.5">
-                {/* Highlighted Format Selector: Formatted vs Simple */}
-                <div className="bg-slate-50 p-1 rounded-xl border border-slate-100 space-y-1">
-                  <div className="text-[7.5px] font-black uppercase tracking-widest text-slate-400 px-1">Select Format</div>
-                  <div className="grid grid-cols-2 gap-1">
+              <div className="absolute right-0 mt-2 w-48 bg-white rounded-2xl shadow-xl border border-slate-100 p-2 z-50 animate-nano space-y-2">
+                {/* Format Selector with Hover Tooltips */}
+                <div className="grid grid-cols-2 gap-1 bg-slate-50 p-1 rounded-xl border border-slate-100">
+                  <div className="relative group/fmt1">
                     <button
                       type="button"
                       onClick={() => setExportFormat('excel')}
-                      className={`py-1.5 px-1.5 rounded-lg text-[8.5px] font-black uppercase tracking-wider transition-all flex flex-col items-center justify-center ${
+                      className={`w-full py-1 rounded-lg text-[9px] font-black uppercase transition-all flex items-center justify-center gap-1 ${
                         exportFormat === 'excel'
                           ? 'bg-[#8B5CF6] text-white shadow-xs'
-                          : 'bg-white text-slate-500 border border-slate-100 hover:border-slate-200'
+                          : 'text-slate-500 hover:text-slate-800'
                       }`}
                     >
-                      <span>Excel</span>
-                      <span className={`text-[7px] font-mono font-bold mt-0.5 px-1 rounded ${exportFormat === 'excel' ? 'bg-white/20 text-white' : 'text-purple-600 bg-purple-50'}`}>★ Formatted</span>
+                      📊 Excel
                     </button>
+                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover/fmt1:flex items-center px-2 py-0.5 bg-slate-900 text-white text-[7.5px] font-bold uppercase tracking-wider rounded shadow-md whitespace-nowrap z-50 pointer-events-none">
+                      Formatted Report (Colors & Headers)
+                      <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-900"></div>
+                    </div>
+                  </div>
 
+                  <div className="relative group/fmt2">
                     <button
                       type="button"
                       onClick={() => setExportFormat('csv')}
-                      className={`py-1.5 px-1.5 rounded-lg text-[8.5px] font-black uppercase tracking-wider transition-all flex flex-col items-center justify-center ${
+                      className={`w-full py-1 rounded-lg text-[9px] font-black uppercase transition-all flex items-center justify-center gap-1 ${
                         exportFormat === 'csv'
                           ? 'bg-slate-900 text-white shadow-xs'
-                          : 'bg-white text-slate-500 border border-slate-100 hover:border-slate-200'
+                          : 'text-slate-500 hover:text-slate-800'
                       }`}
                     >
-                      <span>CSV</span>
-                      <span className={`text-[7px] font-mono font-bold mt-0.5 px-1 rounded ${exportFormat === 'csv' ? 'bg-white/20 text-white' : 'text-slate-500 bg-slate-100'}`}>Simple</span>
+                      📄 CSV
                     </button>
+                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover/fmt2:flex items-center px-2 py-0.5 bg-slate-900 text-white text-[7.5px] font-bold uppercase tracking-wider rounded shadow-md whitespace-nowrap z-50 pointer-events-none">
+                      Simple Raw Data File
+                      <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-900"></div>
+                    </div>
                   </div>
                 </div>
 
-                {/* Minimalist Time Range Options */}
-                <div>
-                  <div className="text-[7.5px] font-black uppercase tracking-widest text-slate-400 px-1 mb-1">Download Period</div>
-                  <div className="space-y-0.5">
-                    {[
-                      { id: 'today', title: 'Today' },
-                      { id: 'week', title: 'This Week' },
-                      { id: 'month', title: 'This Month' },
-                      { id: 'year', title: 'This Year' },
-                      { id: 'all', title: 'All Time' },
-                    ].map(opt => (
+                {/* Minimalist Icon-based Time Range Options with Tooltips */}
+                <div className="grid grid-cols-5 gap-1">
+                  {[
+                    { id: 'today', icon: '📅', tip: 'Today' },
+                    { id: 'week', icon: '🗓️', tip: 'This Week' },
+                    { id: 'month', icon: '📆', tip: 'This Month' },
+                    { id: 'year', icon: '📊', tip: 'This Year' },
+                    { id: 'all', icon: '🌐', tip: 'All Time' },
+                  ].map(opt => (
+                    <div key={opt.id} className="relative group/titem">
                       <button
-                        key={opt.id}
                         onClick={() => {
                           handleExportTimeframe(opt.id as DatePresetTimeframe, exportFormat);
                           setShowExportMenu(false);
                         }}
-                        className="w-full text-left px-2.5 py-1.5 rounded-xl hover:bg-purple-50 text-slate-900 font-black text-[9.5px] uppercase tracking-wider transition-colors flex items-center justify-between"
+                        className="w-full h-9 rounded-xl hover:bg-purple-50 flex items-center justify-center text-sm transition-transform hover:scale-110 active:scale-95"
                       >
-                        <span>{opt.title}</span>
-                        <span className="text-[8px] font-mono font-bold text-slate-300">↓</span>
+                        {opt.icon}
                       </button>
-                    ))}
-                  </div>
+                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover/titem:flex items-center px-2 py-0.5 bg-slate-900 text-white text-[7.5px] font-bold uppercase tracking-wider rounded shadow-md whitespace-nowrap z-50 pointer-events-none">
+                        {opt.tip}
+                        <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-900"></div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             )}
@@ -327,26 +340,32 @@ const Sales: React.FC = () => {
         </div>
       </div>
 
-      {/* Quick Date Presets Bar */}
+      {/* Quick Date Presets Bar with Icon & Hover Info */}
       <div className="flex items-center gap-1.5 overflow-x-auto hide-scrollbar">
         {[
-          { id: 'ALL', label: 'All' },
-          { id: 'TODAY', label: "Today" },
-          { id: 'WEEK', label: 'Week' },
-          { id: 'MONTH', label: 'Month' },
-          { id: 'YEAR', label: 'Year' },
+          { id: 'ALL', icon: '🌐', label: 'All', tip: 'Show All Sales History' },
+          { id: 'TODAY', icon: '📅', label: 'Today', tip: "Filter Today's Sales" },
+          { id: 'WEEK', icon: '🗓️', label: 'Week', tip: "Filter This Week's Sales" },
+          { id: 'MONTH', icon: '📆', label: 'Month', tip: "Filter This Month's Sales" },
+          { id: 'YEAR', icon: '📊', label: 'Year', tip: "Filter This Year's Sales" },
         ].map(p => (
-          <button
-            key={p.id}
-            onClick={() => applyDatePreset(p.id as any)}
-            className={`px-3 py-1 rounded-xl text-[9px] font-extrabold uppercase tracking-wider whitespace-nowrap transition-all border ${
-              activeDatePreset === p.id
-                ? 'bg-slate-900 text-white border-slate-900 shadow-xs'
-                : 'bg-white text-slate-400 border-slate-100 hover:border-slate-200 hover:text-slate-700'
-            }`}
-          >
-            {p.label}
-          </button>
+          <div key={p.id} className="relative group/pill flex-shrink-0">
+            <button
+              onClick={() => applyDatePreset(p.id as any)}
+              className={`px-2.5 py-1 rounded-xl text-[9px] font-black uppercase tracking-wider whitespace-nowrap transition-all border flex items-center gap-1 ${
+                activeDatePreset === p.id
+                  ? 'bg-slate-900 text-white border-slate-900 shadow-xs'
+                  : 'bg-white text-slate-500 border-slate-200 hover:border-slate-300 hover:text-slate-900'
+              }`}
+            >
+              <span className="text-xs leading-none">{p.icon}</span>
+              <span>{p.label}</span>
+            </button>
+            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover/pill:flex items-center px-2 py-0.5 bg-slate-900 text-white text-[7.5px] font-bold uppercase tracking-wider rounded shadow-md whitespace-nowrap z-50 pointer-events-none">
+              {p.tip}
+              <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-900"></div>
+            </div>
+          </div>
         ))}
       </div>
 
