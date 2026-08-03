@@ -171,58 +171,52 @@ const Sales: React.FC = () => {
             </div>
 
             {showExportMenu && (
-              <div className="absolute right-0 mt-2 w-72 bg-white rounded-2xl shadow-2xl border border-slate-100 p-3 z-50 animate-nano space-y-3">
-                {/* Format selector tabs */}
+              <div className="absolute right-0 mt-2 w-52 bg-white rounded-2xl shadow-xl border border-slate-100 p-2 z-50 animate-nano space-y-2">
+                {/* Format Selector */}
                 <div className="flex items-center justify-between bg-slate-50 p-1 rounded-xl border border-slate-100">
-                  <span className="text-[8px] font-black uppercase text-slate-400 tracking-wider pl-2">Format:</span>
+                  <span className="text-[8px] font-black uppercase text-slate-400 pl-1.5">Format</span>
                   <div className="flex gap-1">
                     <button
                       onClick={() => setExportFormat('excel')}
-                      className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider transition-all ${
-                        exportFormat === 'excel' ? 'bg-[#8B5CF6] text-white shadow-xs' : 'text-slate-500 hover:text-slate-900'
+                      className={`px-2 py-0.5 rounded-lg text-[8.5px] font-black uppercase transition-all ${
+                        exportFormat === 'excel' ? 'bg-[#8B5CF6] text-white shadow-xs' : 'text-slate-400 hover:text-slate-700'
                       }`}
                     >
-                      📊 Excel (.xls)
+                      Excel
                     </button>
                     <button
                       onClick={() => setExportFormat('csv')}
-                      className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider transition-all ${
-                        exportFormat === 'csv' ? 'bg-slate-900 text-white shadow-xs' : 'text-slate-500 hover:text-slate-900'
+                      className={`px-2 py-0.5 rounded-lg text-[8.5px] font-black uppercase transition-all ${
+                        exportFormat === 'csv' ? 'bg-slate-900 text-white shadow-xs' : 'text-slate-400 hover:text-slate-700'
                       }`}
                     >
-                      📄 CSV (.csv)
+                      CSV
                     </button>
                   </div>
                 </div>
 
-                {/* Preset Options */}
-                <div>
-                  <div className="text-[8px] font-black uppercase text-slate-400 tracking-widest px-1 mb-1.5">Download By Period</div>
-                  <div className="space-y-1">
-                    {[
-                      { id: 'today', title: "Today's Sales", subtitle: 'Current Day Transactions', icon: '📅' },
-                      { id: 'week', title: "This Week's Sales", subtitle: 'Last 7 Days', icon: '🗓️' },
-                      { id: 'month', title: "This Month's Sales", subtitle: 'Current Calendar Month', icon: '📆' },
-                      { id: 'year', title: "This Year's Sales", subtitle: 'Annual Transactions', icon: '📊' },
-                      { id: 'custom', title: 'Current Filtered View', subtitle: `Active View (${filteredSales.length} items)`, icon: '⚡' },
-                      { id: 'all', title: 'All-Time Complete History', subtitle: `All Recorded Sales (${sales.length} items)`, icon: '🌐' },
-                    ].map(opt => (
-                      <button
-                        key={opt.id}
-                        onClick={() => {
-                          handleExportTimeframe(opt.id as DatePresetTimeframe, exportFormat);
-                          setShowExportMenu(false);
-                        }}
-                        className="w-full text-left p-2 rounded-xl hover:bg-purple-50/60 transition-colors flex items-center gap-2.5 group"
-                      >
-                        <span className="text-sm shrink-0 group-hover:scale-110 transition-transform">{opt.icon}</span>
-                        <div className="flex-1 min-w-0">
-                          <div className="text-[10px] font-black uppercase text-slate-900 tracking-wider truncate">{opt.title}</div>
-                          <div className="text-[8px] font-semibold text-slate-400 truncate">{opt.subtitle}</div>
-                        </div>
-                      </button>
-                    ))}
-                  </div>
+                {/* Minimalist Time Options */}
+                <div className="space-y-0.5">
+                  {[
+                    { id: 'today', title: 'Today', icon: '📅' },
+                    { id: 'week', title: 'This Week', icon: '🗓️' },
+                    { id: 'month', title: 'This Month', icon: '📆' },
+                    { id: 'year', title: 'This Year', icon: '📊' },
+                    { id: 'custom', title: 'Current View', icon: '⚡' },
+                    { id: 'all', title: 'All Time', icon: '🌐' },
+                  ].map(opt => (
+                    <button
+                      key={opt.id}
+                      onClick={() => {
+                        handleExportTimeframe(opt.id as DatePresetTimeframe, exportFormat);
+                        setShowExportMenu(false);
+                      }}
+                      className="w-full text-left px-2.5 py-1.5 rounded-xl hover:bg-purple-50/60 text-slate-800 transition-colors flex items-center gap-2 group"
+                    >
+                      <span className="text-xs shrink-0">{opt.icon}</span>
+                      <span className="text-[10px] font-extrabold uppercase tracking-wider">{opt.title}</span>
+                    </button>
+                  ))}
                 </div>
               </div>
             )}
@@ -323,24 +317,21 @@ const Sales: React.FC = () => {
       </div>
 
       {/* Quick Date Presets Bar */}
-      <div className="flex items-center gap-2 overflow-x-auto hide-scrollbar">
-        <span className="text-[8px] font-black uppercase text-slate-400 tracking-widest shrink-0 mr-1 flex items-center gap-1">
-          <Calendar size={11} className="text-[#8B5CF6]" /> Period:
-        </span>
+      <div className="flex items-center gap-1.5 overflow-x-auto hide-scrollbar">
         {[
-          { id: 'ALL', label: 'All Time' },
+          { id: 'ALL', label: 'All' },
           { id: 'TODAY', label: "Today" },
-          { id: 'WEEK', label: 'This Week' },
-          { id: 'MONTH', label: 'This Month' },
-          { id: 'YEAR', label: 'This Year' },
+          { id: 'WEEK', label: 'Week' },
+          { id: 'MONTH', label: 'Month' },
+          { id: 'YEAR', label: 'Year' },
         ].map(p => (
           <button
             key={p.id}
             onClick={() => applyDatePreset(p.id as any)}
-            className={`px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-wider whitespace-nowrap transition-all border shadow-xs ${
+            className={`px-3 py-1 rounded-xl text-[9px] font-extrabold uppercase tracking-wider whitespace-nowrap transition-all border ${
               activeDatePreset === p.id
-                ? 'bg-slate-900 text-white border-slate-900 shadow-sm'
-                : 'bg-white text-slate-500 border-slate-200 hover:border-slate-300 hover:text-slate-900'
+                ? 'bg-slate-900 text-white border-slate-900 shadow-xs'
+                : 'bg-white text-slate-400 border-slate-100 hover:border-slate-200 hover:text-slate-700'
             }`}
           >
             {p.label}
