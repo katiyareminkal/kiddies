@@ -50,76 +50,104 @@ interface DashboardProps {
 
 const UPCOMING_EVENTS = [
   {
-    title: 'School Annuals & Winter Peak',
-    period: 'Dec - Jan',
-    focus: 'Fancy Dress Costumes, Jackets & Sweatshirts',
-    strategy: 'Heavy costume rental demand. Promote winter layering outfits and holiday party wear.',
-    checklist: ['Double dry-cleaning speeds', 'Check winter jacket stock levels', 'Stock up on holiday gift bundles'],
-    stockSuggestion: 'Purchase superhero and animal costume sizes (3-6Y) and warm fleece jackets.',
-    bundleIdea: 'Bundle fancy dress costumes with matching props (wands, capes) at 15% off.',
-    color: 'amber',
-    bgClass: 'bg-amber-50/70 border-amber-100/50',
-    badgeClass: 'bg-amber-100 text-amber-700'
-  },
-  {
-    title: 'Academic Session & Spring Play',
-    period: 'Feb - Mar',
-    focus: 'School Uniforms, Shoes, Activewear & Rompers',
-    strategy: 'Preparation for the new school year. Stock durable school shoes, backpacks, and light spring activewear.',
-    checklist: ['Partner with uniform suppliers', 'Run school stock clearance campaigns', 'Launch spring wear preorder catalogs'],
-    stockSuggestion: 'Increase inventory of black/white school shoes (sizes 6-10) and high-cotton uniforms.',
-    bundleIdea: 'Cross-sell uniform purchases with pack-of-3 cotton school socks and water bottles.',
-    color: 'indigo',
-    bgClass: 'bg-indigo-50/70 border-indigo-100/50',
-    badgeClass: 'bg-indigo-100 text-indigo-700'
-  },
-  {
-    title: 'Summer Vacation & Swimwear',
-    period: 'Apr - Jun',
-    focus: 'Cotton Rompers, Swimsuits, Sun Hats & Shorts',
-    strategy: 'Casual lightweight wear peak. Stock breathable organic cotton clothing for holidays.',
-    checklist: ['Set up summer holiday product bundles', 'Focus marketing on travel & vacation gear', 'Run beachwear early bird deals'],
-    stockSuggestion: 'Stock UV-protective swimwear, cute straw hats, and pastel linen shorts sets.',
-    bundleIdea: 'Package a swim dress with matching sunglasses and a sun hat as a vacation pack.',
-    color: 'teal',
-    bgClass: 'bg-teal-50/70 border-teal-100/50',
-    badgeClass: 'bg-teal-100 text-teal-700'
-  },
-  {
-    title: 'Monsoon & Rainwear Essentials',
-    period: 'Jul - Aug',
-    focus: 'Raincoats, Waterproof Boots, Umbrellas',
-    strategy: 'High demand for waterproof kids gear. Ensure all clothing storage areas are dry and damp-proof.',
-    checklist: ['Stock anti-slip footwear sizes', 'Audit storage facility humidity levels', 'Introduce monsoon raincoat combo packages'],
-    stockSuggestion: 'Increase rubber boot stock in bright colors and premium waterproof light jackets.',
-    bundleIdea: 'Offer a raincoat + matching umbrella combo discount to clear monsoon stock quickly.',
-    color: 'sky',
-    bgClass: 'bg-sky-50/70 border-sky-100/50',
-    badgeClass: 'bg-sky-100 text-sky-700'
-  },
-  {
-    title: 'Festive Season & Navratri',
+    id: 'navratri',
+    title: 'Navratri & Garba',
     period: 'Sep - Oct',
-    focus: 'Kediyus, Chaniya Cholis, traditional Kurta sets',
-    strategy: 'Peak festival demand. High booking volume for traditional rental costumes.',
-    checklist: ['Launch advance festive rental booking discounts', 'Stock ethnic accessories/turbans', 'Perform stitch audits on high-rotation sets'],
-    stockSuggestion: 'Increase silk sherwanis (boys 4-10Y) and heavy mirror-work chaniya cholis (girls 5-12Y).',
-    bundleIdea: 'Bundle ethnic wear with traditional footwear (Juttis) and hair accessories at checkout.',
-    color: 'rose',
-    bgClass: 'bg-rose-50/70 border-rose-100/50',
+    items: 'Chaniya Cholis, Kediyus, Mirror-work Sets',
+    stock: 'Girls Chaniya Cholis (3-12Y), Boys Kediyus (2-8Y)',
+    bundle: 'Outfit + Matching Footwear & Accessories (-10%)',
+    action: 'Open rental pre-bookings 30 days prior',
     badgeClass: 'bg-rose-100 text-rose-700'
   },
   {
-    title: 'Wedding Season & Premium Wear',
+    id: 'diwali',
+    title: 'Diwali & Festive Peak',
+    period: 'Oct - Nov',
+    items: 'Silk Kurta Sets, Ethnic Gowns, Sherwanis',
+    stock: 'Silk Kurtas (2-14Y), Heavy Festive Lehengas',
+    bundle: 'Kurta Set + Ethnic Footwear Combo',
+    action: 'Ensure high stock by 1st week of October',
+    badgeClass: 'bg-amber-100 text-amber-800'
+  },
+  {
+    id: 'wedding',
+    title: 'Weddings & Formals',
     period: 'Nov - Dec',
-    focus: 'Designer Sherwanis, Tuxedos, Silk Lehengas',
-    strategy: 'High-end kids formal wear demand peaks. Upsell premium accessories and custom fitting options.',
-    checklist: ['Ensure alteration tailors are standby', 'Update premium collection photoshoot', 'Send catalogs to regular event clients'],
-    stockSuggestion: 'Stock double-breasted premium tuxedos (sizes 5Y+) and embroidered raw-silk lehengas.',
-    bundleIdea: 'Add custom tailoring + matching pocket square/bow-tie bundle as a premium up-sell.',
-    color: 'purple',
-    bgClass: 'bg-purple-50/70 border-purple-100/50',
+    items: 'Tuxedos, Designer Sherwanis, Party Gowns',
+    stock: 'Boys Tuxedos (4-12Y), Girls Party Gowns',
+    bundle: 'Suit + Bow Tie & Pocket Square Combo',
+    action: 'Keep alter tailors on standby for quick sizing',
     badgeClass: 'bg-purple-100 text-purple-700'
+  },
+  {
+    id: 'winter',
+    title: 'Winter & New Year',
+    period: 'Dec - Jan',
+    items: 'Fleece Jackets, Sweaters, Party Dresses',
+    stock: 'Winter Layering Wear (1-10Y), Heavy Jackets',
+    bundle: 'Jacket + Beanie Caps (-15%)',
+    action: 'Stock winter items before Dec 1',
+    badgeClass: 'bg-sky-100 text-sky-700'
+  },
+  {
+    id: 'annuals',
+    title: 'School Annual Days',
+    period: 'Jan - Feb',
+    items: 'Fancy Dress Costumes, Roleplay Outfits, Blazers',
+    stock: 'Superhero, Animal & Profession Costumes (3-8Y)',
+    bundle: 'Costume + Matching Props Set',
+    action: 'Increase dry-cleaning turnaround speed',
+    badgeClass: 'bg-indigo-100 text-indigo-700'
+  },
+  {
+    id: 'holi',
+    title: 'Holi & Spring Wear',
+    period: 'Feb - Mar',
+    items: 'White Cotton Kurtas, Light Rompers, Spring Wear',
+    stock: 'Organic Cotton Sets, White Kurtas (2-8Y)',
+    bundle: 'Buy 2 Cotton Rompers Get 1 Free',
+    action: 'Launch spring catalog in mid-February',
+    badgeClass: 'bg-emerald-100 text-emerald-700'
+  },
+  {
+    id: 'eid',
+    title: 'Eid Festive Season',
+    period: 'Mar - Apr',
+    items: 'Pathani Suits, Anarkali Sets, Embroidered Frocks',
+    stock: 'Pathanis (3-12Y), Designer Anarkali Frocks',
+    bundle: 'Festive Wear + Matching Dupatta',
+    action: 'Stock high 2 weeks before Ramadan peak',
+    badgeClass: 'bg-teal-100 text-teal-700'
+  },
+  {
+    id: 'summer',
+    title: 'Summer Vacation',
+    period: 'Apr - Jun',
+    items: 'Swimwear, Cotton Shorts & Tees, Sun Hats',
+    stock: 'UV Swimsuits, Linen Shorts Sets (1-8Y)',
+    bundle: 'Swimsuit + Sun Hat + Glasses Pack',
+    action: 'Run early-bird holiday wear discount',
+    badgeClass: 'bg-orange-100 text-orange-700'
+  },
+  {
+    id: 'monsoon',
+    title: 'Monsoon Essentials',
+    period: 'Jul - Aug',
+    items: 'Raincoats, Waterproof Gumboots, Umbrellas',
+    stock: 'Rubber Gumboots, Lightweight Raincoats (2-10Y)',
+    bundle: 'Raincoat + Matching Umbrella (-10%)',
+    action: 'Audit storage room for zero dampness',
+    badgeClass: 'bg-blue-100 text-blue-700'
+  },
+  {
+    id: 'rakhi',
+    title: 'Rakhi & Independence',
+    period: 'Aug - Sep',
+    items: 'Sibling Ethnic Sets, Patriotic Costumes',
+    stock: 'Matching Brother-Sister Kurta Sets',
+    bundle: 'Brother + Sister Combo (-15%)',
+    action: 'Promote sibling matching sets 2 weeks prior',
+    badgeClass: 'bg-fuchsia-100 text-fuchsia-700'
   }
 ];
 
@@ -750,59 +778,59 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
           </div>
         </div>
 
-        {/* 4. Upcoming Events Reminder */}
-        <div className="lg:col-span-4 bg-gradient-to-br from-indigo-50 to-purple-50 p-4 md:p-6 rounded-2xl border border-indigo-100 shadow-sm flex flex-col">
-          <div className="flex items-center gap-2 mb-2">
-            <PartyPopper size={18} className="text-indigo-600" />
-            <h3 className="text-sm font-bold text-indigo-900 tracking-tight">Upcoming Events</h3>
+        {/* 4. Upcoming Events & Stocking Strategy Guide (Side Panel) */}
+        <div className="lg:col-span-4 bg-[#FAF5FF] p-4 md:p-5 rounded-2xl border border-purple-100/60 shadow-sm flex flex-col">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <PartyPopper size={16} className="text-[#8B5CF6]" />
+              <h3 className="text-sm font-extrabold text-slate-900 tracking-tight">Upcoming Events</h3>
+            </div>
+            <span className="text-[8px] font-black text-purple-600 bg-purple-100/80 px-2 py-0.5 rounded-full uppercase tracking-wider">
+              {UPCOMING_EVENTS.length} Events
+            </span>
           </div>
-          <p className="text-[10px] text-indigo-700/70 font-bold uppercase tracking-widest mb-4">Click an event to view stocking strategy</p>
+          <p className="text-[9px] text-slate-400 font-semibold uppercase tracking-wider mb-3">
+            Click event to view stocking strategy
+          </p>
 
-          <div className="space-y-3 overflow-y-auto max-h-[350px] pr-1">
+          <div className="space-y-2.5 overflow-y-auto max-h-[340px] pr-1 hide-scrollbar">
             {UPCOMING_EVENTS.map((event, idx) => {
               const isExpanded = expandedEventIdx === idx;
               return (
                 <div
-                  key={event.title}
+                  key={event.id}
                   onClick={() => setExpandedEventIdx(isExpanded ? null : idx)}
-                  className={`p-3 rounded-xl border cursor-pointer transition-all ${event.bgClass} ${isExpanded ? 'bg-white border-indigo-200 shadow-md ring-1 ring-indigo-100' : 'hover:bg-white/80 border-white/60'
-                    }`}
+                  className={`p-3 rounded-xl border cursor-pointer transition-all ${
+                    isExpanded
+                      ? 'bg-white border-purple-200 shadow-md ring-1 ring-purple-100'
+                      : 'bg-white/80 hover:bg-white border-slate-100 hover:border-purple-200'
+                  }`}
                 >
                   <div className="flex justify-between items-start gap-2">
                     <div>
-                      <p className="text-xs font-black text-slate-800">{event.title}</p>
-                      <p className="text-[9px] text-slate-500 font-bold mt-0.5">{event.focus}</p>
+                      <p className="text-xs font-black text-slate-900">{event.title}</p>
+                      <p className="text-[9px] font-bold text-slate-500 mt-0.5">{event.items}</p>
                     </div>
-                    <span className={`text-[8px] font-black px-2 py-0.5 rounded-lg uppercase tracking-wider whitespace-nowrap ${event.badgeClass}`}>
+                    <span className={`text-[8px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider shrink-0 ${event.badgeClass}`}>
                       {event.period}
                     </span>
                   </div>
 
                   {isExpanded && (
-                    <div className="mt-3 pt-3 border-t border-slate-100 space-y-3 animate-nano">
-                      <div>
-                        <p className="text-[8px] font-black uppercase text-slate-400 tracking-widest">Stocking Strategy</p>
-                        <p className="text-[10px] text-slate-600 font-bold leading-relaxed mt-1">{event.strategy}</p>
+                    <div className="mt-3 pt-2.5 border-t border-slate-100 space-y-2 animate-nano">
+                      <div className="bg-purple-50/60 p-2 rounded-lg border border-purple-100/50">
+                        <span className="text-[7.5px] font-black uppercase text-purple-600 tracking-widest block">Stock Addition</span>
+                        <p className="text-[9.5px] font-extrabold text-slate-800 mt-0.5">{event.stock}</p>
                       </div>
-                      {event.stockSuggestion && (
-                        <div>
-                          <p className="text-[8px] font-black uppercase text-indigo-500 tracking-widest">Recommended Stock Addition</p>
-                          <p className="text-[10px] text-slate-600 font-bold leading-relaxed mt-1">{event.stockSuggestion}</p>
-                        </div>
-                      )}
-                      {event.bundleIdea && (
-                        <div>
-                          <p className="text-[8px] font-black uppercase text-emerald-600 tracking-widest">Bundling / Up-sell Idea</p>
-                          <p className="text-[10px] text-slate-600 font-bold leading-relaxed mt-1">{event.bundleIdea}</p>
-                        </div>
-                      )}
-                      <div>
-                        <p className="text-[8px] font-black uppercase text-slate-400 tracking-widest">Prep Checklist</p>
-                        <ul className="list-disc list-inside text-[9px] text-slate-500 font-semibold space-y-1 mt-1">
-                          {event.checklist.map((item, cIdx) => (
-                            <li key={cIdx}>{item}</li>
-                          ))}
-                        </ul>
+
+                      <div className="bg-emerald-50/60 p-2 rounded-lg border border-emerald-100/50">
+                        <span className="text-[7.5px] font-black uppercase text-emerald-600 tracking-widest block">Smart Bundle</span>
+                        <p className="text-[9.5px] font-extrabold text-slate-800 mt-0.5">{event.bundle}</p>
+                      </div>
+
+                      <div className="bg-slate-50 p-2 rounded-lg border border-slate-100">
+                        <span className="text-[7.5px] font-black uppercase text-slate-400 tracking-widest block">Key Action</span>
+                        <p className="text-[9.5px] font-extrabold text-slate-700 mt-0.5">✓ {event.action}</p>
                       </div>
                     </div>
                   )}
