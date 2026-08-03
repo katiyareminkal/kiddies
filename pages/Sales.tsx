@@ -41,7 +41,13 @@ import {
 import { formatCurrency } from '../utils/helpers';
 import { format, parseISO, isAfter, isBefore, isSameDay } from 'date-fns';
 import { SalesChannel, PaymentMethod, PaymentStatus, OrderStatus } from '../types';
-import { exportSalesToFormattedExcel, exportSalesToCSV } from '../utils/salesExport';
+import {
+  exportSalesToFormattedExcel,
+  exportSalesToCSV,
+  filterSalesByTimeframe,
+  DatePresetTimeframe
+} from '../utils/salesExport';
+import { subDays, startOfMonth, startOfYear } from 'date-fns';
 
 const Sales: React.FC = () => {
   const { sales, products, customers, settings, updateOrderStatus } = useApp();
@@ -50,11 +56,38 @@ const Sales: React.FC = () => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [showFilters, setShowFilters] = useState(false);
   const [showExportMenu, setShowExportMenu] = useState(false);
+  const [exportFormat, setExportFormat] = useState<'excel' | 'csv'>('excel');
+
+  const [activeDatePreset, setActiveDatePreset] = useState<'ALL' | 'TODAY' | 'WEEK' | 'MONTH' | 'YEAR'>('ALL');
   const [filterStartDate, setFilterStartDate] = useState('');
   const [filterEndDate, setFilterEndDate] = useState('');
   const [filterStatus, setFilterStatus] = useState<OrderStatus | 'ALL'>('ALL');
   const [filterChannel, setFilterChannel] = useState<SalesChannel | 'ALL'>('ALL');
   const [selectedSaleId, setSelectedSaleId] = useState<string | null>(null);
+
+  // Apply Quick Date Preset to date filters
+  const applyDatePreset = (preset: 'ALL' | 'TODAY' | 'WEEK' | 'MONTH' | 'YEAR') => {
+    setActiveDatePreset(preset);
+    const now = new Date();
+    const todayStr = format(now, 'yyyy-MM-dd');
+
+    if (preset === 'TODAY') {
+      setFilterStartDate(todayStr);
+      setFilterEndDate(todayStr);
+    } else if (preset === 'WEEK') {
+      setFilterStartDate(format(subDays(now, 6), 'yyyy-MM-dd'));
+      setFilterEndDate(todayStr);
+    } else if (preset === 'MONTH') {
+      setFilterStartDate(format(startOfMonth(now), 'yyyy-MM-dd'));
+      setFilterEndDate(todayStr);
+    } else if (preset === 'YEAR') {
+      setFilterStartDate(format(startOfYear(now), 'yyyy-MM-dd'));
+      setFilterEndDate(todayStr);
+    } else if (preset === 'ALL') {
+      setFilterStartDate('');
+      setFilterEndDate('');
+    }
+  };
 
   const filteredSales = useMemo(() => {
     return sales.filter(s => {
@@ -87,11 +120,24 @@ const Sales: React.FC = () => {
   const activeOrders = sales.filter(s => s.orderStatus !== OrderStatus.COMPLETED && s.orderStatus !== OrderStatus.CANCELLED).length;
   const totalPendingPayments = sales.filter(s => s.paymentStatus !== PaymentStatus.PAID && s.paymentStatus !== PaymentStatus.REFUNDED).reduce((acc, s) => acc + (s.totalAmount - (s.paidAmount || 0)), 0);
 
-  const handleExportSales = (type: 'excel' | 'csv' = 'excel') => {
-    if (type === 'excel') {
-      exportSalesToFormattedExcel(filteredSales, customers, settings?.storeName || 'Kiddies - Premium Kids Wear');
+  const handleExportTimeframe = (timeframe: DatePresetTimeframe, formatType: 'excel' | 'csv' = exportFormat) => {
+    let targetList = filteredSales;
+    let label = 'Sales Report';
+
+    if (timeframe !== 'custom') {
+      const result = filterSalesByTimeframe(sales, timeframe);
+      targetList = result.filtered;
+      label = result.label;
     } else {
-      exportSalesToCSV(filteredSales, customers);
+      label = `Sales Report (${targetList.length} Transactions)`;
+    }
+
+    const store = settings?.storeName || 'Kiddies - Premium Kids Wear';
+
+    if (formatType === 'excel') {
+      exportSalesToFormattedExcel(targetList, customers, store, label);
+    } else {
+      exportSalesToCSV(targetList, customers, label);
     }
   };
 
@@ -104,58 +150,80 @@ const Sales: React.FC = () => {
           <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest mt-0.5">Order History & Transactions</p>
         </div>
         <div className="flex items-center gap-2">
-          {/* Export Dropdown */}
+          {/* Enhanced Export Menu Dropdown */}
           <div className="relative">
             <div className="flex items-center bg-white border border-slate-200 hover:border-slate-300 rounded-xl overflow-hidden shadow-xs">
               <button
-                onClick={() => handleExportSales('excel')}
+                onClick={() => handleExportTimeframe(activeDatePreset === 'ALL' ? 'all' : (activeDatePreset.toLowerCase() as DatePresetTimeframe), exportFormat)}
                 className="px-3.5 py-2 text-slate-700 hover:bg-slate-50 text-[10px] font-black uppercase tracking-wider flex items-center gap-2 transition-all border-r border-slate-100"
-                title="Export Formatted Sales Report"
+                title="Download Sales Report"
               >
                 <Download size={13} strokeWidth={2.5} className="text-[#8B5CF6]" />
-                <span className="hidden sm:inline">Export</span>
+                <span className="hidden sm:inline">Download Report</span>
               </button>
               <button
                 onClick={() => setShowExportMenu(!showExportMenu)}
                 className="px-2 py-2 text-slate-500 hover:bg-slate-50 hover:text-slate-800 transition-colors"
-                title="Choose Export Format"
+                title="Choose Date Range & Format"
               >
                 <ChevronDown size={12} className={`transition-transform duration-200 ${showExportMenu ? 'rotate-180' : ''}`} />
               </button>
             </div>
 
             {showExportMenu && (
-              <div className="absolute right-0 mt-2 w-60 bg-white rounded-2xl shadow-xl border border-slate-100 p-1.5 z-50 animate-nano">
-                <button
-                  onClick={() => {
-                    handleExportSales('excel');
-                    setShowExportMenu(false);
-                  }}
-                  className="w-full text-left p-2.5 rounded-xl hover:bg-purple-50/60 transition-colors flex items-center gap-2.5 group"
-                >
-                  <div className="w-8 h-8 rounded-xl bg-purple-100/70 text-[#8B5CF6] flex items-center justify-center font-bold text-xs shrink-0 group-hover:scale-105 transition-transform">
-                    📊
+              <div className="absolute right-0 mt-2 w-72 bg-white rounded-2xl shadow-2xl border border-slate-100 p-3 z-50 animate-nano space-y-3">
+                {/* Format selector tabs */}
+                <div className="flex items-center justify-between bg-slate-50 p-1 rounded-xl border border-slate-100">
+                  <span className="text-[8px] font-black uppercase text-slate-400 tracking-wider pl-2">Format:</span>
+                  <div className="flex gap-1">
+                    <button
+                      onClick={() => setExportFormat('excel')}
+                      className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider transition-all ${
+                        exportFormat === 'excel' ? 'bg-[#8B5CF6] text-white shadow-xs' : 'text-slate-500 hover:text-slate-900'
+                      }`}
+                    >
+                      📊 Excel (.xls)
+                    </button>
+                    <button
+                      onClick={() => setExportFormat('csv')}
+                      className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider transition-all ${
+                        exportFormat === 'csv' ? 'bg-slate-900 text-white shadow-xs' : 'text-slate-500 hover:text-slate-900'
+                      }`}
+                    >
+                      📄 CSV (.csv)
+                    </button>
                   </div>
-                  <div>
-                    <div className="text-[10px] font-black uppercase text-slate-900 tracking-wider">Formatted Excel (.xls)</div>
-                    <div className="text-[8px] font-semibold text-slate-400 mt-0.5">Headers, bold style, colors & spacing</div>
+                </div>
+
+                {/* Preset Options */}
+                <div>
+                  <div className="text-[8px] font-black uppercase text-slate-400 tracking-widest px-1 mb-1.5">Download By Period</div>
+                  <div className="space-y-1">
+                    {[
+                      { id: 'today', title: "Today's Sales", subtitle: 'Current Day Transactions', icon: '📅' },
+                      { id: 'week', title: "This Week's Sales", subtitle: 'Last 7 Days', icon: '🗓️' },
+                      { id: 'month', title: "This Month's Sales", subtitle: 'Current Calendar Month', icon: '📆' },
+                      { id: 'year', title: "This Year's Sales", subtitle: 'Annual Transactions', icon: '📊' },
+                      { id: 'custom', title: 'Current Filtered View', subtitle: `Active View (${filteredSales.length} items)`, icon: '⚡' },
+                      { id: 'all', title: 'All-Time Complete History', subtitle: `All Recorded Sales (${sales.length} items)`, icon: '🌐' },
+                    ].map(opt => (
+                      <button
+                        key={opt.id}
+                        onClick={() => {
+                          handleExportTimeframe(opt.id as DatePresetTimeframe, exportFormat);
+                          setShowExportMenu(false);
+                        }}
+                        className="w-full text-left p-2 rounded-xl hover:bg-purple-50/60 transition-colors flex items-center gap-2.5 group"
+                      >
+                        <span className="text-sm shrink-0 group-hover:scale-110 transition-transform">{opt.icon}</span>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-[10px] font-black uppercase text-slate-900 tracking-wider truncate">{opt.title}</div>
+                          <div className="text-[8px] font-semibold text-slate-400 truncate">{opt.subtitle}</div>
+                        </div>
+                      </button>
+                    ))}
                   </div>
-                </button>
-                <button
-                  onClick={() => {
-                    handleExportSales('csv');
-                    setShowExportMenu(false);
-                  }}
-                  className="w-full text-left p-2.5 rounded-xl hover:bg-slate-50 transition-colors flex items-center gap-2.5 group border-t border-slate-50 mt-1"
-                >
-                  <div className="w-8 h-8 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center font-bold text-xs shrink-0 group-hover:scale-105 transition-transform">
-                    📄
-                  </div>
-                  <div>
-                    <div className="text-[10px] font-black uppercase text-slate-900 tracking-wider">Standard CSV (.csv)</div>
-                    <div className="text-[8px] font-semibold text-slate-400 mt-0.5">Raw data file</div>
-                  </div>
-                </button>
+                </div>
               </div>
             )}
           </div>
@@ -252,6 +320,32 @@ const Sales: React.FC = () => {
             {formatCurrency(totalPendingPayments)}
           </h3>
         </div>
+      </div>
+
+      {/* Quick Date Presets Bar */}
+      <div className="flex items-center gap-2 overflow-x-auto hide-scrollbar">
+        <span className="text-[8px] font-black uppercase text-slate-400 tracking-widest shrink-0 mr-1 flex items-center gap-1">
+          <Calendar size={11} className="text-[#8B5CF6]" /> Period:
+        </span>
+        {[
+          { id: 'ALL', label: 'All Time' },
+          { id: 'TODAY', label: "Today" },
+          { id: 'WEEK', label: 'This Week' },
+          { id: 'MONTH', label: 'This Month' },
+          { id: 'YEAR', label: 'This Year' },
+        ].map(p => (
+          <button
+            key={p.id}
+            onClick={() => applyDatePreset(p.id as any)}
+            className={`px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-wider whitespace-nowrap transition-all border shadow-xs ${
+              activeDatePreset === p.id
+                ? 'bg-slate-900 text-white border-slate-900 shadow-sm'
+                : 'bg-white text-slate-500 border-slate-200 hover:border-slate-300 hover:text-slate-900'
+            }`}
+          >
+            {p.label}
+          </button>
+        ))}
       </div>
 
       {/* Search Bar & Filter Toggle */}

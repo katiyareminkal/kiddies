@@ -1,13 +1,73 @@
-import { format, parseISO } from 'date-fns';
+import { format, parseISO, subDays, startOfMonth, startOfYear } from 'date-fns';
 import { Sale, Customer } from '../types';
+
+export type DatePresetTimeframe = 'today' | 'week' | 'month' | 'year' | 'all' | 'custom';
+
+export const filterSalesByTimeframe = (
+  salesList: Sale[],
+  timeframe: DatePresetTimeframe,
+  customStart?: string,
+  customEnd?: string
+): { filtered: Sale[]; label: string } => {
+  const now = new Date();
+  const todayStr = format(now, 'yyyy-MM-dd');
+
+  let startDate: string | null = null;
+  let endDate: string | null = null;
+  let label = 'All Time Sales Report';
+
+  if (timeframe === 'today') {
+    startDate = todayStr;
+    endDate = todayStr;
+    label = `Today's Sales Report (${format(now, 'dd MMM yyyy')})`;
+  } else if (timeframe === 'week') {
+    startDate = format(subDays(now, 6), 'yyyy-MM-dd');
+    endDate = todayStr;
+    label = `This Week's Sales Report (${format(subDays(now, 6), 'dd MMM')} - ${format(now, 'dd MMM yyyy')})`;
+  } else if (timeframe === 'month') {
+    startDate = format(startOfMonth(now), 'yyyy-MM-dd');
+    endDate = todayStr;
+    label = `Monthly Sales Report (${format(now, 'MMMM yyyy')})`;
+  } else if (timeframe === 'year') {
+    startDate = format(startOfYear(now), 'yyyy-MM-dd');
+    endDate = todayStr;
+    label = `Annual Sales Report (${format(now, 'yyyy')})`;
+  } else if (timeframe === 'custom') {
+    startDate = customStart || null;
+    endDate = customEnd || null;
+    if (customStart && customEnd) {
+      label = `Sales Report (${customStart} to ${customEnd})`;
+    } else if (customStart) {
+      label = `Sales Report (From ${customStart})`;
+    } else if (customEnd) {
+      label = `Sales Report (Up to ${customEnd})`;
+    } else {
+      label = 'Filtered Sales Report';
+    }
+  }
+
+  if (!startDate && !endDate) {
+    return { filtered: salesList, label };
+  }
+
+  const filtered = salesList.filter(s => {
+    const saleDateStr = s.date.split('T')[0];
+    if (startDate && saleDateStr < startDate) return false;
+    if (endDate && saleDateStr > endDate) return false;
+    return true;
+  });
+
+  return { filtered, label };
+};
 
 export const exportSalesToFormattedExcel = (
   salesList: Sale[],
   customersList: Customer[],
-  storeName = 'Kiddies - Premium Kids Wear'
+  storeName = 'Kiddies - Premium Kids Wear',
+  reportTitleLabel = 'Sales Transactions & Financial Statement'
 ) => {
   if (!salesList || salesList.length === 0) {
-    alert('No sales records to export');
+    alert('No sales records found for the selected period.');
     return;
   }
 
@@ -190,7 +250,7 @@ export const exportSalesToFormattedExcel = (
   <body>
     <div class="brand-header">
       <div class="brand-name">${storeName}</div>
-      <div class="report-title">Sales Transactions & Financial Statement</div>
+      <div class="report-title">${reportTitleLabel}</div>
       <div class="report-meta">Report Generated: <strong>${formattedDateStr}</strong> | Total Records: <strong>${totalSalesCount} Transactions</strong></div>
     </div>
 
@@ -296,12 +356,15 @@ export const exportSalesToFormattedExcel = (
   </html>
   `;
 
-  // Download Blob as .xls for native Excel / Google Sheets styling support
+  // Clean filename sanitized
+  const cleanTitle = reportTitleLabel.replace(/[^a-zA-Z0-9]/g, '_');
+  const fileName = `Sales_Report_${cleanTitle}_${format(new Date(), 'yyyy-MM-dd')}.xls`;
+
   const blob = new Blob([htmlContent], { type: 'application/vnd.ms-excel;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.setAttribute('href', url);
-  link.setAttribute('download', `Sales_Report_${format(new Date(), 'yyyy-MM-dd')}.xls`);
+  link.setAttribute('download', fileName);
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
@@ -310,10 +373,11 @@ export const exportSalesToFormattedExcel = (
 
 export const exportSalesToCSV = (
   salesList: Sale[],
-  customersList: Customer[]
+  customersList: Customer[],
+  reportTitleLabel = 'Sales Report'
 ) => {
   if (!salesList || salesList.length === 0) {
-    alert('No sales records to export');
+    alert('No sales records found for the selected period.');
     return;
   }
   const headers = [
@@ -354,11 +418,14 @@ export const exportSalesToCSV = (
     ];
   });
 
+  const cleanTitle = reportTitleLabel.replace(/[^a-zA-Z0-9]/g, '_');
+  const fileName = `Sales_Report_${cleanTitle}_${format(new Date(), 'yyyy-MM-dd')}.csv`;
+
   const csvContent = 'data:text/csv;charset=utf-8,\uFEFF' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
   const encodedUri = encodeURI(csvContent);
   const link = document.createElement('a');
   link.setAttribute('href', encodedUri);
-  link.setAttribute('download', `Sales_Report_${format(new Date(), 'yyyy-MM-dd')}.csv`);
+  link.setAttribute('download', fileName);
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
