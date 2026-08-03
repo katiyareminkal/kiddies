@@ -1,5 +1,5 @@
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useApp } from '../store/AppContext';
 import { Card, Button } from '../components/Shared';
 import { CreateBillModal } from '../components/forms/CreateBillModal';
@@ -57,6 +57,7 @@ const Sales: React.FC = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [showExportMenu, setShowExportMenu] = useState(false);
   const [exportFormat, setExportFormat] = useState<'excel' | 'csv'>('excel');
+  const exportMenuRef = useRef<HTMLDivElement>(null);
 
   const [activeDatePreset, setActiveDatePreset] = useState<'ALL' | 'TODAY' | 'WEEK' | 'MONTH' | 'YEAR'>('ALL');
   const [filterStartDate, setFilterStartDate] = useState('');
@@ -64,6 +65,21 @@ const Sales: React.FC = () => {
   const [filterStatus, setFilterStatus] = useState<OrderStatus | 'ALL'>('ALL');
   const [filterChannel, setFilterChannel] = useState<SalesChannel | 'ALL'>('ALL');
   const [selectedSaleId, setSelectedSaleId] = useState<string | null>(null);
+
+  // Close export dropdown when clicking anywhere outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (exportMenuRef.current && !exportMenuRef.current.contains(event.target as Node)) {
+        setShowExportMenu(false);
+      }
+    };
+    if (showExportMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showExportMenu]);
 
   // Apply Quick Date Preset to date filters
   const applyDatePreset = (preset: 'ALL' | 'TODAY' | 'WEEK' | 'MONTH' | 'YEAR') => {
@@ -151,7 +167,7 @@ const Sales: React.FC = () => {
         </div>
         <div className="flex items-center gap-2">
           {/* Minimalist Download Menu Dropdown */}
-          <div className="relative">
+          <div className="relative" ref={exportMenuRef}>
             <div className="flex items-center bg-white border border-slate-200 hover:border-slate-300 rounded-xl overflow-hidden shadow-xs">
               <div className="relative group/dl">
                 <button
