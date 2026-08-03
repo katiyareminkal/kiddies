@@ -41,13 +41,15 @@ import {
 import { formatCurrency } from '../utils/helpers';
 import { format, parseISO, isAfter, isBefore, isSameDay } from 'date-fns';
 import { SalesChannel, PaymentMethod, PaymentStatus, OrderStatus } from '../types';
+import { exportSalesToFormattedExcel, exportSalesToCSV } from '../utils/salesExport';
 
 const Sales: React.FC = () => {
-  const { sales, products, customers, updateOrderStatus } = useApp();
+  const { sales, products, customers, settings, updateOrderStatus } = useApp();
   const [isAddingSale, setIsAddingSale] = useState(false);
   const [historySearchTerm, setHistorySearchTerm] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [showFilters, setShowFilters] = useState(false);
+  const [showExportMenu, setShowExportMenu] = useState(false);
   const [filterStartDate, setFilterStartDate] = useState('');
   const [filterEndDate, setFilterEndDate] = useState('');
   const [filterStatus, setFilterStatus] = useState<OrderStatus | 'ALL'>('ALL');
@@ -85,35 +87,13 @@ const Sales: React.FC = () => {
   const activeOrders = sales.filter(s => s.orderStatus !== OrderStatus.COMPLETED && s.orderStatus !== OrderStatus.CANCELLED).length;
   const totalPendingPayments = sales.filter(s => s.paymentStatus !== PaymentStatus.PAID && s.paymentStatus !== PaymentStatus.REFUNDED).reduce((acc, s) => acc + (s.totalAmount - (s.paidAmount || 0)), 0);
 
-  const handleExportSales = () => {
-    if (filteredSales.length === 0) return alert('No sales records to export');
-    const headers = ['Invoice Number', 'Customer', 'Date', 'Total Amount', 'Items Count', 'Channel', 'Status', 'Payment Method'];
-    const rows = filteredSales.map(s => {
-      const cust = customers.find(c => c.id === s.customerId);
-      return [
-        s.invoiceNumber,
-        `"${cust?.name || 'Guest Customer'}"`,
-        `"${format(parseISO(s.date), 'yyyy-MM-dd HH:mm')}"`,
-        s.totalAmount,
-        s.items.reduce((sum, item) => sum + item.quantity, 0),
-        s.channel,
-        s.orderStatus,
-        s.paymentMethod
-      ];
-    });
-
-    const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement('a');
-    link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `sales_report_${format(new Date(), 'yyyy-MM-dd')}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  const handleExportSales = (type: 'excel' | 'csv' = 'excel') => {
+    if (type === 'excel') {
+      exportSalesToFormattedExcel(filteredSales, customers, settings?.storeName || 'Kiddies - Premium Kids Wear');
+    } else {
+      exportSalesToCSV(filteredSales, customers);
+    }
   };
-
-
-
 
   return (
     <div className="space-y-6 animate-nano pb-10">
@@ -124,14 +104,62 @@ const Sales: React.FC = () => {
           <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest mt-0.5">Order History & Transactions</p>
         </div>
         <div className="flex items-center gap-2">
-          <button
-            onClick={handleExportSales}
-            className="px-4 py-2 bg-white border border-slate-200 hover:border-slate-300 text-slate-700 rounded-xl text-[10px] font-black uppercase tracking-wider flex items-center gap-2 transition-all shadow-xs"
-            title="Export Sales CSV"
-          >
-            <Download size={13} strokeWidth={2.5} />
-            <span className="hidden sm:inline">Export</span>
-          </button>
+          {/* Export Dropdown */}
+          <div className="relative">
+            <div className="flex items-center bg-white border border-slate-200 hover:border-slate-300 rounded-xl overflow-hidden shadow-xs">
+              <button
+                onClick={() => handleExportSales('excel')}
+                className="px-3.5 py-2 text-slate-700 hover:bg-slate-50 text-[10px] font-black uppercase tracking-wider flex items-center gap-2 transition-all border-r border-slate-100"
+                title="Export Formatted Sales Report"
+              >
+                <Download size={13} strokeWidth={2.5} className="text-[#8B5CF6]" />
+                <span className="hidden sm:inline">Export</span>
+              </button>
+              <button
+                onClick={() => setShowExportMenu(!showExportMenu)}
+                className="px-2 py-2 text-slate-500 hover:bg-slate-50 hover:text-slate-800 transition-colors"
+                title="Choose Export Format"
+              >
+                <ChevronDown size={12} className={`transition-transform duration-200 ${showExportMenu ? 'rotate-180' : ''}`} />
+              </button>
+            </div>
+
+            {showExportMenu && (
+              <div className="absolute right-0 mt-2 w-60 bg-white rounded-2xl shadow-xl border border-slate-100 p-1.5 z-50 animate-nano">
+                <button
+                  onClick={() => {
+                    handleExportSales('excel');
+                    setShowExportMenu(false);
+                  }}
+                  className="w-full text-left p-2.5 rounded-xl hover:bg-purple-50/60 transition-colors flex items-center gap-2.5 group"
+                >
+                  <div className="w-8 h-8 rounded-xl bg-purple-100/70 text-[#8B5CF6] flex items-center justify-center font-bold text-xs shrink-0 group-hover:scale-105 transition-transform">
+                    📊
+                  </div>
+                  <div>
+                    <div className="text-[10px] font-black uppercase text-slate-900 tracking-wider">Formatted Excel (.xls)</div>
+                    <div className="text-[8px] font-semibold text-slate-400 mt-0.5">Headers, bold style, colors & spacing</div>
+                  </div>
+                </button>
+                <button
+                  onClick={() => {
+                    handleExportSales('csv');
+                    setShowExportMenu(false);
+                  }}
+                  className="w-full text-left p-2.5 rounded-xl hover:bg-slate-50 transition-colors flex items-center gap-2.5 group border-t border-slate-50 mt-1"
+                >
+                  <div className="w-8 h-8 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center font-bold text-xs shrink-0 group-hover:scale-105 transition-transform">
+                    📄
+                  </div>
+                  <div>
+                    <div className="text-[10px] font-black uppercase text-slate-900 tracking-wider">Standard CSV (.csv)</div>
+                    <div className="text-[8px] font-semibold text-slate-400 mt-0.5">Raw data file</div>
+                  </div>
+                </button>
+              </div>
+            )}
+          </div>
+
           <button
             onClick={() => setIsAddingSale(true)}
             className="banana-btn shadow-banana"

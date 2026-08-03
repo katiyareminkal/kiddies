@@ -522,67 +522,6 @@ export const CreateBillModal: React.FC<CreateBillModalProps> = ({ isOpen, onClos
             )}
           </div>
 
-          {/* Cart Preview Row at Top */}
-          {cartItems.length > 0 && (
-            <div 
-              style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: '12px', 
-                background: 'white', 
-                padding: '8px 12px', 
-                border: '1px solid #E2E8F0', 
-                borderRadius: '1rem', 
-                marginBottom: '8px', 
-                flexShrink: 0,
-                overflowX: 'auto'
-              }}
-              className="hide-scrollbar"
-            >
-              <span style={{ fontSize: '8px', fontWeight: 900, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.1em', whiteSpace: 'nowrap' }}>Basket:</span>
-              <div style={{ display: 'flex', gap: '8px', overflowX: 'auto' }} className="hide-scrollbar">
-                {cartItems.map(item => (
-                  <div key={item.productId} style={{ position: 'relative', flexShrink: 0 }}>
-                    <div style={{ width: '32px', height: '32px', borderRadius: '8px', overflow: 'hidden', border: '1px solid #F1F5F9', background: '#F8FAFC' }}>
-                      {item.product?.imageUrl ? (
-                        <img src={item.product.imageUrl} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                      ) : (
-                        <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          <Package size={12} className="text-slate-300" />
-                        </div>
-                      )}
-                    </div>
-                    <span 
-                      onClick={() => removeFromCart(item.productId)}
-                      title="Click to decrement"
-                      style={{ 
-                        position: 'absolute', 
-                        top: '-6px', 
-                        right: '-6px', 
-                        background: '#8B5CF6', 
-                        color: 'white', 
-                        fontFamily: 'monospace', 
-                        fontSize: '8px', 
-                        fontWeight: 900, 
-                        width: '16px', 
-                        height: '16px', 
-                        borderRadius: '50%', 
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        justifyContent: 'center',
-                        border: '1px solid white',
-                        boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      {item.quantity}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
           {/* Mobile Tab Switcher */}
           <div className="flex lg:hidden bg-white p-1 rounded-2xl border border-slate-100 shadow-sm mb-2 gap-1" style={{ flexShrink: 0 }}>
             <button
@@ -653,23 +592,6 @@ export const CreateBillModal: React.FC<CreateBillModalProps> = ({ isOpen, onClos
                     <Plus size={14} strokeWidth={3} />
                     <span className="hidden sm:inline">Manual Item</span>
                   </button>
-                </div>
-                <div className="flex gap-2 overflow-x-auto hide-scrollbar">
-                  <button
-                    onClick={() => setSelectedCategory('ALL')}
-                    className={`px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest whitespace-nowrap transition-all border shadow-sm ${selectedCategory === 'ALL' ? 'bg-highlight text-slate-900 border-highlight/20' : 'bg-white text-slate-400 border-slate-100 hover:border-slate-200 hover:text-slate-600'}`}
-                  >
-                    All
-                  </button>
-                  {categories.map(cat => (
-                    <button
-                      key={cat}
-                      onClick={() => setSelectedCategory(cat)}
-                      className={`px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest whitespace-nowrap transition-all border shadow-sm ${selectedCategory === cat ? 'bg-highlight text-slate-900 border-highlight/20' : 'bg-white text-slate-400 border-slate-100 hover:border-slate-200 hover:text-slate-600'}`}
-                    >
-                      {cat}
-                    </button>
-                  ))}
                 </div>
               </div>
 
