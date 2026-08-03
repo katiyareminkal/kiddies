@@ -176,71 +176,87 @@ const Sales: React.FC = () => {
             </div>
 
             {showExportMenu && (
-              <div className="absolute right-0 mt-2 w-48 bg-white rounded-2xl shadow-xl border border-slate-100 p-2 z-50 animate-nano space-y-2">
-                {/* Format Selector - Text Only */}
-                <div className="grid grid-cols-2 gap-1 bg-slate-50 p-1 rounded-xl border border-slate-100">
-                  <div className="relative group/fmt1">
-                    <button
-                      type="button"
-                      onClick={() => setExportFormat('excel')}
-                      className={`w-full py-1 rounded-lg text-[9px] font-black uppercase tracking-wider transition-all text-center ${
-                        exportFormat === 'excel'
-                          ? 'bg-[#8B5CF6] text-white shadow-xs'
-                          : 'text-slate-500 hover:text-slate-800'
-                      }`}
-                    >
-                      Excel
-                    </button>
-                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover/fmt1:flex items-center px-2 py-0.5 bg-slate-900 text-white text-[7.5px] font-bold uppercase tracking-wider rounded shadow-md whitespace-nowrap z-50 pointer-events-none">
-                      Formatted Report (Colors & Headers)
-                      <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-900"></div>
+              <div className="absolute right-0 mt-2 w-56 bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl border border-slate-100 p-2.5 z-50 animate-nano space-y-2.5">
+                {/* Format Selector: Modern Cards highlighting Formatted vs Raw */}
+                <div className="space-y-1">
+                  <div className="text-[7.5px] font-black uppercase tracking-widest text-slate-400 px-1">Output Format</div>
+                  <div className="grid grid-cols-2 gap-1.5">
+                    <div className="relative group/fmt1">
+                      <button
+                        type="button"
+                        onClick={() => setExportFormat('excel')}
+                        className={`w-full py-2 px-1.5 rounded-xl text-center transition-all border flex flex-col items-center justify-center ${
+                          exportFormat === 'excel'
+                            ? 'bg-[#8B5CF6] text-white border-[#8B5CF6] shadow-md shadow-purple-500/20'
+                            : 'bg-slate-50 text-slate-700 border-slate-100 hover:border-slate-200'
+                        }`}
+                      >
+                        <span className="text-[10px] font-black uppercase tracking-wider">Excel</span>
+                        <span className={`text-[6.5px] font-black uppercase tracking-wider mt-0.5 px-1 py-0.2 rounded-md ${
+                          exportFormat === 'excel' ? 'bg-white/20 text-white' : 'bg-purple-100 text-purple-700'
+                        }`}>
+                          Formatted
+                        </span>
+                      </button>
+                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover/fmt1:flex items-center px-2 py-1 bg-slate-900 text-white text-[7.5px] font-bold uppercase tracking-wider rounded-lg shadow-xl whitespace-nowrap z-50 pointer-events-none">
+                        Styled Report (Colors, Headers & Totals)
+                        <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-900"></div>
+                      </div>
                     </div>
-                  </div>
 
-                  <div className="relative group/fmt2">
-                    <button
-                      type="button"
-                      onClick={() => setExportFormat('csv')}
-                      className={`w-full py-1 rounded-lg text-[9px] font-black uppercase tracking-wider transition-all text-center ${
-                        exportFormat === 'csv'
-                          ? 'bg-slate-900 text-white shadow-xs'
-                          : 'text-slate-500 hover:text-slate-800'
-                      }`}
-                    >
-                      CSV
-                    </button>
-                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover/fmt2:flex items-center px-2 py-0.5 bg-slate-900 text-white text-[7.5px] font-bold uppercase tracking-wider rounded shadow-md whitespace-nowrap z-50 pointer-events-none">
-                      Simple Raw Data File
-                      <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-900"></div>
+                    <div className="relative group/fmt2">
+                      <button
+                        type="button"
+                        onClick={() => setExportFormat('csv')}
+                        className={`w-full py-2 px-1.5 rounded-xl text-center transition-all border flex flex-col items-center justify-center ${
+                          exportFormat === 'csv'
+                            ? 'bg-slate-900 text-white border-slate-900 shadow-md shadow-slate-900/20'
+                            : 'bg-slate-50 text-slate-700 border-slate-100 hover:border-slate-200'
+                        }`}
+                      >
+                        <span className="text-[10px] font-black uppercase tracking-wider">CSV</span>
+                        <span className={`text-[6.5px] font-black uppercase tracking-wider mt-0.5 px-1 py-0.2 rounded-md ${
+                          exportFormat === 'csv' ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-500'
+                        }`}>
+                          Raw Data
+                        </span>
+                      </button>
+                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover/fmt2:flex items-center px-2 py-1 bg-slate-900 text-white text-[7.5px] font-bold uppercase tracking-wider rounded-lg shadow-xl whitespace-nowrap z-50 pointer-events-none">
+                        Plain Unstyled CSV Data File
+                        <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-900"></div>
+                      </div>
                     </div>
                   </div>
                 </div>
 
-                {/* Minimalist Time Options - Text & Numbers Only */}
-                <div className="space-y-0.5">
-                  {[
-                    { id: 'today', title: 'Today', tip: "Download Today's Sales" },
-                    { id: 'week', title: '7 Days', tip: 'Download Last 7 Days Sales' },
-                    { id: 'month', title: '30 Days', tip: 'Download Last 30 Days Sales' },
-                    { id: 'year', title: '1 Year', tip: 'Download Current Year Sales' },
-                    { id: 'all', title: 'All Time', tip: 'Download Full Sales History' },
-                  ].map(opt => (
-                    <div key={opt.id} className="relative group/titem">
-                      <button
-                        onClick={() => {
-                          handleExportTimeframe(opt.id as DatePresetTimeframe, exportFormat);
-                          setShowExportMenu(false);
-                        }}
-                        className="w-full text-left px-2.5 py-1.5 rounded-xl hover:bg-purple-50 text-slate-800 font-black text-[9.5px] uppercase tracking-wider transition-colors flex items-center justify-between"
-                      >
-                        <span>{opt.title}</span>
-                        <span className="text-[8px] font-mono text-slate-300">↓</span>
-                      </button>
-                      <div className="absolute right-full top-1/2 -translate-y-1/2 mr-1.5 hidden group-hover/titem:flex items-center px-2 py-0.5 bg-slate-900 text-white text-[7.5px] font-bold uppercase tracking-wider rounded shadow-md whitespace-nowrap z-50 pointer-events-none">
-                        {opt.tip}
+                {/* Minimalist Time Range Options */}
+                <div>
+                  <div className="text-[7.5px] font-black uppercase tracking-widest text-slate-400 px-1 mb-1">Time Period</div>
+                  <div className="space-y-0.5">
+                    {[
+                      { id: 'today', title: 'Today', tip: "Export Today's Orders" },
+                      { id: 'week', title: '7 Days', tip: 'Export Last 7 Days Orders' },
+                      { id: 'month', title: '30 Days', tip: 'Export Last 30 Days Orders' },
+                      { id: 'year', title: '1 Year', tip: 'Export Current Year Orders' },
+                      { id: 'all', title: 'All Time', tip: 'Export Full Sales History' },
+                    ].map(opt => (
+                      <div key={opt.id} className="relative group/titem">
+                        <button
+                          onClick={() => {
+                            handleExportTimeframe(opt.id as DatePresetTimeframe, exportFormat);
+                            setShowExportMenu(false);
+                          }}
+                          className="w-full text-left px-2.5 py-1.5 rounded-xl hover:bg-purple-50 text-slate-800 font-extrabold text-[9.5px] uppercase tracking-wider transition-colors flex items-center justify-between"
+                        >
+                          <span>{opt.title}</span>
+                          <span className="text-[8px] font-mono text-slate-300">↓</span>
+                        </button>
+                        <div className="absolute right-full top-1/2 -translate-y-1/2 mr-1.5 hidden group-hover/titem:flex items-center px-2 py-1 bg-slate-900 text-white text-[7.5px] font-bold uppercase tracking-wider rounded-lg shadow-xl whitespace-nowrap z-50 pointer-events-none">
+                          {opt.tip}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               </div>
             )}
