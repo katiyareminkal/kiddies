@@ -445,8 +445,6 @@ const Sales: React.FC = () => {
             </button>
           </div>
 
-        {/* Filter Button & Dropdown Container */}
-        <div className="relative" ref={filterMenuRef}>
           <button
             onClick={() => setShowFilters(!showFilters)}
             className={`px-3.5 py-2.5 rounded-xl border transition-all flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider ${
@@ -456,79 +454,78 @@ const Sales: React.FC = () => {
             <Filter size={13} strokeWidth={showFilters ? 3 : 2.5} />
             <span>Filter</span>
           </button>
+        </div>
+      </div>
 
-          {/* Filters Panel (Compact for PWA - Auto Closes On Screen Click Outside) */}
-          {showFilters && (
-            <div className="absolute right-0 top-full mt-2 w-[calc(100vw-2.5rem)] sm:w-[480px] max-w-[calc(100vw-2rem)] bg-white border border-slate-100 rounded-2xl p-3.5 sm:p-4 shadow-2xl z-[60] animate-nano space-y-3">
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2.5">
-                <div className="space-y-1">
-                  <label className="text-[8.5px] font-black uppercase text-slate-400 tracking-wider ml-1">From Date</label>
-                  <input
-                    type="date"
-                    className="w-full bg-slate-50 border border-slate-100 focus:bg-white focus:border-[#8B5CF6]/30 rounded-xl px-2.5 py-1.5 text-[10px] font-bold text-slate-700 outline-none uppercase transition-all"
-                    value={filterStartDate}
-                    onChange={(e) => setFilterStartDate(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="text-[8.5px] font-black uppercase text-slate-400 tracking-wider ml-1">To Date</label>
-                  <input
-                    type="date"
-                    className="w-full bg-slate-50 border border-slate-100 focus:bg-white focus:border-[#8B5CF6]/30 rounded-xl px-2.5 py-1.5 text-[10px] font-bold text-slate-700 outline-none uppercase transition-all"
-                    value={filterEndDate}
-                    onChange={(e) => setFilterEndDate(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="text-[8.5px] font-black uppercase text-slate-400 tracking-wider ml-1">Order Status</label>
-                  <select
-                    className="w-full bg-slate-50 border border-slate-100 focus:bg-white focus:border-[#8B5CF6]/30 rounded-xl px-2.5 py-1.5 text-[10px] font-bold text-slate-700 outline-none uppercase transition-all appearance-none cursor-pointer"
-                    value={filterStatus}
-                    onChange={(e) => setFilterStatus(e.target.value as OrderStatus | 'ALL')}
-                  >
-                    <option value="ALL">All Statuses</option>
-                    {Object.values(OrderStatus).map(status => (
-                      <option key={status} value={status}>{status}</option>
-                    ))}
-                  </select>
-                </div>
-                <div className="space-y-1">
-                  <label className="text-[8.5px] font-black uppercase text-slate-400 tracking-wider ml-1">Sales Channel</label>
-                  <select
-                    className="w-full bg-slate-50 border border-slate-100 focus:bg-white focus:border-[#8B5CF6]/30 rounded-xl px-2.5 py-1.5 text-[10px] font-bold text-slate-700 outline-none uppercase transition-all appearance-none cursor-pointer"
-                    value={filterChannel}
-                    onChange={(e) => setFilterChannel(e.target.value as SalesChannel | 'ALL')}
-                  >
-                    <option value="ALL">All Channels</option>
-                    {Object.values(SalesChannel).map(channel => (
-                      <option key={channel} value={channel}>{channel}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
+      {/* Filters Panel (Full-Width In-Flow Block - 100% In-Frame for PWA & Mobile) */}
+      {showFilters && (
+        <div ref={filterMenuRef} className="w-full bg-white border border-slate-100 rounded-2xl p-3.5 sm:p-4 shadow-md animate-nano space-y-3">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
+            <div className="space-y-1">
+              <label className="text-[8.5px] font-black uppercase text-slate-400 tracking-wider ml-1">From Date</label>
+              <input
+                type="date"
+                className="w-full bg-slate-50 border border-slate-100 focus:bg-white focus:border-[#8B5CF6]/30 rounded-xl px-2.5 py-1.5 text-[10px] font-bold text-slate-700 outline-none uppercase transition-all"
+                value={filterStartDate}
+                onChange={(e) => setFilterStartDate(e.target.value)}
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-[8.5px] font-black uppercase text-slate-400 tracking-wider ml-1">To Date</label>
+              <input
+                type="date"
+                className="w-full bg-slate-50 border border-slate-100 focus:bg-white focus:border-[#8B5CF6]/30 rounded-xl px-2.5 py-1.5 text-[10px] font-bold text-slate-700 outline-none uppercase transition-all"
+                value={filterEndDate}
+                onChange={(e) => setFilterEndDate(e.target.value)}
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-[8.5px] font-black uppercase text-slate-400 tracking-wider ml-1">Order Status</label>
+              <select
+                className="w-full bg-slate-50 border border-slate-100 focus:bg-white focus:border-[#8B5CF6]/30 rounded-xl px-2.5 py-1.5 text-[10px] font-bold text-slate-700 outline-none uppercase transition-all appearance-none cursor-pointer"
+                value={filterStatus}
+                onChange={(e) => setFilterStatus(e.target.value as OrderStatus | 'ALL')}
+              >
+                <option value="ALL">All Statuses</option>
+                {Object.values(OrderStatus).map(status => (
+                  <option key={status} value={status}>{status}</option>
+                ))}
+              </select>
+            </div>
+            <div className="space-y-1">
+              <label className="text-[8.5px] font-black uppercase text-slate-400 tracking-wider ml-1">Sales Channel</label>
+              <select
+                className="w-full bg-slate-50 border border-slate-100 focus:bg-white focus:border-[#8B5CF6]/30 rounded-xl px-2.5 py-1.5 text-[10px] font-bold text-slate-700 outline-none uppercase transition-all appearance-none cursor-pointer"
+                value={filterChannel}
+                onChange={(e) => setFilterChannel(e.target.value as SalesChannel | 'ALL')}
+              >
+                <option value="ALL">All Channels</option>
+                {Object.values(SalesChannel).map(channel => (
+                  <option key={channel} value={channel}>{channel}</option>
+                ))}
+              </select>
+            </div>
+          </div>
 
-              {(filterStartDate || filterEndDate || filterStatus !== 'ALL' || filterChannel !== 'ALL' || historySearchTerm) && (
-                <div className="flex justify-end pt-2 border-t border-slate-100">
-                  <button
-                    onClick={() => {
-                      setFilterStartDate('');
-                      setFilterEndDate('');
-                      setFilterStatus('ALL');
-                      setFilterChannel('ALL');
-                      setHistorySearchTerm('');
-                      setActiveDatePreset('ALL');
-                    }}
-                    className="px-3 py-1.5 text-[9px] font-black uppercase tracking-widest text-rose-500 hover:bg-rose-50 rounded-lg transition-colors flex items-center gap-1.5"
-                  >
-                    <XCircle size={13} /> Reset All Filters
-                  </button>
-                </div>
-              )}
+          {(filterStartDate || filterEndDate || filterStatus !== 'ALL' || filterChannel !== 'ALL' || historySearchTerm) && (
+            <div className="flex justify-end pt-2 border-t border-slate-100">
+              <button
+                onClick={() => {
+                  setFilterStartDate('');
+                  setFilterEndDate('');
+                  setFilterStatus('ALL');
+                  setFilterChannel('ALL');
+                  setHistorySearchTerm('');
+                  setActiveDatePreset('ALL');
+                }}
+                className="px-3 py-1.5 text-[9px] font-black uppercase tracking-widest text-rose-500 hover:bg-rose-50 rounded-lg transition-colors flex items-center gap-1.5"
+              >
+                <XCircle size={13} /> Reset All Filters
+              </button>
             </div>
           )}
         </div>
-      </div>
-    </div>
+      )}
 
       {/* Sales Display (Cards / List View) */}
       {viewMode === 'list' ? (
