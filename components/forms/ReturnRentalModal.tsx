@@ -273,7 +273,7 @@ export const ReturnRentalModal: React.FC<ReturnRentalModalProps> = ({ isOpen, on
               {/* Editable Late Fee */}
               <div className="space-y-1">
                 <div className="flex justify-between items-center px-0.5">
-                  <label className="text-[8px] font-black uppercase text-slate-400 tracking-wider">Late Fee (Editable) *</label>
+                  <label className="text-[8px] font-black uppercase text-slate-400 tracking-wider">Late Fee *</label>
                   {isLateFeeModified && (
                     <button 
                       type="button" 
