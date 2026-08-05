@@ -142,21 +142,9 @@ export const EditRentalModal: React.FC<EditRentalModalProps> = ({ isOpen, onClos
           </div>
         </div>
 
-        {/* Qty, Start Date, Start Time & Expected Return row */}
-        <div className="grid grid-cols-6 gap-1.5">
-          <div className="col-span-1 space-y-1">
-            <label className="text-[8px] font-black uppercase text-slate-400 tracking-wider px-0.5">Qty</label>
-            <input 
-              type="number" 
-              value={quantity}
-              onChange={(e) => setQuantity(Math.max(1, Number(e.target.value)))}
-              min="1" 
-              required 
-              className="w-full px-1.5 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#8B5CF6] rounded-xl outline-none font-bold text-[11px] text-center text-slate-900" 
-            />
-          </div>
-
-          <div className="col-span-2 space-y-1">
+        {/* Start Date & Expected Return Date in 1 Row */}
+        <div className="grid grid-cols-2 gap-2">
+          <div className="space-y-1">
             <label className="text-[8px] font-black uppercase text-slate-400 tracking-wider px-0.5">Start Date *</label>
             <input 
               type="date" 
@@ -167,18 +155,7 @@ export const EditRentalModal: React.FC<EditRentalModalProps> = ({ isOpen, onClos
             />
           </div>
 
-          <div className="col-span-1 space-y-1">
-            <label className="text-[8px] font-black uppercase text-slate-400 tracking-wider px-0.5">Time *</label>
-            <input 
-              type="time" 
-              value={startTime}
-              onChange={(e) => setStartTime(e.target.value)}
-              required 
-              className="w-full px-1 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#8B5CF6] rounded-xl outline-none font-bold text-[9.5px] text-slate-900 text-center" 
-            />
-          </div>
-
-          <div className="col-span-2 space-y-1">
+          <div className="space-y-1">
             <label className="text-[8px] font-black uppercase text-slate-400 tracking-wider px-0.5">Expected Return *</label>
             <input 
               type="date" 
@@ -187,6 +164,35 @@ export const EditRentalModal: React.FC<EditRentalModalProps> = ({ isOpen, onClos
               required 
               className="w-full px-2 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#8B5CF6] rounded-xl outline-none font-bold text-[10px] text-slate-900 uppercase" 
             />
+          </div>
+        </div>
+
+        {/* Quantity & Start Time in Next Row (Together in 1 Line) */}
+        <div className="grid grid-cols-2 gap-2">
+          <div className="space-y-1">
+            <label className="text-[8px] font-black uppercase text-slate-400 tracking-wider px-0.5">Quantity *</label>
+            <input 
+              type="number" 
+              value={quantity}
+              onChange={(e) => setQuantity(Math.max(1, Number(e.target.value)))}
+              min="1" 
+              required 
+              className="w-full px-2 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#8B5CF6] rounded-xl outline-none font-bold text-[11px] text-slate-900" 
+            />
+          </div>
+
+          <div className="space-y-1">
+            <label className="text-[8px] font-black uppercase text-slate-400 tracking-wider px-0.5">Start Time *</label>
+            <div className="relative group">
+              <Clock className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#8B5CF6]" size={13} strokeWidth={2.5} />
+              <input 
+                type="time" 
+                value={startTime}
+                onChange={(e) => setStartTime(e.target.value)}
+                required 
+                className="w-full pl-7 pr-2 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#8B5CF6] rounded-xl outline-none font-bold text-[10px] text-slate-900" 
+              />
+            </div>
           </div>
         </div>
 
