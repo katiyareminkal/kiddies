@@ -1,5 +1,5 @@
 
-import { differenceInDays, parseISO, isAfter } from 'date-fns';
+import { differenceInDays, differenceInMinutes, parseISO, isAfter } from 'date-fns';
 import { Rental, RentalStatus } from '../types';
 
 export const formatCurrency = (amount: number) => {
@@ -18,12 +18,18 @@ export const calculateRentalTotal = (startDate: string, endDate: string, dailyRa
 };
 
 export const calculateLateFee = (expectedReturnDate: string, actualReturnDate: string | undefined, dailyRate: number, quantity: number) => {
-  const expected = parseISO(expectedReturnDate);
-  const actual = actualReturnDate ? parseISO(actualReturnDate) : new Date();
-  
-  if (isAfter(actual, expected)) {
-    const overdueDays = differenceInDays(actual, expected);
-    return overdueDays * dailyRate * quantity * 1.5; // 1.5x penalty for late return
+  if (!expectedReturnDate) return 0;
+  try {
+    const expected = parseISO(expectedReturnDate);
+    const actual = actualReturnDate ? parseISO(actualReturnDate) : new Date();
+    
+    if (isAfter(actual, expected)) {
+      const diffMins = Math.max(1, differenceInMinutes(actual, expected));
+      const overdueDays = Math.max(1, Math.ceil(diffMins / (24 * 60)));
+      return overdueDays * dailyRate * quantity * 1.5; // 1.5x penalty for late return
+    }
+  } catch (e) {
+    return 0;
   }
   return 0;
 };
