@@ -1,4 +1,5 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useMemo } from 'react';
+import { differenceInDays, parseISO, addDays, format } from 'date-fns';
 import { 
   AlertCircle, 
   User, 
@@ -12,7 +13,10 @@ import {
   Plus,
   Phone,
   Mail,
-  MapPin
+  MapPin,
+  CheckCircle,
+  Clock,
+  Sparkles
 } from 'lucide-react';
 import { Modal } from '../Shared';
 import { useApp } from '../../store/AppContext';
@@ -35,6 +39,37 @@ export const NewRentalModal: React.FC<NewRentalModalProps> = ({ isOpen, onClose 
   const [newCustEmail, setNewCustEmail] = useState('');
   const [newCustAddress, setNewCustAddress] = useState('');
   const [isSavingCustomer, setIsSavingCustomer] = useState(false);
+
+  // Controlled form states for dynamic real-time financial calculations
+  const [selectedProductId, setSelectedProductId] = useState<string>('');
+  const [quantity, setQuantity] = useState<number>(1);
+  const todayStr = format(new Date(), 'yyyy-MM-dd');
+  const defaultReturnStr = format(addDays(new Date(), 3), 'yyyy-MM-dd');
+  const [startDate, setStartDate] = useState<string>(todayStr);
+  const [expectedReturnDate, setExpectedReturnDate] = useState<string>(defaultReturnStr);
+  const [securityDeposit, setSecurityDeposit] = useState<string>('');
+  const [paidAmount, setPaidAmount] = useState<string>('');
+
+  // Selected product & calculated breakdown
+  const selectedProduct = useMemo(() => {
+    return products.find(p => p.id === selectedProductId);
+  }, [products, selectedProductId]);
+
+  const rentalDays = useMemo(() => {
+    if (!startDate || !expectedReturnDate) return 1;
+    try {
+      const days = differenceInDays(parseISO(expectedReturnDate), parseISO(startDate));
+      return Math.max(1, days);
+    } catch (e) {
+      return 1;
+    }
+  }, [startDate, expectedReturnDate]);
+
+  const dailyRate = selectedProduct?.rentalPrice || 0;
+  const calculatedRentalAmount = rentalDays * dailyRate * (quantity || 1);
+  const numericDeposit = Number(securityDeposit) || 0;
+  const totalReceivable = calculatedRentalAmount + numericDeposit;
+  const numericPaid = Number(paidAmount) || 0;
 
   const handleSaveCustomerInline = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -109,60 +144,60 @@ export const NewRentalModal: React.FC<NewRentalModalProps> = ({ isOpen, onClose 
 
   const handleCreateRental = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const productId = formData.get('productId') as string;
-    const qty = Number(formData.get('quantity'));
-    const start = formData.get('startDate') as string;
-    const end = formData.get('expectedReturnDate') as string;
-    const product = products.find(p => p.id === productId);
 
-    if (product) {
-      if (!selectedCustomerId) {
-        alert("Please select a customer first.");
-        return;
-      }
-      const total = calculateRentalTotal(start, end, product.rentalPrice, qty);
+    if (!selectedProductId) {
+      alert("Please select a product for rental.");
+      return;
+    }
+
+    if (!selectedCustomerId) {
+      alert("Please select a customer first.");
+      return;
+    }
+
+    if (selectedProduct) {
       addRental({
         customerId: selectedCustomerId,
-        productId,
-        quantity: qty,
-        startDate: start,
-        expectedReturnDate: end,
-        dailyRate: product.rentalPrice,
-        securityDeposit: Number(formData.get('securityDeposit')),
-        totalRentAmount: total,
-        paidAmount: Number(formData.get('paidAmount')),
-        paymentStatus: Number(formData.get('paidAmount')) >= total ? PaymentStatus.PAID : PaymentStatus.PARTIAL,
+        productId: selectedProductId,
+        quantity: quantity || 1,
+        startDate: startDate || todayStr,
+        expectedReturnDate: expectedReturnDate || defaultReturnStr,
+        dailyRate: selectedProduct.rentalPrice,
+        securityDeposit: numericDeposit,
+        totalRentAmount: calculatedRentalAmount,
+        paidAmount: numericPaid,
+        paymentStatus: numericPaid >= totalReceivable ? PaymentStatus.PAID : (numericPaid > 0 ? PaymentStatus.PARTIAL : PaymentStatus.UNPAID),
         images: rentalImages,
       }, selectedFiles);
       
-      // Reset state and close
-      setRentalImages([]);
-      setSelectedFiles([]);
-      setSelectedCustomerId('');
-      setIsAddingCustomer(false);
-      onClose();
+      handleResetAndClose();
     }
   };
 
-  const handleClose = () => {
+  const handleResetAndClose = () => {
     setRentalImages([]);
     setSelectedFiles([]);
     setSelectedCustomerId('');
+    setSelectedProductId('');
+    setQuantity(1);
+    setStartDate(todayStr);
+    setExpectedReturnDate(defaultReturnStr);
+    setSecurityDeposit('');
+    setPaidAmount('');
     setIsAddingCustomer(false);
     onClose();
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} title="Create New Rental">
+    <Modal isOpen={isOpen} onClose={handleResetAndClose} title="Create New Rental Agreement">
       <form onSubmit={handleCreateRental} className="space-y-5">
-        <div className="p-4 bg-highlight/5 rounded-3xl border border-highlight/20 flex items-start gap-4">
-           <div className="p-2 bg-highlight/20 text-slate-900 rounded-2xl">
-              <AlertCircle size={18} strokeWidth={3} />
+        <div className="p-3.5 bg-[#8B5CF6]/5 rounded-2xl border border-[#8B5CF6]/15 flex items-start gap-3">
+           <div className="p-2 bg-[#8B5CF6]/15 text-[#8B5CF6] rounded-xl shrink-0">
+              <AlertCircle size={16} strokeWidth={2.5} />
            </div>
            <div>
-               <p className="text-[9px] font-black uppercase tracking-widest text-slate-900 mb-1">Rental Pool Notice</p>
-               <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 leading-relaxed">Items will be deducted from the <span className="text-slate-900">Rental Stock</span>.</p>
+               <p className="text-[9px] font-black uppercase tracking-wider text-slate-900 mb-0.5">Rental Stock Pool Notice</p>
+               <p className="text-[10px] font-bold text-slate-500 leading-relaxed">Items will be deducted from the <span className="text-[#8B5CF6] font-black">Rental Stock</span>. Security deposit is refundable upon item check-in.</p>
            </div>
         </div>
 
@@ -181,7 +216,7 @@ export const NewRentalModal: React.FC<NewRentalModalProps> = ({ isOpen, onClose 
                 <button 
                   type="button" 
                   onClick={() => setIsAddingCustomer(!isAddingCustomer)}
-                  className="text-[8.5px] font-black uppercase text-highlight hover:text-slate-900 tracking-widest transition-colors flex items-center gap-1"
+                  className="text-[8.5px] font-black uppercase text-[#8B5CF6] hover:text-slate-900 tracking-widest transition-colors flex items-center gap-1"
                 >
                   <Plus size={10} strokeWidth={3} /> Quick Add Customer
                 </button>
@@ -189,65 +224,65 @@ export const NewRentalModal: React.FC<NewRentalModalProps> = ({ isOpen, onClose 
               
               {!isAddingCustomer ? (
                 <div className="relative group">
-                  <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-highlight transition-colors" size={16} strokeWidth={3} />
+                  <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#8B5CF6] transition-colors" size={16} strokeWidth={2.5} />
                   <select 
                     name="customerId" 
                     value={selectedCustomerId}
                     onChange={(e) => setSelectedCustomerId(e.target.value)}
                     required 
-                    className="w-full pl-12 pr-10 py-3 bg-slate-50 border border-transparent focus:bg-white focus:border-highlight/30 rounded-2xl outline-none transition-all font-black uppercase tracking-widest text-[10px] text-slate-900 appearance-none"
+                    className="w-full pl-12 pr-10 py-3 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#8B5CF6] focus:ring-2 focus:ring-[#8B5CF6]/10 rounded-2xl outline-none transition-all font-bold uppercase tracking-wider text-xs text-slate-900 appearance-none cursor-pointer"
                   >
                     <option value="" disabled>Select Customer</option>
-                    {customers.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                    {customers.map(c => <option key={c.id} value={c.id}>{c.name} ({c.phone || 'No phone'})</option>)}
                   </select>
-                  <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={16} strokeWidth={3} />
+                  <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={16} strokeWidth={2.5} />
                 </div>
               ) : (
                 <div className="p-4 border border-slate-100 rounded-2xl bg-slate-50/50 space-y-3 text-left">
                   <div className="space-y-1">
-                    <label className="text-[7px] font-black uppercase text-slate-400 tracking-widest ml-1">Name *</label>
+                    <label className="text-[7.5px] font-black uppercase text-slate-400 tracking-widest ml-1">Name *</label>
                     <input 
                       type="text" 
                       placeholder="Customer Name"
                       value={newCustName}
                       onChange={(e) => setNewCustName(e.target.value)}
-                      className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-[9px] font-bold outline-none"
+                      className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold outline-none focus:border-[#8B5CF6]"
                     />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-[7px] font-black uppercase text-slate-400 tracking-widest ml-1">Phone *</label>
+                    <label className="text-[7.5px] font-black uppercase text-slate-400 tracking-widest ml-1">Phone *</label>
                     <input 
                       type="text" 
                       placeholder="Phone Number"
                       value={newCustPhone}
                       onChange={(e) => setNewCustPhone(e.target.value)}
-                      className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-[9px] font-bold outline-none"
+                      className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold outline-none focus:border-[#8B5CF6]"
                     />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-[7px] font-black uppercase text-slate-400 tracking-widest ml-1">Email</label>
+                    <label className="text-[7.5px] font-black uppercase text-slate-400 tracking-widest ml-1">Email</label>
                     <input 
                       type="email" 
                       placeholder="Email Address"
                       value={newCustEmail}
                       onChange={(e) => setNewCustEmail(e.target.value)}
-                      className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-[9px] font-bold outline-none"
+                      className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold outline-none focus:border-[#8B5CF6]"
                     />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-[7px] font-black uppercase text-slate-400 tracking-widest ml-1">Address</label>
+                    <label className="text-[7.5px] font-black uppercase text-slate-400 tracking-widest ml-1">Address</label>
                     <textarea 
                       placeholder="Billing Address"
                       value={newCustAddress}
                       onChange={(e) => setNewCustAddress(e.target.value)}
-                      className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-[9px] font-bold outline-none resize-none h-12"
+                      className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold outline-none resize-none h-12 focus:border-[#8B5CF6]"
                     />
                   </div>
                   <div className="flex gap-2 pt-1">
                     <button 
                       type="button" 
                       onClick={() => setIsAddingCustomer(false)}
-                      className="flex-1 py-2 border border-slate-200 text-slate-400 hover:text-slate-600 rounded-lg text-[8px] font-black uppercase tracking-widest"
+                      className="flex-1 py-2 border border-slate-200 text-slate-400 hover:text-slate-600 rounded-lg text-[8.5px] font-black uppercase tracking-wider"
                     >
                       Cancel
                     </button>
@@ -255,7 +290,7 @@ export const NewRentalModal: React.FC<NewRentalModalProps> = ({ isOpen, onClose 
                       type="button" 
                       onClick={handleSaveCustomerInline}
                       disabled={isSavingCustomer}
-                      className="flex-1 py-2 bg-slate-900 text-white hover:bg-slate-800 rounded-lg text-[8px] font-black uppercase tracking-widest disabled:opacity-50"
+                      className="flex-1 py-2 bg-slate-900 text-white hover:bg-slate-800 rounded-lg text-[8.5px] font-black uppercase tracking-wider disabled:opacity-50"
                     >
                       {isSavingCustomer ? 'Saving...' : 'Save Customer'}
                     </button>
@@ -267,9 +302,15 @@ export const NewRentalModal: React.FC<NewRentalModalProps> = ({ isOpen, onClose 
             <div className="space-y-2">
               <label className="text-[9px] font-black uppercase text-slate-400 tracking-widest ml-2">Product</label>
               <div className="relative group">
-                <Package className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-highlight transition-colors" size={16} strokeWidth={3} />
-                <select name="productId" required className="w-full pl-12 pr-10 py-3 bg-slate-50 border border-transparent focus:bg-white focus:border-highlight/30 rounded-2xl outline-none transition-all font-black uppercase tracking-widest text-[10px] text-slate-900 appearance-none">
-                  <option value="" disabled selected>Select Product</option>
+                <Package className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#8B5CF6] transition-colors" size={16} strokeWidth={2.5} />
+                <select 
+                  name="productId" 
+                  value={selectedProductId}
+                  onChange={(e) => setSelectedProductId(e.target.value)}
+                  required 
+                  className="w-full pl-12 pr-10 py-3 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#8B5CF6] focus:ring-2 focus:ring-[#8B5CF6]/10 rounded-2xl outline-none transition-all font-bold uppercase tracking-wider text-xs text-slate-900 appearance-none cursor-pointer"
+                >
+                  <option value="" disabled>Select Product</option>
                   {products
                     .filter(p => p.purpose === 'RENTAL' || p.purpose === 'HYBRID')
                     .map(p => {
@@ -282,7 +323,7 @@ export const NewRentalModal: React.FC<NewRentalModalProps> = ({ isOpen, onClose 
                       );
                     })}
                 </select>
-                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={16} strokeWidth={3} />
+                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={16} strokeWidth={2.5} />
               </div>
             </div>
           </div>
@@ -300,48 +341,136 @@ export const NewRentalModal: React.FC<NewRentalModalProps> = ({ isOpen, onClose 
             <div className="space-y-2">
               <label className="text-[9px] font-black uppercase text-slate-400 tracking-widest ml-2">Quantity</label>
               <div className="relative group">
-                <Hash className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-highlight transition-colors" size={16} strokeWidth={3} />
-                <input name="quantity" type="number" defaultValue="1" min="1" required className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-transparent focus:bg-white focus:border-highlight/30 rounded-2xl outline-none transition-all font-black uppercase tracking-widest text-[10px] text-slate-900" />
+                <Hash className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#8B5CF6] transition-colors" size={16} strokeWidth={2.5} />
+                <input 
+                  name="quantity" 
+                  type="number" 
+                  value={quantity}
+                  onChange={(e) => setQuantity(Math.max(1, Number(e.target.value)))}
+                  min="1" 
+                  required 
+                  className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#8B5CF6] focus:ring-2 focus:ring-[#8B5CF6]/10 rounded-2xl outline-none transition-all font-bold text-xs text-slate-900" 
+                />
               </div>
             </div>
             <div className="space-y-2">
               <label className="text-[9px] font-black uppercase text-slate-400 tracking-widest ml-2">Start Date</label>
-              <input name="startDate" type="date" required className="w-full px-4 py-3 bg-slate-50 border border-transparent focus:bg-white focus:border-highlight/30 rounded-2xl outline-none transition-all font-black uppercase tracking-widest text-[10px] text-slate-900" defaultValue={new Date().toISOString().split('T')[0]} />
+              <input 
+                name="startDate" 
+                type="date" 
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                required 
+                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#8B5CF6] focus:ring-2 focus:ring-[#8B5CF6]/10 rounded-2xl outline-none transition-all font-bold text-xs text-slate-900 uppercase" 
+              />
             </div>
             <div className="space-y-2">
               <label className="text-[9px] font-black uppercase text-slate-400 tracking-widest ml-2">Expected Return</label>
-              <input name="expectedReturnDate" type="date" required className="w-full px-4 py-3 bg-slate-50 border border-transparent focus:bg-white focus:border-highlight/30 rounded-2xl outline-none transition-all font-black uppercase tracking-widest text-[10px] text-slate-900" />
+              <input 
+                name="expectedReturnDate" 
+                type="date" 
+                value={expectedReturnDate}
+                onChange={(e) => setExpectedReturnDate(e.target.value)}
+                required 
+                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#8B5CF6] focus:ring-2 focus:ring-[#8B5CF6]/10 rounded-2xl outline-none transition-all font-bold text-xs text-slate-900 uppercase" 
+              />
             </div>
           </div>
         </div>
 
-        {/* Section: Financials */}
+        {/* Section: Financials (Rental Amount & Security Deposit Breakdown) */}
         <div className="space-y-4">
           <div className="flex items-center gap-3">
             <div className="h-px flex-1 bg-slate-100"></div>
-            <h4 className="text-[9px] font-black uppercase text-slate-400 tracking-widest">Financials</h4>
+            <h4 className="text-[9px] font-black uppercase text-slate-400 tracking-widest">Financials & Deposit</h4>
             <div className="h-px flex-1 bg-slate-100"></div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="text-[9px] font-black uppercase text-slate-400 tracking-widest ml-2">Security Deposit</label>
+              <div className="flex justify-between items-center ml-2">
+                <label className="text-[9px] font-black uppercase text-slate-400 tracking-widest">Security Deposit</label>
+                <span className="text-[8px] font-bold text-emerald-600 uppercase tracking-wider">100% Refundable</span>
+              </div>
               <div className="relative group">
-                <IndianRupee className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-highlight transition-colors" size={16} strokeWidth={3} />
-                <input name="securityDeposit" type="number" required className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-transparent focus:bg-white focus:border-highlight/30 rounded-2xl outline-none transition-all font-black uppercase tracking-widest text-[10px] text-slate-900" placeholder="Refundable amount" />
+                <IndianRupee className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#8B5CF6] transition-colors" size={16} strokeWidth={2.5} />
+                <input 
+                  name="securityDeposit" 
+                  type="number" 
+                  value={securityDeposit}
+                  onChange={(e) => setSecurityDeposit(e.target.value)}
+                  className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#8B5CF6] focus:ring-2 focus:ring-[#8B5CF6]/10 rounded-2xl outline-none transition-all font-bold text-xs text-slate-900" 
+                  placeholder="Refundable deposit amount" 
+                />
               </div>
             </div>
+
             <div className="space-y-2">
-              <label className="text-[9px] font-black uppercase text-slate-400 tracking-widest ml-2">Payment Received</label>
-              <div className="relative group">
-                <CreditCard className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-highlight transition-colors" size={16} strokeWidth={3} />
-                <input name="paidAmount" type="number" required className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-transparent focus:bg-white focus:border-highlight/30 rounded-2xl outline-none transition-all font-black uppercase tracking-widest text-[10px] text-slate-900" placeholder="Total payment received" />
+              <div className="flex justify-between items-center ml-2">
+                <label className="text-[9px] font-black uppercase text-slate-400 tracking-widest">Payment Received</label>
+                {totalReceivable > 0 && (
+                  <button 
+                    type="button"
+                    onClick={() => setPaidAmount(String(totalReceivable))}
+                    className="text-[8px] font-bold text-[#8B5CF6] hover:underline uppercase tracking-wider"
+                  >
+                    Collect All (₹{totalReceivable})
+                  </button>
+                )}
               </div>
+              <div className="relative group">
+                <CreditCard className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#8B5CF6] transition-colors" size={16} strokeWidth={2.5} />
+                <input 
+                  name="paidAmount" 
+                  type="number" 
+                  value={paidAmount}
+                  onChange={(e) => setPaidAmount(e.target.value)}
+                  required 
+                  className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#8B5CF6] focus:ring-2 focus:ring-[#8B5CF6]/10 rounded-2xl outline-none transition-all font-bold text-xs text-slate-900" 
+                  placeholder="Total payment received" 
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Real-time Rental Fee & Refundable Deposit Calculation Summary Box */}
+          <div className="p-4 bg-slate-50 border border-slate-200/80 rounded-2xl space-y-2.5 text-left">
+            <div className="flex justify-between items-center text-xs">
+              <span className="font-bold text-slate-500 uppercase tracking-wider text-[9px]">Rental Rate</span>
+              <span className="font-bold text-slate-700 font-mono text-[10px]">
+                {selectedProduct ? `${formatCurrency(dailyRate)}/day × ${rentalDays} day(s) × ${quantity} qty` : 'Select product to calculate'}
+              </span>
+            </div>
+            
+            <div className="flex justify-between items-center text-xs">
+              <span className="font-bold text-slate-700 uppercase tracking-wider text-[9.5px]">Calculated Rental Amount</span>
+              <span className="font-black text-slate-900 font-mono text-sm">{formatCurrency(calculatedRentalAmount)}</span>
+            </div>
+
+            <div className="flex justify-between items-center text-xs">
+              <span className="font-bold text-emerald-600 uppercase tracking-wider text-[9.5px]">Security Deposit (Refundable)</span>
+              <span className="font-black text-emerald-600 font-mono text-sm">{formatCurrency(numericDeposit)}</span>
+            </div>
+
+            <div className="pt-2 border-t border-slate-200 flex justify-between items-center">
+              <div>
+                <span className="font-black text-slate-900 uppercase tracking-wider text-[10px]">Total Receivable</span>
+                <p className="text-[8.5px] font-bold text-slate-400">Rental Fee ({formatCurrency(calculatedRentalAmount)}) + Deposit ({formatCurrency(numericDeposit)})</p>
+              </div>
+              <span className="font-black text-[#8B5CF6] font-mono text-base">{formatCurrency(totalReceivable)}</span>
+            </div>
+
+            {/* Refundable Notice Box */}
+            <div className="mt-2 p-2.5 bg-emerald-50/90 border border-emerald-100 rounded-xl flex items-start gap-2">
+              <CheckCircle size={14} className="text-emerald-600 shrink-0 mt-0.5" strokeWidth={2.5} />
+              <p className="text-[9.5px] font-bold text-emerald-800 leading-relaxed">
+                Security Deposit of <span className="font-mono font-black text-emerald-900">{formatCurrency(numericDeposit)}</span> is <span className="underline decoration-emerald-400 font-black">100% Refundable</span> after return inspection & deduction of any damage/late fees.
+              </p>
             </div>
           </div>
         </div>
 
-        {/* Section: Proof */}
+        {/* Section: Conditions / Proof */}
         <div className="space-y-4">
            <div className="flex items-center gap-3">
              <div className="h-px flex-1 bg-slate-100"></div>
@@ -359,19 +488,30 @@ export const NewRentalModal: React.FC<NewRentalModalProps> = ({ isOpen, onClose 
               ))}
               <button 
                 type="button"
-                className="w-24 h-24 rounded-3xl border border-dashed border-slate-200 flex flex-col items-center justify-center gap-1.5 text-slate-400 hover:border-highlight hover:text-highlight hover:bg-highlight/5 transition-all group" 
+                className="w-24 h-24 rounded-3xl border border-dashed border-slate-200 flex flex-col items-center justify-center gap-1.5 text-slate-400 hover:border-[#8B5CF6] hover:text-[#8B5CF6] hover:bg-[#8B5CF6]/5 transition-all group" 
                 onClick={() => fileInputRef.current?.click()}
               >
-                 <Upload size={20} strokeWidth={3} className="group-hover:scale-110 transition-transform" />
+                 <Upload size={20} strokeWidth={2.5} className="group-hover:scale-110 transition-transform" />
                  <span className="text-[8px] font-black uppercase tracking-widest">Add <span className="opacity-40">(Max 5MB)</span></span>
               </button>
            </div>
            <input type="file" ref={fileInputRef} onChange={handleImageChange} accept="image/*" multiple className="hidden" />
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-4 pt-4">
-          <button type="button" onClick={handleClose} className="w-full sm:flex-1 h-14 rounded-2xl font-black uppercase tracking-widest text-[9px] text-slate-400 border border-slate-100">Cancel</button>
-          <button type="submit" className="w-full sm:flex-1 h-14 rounded-2xl shadow-banana font-black uppercase tracking-widest text-[9px] bg-highlight text-slate-900">Issue Rental Invoice</button>
+        <div className="flex flex-col sm:flex-row gap-3 pt-3">
+          <button 
+            type="button" 
+            onClick={handleResetAndClose} 
+            className="w-full sm:flex-1 py-3.5 rounded-xl font-bold uppercase tracking-wider text-xs text-slate-500 border border-slate-200 hover:border-slate-300 transition-all"
+          >
+            Cancel
+          </button>
+          <button 
+            type="submit" 
+            className="w-full sm:flex-1 py-3.5 rounded-xl font-black uppercase tracking-wider text-xs bg-[#8B5CF6] hover:bg-[#7C3AED] text-white shadow-md shadow-[#8B5CF6]/20 transition-all active:scale-95"
+          >
+            Issue Rental Invoice
+          </button>
         </div>
       </form>
     </Modal>
