@@ -58,6 +58,7 @@ const Sales: React.FC = () => {
   const [showExportMenu, setShowExportMenu] = useState(false);
   const [exportFormat, setExportFormat] = useState<'excel' | 'csv'>('excel');
   const exportMenuRef = useRef<HTMLDivElement>(null);
+  const filterMenuRef = useRef<HTMLDivElement>(null);
 
   const [activeDatePreset, setActiveDatePreset] = useState<'ALL' | 'TODAY' | 'WEEK' | 'MONTH' | 'YEAR'>('ALL');
   const [filterStartDate, setFilterStartDate] = useState('');
@@ -66,20 +67,22 @@ const Sales: React.FC = () => {
   const [filterChannel, setFilterChannel] = useState<SalesChannel | 'ALL'>('ALL');
   const [selectedSaleId, setSelectedSaleId] = useState<string | null>(null);
 
-  // Close export dropdown when clicking anywhere outside
+  // Close export & filter dropdowns when clicking anywhere outside on screen
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (exportMenuRef.current && !exportMenuRef.current.contains(event.target as Node)) {
         setShowExportMenu(false);
       }
+      if (filterMenuRef.current && !filterMenuRef.current.contains(event.target as Node)) {
+        setShowFilters(false);
+      }
     };
-    if (showExportMenu) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
+
+    document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [showExportMenu]);
+  }, []);
 
   // Apply Quick Date Preset to date filters
   const applyDatePreset = (preset: 'ALL' | 'TODAY' | 'WEEK' | 'MONTH' | 'YEAR') => {
@@ -448,6 +451,8 @@ const Sales: React.FC = () => {
             </button>
           </div>
 
+        {/* Filter Button & Dropdown Container */}
+        <div className="relative" ref={filterMenuRef}>
           <button
             onClick={() => setShowFilters(!showFilters)}
             className={`px-3.5 py-2.5 rounded-xl border transition-all flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider ${
@@ -457,78 +462,79 @@ const Sales: React.FC = () => {
             <Filter size={13} strokeWidth={showFilters ? 3 : 2.5} />
             <span>Filter</span>
           </button>
-        </div>
-      </div>
 
-      {/* Filters Panel (Compact for PWA) */}
-      {showFilters && (
-        <div className="bg-white border border-slate-100 rounded-2xl p-3.5 sm:p-4 shadow-md animate-nano space-y-3">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
-            <div className="space-y-1">
-              <label className="text-[8.5px] font-black uppercase text-slate-400 tracking-wider ml-1">From Date</label>
-              <input
-                type="date"
-                className="w-full bg-slate-50 border border-slate-100 focus:bg-white focus:border-[#8B5CF6]/30 rounded-xl px-2.5 py-1.5 text-[10px] font-bold text-slate-700 outline-none uppercase transition-all"
-                value={filterStartDate}
-                onChange={(e) => setFilterStartDate(e.target.value)}
-              />
-            </div>
-            <div className="space-y-1">
-              <label className="text-[8.5px] font-black uppercase text-slate-400 tracking-wider ml-1">To Date</label>
-              <input
-                type="date"
-                className="w-full bg-slate-50 border border-slate-100 focus:bg-white focus:border-[#8B5CF6]/30 rounded-xl px-2.5 py-1.5 text-[10px] font-bold text-slate-700 outline-none uppercase transition-all"
-                value={filterEndDate}
-                onChange={(e) => setFilterEndDate(e.target.value)}
-              />
-            </div>
-            <div className="space-y-1">
-              <label className="text-[8.5px] font-black uppercase text-slate-400 tracking-wider ml-1">Order Status</label>
-              <select
-                className="w-full bg-slate-50 border border-slate-100 focus:bg-white focus:border-[#8B5CF6]/30 rounded-xl px-2.5 py-1.5 text-[10px] font-bold text-slate-700 outline-none uppercase transition-all appearance-none cursor-pointer"
-                value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value as OrderStatus | 'ALL')}
-              >
-                <option value="ALL">All Statuses</option>
-                {Object.values(OrderStatus).map(status => (
-                  <option key={status} value={status}>{status}</option>
-                ))}
-              </select>
-            </div>
-            <div className="space-y-1">
-              <label className="text-[8.5px] font-black uppercase text-slate-400 tracking-wider ml-1">Sales Channel</label>
-              <select
-                className="w-full bg-slate-50 border border-slate-100 focus:bg-white focus:border-[#8B5CF6]/30 rounded-xl px-2.5 py-1.5 text-[10px] font-bold text-slate-700 outline-none uppercase transition-all appearance-none cursor-pointer"
-                value={filterChannel}
-                onChange={(e) => setFilterChannel(e.target.value as SalesChannel | 'ALL')}
-              >
-                <option value="ALL">All Channels</option>
-                {Object.values(SalesChannel).map(channel => (
-                  <option key={channel} value={channel}>{channel}</option>
-                ))}
-              </select>
-            </div>
-          </div>
+          {/* Filters Panel (Compact for PWA - Auto Closes On Screen Click Outside) */}
+          {showFilters && (
+            <div className="absolute right-0 top-full mt-2 w-[300px] sm:w-[500px] bg-white border border-slate-100 rounded-2xl p-3.5 sm:p-4 shadow-2xl z-50 animate-nano space-y-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2.5">
+                <div className="space-y-1">
+                  <label className="text-[8.5px] font-black uppercase text-slate-400 tracking-wider ml-1">From Date</label>
+                  <input
+                    type="date"
+                    className="w-full bg-slate-50 border border-slate-100 focus:bg-white focus:border-[#8B5CF6]/30 rounded-xl px-2.5 py-1.5 text-[10px] font-bold text-slate-700 outline-none uppercase transition-all"
+                    value={filterStartDate}
+                    onChange={(e) => setFilterStartDate(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[8.5px] font-black uppercase text-slate-400 tracking-wider ml-1">To Date</label>
+                  <input
+                    type="date"
+                    className="w-full bg-slate-50 border border-slate-100 focus:bg-white focus:border-[#8B5CF6]/30 rounded-xl px-2.5 py-1.5 text-[10px] font-bold text-slate-700 outline-none uppercase transition-all"
+                    value={filterEndDate}
+                    onChange={(e) => setFilterEndDate(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[8.5px] font-black uppercase text-slate-400 tracking-wider ml-1">Order Status</label>
+                  <select
+                    className="w-full bg-slate-50 border border-slate-100 focus:bg-white focus:border-[#8B5CF6]/30 rounded-xl px-2.5 py-1.5 text-[10px] font-bold text-slate-700 outline-none uppercase transition-all appearance-none cursor-pointer"
+                    value={filterStatus}
+                    onChange={(e) => setFilterStatus(e.target.value as OrderStatus | 'ALL')}
+                  >
+                    <option value="ALL">All Statuses</option>
+                    {Object.values(OrderStatus).map(status => (
+                      <option key={status} value={status}>{status}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[8.5px] font-black uppercase text-slate-400 tracking-wider ml-1">Sales Channel</label>
+                  <select
+                    className="w-full bg-slate-50 border border-slate-100 focus:bg-white focus:border-[#8B5CF6]/30 rounded-xl px-2.5 py-1.5 text-[10px] font-bold text-slate-700 outline-none uppercase transition-all appearance-none cursor-pointer"
+                    value={filterChannel}
+                    onChange={(e) => setFilterChannel(e.target.value as SalesChannel | 'ALL')}
+                  >
+                    <option value="ALL">All Channels</option>
+                    {Object.values(SalesChannel).map(channel => (
+                      <option key={channel} value={channel}>{channel}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
 
-          {(filterStartDate || filterEndDate || filterStatus !== 'ALL' || filterChannel !== 'ALL' || historySearchTerm) && (
-            <div className="flex justify-end pt-2 border-t border-slate-100">
-              <button
-                onClick={() => {
-                  setFilterStartDate('');
-                  setFilterEndDate('');
-                  setFilterStatus('ALL');
-                  setFilterChannel('ALL');
-                  setHistorySearchTerm('');
-                  setActiveDatePreset('ALL');
-                }}
-                className="px-3 py-1.5 text-[9px] font-black uppercase tracking-widest text-rose-500 hover:bg-rose-50 rounded-lg transition-colors flex items-center gap-1.5"
-              >
-                <XCircle size={13} /> Reset All Filters
-              </button>
+              {(filterStartDate || filterEndDate || filterStatus !== 'ALL' || filterChannel !== 'ALL' || historySearchTerm) && (
+                <div className="flex justify-end pt-2 border-t border-slate-100">
+                  <button
+                    onClick={() => {
+                      setFilterStartDate('');
+                      setFilterEndDate('');
+                      setFilterStatus('ALL');
+                      setFilterChannel('ALL');
+                      setHistorySearchTerm('');
+                      setActiveDatePreset('ALL');
+                    }}
+                    className="px-3 py-1.5 text-[9px] font-black uppercase tracking-widest text-rose-500 hover:bg-rose-50 rounded-lg transition-colors flex items-center gap-1.5"
+                  >
+                    <XCircle size={13} /> Reset All Filters
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </div>
-      )}
+      </div>
+    </div>
 
       {/* Sales Display (Cards / List View) */}
       {viewMode === 'list' ? (
@@ -726,6 +732,16 @@ const Sales: React.FC = () => {
           onClose={() => setSelectedSaleId(null)} 
         />
       )}
+
+      {/* Floating Action Button for New Sale (Bottom Right FAB) */}
+      <button
+        onClick={() => setIsAddingSale(true)}
+        className="fixed bottom-6 right-6 sm:bottom-8 sm:right-8 z-40 bg-[#8B5CF6] hover:bg-[#7C3AED] text-white p-3.5 sm:px-5 sm:py-3.5 rounded-full shadow-2xl shadow-purple-600/40 flex items-center gap-2 hover:scale-105 active:scale-95 transition-all group cursor-pointer"
+        title="Create New Sale"
+      >
+        <Plus size={22} strokeWidth={3} className="group-hover:rotate-90 transition-transform duration-200" />
+        <span className="hidden sm:inline text-xs font-black uppercase tracking-wider pr-1">New Sale</span>
+      </button>
     </div>
   );
 };
