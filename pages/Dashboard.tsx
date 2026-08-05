@@ -547,6 +547,12 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
     return data;
   }, [sales, rentals, timeframe, startDateFilter, endDateFilter]);
 
+  const chartTotals = useMemo(() => {
+    const totalSales = salesGraphData.reduce((sum, d) => sum + (d.Sales || 0), 0);
+    const totalRentals = salesGraphData.reduce((sum, d) => sum + (d.Rentals || 0), 0);
+    return { totalSales, totalRentals, combined: totalSales + totalRentals };
+  }, [salesGraphData]);
+
   // Combined Recent Feed 
   const recentActivities = useMemo(() => {
     const feeds = [];
