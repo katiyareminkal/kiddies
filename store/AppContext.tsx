@@ -2270,11 +2270,15 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       }
     }
 
+    const finalTotalRent = rental.totalRentAmount + lateFee;
+
     const updates: Partial<Rental> = {
       status: RentalStatus.RETURNED,
       actualReturnDate: nowStr,
       lateFee,
-      totalRentAmount: rental.totalRentAmount + lateFee,
+      totalRentAmount: finalTotalRent,
+      paidAmount: finalTotalRent,
+      paymentStatus: PaymentStatus.PAID,
       returnImages: returnImageUrls
     };
 
@@ -2300,7 +2304,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         status: RentalStatus.RETURNED,
         actual_return_date: nowStr,
         late_fee: lateFee,
-        total_rent_amount: rental.totalRentAmount + lateFee,
+        total_rent_amount: finalTotalRent,
+        paid_amount: finalTotalRent,
+        payment_status: PaymentStatus.PAID,
         return_images: returnImageUrls
       }).eq('id', id);
       if (returnError) console.warn('Supabase returnRental error:', returnError);
