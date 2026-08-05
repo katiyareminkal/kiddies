@@ -503,34 +503,6 @@ const AppContent: React.FC = () => {
     }
   }, [activeTab]);
 
-  if (!isAuthReady) {
-    return (
-      <div className="h-screen w-screen flex flex-col items-center justify-center bg-white relative overflow-hidden">
-        {/* Abstract Background Elements */}
-        <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-[#FACC15]/5 rounded-full blur-[120px]"></div>
-        <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-[#FACC15]/5 rounded-full blur-[120px]"></div>
-
-        <div className="relative z-10 flex flex-col items-center">
-          <motion.img
-            src="/logo.png"
-            alt="Kiddies Logo"
-            initial={{ y: 0, scale: 1 }}
-            animate={{ y: [-14, 0], scale: [1.05, 1] }}
-            transition={{
-              duration: 0.65,
-              ease: [0.28, 0.84, 0.42, 1],
-              repeat: Infinity,
-              repeatType: "reverse"
-            }}
-            className="h-24 object-contain drop-shadow-md mb-3"
-          />
-          <div className="text-[#8B5CF6] text-[8px] font-black uppercase tracking-[0.3em] mb-6">Stock Management</div>
-          <Loader2 size={24} className="text-[#8B5CF6] animate-spin opacity-80" strokeWidth={2.5} />
-        </div>
-      </div>
-    );
-  }
-
   if (isPasswordRecovery) {
     return <ResetPasswordScreen />;
   }
