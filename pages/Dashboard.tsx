@@ -261,6 +261,28 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
     return { goodPcs, lowPcs, outOfStockSKUs };
   }, [products]);
 
+  const calcEventRemaining = (dateStr: string) => {
+    try {
+      const today = new Date();
+      const parsed = new Date(dateStr);
+      if (isNaN(parsed.getTime())) return 'Upcoming';
+
+      let target = parsed;
+      if (target < today && !isSameDay(target, today)) {
+        const nextYear = today.getFullYear() + (target.getMonth() < today.getMonth() || (target.getMonth() === today.getMonth() && target.getDate() < today.getDate()) ? 1 : 0);
+        target = new Date(nextYear, parsed.getMonth(), parsed.getDate());
+      }
+
+      const diff = differenceInDays(target, today);
+      if (diff === 0) return 'Today!';
+      if (diff === 1) return '1 Day';
+      if (diff > 0) return `${diff} Days`;
+      return 'Passed';
+    } catch {
+      return 'Upcoming';
+    }
+  };
+
   React.useEffect(() => {
     const lastBackup = localStorage.getItem('kiddies_last_excel_backup_date');
     const today = new Date().toDateString();
@@ -880,7 +902,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
                           📅 <span>Date:</span> <strong className="text-slate-900 font-extrabold">{event.date}</strong>
                         </p>
                         <p className="flex items-center gap-1.5">
-                          ⏳ <span>Remaining:</span> <strong className="text-purple-700 font-extrabold">24 Days</strong>
+                          ⏳ <span>Remaining:</span> <strong className="text-purple-700 font-extrabold">{calcEventRemaining(event.date)}</strong>
                         </p>
                       </div>
 
