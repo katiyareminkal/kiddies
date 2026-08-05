@@ -673,35 +673,35 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
         )}
       </div>
 
-      {/* 1. Quick Actions Overview (Mobile Friendly Horizontal Scroll) */}
-      <div className="flex gap-3 overflow-x-auto hide-scrollbar pb-2 pt-2 -mx-2 px-2 snap-x">
-        <button onClick={() => setIsProductModalOpen(true)} className="snap-start shrink-0 flex flex-col items-center justify-center p-3 w-20 md:w-24 bg-white border border-slate-100 rounded-2xl shadow-sm hover:border-highlight hover:shadow-md transition-all group">
-          <div className="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center mb-2 group-hover:scale-110 transition-transform"><PlusCircle size={20} strokeWidth={2.5} /></div>
-          <span className="text-[9px] font-bold text-slate-600 text-center leading-tight">Add<br />Product</span>
+      {/* 1. Quick Actions Overview (Compact Grid - Zero Horizontal Scroll) */}
+      <div className="grid grid-cols-4 sm:grid-cols-7 gap-1.5 md:gap-2">
+        <button onClick={() => setIsProductModalOpen(true)} className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 p-2 sm:p-2.5 bg-white border border-slate-100 rounded-xl shadow-xs hover:border-indigo-200 hover:bg-indigo-50/20 transition-all group">
+          <div className="w-6 h-6 sm:w-7 sm:h-7 bg-indigo-50 text-indigo-600 rounded-lg flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform"><PlusCircle size={14} strokeWidth={2.5} /></div>
+          <span className="text-[9px] font-bold text-slate-700 text-center sm:text-left leading-tight truncate">+ Product</span>
         </button>
-        <button onClick={() => setIsCreateBillModalOpen(true)} className="snap-start shrink-0 flex flex-col items-center justify-center p-3 w-20 md:w-24 bg-white border border-slate-100 rounded-2xl shadow-sm hover:border-highlight hover:shadow-md transition-all group">
-          <div className="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center mb-2 group-hover:scale-110 transition-transform"><ShoppingBag size={20} strokeWidth={2.5} /></div>
-          <span className="text-[9px] font-bold text-slate-600 text-center leading-tight">Create<br />Bill</span>
+        <button onClick={() => setIsCreateBillModalOpen(true)} className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 p-2 sm:p-2.5 bg-white border border-slate-100 rounded-xl shadow-xs hover:border-emerald-200 hover:bg-emerald-50/20 transition-all group">
+          <div className="w-6 h-6 sm:w-7 sm:h-7 bg-emerald-50 text-emerald-600 rounded-lg flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform"><ShoppingBag size={14} strokeWidth={2.5} /></div>
+          <span className="text-[9px] font-bold text-slate-700 text-center sm:text-left leading-tight truncate">+ Bill</span>
         </button>
-        <button onClick={() => setIsNewRentalModalOpen(true)} className="snap-start shrink-0 flex flex-col items-center justify-center p-3 w-20 md:w-24 bg-white border border-slate-100 rounded-2xl shadow-sm hover:border-highlight hover:shadow-md transition-all group">
-          <div className="w-10 h-10 bg-rose-50 text-rose-600 rounded-xl flex items-center justify-center mb-2 group-hover:scale-110 transition-transform"><Calendar size={20} strokeWidth={2.5} /></div>
-          <span className="text-[9px] font-bold text-slate-600 text-center leading-tight">Rental<br />Booking</span>
+        <button onClick={() => setIsNewRentalModalOpen(true)} className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 p-2 sm:p-2.5 bg-white border border-slate-100 rounded-xl shadow-xs hover:border-rose-200 hover:bg-rose-50/20 transition-all group">
+          <div className="w-6 h-6 sm:w-7 sm:h-7 bg-rose-50 text-rose-600 rounded-lg flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform"><Calendar size={14} strokeWidth={2.5} /></div>
+          <span className="text-[9px] font-bold text-slate-700 text-center sm:text-left leading-tight truncate">+ Rental</span>
         </button>
-        <button onClick={() => setIsReturnRentalModalOpen(true)} className="snap-start shrink-0 flex flex-col items-center justify-center p-3 w-20 md:w-24 bg-white border border-slate-100 rounded-2xl shadow-sm hover:border-highlight hover:shadow-md transition-all group">
-          <div className="w-10 h-10 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center mb-2 group-hover:scale-110 transition-transform"><Undo2 size={20} strokeWidth={2.5} /></div>
-          <span className="text-[9px] font-bold text-slate-600 text-center leading-tight">Return<br />Rental</span>
+        <button onClick={() => setIsReturnRentalModalOpen(true)} className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 p-2 sm:p-2.5 bg-white border border-slate-100 rounded-xl shadow-xs hover:border-amber-200 hover:bg-amber-50/20 transition-all group">
+          <div className="w-6 h-6 sm:w-7 sm:h-7 bg-amber-50 text-amber-600 rounded-lg flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform"><Undo2 size={14} strokeWidth={2.5} /></div>
+          <span className="text-[9px] font-bold text-slate-700 text-center sm:text-left leading-tight truncate">Return</span>
         </button>
-        <button onClick={() => setIsStockModalOpen(true)} className="snap-start shrink-0 flex flex-col items-center justify-center p-3 w-20 md:w-24 bg-white border border-slate-100 rounded-2xl shadow-sm hover:border-highlight hover:shadow-md transition-all group">
-          <div className="w-10 h-10 bg-teal-50 text-teal-600 rounded-xl flex items-center justify-center mb-2 group-hover:scale-110 transition-transform"><Package size={20} strokeWidth={2.5} /></div>
-          <span className="text-[9px] font-bold text-slate-600 text-center leading-tight">Stock<br />Entry</span>
+        <button onClick={() => setIsStockModalOpen(true)} className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 p-2 sm:p-2.5 bg-white border border-slate-100 rounded-xl shadow-xs hover:border-teal-200 hover:bg-teal-50/20 transition-all group">
+          <div className="w-6 h-6 sm:w-7 sm:h-7 bg-teal-50 text-teal-600 rounded-lg flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform"><Package size={14} strokeWidth={2.5} /></div>
+          <span className="text-[9px] font-bold text-slate-700 text-center sm:text-left leading-tight truncate">+ Stock</span>
         </button>
-        <button onClick={() => setIsCustomerModalOpen(true)} className="snap-start shrink-0 flex flex-col items-center justify-center p-3 w-20 md:w-24 bg-white border border-slate-100 rounded-2xl shadow-sm hover:border-highlight hover:shadow-md transition-all group">
-          <div className="w-10 h-10 bg-sky-50 text-sky-600 rounded-xl flex items-center justify-center mb-2 group-hover:scale-110 transition-transform"><Users size={20} strokeWidth={2.5} /></div>
-          <span className="text-[9px] font-bold text-slate-600 text-center leading-tight">Add<br />Customer</span>
+        <button onClick={() => setIsCustomerModalOpen(true)} className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 p-2 sm:p-2.5 bg-white border border-slate-100 rounded-xl shadow-xs hover:border-sky-200 hover:bg-sky-50/20 transition-all group">
+          <div className="w-6 h-6 sm:w-7 sm:h-7 bg-sky-50 text-sky-600 rounded-lg flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform"><Users size={14} strokeWidth={2.5} /></div>
+          <span className="text-[9px] font-bold text-slate-700 text-center sm:text-left leading-tight truncate">+ Customer</span>
         </button>
-        <button onClick={() => setIsRecordExpenseModalOpen(true)} className="snap-start shrink-0 flex flex-col items-center justify-center p-3 w-20 md:w-24 bg-white border border-slate-100 rounded-2xl shadow-sm hover:border-highlight hover:shadow-md transition-all group">
-          <div className="w-10 h-10 bg-rose-50 text-rose-700 rounded-xl flex items-center justify-center mb-2 group-hover:scale-110 transition-transform"><Wallet size={20} strokeWidth={2.5} /></div>
-          <span className="text-[9px] font-bold text-slate-600 text-center leading-tight">Cash Out /<br />Expense</span>
+        <button onClick={() => setIsRecordExpenseModalOpen(true)} className="col-span-2 sm:col-span-1 flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 p-2 sm:p-2.5 bg-white border border-slate-100 rounded-xl shadow-xs hover:border-rose-200 hover:bg-rose-50/20 transition-all group">
+          <div className="w-6 h-6 sm:w-7 sm:h-7 bg-rose-50 text-rose-700 rounded-lg flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform"><Wallet size={14} strokeWidth={2.5} /></div>
+          <span className="text-[9px] font-bold text-slate-700 text-center sm:text-left leading-tight truncate">+ Expense</span>
         </button>
       </div>
 
