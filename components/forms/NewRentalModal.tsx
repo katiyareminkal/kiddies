@@ -202,104 +202,101 @@ export const NewRentalModal: React.FC<NewRentalModalProps> = ({ isOpen, onClose 
            </p>
         </div>
 
-        {/* Row 1: Customer & Product (Strictly 2 columns on ALL devices) */}
-        <div className="grid grid-cols-2 gap-2">
-          {/* Customer Selection */}
-          <div className="space-y-1">
-            <div className="flex justify-between items-center px-0.5">
-              <label className="text-[8px] font-black uppercase text-slate-400 tracking-wider">Customer *</label>
-              <button 
-                type="button" 
-                onClick={() => setIsAddingCustomer(!isAddingCustomer)}
-                className="text-[7.5px] font-black uppercase text-[#8B5CF6] hover:text-slate-900 tracking-wider transition-colors flex items-center gap-0.5"
-              >
-                <Plus size={8} strokeWidth={3} /> Quick Add
-              </button>
-            </div>
-            
-            {!isAddingCustomer ? (
-              <div className="relative group">
-                <User className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#8B5CF6] transition-colors" size={13} strokeWidth={2.5} />
-                <select 
-                  name="customerId" 
-                  value={selectedCustomerId}
-                  onChange={(e) => setSelectedCustomerId(e.target.value)}
-                  required 
-                  className="w-full pl-7 pr-6 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#8B5CF6] rounded-xl outline-none transition-all font-bold text-[11px] text-slate-900 appearance-none cursor-pointer"
-                >
-                  <option value="" disabled>Select Customer</option>
-                  {customers.map(c => <option key={c.id} value={c.id}>{c.name} ({c.phone || 'No phone'})</option>)}
-                </select>
-                <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={13} strokeWidth={2.5} />
-              </div>
-            ) : (
-              <div className="p-2 border border-slate-200 rounded-xl bg-slate-50/50 space-y-1.5 text-left">
-                <input 
-                  type="text" 
-                  placeholder="Customer Name *"
-                  value={newCustName}
-                  onChange={(e) => setNewCustName(e.target.value)}
-                  className="w-full px-2 py-1 bg-white border border-slate-200 rounded-lg text-[10px] font-bold outline-none focus:border-[#8B5CF6]"
-                />
-                <input 
-                  type="text" 
-                  placeholder="Phone Number *"
-                  value={newCustPhone}
-                  onChange={(e) => setNewCustPhone(e.target.value)}
-                  className="w-full px-2 py-1 bg-white border border-slate-200 rounded-lg text-[10px] font-bold outline-none focus:border-[#8B5CF6]"
-                />
-                <div className="flex gap-1.5 pt-0.5">
-                  <button 
-                    type="button" 
-                    onClick={() => setIsAddingCustomer(false)}
-                    className="flex-1 py-1 border border-slate-200 text-slate-400 hover:text-slate-600 rounded-lg text-[7.5px] font-black uppercase tracking-wider"
-                  >
-                    Cancel
-                  </button>
-                  <button 
-                    type="button" 
-                    onClick={handleSaveCustomerInline}
-                    disabled={isSavingCustomer}
-                    className="flex-1 py-1 bg-slate-900 text-white hover:bg-slate-800 rounded-lg text-[7.5px] font-black uppercase tracking-wider disabled:opacity-50"
-                  >
-                    {isSavingCustomer ? 'Saving...' : 'Save'}
-                  </button>
-                </div>
-              </div>
-            )}
+        {/* Customer Selection (Separate Line - Full Width) */}
+        <div className="space-y-1">
+          <div className="flex justify-between items-center px-0.5">
+            <label className="text-[8px] font-black uppercase text-slate-400 tracking-wider">Customer *</label>
+            <button 
+              type="button" 
+              onClick={() => setIsAddingCustomer(!isAddingCustomer)}
+              className="text-[7.5px] font-black uppercase text-[#8B5CF6] hover:text-slate-900 tracking-wider transition-colors flex items-center gap-0.5"
+            >
+              <Plus size={8} strokeWidth={3} /> Quick Add
+            </button>
           </div>
-
-          {/* Product Selection */}
-          <div className="space-y-1">
-            <label className="text-[8px] font-black uppercase text-slate-400 tracking-wider px-0.5">Product *</label>
+          
+          {!isAddingCustomer ? (
             <div className="relative group">
-              <Package className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#8B5CF6] transition-colors" size={13} strokeWidth={2.5} />
+              <User className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#8B5CF6] transition-colors" size={13} strokeWidth={2.5} />
               <select 
-                name="productId" 
-                value={selectedProductId}
-                onChange={(e) => setSelectedProductId(e.target.value)}
+                name="customerId" 
+                value={selectedCustomerId}
+                onChange={(e) => setSelectedCustomerId(e.target.value)}
                 required 
                 className="w-full pl-7 pr-6 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#8B5CF6] rounded-xl outline-none transition-all font-bold text-[11px] text-slate-900 appearance-none cursor-pointer"
               >
-                <option value="" disabled>Select Product</option>
-                {products
-                  .filter(p => p.purpose === 'RENTAL' || p.purpose === 'HYBRID')
-                  .map(p => {
-                    const avail = p.rentalStock > 0 ? p.rentalStock : (p.purpose === 'HYBRID' ? p.saleStock : 0);
-                    const isShared = p.rentalStock === 0 && p.purpose === 'HYBRID' && p.saleStock > 0;
-                    return (
-                      <option key={p.id} value={p.id} disabled={avail === 0}>
-                        {p.name} ({formatCurrency(p.rentalPrice)}/d) - Avail: {avail} {isShared ? '(Sale Stock)' : ''}
-                      </option>
-                    );
-                  })}
+                <option value="" disabled>Select Customer</option>
+                {customers.map(c => <option key={c.id} value={c.id}>{c.name} ({c.phone || 'No phone'})</option>)}
               </select>
               <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={13} strokeWidth={2.5} />
             </div>
+          ) : (
+            <div className="p-2 border border-slate-200 rounded-xl bg-slate-50/50 space-y-1.5 text-left">
+              <input 
+                type="text" 
+                placeholder="Customer Name *"
+                value={newCustName}
+                onChange={(e) => setNewCustName(e.target.value)}
+                className="w-full px-2 py-1 bg-white border border-slate-200 rounded-lg text-[10px] font-bold outline-none focus:border-[#8B5CF6]"
+              />
+              <input 
+                type="text" 
+                placeholder="Phone Number *"
+                value={newCustPhone}
+                onChange={(e) => setNewCustPhone(e.target.value)}
+                className="w-full px-2 py-1 bg-white border border-slate-200 rounded-lg text-[10px] font-bold outline-none focus:border-[#8B5CF6]"
+              />
+              <div className="flex gap-1.5 pt-0.5">
+                <button 
+                  type="button" 
+                  onClick={() => setIsAddingCustomer(false)}
+                  className="flex-1 py-1 border border-slate-200 text-slate-400 hover:text-slate-600 rounded-lg text-[7.5px] font-black uppercase tracking-wider"
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="button" 
+                  onClick={handleSaveCustomerInline}
+                  disabled={isSavingCustomer}
+                  className="flex-1 py-1 bg-slate-900 text-white hover:bg-slate-800 rounded-lg text-[7.5px] font-black uppercase tracking-wider disabled:opacity-50"
+                >
+                  {isSavingCustomer ? 'Saving...' : 'Save'}
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Product Selection (Separate Line - Full Width) */}
+        <div className="space-y-1">
+          <label className="text-[8px] font-black uppercase text-slate-400 tracking-wider px-0.5">Product *</label>
+          <div className="relative group">
+            <Package className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#8B5CF6] transition-colors" size={13} strokeWidth={2.5} />
+            <select 
+              name="productId" 
+              value={selectedProductId}
+              onChange={(e) => setSelectedProductId(e.target.value)}
+              required 
+              className="w-full pl-7 pr-6 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#8B5CF6] rounded-xl outline-none transition-all font-bold text-[11px] text-slate-900 appearance-none cursor-pointer"
+            >
+              <option value="" disabled>Select Product</option>
+              {products
+                .filter(p => p.purpose === 'RENTAL' || p.purpose === 'HYBRID')
+                .map(p => {
+                  const avail = p.rentalStock > 0 ? p.rentalStock : (p.purpose === 'HYBRID' ? p.saleStock : 0);
+                  const isShared = p.rentalStock === 0 && p.purpose === 'HYBRID' && p.saleStock > 0;
+                  return (
+                    <option key={p.id} value={p.id} disabled={avail === 0}>
+                      {p.name} ({formatCurrency(p.rentalPrice)}/d) - Avail: {avail} {isShared ? '(Sale Stock)' : ''}
+                    </option>
+                  );
+                })}
+            </select>
+            <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={13} strokeWidth={2.5} />
           </div>
         </div>
 
-        {/* Row 2: Qty (1/5) & Dates in 1 Row (Strictly 2 columns for dates!) */}
+        {/* Qty (1/5), Start Date & Expected Return Date in 1 Row */}
         <div className="grid grid-cols-5 gap-2">
           <div className="col-span-1 space-y-1">
             <label className="text-[8px] font-black uppercase text-slate-400 tracking-wider px-0.5">Qty</label>
@@ -339,7 +336,7 @@ export const NewRentalModal: React.FC<NewRentalModalProps> = ({ isOpen, onClose 
           </div>
         </div>
 
-        {/* Row 3: Security Deposit & Rental Amount (Strictly 2 Columns on ALL devices including mobile PWA!) */}
+        {/* Security Deposit & Rental Amount (Strictly 2 Columns on 1 Row) */}
         <div className="grid grid-cols-2 gap-2">
           <div className="space-y-1">
             <div className="flex justify-between items-center px-0.5">
@@ -418,7 +415,7 @@ export const NewRentalModal: React.FC<NewRentalModalProps> = ({ isOpen, onClose 
           </div>
         </div>
 
-        {/* Section: Conditions / Proof Upload (Compact) */}
+        {/* Section: Conditions / Proof Upload */}
         <div className="space-y-1 pt-0.5">
            <div className="flex items-center gap-2">
              <div className="h-px flex-1 bg-slate-100"></div>
