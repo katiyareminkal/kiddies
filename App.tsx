@@ -519,15 +519,15 @@ const AppContent: React.FC = () => {
           <motion.img
             src="/logo.png"
             alt="Kiddies Logo"
-            initial={{ opacity: 0.5, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
+            initial={{ y: 0, scale: 1 }}
+            animate={{ y: [-14, 0], scale: [1.05, 1] }}
             transition={{
-              duration: 1,
-              ease: "easeInOut",
+              duration: 0.65,
+              ease: [0.28, 0.84, 0.42, 1],
               repeat: Infinity,
               repeatType: "reverse"
             }}
-            className="h-20 object-contain drop-shadow-md mb-2"
+            className="h-24 object-contain drop-shadow-md mb-3"
           />
           <div className="text-[#8B5CF6] text-[8px] font-black uppercase tracking-[0.3em] mb-6">Stock Management</div>
           <Loader2 size={24} className="text-[#8B5CF6] animate-spin opacity-80" strokeWidth={2.5} />

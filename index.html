@@ -238,7 +238,7 @@
             </div>
             <div style="position: relative; z-index: 10; display: flex; flex-direction: column; align-items: center;">
                 <img src="/logo.png" alt="Logo"
-                    style="height: 80px; object-fit: contain; margin-bottom: 8px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.05));" />
+                    style="height: 90px; object-fit: contain; margin-bottom: 12px; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.08)); animation: bounceLogo 0.8s cubic-bezier(0.28, 0.84, 0.42, 1) infinite alternate;" />
                 <div
                     style="color: #8B5CF6; font-size: 8px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.3em; margin-bottom: 24px;">
                     Stock Management</div>
@@ -251,6 +251,14 @@
             @keyframes spin {
                 to {
                     transform: rotate(360deg);
+                }
+            }
+            @keyframes bounceLogo {
+                from {
+                    transform: translateY(0) scale(1);
+                }
+                to {
+                    transform: translateY(-14px) scale(1.05);
                 }
             }
         </style>
