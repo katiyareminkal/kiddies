@@ -7,21 +7,16 @@ import {
   Package, 
   Hash, 
   IndianRupee, 
-  CreditCard, 
   Upload, 
   X,
   Plus,
-  Phone,
-  Mail,
-  MapPin,
-  CheckCircle,
-  Clock,
-  Sparkles,
-  ArrowRightLeft
+  Tag,
+  RotateCcw,
+  CheckCircle
 } from 'lucide-react';
 import { Modal } from '../Shared';
 import { useApp } from '../../store/AppContext';
-import { formatCurrency, calculateRentalTotal } from '../../utils/helpers';
+import { formatCurrency } from '../../utils/helpers';
 import { PaymentStatus } from '../../types';
 
 interface NewRentalModalProps {
@@ -49,7 +44,7 @@ export const NewRentalModal: React.FC<NewRentalModalProps> = ({ isOpen, onClose 
   const [startDate, setStartDate] = useState<string>(todayStr);
   const [expectedReturnDate, setExpectedReturnDate] = useState<string>(defaultReturnStr);
   const [securityDeposit, setSecurityDeposit] = useState<string>('');
-  const [paidAmount, setPaidAmount] = useState<string>('');
+  const [customRentalAmount, setCustomRentalAmount] = useState<string>('');
 
   // Selected product & calculated breakdown
   const selectedProduct = useMemo(() => {
@@ -67,19 +62,17 @@ export const NewRentalModal: React.FC<NewRentalModalProps> = ({ isOpen, onClose 
   }, [startDate, expectedReturnDate]);
 
   const dailyRate = selectedProduct?.rentalPrice || 0;
-  const calculatedRentalAmount = rentalDays * dailyRate * (quantity || 1);
+  const autoRentalAmount = rentalDays * dailyRate * (quantity || 1);
+  
+  // Effective rental amount (either manual custom/discounted or auto-calculated)
+  const effectiveRentalAmount = customRentalAmount !== '' ? Math.max(0, Number(customRentalAmount)) : autoRentalAmount;
+  const isDiscounted = customRentalAmount !== '' && Number(customRentalAmount) !== autoRentalAmount;
+  const discountAmount = autoRentalAmount - effectiveRentalAmount;
+
   const numericDeposit = Number(securityDeposit) || 0;
-  const numericPaid = Number(paidAmount) || 0;
 
-  // Security Deposit vs Refundable Amount Logic:
-  // Refundable Amount = Security Deposit - Rent (if rent is deducted from deposit)
-  // If customer pays both Rent + Deposit upfront, Refundable = Security Deposit.
-  const rentPaidSeparately = numericPaid >= (calculatedRentalAmount + numericDeposit);
-  const netRefundable = rentPaidSeparately 
-    ? numericDeposit 
-    : Math.max(0, numericDeposit - calculatedRentalAmount);
-
-  const totalAdvanceToCollect = numericDeposit + calculatedRentalAmount;
+  // Net Refundable Amount = Security Deposit - Rental Amount
+  const netRefundable = Math.max(0, numericDeposit - effectiveRentalAmount);
 
   const handleSaveCustomerInline = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -174,9 +167,9 @@ export const NewRentalModal: React.FC<NewRentalModalProps> = ({ isOpen, onClose 
         expectedReturnDate: expectedReturnDate || defaultReturnStr,
         dailyRate: selectedProduct.rentalPrice,
         securityDeposit: numericDeposit,
-        totalRentAmount: calculatedRentalAmount,
-        paidAmount: numericPaid,
-        paymentStatus: numericPaid >= totalAdvanceToCollect ? PaymentStatus.PAID : (numericPaid > 0 ? PaymentStatus.PARTIAL : PaymentStatus.UNPAID),
+        totalRentAmount: effectiveRentalAmount,
+        paidAmount: numericDeposit, // Deposit collected upfront
+        paymentStatus: numericDeposit >= effectiveRentalAmount ? PaymentStatus.PAID : PaymentStatus.PARTIAL,
         images: rentalImages,
       }, selectedFiles);
       
@@ -193,7 +186,7 @@ export const NewRentalModal: React.FC<NewRentalModalProps> = ({ isOpen, onClose 
     setStartDate(todayStr);
     setExpectedReturnDate(defaultReturnStr);
     setSecurityDeposit('');
-    setPaidAmount('');
+    setCustomRentalAmount('');
     setIsAddingCustomer(false);
     onClose();
   };
@@ -207,7 +200,7 @@ export const NewRentalModal: React.FC<NewRentalModalProps> = ({ isOpen, onClose 
            </div>
            <div>
                <p className="text-[9px] font-black uppercase tracking-wider text-slate-900 mb-0.5">Rental Stock Pool Notice</p>
-               <p className="text-[10px] font-bold text-slate-500 leading-relaxed">Items will be deducted from <span className="text-[#8B5CF6] font-black">Rental Stock</span>. Refundable amount equals Deposit minus Rental Fee upon return.</p>
+               <p className="text-[10px] font-bold text-slate-500 leading-relaxed">Items will be deducted from <span className="text-[#8B5CF6] font-black">Rental Stock</span>. Refundable amount equals Security Deposit minus Rental Fee upon return.</p>
            </div>
         </div>
 
@@ -388,11 +381,11 @@ export const NewRentalModal: React.FC<NewRentalModalProps> = ({ isOpen, onClose 
           </div>
         </div>
 
-        {/* Section: Financials (Rental Amount & Security Deposit Breakdown) */}
+        {/* Section: Financials (Security Deposit & Editable Rental Amount) */}
         <div className="space-y-4">
           <div className="flex items-center gap-3">
             <div className="h-px flex-1 bg-slate-100"></div>
-            <h4 className="text-[9px] font-black uppercase text-slate-400 tracking-widest">Financials & Deposit</h4>
+            <h4 className="text-[9px] font-black uppercase text-slate-400 tracking-widest">Financials & Security Deposit</h4>
             <div className="h-px flex-1 bg-slate-100"></div>
           </div>
 
@@ -409,45 +402,39 @@ export const NewRentalModal: React.FC<NewRentalModalProps> = ({ isOpen, onClose 
                   type="number" 
                   value={securityDeposit}
                   onChange={(e) => setSecurityDeposit(e.target.value)}
+                  required
                   className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#8B5CF6] focus:ring-2 focus:ring-[#8B5CF6]/10 rounded-2xl outline-none transition-all font-bold text-xs text-slate-900" 
                   placeholder="e.g. 5000" 
                 />
               </div>
             </div>
 
+            {/* Editable Rental Amount (Allows Manual Discount) */}
             <div className="space-y-2">
               <div className="flex justify-between items-center ml-2">
-                <label className="text-[9px] font-black uppercase text-slate-400 tracking-widest">Payment Received</label>
-                {numericDeposit > 0 && (
-                  <div className="flex items-center gap-1.5 text-[8px] font-bold uppercase tracking-wider">
-                    <button 
-                      type="button"
-                      onClick={() => setPaidAmount(String(numericDeposit))}
-                      className="text-[#8B5CF6] hover:underline"
-                    >
-                      Deposit (₹{numericDeposit})
-                    </button>
-                    <span className="text-slate-300">•</span>
-                    <button 
-                      type="button"
-                      onClick={() => setPaidAmount(String(totalAdvanceToCollect))}
-                      className="text-emerald-600 hover:underline"
-                    >
-                      Dep+Rent (₹{totalAdvanceToCollect})
-                    </button>
-                  </div>
+                <label className="text-[9px] font-black uppercase text-slate-400 tracking-widest">Rental Amount</label>
+                {isDiscounted ? (
+                  <button 
+                    type="button" 
+                    onClick={() => setCustomRentalAmount('')}
+                    className="text-[8px] font-bold text-rose-500 hover:underline uppercase tracking-wider flex items-center gap-1"
+                  >
+                    <RotateCcw size={10} /> Reset Auto (₹{autoRentalAmount})
+                  </button>
+                ) : (
+                  <span className="text-[8px] font-bold text-slate-400 uppercase tracking-wider">Editable / Discount</span>
                 )}
               </div>
               <div className="relative group">
-                <CreditCard className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#8B5CF6] transition-colors" size={16} strokeWidth={2.5} />
+                <Tag className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${isDiscounted ? 'text-amber-500' : 'text-slate-400 group-focus-within:text-[#8B5CF6]'}`} size={16} strokeWidth={2.5} />
                 <input 
-                  name="paidAmount" 
+                  name="rentalAmount" 
                   type="number" 
-                  value={paidAmount}
-                  onChange={(e) => setPaidAmount(e.target.value)}
+                  value={customRentalAmount !== '' ? customRentalAmount : (autoRentalAmount > 0 ? autoRentalAmount : '')}
+                  onChange={(e) => setCustomRentalAmount(e.target.value)}
                   required 
-                  className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#8B5CF6] focus:ring-2 focus:ring-[#8B5CF6]/10 rounded-2xl outline-none transition-all font-bold text-xs text-slate-900" 
-                  placeholder="Total payment collected upfront" 
+                  className={`w-full pl-12 pr-4 py-3 border rounded-2xl outline-none transition-all font-bold text-xs ${isDiscounted ? 'bg-amber-50/60 border-amber-300 text-amber-950 focus:bg-white focus:border-amber-500' : 'bg-slate-50 border-slate-200 focus:bg-white focus:border-[#8B5CF6] text-slate-900'}`} 
+                  placeholder={String(autoRentalAmount)} 
                 />
               </div>
             </div>
@@ -456,15 +443,22 @@ export const NewRentalModal: React.FC<NewRentalModalProps> = ({ isOpen, onClose 
           {/* Real-time Rental Fee, Security Deposit & Net Refundable Breakdown Box */}
           <div className="p-4 bg-slate-50 border border-slate-200/80 rounded-2xl space-y-2.5 text-left">
             <div className="flex justify-between items-center text-xs">
-              <span className="font-bold text-slate-500 uppercase tracking-wider text-[9px]">Rental Rate</span>
+              <span className="font-bold text-slate-500 uppercase tracking-wider text-[9px]">Standard Rate</span>
               <span className="font-bold text-slate-700 font-mono text-[10px]">
-                {selectedProduct ? `${formatCurrency(dailyRate)}/day × ${rentalDays} day(s) × ${quantity} qty` : 'Select product to calculate'}
+                {selectedProduct ? `${formatCurrency(dailyRate)}/day × ${rentalDays} day(s) × ${quantity} qty = ${formatCurrency(autoRentalAmount)}` : 'Select product to calculate'}
               </span>
             </div>
+
+            {isDiscounted && (
+              <div className="flex justify-between items-center text-xs">
+                <span className="font-bold text-amber-600 uppercase tracking-wider text-[9.5px]">Discount Applied</span>
+                <span className="font-black text-amber-600 font-mono text-xs">-{formatCurrency(discountAmount)}</span>
+              </div>
+            )}
             
             <div className="flex justify-between items-center text-xs">
-              <span className="font-bold text-slate-700 uppercase tracking-wider text-[9.5px]">Rental Amount</span>
-              <span className="font-black text-slate-900 font-mono text-sm">{formatCurrency(calculatedRentalAmount)}</span>
+              <span className="font-bold text-slate-700 uppercase tracking-wider text-[9.5px]">Final Rental Amount</span>
+              <span className="font-black text-slate-900 font-mono text-sm">{formatCurrency(effectiveRentalAmount)}</span>
             </div>
 
             <div className="flex justify-between items-center text-xs">
@@ -476,10 +470,7 @@ export const NewRentalModal: React.FC<NewRentalModalProps> = ({ isOpen, onClose 
               <div>
                 <span className="font-black text-emerald-600 uppercase tracking-wider text-[10.5px]">Net Refundable Amount</span>
                 <p className="text-[8.5px] font-bold text-slate-400">
-                  {rentPaidSeparately 
-                    ? `Full Deposit (${formatCurrency(numericDeposit)}) returned (Rent paid separately)`
-                    : `Deposit (${formatCurrency(numericDeposit)}) minus Rent (${formatCurrency(calculatedRentalAmount)})`
-                  }
+                  Deposit ({formatCurrency(numericDeposit)}) minus Rental Fee ({formatCurrency(effectiveRentalAmount)})
                 </p>
               </div>
               <span className="font-black text-emerald-600 font-mono text-base">{formatCurrency(netRefundable)}</span>
@@ -489,7 +480,7 @@ export const NewRentalModal: React.FC<NewRentalModalProps> = ({ isOpen, onClose 
             <div className="mt-2 p-2.5 bg-emerald-50/90 border border-emerald-100 rounded-xl flex items-start gap-2">
               <CheckCircle size={14} className="text-emerald-600 shrink-0 mt-0.5" strokeWidth={2.5} />
               <p className="text-[9.5px] font-bold text-emerald-800 leading-relaxed">
-                Refundable upon item return: <span className="font-mono font-black text-emerald-950 underline decoration-emerald-400">{formatCurrency(netRefundable)}</span>. {rentPaidSeparately ? 'Rent is paid in full.' : `Calculated as Security Deposit (${formatCurrency(numericDeposit)}) minus Rent (${formatCurrency(calculatedRentalAmount)}).`}
+                Refundable to customer upon return: <span className="font-mono font-black text-emerald-950 underline decoration-emerald-400">{formatCurrency(netRefundable)}</span> (Security Deposit {formatCurrency(numericDeposit)} minus Rental Fee {formatCurrency(effectiveRentalAmount)}).
               </p>
             </div>
           </div>
