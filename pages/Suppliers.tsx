@@ -424,91 +424,176 @@ const Suppliers: React.FC = () => {
                </button>
             </div>
 
-            <div className="bg-white border border-slate-100 rounded-2xl overflow-hidden shadow-sm">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="bg-slate-50 border-b border-slate-100">
-                    <th className="px-6 py-4 text-[9px] font-black uppercase tracking-widest text-slate-400">Date</th>
-                    <th className="px-6 py-4 text-[9px] font-black uppercase tracking-widest text-slate-400">Bill #</th>
-                    <th className="px-6 py-4 text-[9px] font-black uppercase tracking-widest text-slate-400">Total</th>
-                    <th className="px-6 py-4 text-[9px] font-black uppercase tracking-widest text-slate-400">Paid</th>
-                    <th className="px-6 py-4 text-[9px] font-black uppercase tracking-widest text-slate-400">Status</th>
-                    <th className="px-6 py-4 text-[9px] font-black uppercase tracking-widest text-slate-400 text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-50">
-                  {getSupplierStats(selectedSupplier.id).bills.map(bill => (
-                    <tr key={bill.id} className="hover:bg-slate-50/50 transition-colors group">
-                      <td className="px-6 py-4 text-[10px] font-bold text-slate-900">{new Date(bill.date).toLocaleDateString()}</td>
-                      <td className="px-6 py-4 text-[10px] font-bold text-slate-900">
-                        {bill.billNumber}
-                        {bill.items && bill.items.length > 0 && (
-                          <div className="mt-1 text-[8px] text-slate-400 font-normal">
-                             {bill.items.map(i => `${i.quantity}x ${i.itemName}`).join(', ')}
-                          </div>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 text-[10px] font-bold text-slate-900">{formatCurrency(bill.totalAmount)}</td>
-                      <td className="px-6 py-4 text-[10px] font-bold text-slate-500">{formatCurrency(bill.paidAmount)}</td>
-                      <td className="px-6 py-4">
-                        <span className={`inline-block px-2.5 py-1 text-[8px] font-black uppercase tracking-widest rounded-md ${
-                          bill.status === 'PAID' ? 'bg-emerald-100 text-emerald-700' :
-                          bill.status === 'PARTIAL' ? 'bg-amber-100 text-amber-700' :
-                          'bg-rose-100 text-rose-700'
-                        }`}>
-                          {bill.status}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                         <div className="flex items-center justify-end gap-2">
-                             <button 
-                               type="button"
-                               onClick={() => setViewingBillDetails(bill)}
-                               className="text-[9px] font-black uppercase tracking-widest text-emerald-600 hover:bg-emerald-50 px-2.5 py-1.5 rounded-lg transition-colors border border-transparent hover:border-emerald-200 flex items-center gap-1"
-                               title="View Bill Details"
-                             >
-                               <Eye size={12} /> View Bill
-                             </button>
-                             <button 
-                               type="button"
-                               onClick={() => handleOpenEditBill(bill)}
-                               className="text-[9px] font-black uppercase tracking-widest text-indigo-600 hover:bg-indigo-50 px-2.5 py-1.5 rounded-lg transition-colors border border-transparent hover:border-indigo-200 flex items-center gap-1"
-                               title="Edit Bill"
-                             >
-                               <Pencil size={12} /> Edit
-                             </button>
-                            {bill.status !== 'PAID' && (
-                               <button 
-                                 onClick={() => { setPaymentBill(bill); setIsPaymentOpen(true); }}
-                                 className="text-[9px] font-black uppercase tracking-widest text-highlight hover:bg-highlight/10 px-3 py-1.5 rounded-lg transition-colors border border-transparent hover:border-highlight/20"
-                               >
-                                 Pay
-                               </button>
-                            )}
-                            {settings?.enableDeleteSuppliers && (
-                               <button 
-                                 onClick={() => {
-                                     if(window.confirm('Delete this bill?')) deleteSupplierBill(bill.id);
-                                 }}
-                                 className="text-slate-300 hover:text-rose-500 hover:bg-rose-50 p-1.5 rounded-lg transition-colors"
-                                 title="Delete Bill"
-                               >
-                                 <Trash2 size={14} strokeWidth={2.5} />
-                               </button>
-                            )}
-                         </div>
-                      </td>
+            {/* Bills Container: Mobile Cards + Desktop Table */}
+            <div className="space-y-3">
+              {/* Mobile View: Cards */}
+              <div className="block md:hidden space-y-3">
+                {getSupplierStats(selectedSupplier.id).bills.map(bill => (
+                  <div key={bill.id} className="p-3.5 bg-slate-50 border border-slate-200/80 rounded-2xl space-y-2 text-left">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <span className="text-[8px] font-black uppercase text-slate-400 tracking-wider">Bill #{bill.billNumber}</span>
+                        <p className="text-[10px] font-bold text-slate-900 mt-0.5">{new Date(bill.date).toLocaleDateString()}</p>
+                      </div>
+                      <span className={`inline-block px-2.5 py-1 text-[8px] font-black uppercase tracking-widest rounded-md ${
+                        bill.status === 'PAID' ? 'bg-emerald-100 text-emerald-700' :
+                        bill.status === 'PARTIAL' ? 'bg-amber-100 text-amber-700' :
+                        'bg-rose-100 text-rose-700'
+                      }`}>
+                        {bill.status}
+                      </span>
+                    </div>
+
+                    {bill.items && bill.items.length > 0 && (
+                      <div className="text-[9px] text-slate-500 font-medium">
+                        {bill.items.map(i => `${i.quantity}x ${i.itemName}`).join(', ')}
+                      </div>
+                    )}
+
+                    <div className="flex justify-between items-center pt-2 border-t border-slate-200/60 text-[10px]">
+                      <div>
+                        <span className="text-[8px] font-black uppercase text-slate-400 block">Total / Paid</span>
+                        <span className="font-bold text-slate-900 font-mono">{formatCurrency(bill.totalAmount)}</span>
+                        <span className="text-slate-400 font-mono"> / {formatCurrency(bill.paidAmount)}</span>
+                      </div>
+                      {bill.totalAmount > bill.paidAmount && (
+                        <div className="text-right">
+                          <span className="text-[8px] font-black uppercase text-rose-400 block">Due</span>
+                          <span className="font-bold text-rose-600 font-mono">{formatCurrency(bill.totalAmount - bill.paidAmount)}</span>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex items-center justify-end gap-1.5 pt-2 border-t border-slate-200/60">
+                      <button 
+                        type="button"
+                        onClick={() => setViewingBillDetails(bill)}
+                        className="flex-1 py-1.5 text-[9px] font-black uppercase tracking-widest text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center justify-center gap-1"
+                      >
+                        <Eye size={12} /> View Bill
+                      </button>
+                      <button 
+                        type="button"
+                        onClick={() => handleOpenEditBill(bill)}
+                        className="flex-1 py-1.5 text-[9px] font-black uppercase tracking-widest text-indigo-700 bg-indigo-50 border border-indigo-200 rounded-xl flex items-center justify-center gap-1"
+                      >
+                        <Pencil size={12} /> Edit
+                      </button>
+                      {bill.status !== 'PAID' && (
+                        <button 
+                          type="button"
+                          onClick={() => { setPaymentBill(bill); setIsPaymentOpen(true); }}
+                          className="py-1.5 px-3 text-[9px] font-black uppercase tracking-widest text-slate-900 bg-amber-300 rounded-xl"
+                        >
+                          Pay
+                        </button>
+                      )}
+                      {settings?.enableDeleteSuppliers && (
+                        <button 
+                          type="button"
+                          onClick={() => { if(window.confirm('Delete this bill?')) deleteSupplierBill(bill.id); }}
+                          className="p-1.5 text-slate-400 hover:text-rose-500 rounded-xl"
+                        >
+                          <Trash2 size={13} />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+                {getSupplierStats(selectedSupplier.id).bills.length === 0 && (
+                  <div className="py-12 text-center text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                    No bills recorded yet.
+                  </div>
+                )}
+              </div>
+
+              {/* Desktop View: Table */}
+              <div className="hidden md:block bg-white border border-slate-100 rounded-2xl overflow-x-auto shadow-sm">
+                <table className="w-full text-left border-collapse min-w-[600px]">
+                  <thead>
+                    <tr className="bg-slate-50 border-b border-slate-100">
+                      <th className="px-6 py-4 text-[9px] font-black uppercase tracking-widest text-slate-400">Date</th>
+                      <th className="px-6 py-4 text-[9px] font-black uppercase tracking-widest text-slate-400">Bill #</th>
+                      <th className="px-6 py-4 text-[9px] font-black uppercase tracking-widest text-slate-400">Total</th>
+                      <th className="px-6 py-4 text-[9px] font-black uppercase tracking-widest text-slate-400">Paid</th>
+                      <th className="px-6 py-4 text-[9px] font-black uppercase tracking-widest text-slate-400">Status</th>
+                      <th className="px-6 py-4 text-[9px] font-black uppercase tracking-widest text-slate-400 text-right">Actions</th>
                     </tr>
-                  ))}
-                  {getSupplierStats(selectedSupplier.id).bills.length === 0 && (
-                      <tr>
-                          <td colSpan={6} className="px-6 py-12 text-center text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                              No bills recorded yet.
-                          </td>
+                  </thead>
+                  <tbody className="divide-y divide-slate-50">
+                    {getSupplierStats(selectedSupplier.id).bills.map(bill => (
+                      <tr key={bill.id} className="hover:bg-slate-50/50 transition-colors group">
+                        <td className="px-6 py-4 text-[10px] font-bold text-slate-900">{new Date(bill.date).toLocaleDateString()}</td>
+                        <td className="px-6 py-4 text-[10px] font-bold text-slate-900">
+                          {bill.billNumber}
+                          {bill.items && bill.items.length > 0 && (
+                            <div className="mt-1 text-[8px] text-slate-400 font-normal">
+                               {bill.items.map(i => `${i.quantity}x ${i.itemName}`).join(', ')}
+                            </div>
+                          )}
+                        </td>
+                        <td className="px-6 py-4 text-[10px] font-bold text-slate-900">{formatCurrency(bill.totalAmount)}</td>
+                        <td className="px-6 py-4 text-[10px] font-bold text-slate-500">{formatCurrency(bill.paidAmount)}</td>
+                        <td className="px-6 py-4">
+                          <span className={`inline-block px-2.5 py-1 text-[8px] font-black uppercase tracking-widest rounded-md ${
+                            bill.status === 'PAID' ? 'bg-emerald-100 text-emerald-700' :
+                            bill.status === 'PARTIAL' ? 'bg-amber-100 text-amber-700' :
+                            'bg-rose-100 text-rose-700'
+                          }`}>
+                            {bill.status}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-right">
+                           <div className="flex items-center justify-end gap-2">
+                               <button 
+                                 type="button"
+                                 onClick={() => setViewingBillDetails(bill)}
+                                 className="text-[9px] font-black uppercase tracking-widest text-emerald-600 hover:bg-emerald-50 px-2.5 py-1.5 rounded-lg transition-colors border border-transparent hover:border-emerald-200 flex items-center gap-1"
+                                 title="View Bill Details"
+                               >
+                                 <Eye size={12} /> View Bill
+                               </button>
+                               <button 
+                                 type="button"
+                                 onClick={() => handleOpenEditBill(bill)}
+                                 className="text-[9px] font-black uppercase tracking-widest text-indigo-600 hover:bg-indigo-50 px-2.5 py-1.5 rounded-lg transition-colors border border-transparent hover:border-indigo-200 flex items-center gap-1"
+                                 title="Edit Bill"
+                               >
+                                 <Pencil size={12} /> Edit
+                               </button>
+                              {bill.status !== 'PAID' && (
+                                 <button 
+                                   onClick={() => { setPaymentBill(bill); setIsPaymentOpen(true); }}
+                                   className="text-[9px] font-black uppercase tracking-widest text-highlight hover:bg-highlight/10 px-3 py-1.5 rounded-lg transition-colors border border-transparent hover:border-highlight/20"
+                                 >
+                                   Pay
+                                 </button>
+                              )}
+                              {settings?.enableDeleteSuppliers && (
+                                 <button 
+                                   onClick={() => {
+                                       if(window.confirm('Delete this bill?')) deleteSupplierBill(bill.id);
+                                   }}
+                                   className="text-slate-300 hover:text-rose-500 hover:bg-rose-50 p-1.5 rounded-lg transition-colors"
+                                   title="Delete Bill"
+                                 >
+                                   <Trash2 size={14} strokeWidth={2.5} />
+                                 </button>
+                              )}
+                           </div>
+                        </td>
                       </tr>
-                  )}
-                </tbody>
-              </table>
+                    ))}
+                    {getSupplierStats(selectedSupplier.id).bills.length === 0 && (
+                        <tr>
+                            <td colSpan={6} className="px-6 py-12 text-center text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                                No bills recorded yet.
+                            </td>
+                        </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </Modal>
