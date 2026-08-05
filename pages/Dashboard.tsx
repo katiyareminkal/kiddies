@@ -595,13 +595,34 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
       )}
 
       {/* Date Range Filter Header */}
-      <div className="bg-white border border-slate-100 rounded-2xl p-4 md:p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-base font-black text-slate-900 tracking-tight">Overview Dashboard</h2>
-          <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest mt-0.5">Performance & Operations</p>
+      <div className="bg-white border border-slate-100 rounded-2xl p-3 md:p-5 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+        <div className="flex items-center justify-between sm:block">
+          <div>
+            <h2 className="text-sm md:text-base font-black text-slate-900 tracking-tight">Overview Dashboard</h2>
+            <p className="hidden sm:block text-[9px] font-semibold text-slate-400 uppercase tracking-widest mt-0.5">Performance & Operations</p>
+          </div>
+
+          {/* Mobile compact dropdown */}
+          <div className="relative sm:hidden shrink-0 ml-2">
+            <select
+              value={filterPreset}
+              onChange={(e) => handlePresetChange(e.target.value)}
+              className="appearance-none bg-slate-50 border border-slate-100 px-3 py-1.5 pr-7 rounded-xl text-[10px] font-black text-slate-700 uppercase outline-none cursor-pointer w-auto"
+            >
+              <option value="TODAY">Today</option>
+              <option value="YESTERDAY">Yesterday</option>
+              <option value="LAST_7_DAYS">Last 7 Days</option>
+              <option value="LAST_30_DAYS">Last 1 Month</option>
+              <option value="LAST_6_MONTHS">Last 6 Months</option>
+              <option value="LAST_1_YEAR">Last 1 Year</option>
+              <option value="LIFETIME">Lifetime</option>
+              <option value="CUSTOM">Custom Range</option>
+            </select>
+            <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={10} strokeWidth={3} />
+          </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="hidden sm:flex flex-wrap items-center gap-3">
           <div className="flex flex-col gap-1">
             <div className="relative">
               <select
@@ -626,30 +647,30 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
               </span>
             )}
           </div>
-
-          {filterPreset === 'CUSTOM' && (
-            <>
-              <div className="flex items-center gap-2 bg-slate-50 border border-slate-100/50 rounded-xl px-3 py-1.5 shadow-sm">
-                <span className="text-[8px] font-black uppercase text-slate-400 tracking-widest">From</span>
-                <input
-                  type="date"
-                  value={startDateFilter}
-                  onChange={(e) => setStartDateFilter(e.target.value)}
-                  className="bg-transparent text-[10px] font-bold text-slate-700 outline-none uppercase"
-                />
-              </div>
-              <div className="flex items-center gap-3 bg-slate-50 border border-slate-100/50 rounded-xl px-3 py-1.5 shadow-sm">
-                <span className="text-[8px] font-black uppercase text-slate-400 tracking-widest">To</span>
-                <input
-                  type="date"
-                  value={endDateFilter}
-                  onChange={(e) => setEndDateFilter(e.target.value)}
-                  className="bg-transparent text-[10px] font-bold text-slate-700 outline-none uppercase"
-                />
-              </div>
-            </>
-          )}
         </div>
+
+        {filterPreset === 'CUSTOM' && (
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <div className="flex-1 sm:flex-initial flex items-center gap-1.5 bg-slate-50 border border-slate-100 rounded-xl px-2.5 py-1.5 shadow-sm">
+              <span className="text-[8px] font-black uppercase text-slate-400 tracking-widest">From</span>
+              <input
+                type="date"
+                value={startDateFilter}
+                onChange={(e) => setStartDateFilter(e.target.value)}
+                className="bg-transparent text-[10px] font-bold text-slate-700 outline-none uppercase w-full"
+              />
+            </div>
+            <div className="flex-1 sm:flex-initial flex items-center gap-1.5 bg-slate-50 border border-slate-100 rounded-xl px-2.5 py-1.5 shadow-sm">
+              <span className="text-[8px] font-black uppercase text-slate-400 tracking-widest">To</span>
+              <input
+                type="date"
+                value={endDateFilter}
+                onChange={(e) => setEndDateFilter(e.target.value)}
+                className="bg-transparent text-[10px] font-bold text-slate-700 outline-none uppercase w-full"
+              />
+            </div>
+          </div>
+        )}
       </div>
 
       {/* 1. Quick Actions Overview (Mobile Friendly Horizontal Scroll) */}
