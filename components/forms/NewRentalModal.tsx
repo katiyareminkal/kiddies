@@ -75,8 +75,9 @@ export const NewRentalModal: React.FC<NewRentalModalProps> = ({ isOpen, onClose 
 
   const numericDeposit = Number(securityDeposit) || 0;
 
-  // Net Refundable Amount = Security Deposit - Rental Amount
-  const netRefundable = Math.max(0, numericDeposit - effectiveRentalAmount);
+  // Net Refundable Amount = Security Deposit - Unpaid Rent
+  const unpaidRent = Math.max(0, effectiveRentalAmount - (Number(paidAmount) || 0));
+  const netRefundable = Math.max(0, numericDeposit - unpaidRent);
 
   const handleSaveCustomerInline = async (e: React.MouseEvent) => {
     e.preventDefault();

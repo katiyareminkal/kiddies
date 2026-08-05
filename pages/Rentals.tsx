@@ -335,7 +335,8 @@ const Rentals: React.FC = () => {
               const product = products.find(p => p.id === rental.productId);
               const progress = getProgress(rental.startDate, rental.expectedReturnDate);
               const isLate = activeTab === 'OVERDUE';
-              const netRefundable = Math.max(0, rental.securityDeposit - rental.totalRentAmount);
+              const unpaidRent = Math.max(0, rental.totalRentAmount - (rental.paidAmount || 0));
+              const netRefundable = Math.max(0, rental.securityDeposit - unpaidRent - (rental.lateFee || 0));
               
               return (
                 <div key={rental.id} className="nano-card p-4 group">
@@ -442,7 +443,8 @@ const Rentals: React.FC = () => {
                     const customer = customers.find(c => c.id === rental.customerId);
                     const product = products.find(p => p.id === rental.productId);
                     const isLate = activeTab === 'OVERDUE';
-                    const netRefundable = Math.max(0, rental.securityDeposit - rental.totalRentAmount);
+                    const unpaidRent = Math.max(0, rental.totalRentAmount - (rental.paidAmount || 0));
+                    const netRefundable = Math.max(0, rental.securityDeposit - unpaidRent - (rental.lateFee || 0));
 
                     return (
                       <tr key={rental.id} className="hover:bg-slate-50/50 transition-colors">

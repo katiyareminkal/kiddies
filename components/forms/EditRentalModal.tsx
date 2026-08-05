@@ -76,7 +76,8 @@ export const EditRentalModal: React.FC<EditRentalModalProps> = ({ isOpen, onClos
   const isDiscounted = customRentalAmount !== '' && Number(customRentalAmount) !== autoRentalAmount;
 
   const numericDeposit = Number(securityDeposit) || 0;
-  const netRefundable = Math.max(0, numericDeposit - effectiveRentalAmount);
+  const unpaidRent = Math.max(0, effectiveRentalAmount - (rental?.paidAmount || 0));
+  const netRefundable = Math.max(0, numericDeposit - unpaidRent);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
