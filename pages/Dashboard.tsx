@@ -854,7 +854,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
           {chartTotals.combined === 0 ? (
             <div className="h-[210px] w-full flex items-center justify-center text-center p-6 bg-slate-50/50 rounded-xl border border-slate-100/60">
               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                No sales or rental transactions recorded for this period
+                No transactions recorded for this period
               </p>
             </div>
           ) : (
