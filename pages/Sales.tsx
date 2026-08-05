@@ -1,5 +1,6 @@
 
 import React, { useState, useMemo, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useApp } from '../store/AppContext';
 import { Card, Button } from '../components/Shared';
 import { CreateBillModal } from '../components/forms/CreateBillModal';
@@ -733,15 +734,20 @@ const Sales: React.FC = () => {
         />
       )}
 
-      {/* Floating Action Button for New Sale (Bottom Right FAB) */}
-      <button
-        onClick={() => setIsAddingSale(true)}
-        className="fixed bottom-6 right-6 sm:bottom-8 sm:right-8 z-40 bg-[#8B5CF6] hover:bg-[#7C3AED] text-white p-3.5 sm:px-5 sm:py-3.5 rounded-full shadow-2xl shadow-purple-600/40 flex items-center gap-2 hover:scale-105 active:scale-95 transition-all group cursor-pointer"
-        title="Create New Sale"
-      >
-        <Plus size={22} strokeWidth={3} className="group-hover:rotate-90 transition-transform duration-200" />
-        <span className="hidden sm:inline text-xs font-black uppercase tracking-wider pr-1">New Sale</span>
-      </button>
+      {/* Floating Action Button for New Sale (Always at bottom right, matching Inventory page) */}
+      {createPortal(
+        <div className="fixed bottom-[80px] right-4 md:bottom-8 md:right-8 flex justify-end pointer-events-none z-[100]">
+          <button
+            onClick={() => setIsAddingSale(true)}
+            className="pointer-events-auto bg-[#8B5CF6] hover:bg-[#7C3AED] text-white p-4 md:px-6 md:py-3.5 rounded-full shadow-[0_10px_30px_rgba(139,92,246,0.4)] flex items-center justify-center gap-2 hover:scale-105 active:scale-95 transition-all group border border-white/20 cursor-pointer"
+            title="Create New Sale"
+          >
+            <Plus size={24} strokeWidth={3} className="md:w-[16px] md:h-[16px]" />
+            <span className="hidden md:inline text-[10px] font-black uppercase tracking-widest">New Sale</span>
+          </button>
+        </div>,
+        document.body
+      )}
     </div>
   );
 };
