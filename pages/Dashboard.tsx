@@ -567,28 +567,29 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
     <div className="space-y-6 pb-20 animate-nano">
 
       {showBackupAlert && (
-        <div className="bg-[#8B5CF6]/10 border border-[#8B5CF6]/20 backdrop-blur-md rounded-2xl p-4 md:p-5 flex flex-col sm:flex-row items-center justify-between gap-4 animate-nano">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#8B5CF6] text-white flex items-center justify-center shadow-md shadow-[#8B5CF6]/20 shrink-0">
-              <FileSpreadsheet size={20} strokeWidth={2.5} />
+        <div className="bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-700 text-white rounded-xl px-3 py-2 sm:px-4 sm:py-2.5 shadow-md shadow-purple-500/15 flex items-center justify-between gap-2.5 animate-nano">
+          <div className="flex items-center gap-2 min-w-0">
+            <div className="w-6 h-6 rounded-lg bg-white/20 text-white flex items-center justify-center shrink-0">
+              <FileSpreadsheet size={13} strokeWidth={2.5} />
             </div>
-            <div>
-              <h4 className="text-xs font-black text-slate-900 uppercase tracking-wide">Daily Excel Backup Alert</h4>
-              <p className="text-[9px] font-semibold text-slate-500 uppercase tracking-widest mt-0.5">You haven't backed up the database to Excel today. Keep your offline archives updated.</p>
+            <div className="flex items-center gap-1.5 min-w-0">
+              <span className="text-[9.5px] font-extrabold uppercase tracking-wider shrink-0">Daily Backup Pending</span>
+              <span className="hidden md:inline text-[9px] text-purple-100 font-medium truncate">• Keep offline Excel archives updated</span>
             </div>
           </div>
-          <div className="flex items-center gap-2 w-full sm:w-auto">
+          <div className="flex items-center gap-1.5 shrink-0">
             <button
               onClick={handleExcelBackup}
-              className="flex-1 sm:flex-none px-4 py-2.5 bg-[#8B5CF6] text-white hover:bg-[#7C3AED] transition-colors rounded-xl text-[8px] font-black uppercase tracking-widest shadow-lg shadow-[#8B5CF6]/20 whitespace-nowrap"
+              className="px-2.5 py-1 bg-white text-purple-700 hover:bg-purple-50 transition-colors rounded-lg text-[8.5px] font-black uppercase tracking-wider shadow-sm"
             >
               Backup Now
             </button>
             <button
               onClick={() => setShowBackupAlert(false)}
-              className="px-3 py-2.5 hover:bg-slate-100 text-slate-400 hover:text-slate-900 transition-colors rounded-xl text-[8px] font-black uppercase tracking-widest whitespace-nowrap"
+              className="p-1 hover:bg-white/10 text-purple-200 hover:text-white transition-colors rounded-lg text-[10px] font-bold leading-none px-1.5"
+              title="Dismiss for today"
             >
-              Remind Later
+              ✕
             </button>
           </div>
         </div>
