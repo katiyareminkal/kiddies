@@ -493,8 +493,8 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
 
         data.push({
           name: dateStr,
-          Sales: dailySales || Math.floor(Math.random() * 2000),
-          Rentals: dailyRentals || Math.floor(Math.random() * 1000)
+          Sales: dailySales || 0,
+          Rentals: dailyRentals || 0
         });
       }
     } else if (timeframe === 'MONTHLY') {
@@ -519,8 +519,8 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
 
         data.push({
           name: `Week ${4 - i}`,
-          Sales: periodSales || Math.floor(Math.random() * 8000 + 2000),
-          Rentals: periodRentals || Math.floor(Math.random() * 4000 + 1000)
+          Sales: periodSales || 0,
+          Rentals: periodRentals || 0
         });
       }
     } else {
@@ -539,13 +539,19 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
 
         data.push({
           name: dateStr,
-          Sales: periodSales || Math.floor(Math.random() * 30000 + 5000),
-          Rentals: periodRentals || Math.floor(Math.random() * 15000 + 2000)
+          Sales: periodSales || 0,
+          Rentals: periodRentals || 0
         });
       }
     }
     return data;
   }, [sales, rentals, timeframe, startDateFilter, endDateFilter]);
+
+  const chartTotals = useMemo(() => {
+    const totalSales = salesGraphData.reduce((sum, d) => sum + d.Sales, 0);
+    const totalRentals = salesGraphData.reduce((sum, d) => sum + d.Rentals, 0);
+    return { totalSales, totalRentals, combined: totalSales + totalRentals };
+  }, [salesGraphData]);
 
   // Combined Recent Feed 
   const recentActivities = useMemo(() => {
@@ -814,29 +820,48 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* 3. Sales & Earnings Graph */}
-        <div className="lg:col-span-8 bg-white p-4 md:p-6 rounded-2xl border border-slate-100 shadow-sm">
-          <div className="flex justify-between items-center mb-6">
-            <h3 className="text-sm font-bold text-slate-900 tracking-tight">Sales & Earnings</h3>
-            <div className="relative">
+        <div className="lg:col-span-8 bg-white p-4 md:p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+            <div>
+              <h3 className="text-sm font-black text-slate-900 tracking-tight">Sales & Earnings</h3>
+              <div className="flex flex-wrap items-center gap-2 mt-1.5 text-[9.5px] font-extrabold">
+                <span className="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-lg border border-emerald-100/60">
+                  Sales: {formatCurrency(chartTotals.totalSales)}
+                </span>
+                <span className="text-blue-700 bg-blue-50 px-2 py-0.5 rounded-lg border border-blue-100/60">
+                  Rentals: {formatCurrency(chartTotals.totalRentals)}
+                </span>
+                <span className="text-purple-700 bg-purple-50 px-2 py-0.5 rounded-lg border border-purple-100/60">
+                  Total: {formatCurrency(chartTotals.combined)}
+                </span>
+              </div>
+            </div>
+
+            <div className="relative self-start sm:self-auto">
               <select
                 value={timeframe}
                 onChange={(e) => setTimeframe(e.target.value as 'WEEKLY' | 'MONTHLY' | 'YEARLY')}
-                className="appearance-none bg-slate-50 border border-slate-100 hover:border-slate-200 px-3 py-1.5 pr-8 rounded-lg text-[10px] font-bold text-slate-500 uppercase outline-none cursor-pointer transition-all shadow-sm font-sans"
+                className="appearance-none bg-slate-50 border border-slate-200 hover:border-slate-300 px-3 py-1.5 pr-8 rounded-xl text-[10px] font-black text-slate-700 uppercase outline-none cursor-pointer transition-all shadow-xs"
               >
-                <option value="WEEKLY">Weekly</option>
-                <option value="MONTHLY">Monthly</option>
-                <option value="YEARLY">Yearly</option>
+                <option value="WEEKLY">Weekly View</option>
+                <option value="MONTHLY">Monthly View</option>
+                <option value="YEARLY">Yearly View</option>
               </select>
-              <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={10} strokeWidth={3} />
+              <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={12} strokeWidth={2.5} />
             </div>
           </div>
-          <div className="h-[220px] w-full">
+
+          <div className="h-[210px] w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={salesGraphData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
+              <BarChart data={salesGraphData} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                 <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 700, fill: '#94a3b8' }} dy={10} />
-                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 700, fill: '#94a3b8' }} tickFormatter={(val) => `₹${val / 1000}k`} />
-                <Tooltip cursor={{ fill: '#f8fafc' }} contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 700, fill: '#94a3b8' }} tickFormatter={(val) => `₹${val >= 1000 ? `${(val / 1000).toFixed(0)}k` : val}`} />
+                <Tooltip
+                  cursor={{ fill: '#f8fafc' }}
+                  formatter={(value: any) => [`₹${Number(value || 0).toLocaleString('en-IN')}`, '']}
+                  contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgb(0 0 0 / 0.08)', fontSize: '11px', fontWeight: 'bold' }}
+                />
                 <Legend iconType="circle" wrapperStyle={{ fontSize: '10px', fontWeight: 700, textTransform: 'uppercase' }} />
                 <Bar dataKey="Sales" stackId="a" fill="#10b981" radius={[0, 0, 4, 4]} />
                 <Bar dataKey="Rentals" stackId="a" fill="#3b82f6" radius={[4, 4, 0, 0]} />
