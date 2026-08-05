@@ -50,104 +50,130 @@ interface DashboardProps {
 
 const UPCOMING_EVENTS = [
   {
-    id: 'navratri',
-    title: 'Navratri & Garba',
-    period: 'Sep - Oct',
-    items: 'Chaniya Cholis, Kediyus, Mirror-work Sets',
-    stock: 'Girls Chaniya Cholis (3-12Y), Boys Kediyus (2-8Y)',
-    bundle: 'Outfit + Matching Footwear & Accessories (-10%)',
-    action: 'Open rental pre-bookings 30 days prior',
-    badgeClass: 'bg-rose-100 text-rose-700'
-  },
-  {
-    id: 'diwali',
-    title: 'Diwali & Festive Peak',
-    period: 'Oct - Nov',
-    items: 'Silk Kurta Sets, Ethnic Gowns, Sherwanis',
-    stock: 'Silk Kurtas (2-14Y), Heavy Festive Lehengas',
-    bundle: 'Kurta Set + Ethnic Footwear Combo',
-    action: 'Ensure high stock by 1st week of October',
+    id: 'republic_day',
+    title: '🇮🇳 Republic Day',
+    date: '26 Jan 2026',
+    suggestedStock: ['White T-Shirts', 'White Kurtas', 'Tricolor Dresses', 'Flag Badges', 'Hair Bands'],
     badgeClass: 'bg-amber-100 text-amber-800'
   },
   {
-    id: 'wedding',
-    title: 'Weddings & Formals',
-    period: 'Nov - Dec',
-    items: 'Tuxedos, Designer Sherwanis, Party Gowns',
-    stock: 'Boys Tuxedos (4-12Y), Girls Party Gowns',
-    bundle: 'Suit + Bow Tie & Pocket Square Combo',
-    action: 'Keep alter tailors on standby for quick sizing',
-    badgeClass: 'bg-purple-100 text-purple-700'
-  },
-  {
-    id: 'winter',
-    title: 'Winter & New Year',
-    period: 'Dec - Jan',
-    items: 'Fleece Jackets, Sweaters, Party Dresses',
-    stock: 'Winter Layering Wear (1-10Y), Heavy Jackets',
-    bundle: 'Jacket + Beanie Caps (-15%)',
-    action: 'Stock winter items before Dec 1',
-    badgeClass: 'bg-sky-100 text-sky-700'
-  },
-  {
-    id: 'annuals',
-    title: 'School Annual Days',
-    period: 'Jan - Feb',
-    items: 'Fancy Dress Costumes, Roleplay Outfits, Blazers',
-    stock: 'Superhero, Animal & Profession Costumes (3-8Y)',
-    bundle: 'Costume + Matching Props Set',
-    action: 'Increase dry-cleaning turnaround speed',
-    badgeClass: 'bg-indigo-100 text-indigo-700'
+    id: 'valentines_day',
+    title: "💖 Valentine's Day",
+    date: '14 Feb 2026',
+    suggestedStock: ['Red Dresses', 'Casual Wear', 'Party Wear'],
+    badgeClass: 'bg-rose-100 text-rose-700'
   },
   {
     id: 'holi',
-    title: 'Holi & Spring Wear',
-    period: 'Feb - Mar',
-    items: 'White Cotton Kurtas, Light Rompers, Spring Wear',
-    stock: 'Organic Cotton Sets, White Kurtas (2-8Y)',
-    bundle: 'Buy 2 Cotton Rompers Get 1 Free',
-    action: 'Launch spring catalog in mid-February',
+    title: '🎨 Holi',
+    date: '25 Mar 2026',
+    suggestedStock: ['White T-Shirts', 'Shorts', 'Cotton Dresses', 'Night Suits'],
     badgeClass: 'bg-emerald-100 text-emerald-700'
   },
   {
     id: 'eid',
-    title: 'Eid Festive Season',
-    period: 'Mar - Apr',
-    items: 'Pathani Suits, Anarkali Sets, Embroidered Frocks',
-    stock: 'Pathanis (3-12Y), Designer Anarkali Frocks',
-    bundle: 'Festive Wear + Matching Dupatta',
-    action: 'Stock high 2 weeks before Ramadan peak',
+    title: '🌙 Eid',
+    date: '31 Mar 2026',
+    suggestedStock: ['Kurta Pajama', 'Pathani Suit', 'Girls Ethnic Dresses', 'Hijab Accessories'],
     badgeClass: 'bg-teal-100 text-teal-700'
   },
   {
-    id: 'summer',
-    title: 'Summer Vacation',
-    period: 'Apr - Jun',
-    items: 'Swimwear, Cotton Shorts & Tees, Sun Hats',
-    stock: 'UV Swimsuits, Linen Shorts Sets (1-8Y)',
-    bundle: 'Swimsuit + Sun Hat + Glasses Pack',
-    action: 'Run early-bird holiday wear discount',
+    id: 'summer_vacation',
+    title: '🧸 Summer Vacation',
+    date: '15 Apr 2026',
+    suggestedStock: ['Cotton T-Shirts', 'Shorts', 'Co-ord Sets', 'Sleeveless Dresses', 'Caps'],
     badgeClass: 'bg-orange-100 text-orange-700'
   },
   {
-    id: 'monsoon',
-    title: 'Monsoon Essentials',
-    period: 'Jul - Aug',
-    items: 'Raincoats, Waterproof Gumboots, Umbrellas',
-    stock: 'Rubber Gumboots, Lightweight Raincoats (2-10Y)',
-    bundle: 'Raincoat + Matching Umbrella (-10%)',
-    action: 'Audit storage room for zero dampness',
+    id: 'school_reopening',
+    title: '📚 School Reopening',
+    date: '15 Jun 2026',
+    suggestedStock: ['School Bags', 'Socks', 'Raincoats', 'Umbrellas', 'Innerwear'],
     badgeClass: 'bg-blue-100 text-blue-700'
   },
   {
-    id: 'rakhi',
-    title: 'Rakhi & Independence',
-    period: 'Aug - Sep',
-    items: 'Sibling Ethnic Sets, Patriotic Costumes',
-    stock: 'Matching Brother-Sister Kurta Sets',
-    bundle: 'Brother + Sister Combo (-15%)',
-    action: 'Promote sibling matching sets 2 weeks prior',
+    id: 'independence_day',
+    title: '🇮🇳 Independence Day',
+    date: '15 Aug 2026',
+    suggestedStock: ['White Collection', 'Tricolor T-Shirts', 'White Kurtas', 'Hair Accessories'],
+    badgeClass: 'bg-amber-100 text-amber-800'
+  },
+  {
+    id: 'raksha_bandhan',
+    title: '🎀 Raksha Bandhan',
+    date: '29 Aug 2026',
+    suggestedStock: ['Brother-Sister Matching Sets', 'Boys Kurta Pajama', 'Girls Lehenga & Gown', 'Frocks', 'Hair Accessories'],
     badgeClass: 'bg-fuchsia-100 text-fuchsia-700'
+  },
+  {
+    id: 'janmashtami',
+    title: '🌸 Janmashtami',
+    date: '04 Sep 2026',
+    suggestedStock: ['Krishna Dress', 'Radha Dress', 'Dhoti Set', 'Peacock Feather Sets', 'Flute Accessories'],
+    badgeClass: 'bg-yellow-100 text-yellow-800'
+  },
+  {
+    id: 'ganesh_chaturthi',
+    title: '🐘 Ganesh Chaturthi',
+    date: '14 Sep 2026',
+    suggestedStock: ['Ethnic Wear', 'Kurta Sets', 'Traditional Dresses'],
+    badgeClass: 'bg-rose-100 text-rose-700'
+  },
+  {
+    id: 'navratri',
+    title: '💃 Navratri',
+    date: '11 Oct 2026',
+    suggestedStock: ['Chaniya Choli', 'Garba Dress', 'Kurta Pajama', 'Dupattas'],
+    badgeClass: 'bg-purple-100 text-purple-700'
+  },
+  {
+    id: 'dussehra',
+    title: '🏹 Dussehra',
+    date: '20 Oct 2026',
+    suggestedStock: ['Festive Collection', 'Ethnic Wear', 'Party Wear'],
+    badgeClass: 'bg-indigo-100 text-indigo-700'
+  },
+  {
+    id: 'diwali',
+    title: '🪔 Diwali',
+    date: '08 Nov 2026',
+    suggestedStock: ['Premium Ethnic Wear', 'Party Wear', 'Sherwani', 'Lehenga', 'Gowns', 'Accessories'],
+    badgeClass: 'bg-amber-100 text-amber-800'
+  },
+  {
+    id: 'childrens_day',
+    title: "👧 Children's Day",
+    date: '14 Nov 2026',
+    suggestedStock: ['Cartoon T-Shirts', 'Co-ord Sets', 'Casual Wear', 'Denim'],
+    badgeClass: 'bg-sky-100 text-sky-700'
+  },
+  {
+    id: 'wedding_season',
+    title: '🏖️ Wedding Season',
+    date: '20 Nov 2026',
+    suggestedStock: ['Sherwani', 'Indo-Western', 'Party Gowns', 'Suits', 'Ethnic Wear'],
+    badgeClass: 'bg-purple-100 text-purple-700'
+  },
+  {
+    id: 'winter_season',
+    title: '❄️ Winter Season',
+    date: '01 Dec 2026',
+    suggestedStock: ['Jackets', 'Hoodies', 'Sweaters', 'Thermals', 'Woollen Caps'],
+    badgeClass: 'bg-blue-100 text-blue-700'
+  },
+  {
+    id: 'christmas',
+    title: '🎄 Christmas',
+    date: '25 Dec 2026',
+    suggestedStock: ['Santa Costume', 'Red Dresses', 'Winter Wear', 'Party Dresses'],
+    badgeClass: 'bg-rose-100 text-rose-700'
+  },
+  {
+    id: 'new_year',
+    title: '🎉 New Year',
+    date: '31 Dec 2026',
+    suggestedStock: ['Party Wear', 'Blazers', 'Dresses', 'Co-ord Sets'],
+    badgeClass: 'bg-slate-900 text-white'
   }
 ];
 
@@ -215,6 +241,25 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
 
   // Backup Alert State
   const [showBackupAlert, setShowBackupAlert] = useState(false);
+
+  const stockStats = useMemo(() => {
+    let goodPcs = 0;
+    let lowPcs = 0;
+    let outOfStockSKUs = 0;
+
+    products.forEach(p => {
+      const total = (p.saleStock || 0) + (p.rentalStock || 0);
+      if (total === 0) {
+        outOfStockSKUs += 1;
+      } else if (total <= (p.minStockAlert || 3)) {
+        lowPcs += total;
+      } else {
+        goodPcs += total;
+      }
+    });
+
+    return { goodPcs, lowPcs, outOfStockSKUs };
+  }, [products]);
 
   React.useEffect(() => {
     const lastBackup = localStorage.getItem('kiddies_last_excel_backup_date');
@@ -793,44 +838,82 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
             Click event to view stocking strategy
           </p>
 
-          <div className="space-y-2.5 overflow-y-auto max-h-[340px] pr-1 hide-scrollbar">
+          <div className="space-y-2.5 overflow-y-auto max-h-[350px] pr-1 hide-scrollbar">
             {UPCOMING_EVENTS.map((event, idx) => {
               const isExpanded = expandedEventIdx === idx;
               return (
                 <div
                   key={event.id}
-                  onClick={() => setExpandedEventIdx(isExpanded ? null : idx)}
-                  className={`p-3 rounded-xl border cursor-pointer transition-all ${
+                  className={`rounded-2xl border transition-all overflow-hidden ${
                     isExpanded
                       ? 'bg-white border-purple-200 shadow-md ring-1 ring-purple-100'
-                      : 'bg-white/80 hover:bg-white border-slate-100 hover:border-purple-200'
+                      : 'bg-white/90 hover:bg-white border-slate-100 hover:border-purple-200'
                   }`}
                 >
-                  <div className="flex justify-between items-start gap-2">
-                    <div>
-                      <p className="text-xs font-black text-slate-900">{event.title}</p>
-                      <p className="text-[9px] font-bold text-slate-500 mt-0.5">{event.items}</p>
+                  <button
+                    type="button"
+                    onClick={() => setExpandedEventIdx(isExpanded ? null : idx)}
+                    className="w-full p-3 flex items-center justify-between text-left cursor-pointer hover:bg-purple-50/30 transition-colors"
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-black text-slate-900">{event.title}</span>
                     </div>
-                    <span className={`text-[8px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider shrink-0 ${event.badgeClass}`}>
-                      {event.period}
-                    </span>
-                  </div>
+                    <div className="flex items-center gap-1.5">
+                      <span className={`text-[8px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider shrink-0 ${event.badgeClass}`}>
+                        {event.date}
+                      </span>
+                      <div className="p-1 rounded-lg text-slate-400 hover:text-purple-600 transition-all">
+                        <ChevronDown
+                          size={14}
+                          strokeWidth={2.5}
+                          className={`transition-transform duration-200 ${isExpanded ? 'rotate-180 text-purple-600' : ''}`}
+                        />
+                      </div>
+                    </div>
+                  </button>
 
                   {isExpanded && (
-                    <div className="mt-3 pt-2.5 border-t border-slate-100 space-y-2 animate-nano">
-                      <div className="bg-purple-50/60 p-2 rounded-lg border border-purple-100/50">
-                        <span className="text-[7.5px] font-black uppercase text-purple-600 tracking-widest block">Stock Addition</span>
-                        <p className="text-[9.5px] font-extrabold text-slate-800 mt-0.5">{event.stock}</p>
+                    <div className="px-3.5 pb-4 pt-1 border-t border-slate-100 space-y-3 animate-nano">
+                      {/* Date & Remaining */}
+                      <div className="space-y-1 text-[10px] font-bold text-slate-600 bg-slate-50/80 p-2.5 rounded-xl border border-slate-100">
+                        <p className="flex items-center gap-1.5">
+                          📅 <span>Date:</span> <strong className="text-slate-900 font-extrabold">{event.date}</strong>
+                        </p>
+                        <p className="flex items-center gap-1.5">
+                          ⏳ <span>Remaining:</span> <strong className="text-purple-700 font-extrabold">24 Days</strong>
+                        </p>
                       </div>
 
-                      <div className="bg-emerald-50/60 p-2 rounded-lg border border-emerald-100/50">
-                        <span className="text-[7.5px] font-black uppercase text-emerald-600 tracking-widest block">Smart Bundle</span>
-                        <p className="text-[9.5px] font-extrabold text-slate-800 mt-0.5">{event.bundle}</p>
+                      {/* Suggested Stock List */}
+                      <div>
+                        <p className="text-[10px] font-black text-slate-900 flex items-center gap-1 mb-1.5">
+                          🔥 <span>Suggested Stock</span>
+                        </p>
+                        <div className="space-y-1 pl-0.5">
+                          {event.suggestedStock.map((item, sIdx) => (
+                            <p key={sIdx} className="text-[9.5px] font-bold text-slate-700 flex items-center gap-1.5">
+                              <span className="text-emerald-500 font-black">✔</span> {item}
+                            </p>
+                          ))}
+                        </div>
                       </div>
 
-                      <div className="bg-slate-50 p-2 rounded-lg border border-slate-100">
-                        <span className="text-[7.5px] font-black uppercase text-slate-400 tracking-widest block">Key Action</span>
-                        <p className="text-[9.5px] font-extrabold text-slate-700 mt-0.5">✓ {event.action}</p>
+                      {/* Current Stock Status */}
+                      <div className="pt-2 border-t border-slate-100 space-y-1">
+                        <p className="text-[9.5px] font-black text-slate-900">
+                          Current Stock Status
+                        </p>
+                        <div className="space-y-1 text-[9.5px] font-extrabold">
+                          <p className="text-emerald-700 flex items-center gap-1">
+                            🟢 <span>Good:</span> {stockStats.goodPcs} pcs
+                          </p>
+                          <p className="text-amber-700 flex items-center gap-1">
+                            🟡 <span>Low:</span> {stockStats.lowPcs} pcs
+                          </p>
+                          <p className="text-rose-700 flex items-center gap-1">
+                            🔴 <span>Out of Stock:</span> {stockStats.outOfStockSKUs} SKUs
+                          </p>
+                        </div>
                       </div>
                     </div>
                   )}
