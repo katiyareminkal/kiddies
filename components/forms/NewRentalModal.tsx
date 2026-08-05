@@ -16,7 +16,8 @@ import {
   MapPin,
   CheckCircle,
   Clock,
-  Sparkles
+  Sparkles,
+  ArrowRightLeft
 } from 'lucide-react';
 import { Modal } from '../Shared';
 import { useApp } from '../../store/AppContext';
@@ -68,8 +69,17 @@ export const NewRentalModal: React.FC<NewRentalModalProps> = ({ isOpen, onClose 
   const dailyRate = selectedProduct?.rentalPrice || 0;
   const calculatedRentalAmount = rentalDays * dailyRate * (quantity || 1);
   const numericDeposit = Number(securityDeposit) || 0;
-  const totalReceivable = calculatedRentalAmount + numericDeposit;
   const numericPaid = Number(paidAmount) || 0;
+
+  // Security Deposit vs Refundable Amount Logic:
+  // Refundable Amount = Security Deposit - Rent (if rent is deducted from deposit)
+  // If customer pays both Rent + Deposit upfront, Refundable = Security Deposit.
+  const rentPaidSeparately = numericPaid >= (calculatedRentalAmount + numericDeposit);
+  const netRefundable = rentPaidSeparately 
+    ? numericDeposit 
+    : Math.max(0, numericDeposit - calculatedRentalAmount);
+
+  const totalAdvanceToCollect = numericDeposit + calculatedRentalAmount;
 
   const handleSaveCustomerInline = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -166,7 +176,7 @@ export const NewRentalModal: React.FC<NewRentalModalProps> = ({ isOpen, onClose 
         securityDeposit: numericDeposit,
         totalRentAmount: calculatedRentalAmount,
         paidAmount: numericPaid,
-        paymentStatus: numericPaid >= totalReceivable ? PaymentStatus.PAID : (numericPaid > 0 ? PaymentStatus.PARTIAL : PaymentStatus.UNPAID),
+        paymentStatus: numericPaid >= totalAdvanceToCollect ? PaymentStatus.PAID : (numericPaid > 0 ? PaymentStatus.PARTIAL : PaymentStatus.UNPAID),
         images: rentalImages,
       }, selectedFiles);
       
@@ -197,7 +207,7 @@ export const NewRentalModal: React.FC<NewRentalModalProps> = ({ isOpen, onClose 
            </div>
            <div>
                <p className="text-[9px] font-black uppercase tracking-wider text-slate-900 mb-0.5">Rental Stock Pool Notice</p>
-               <p className="text-[10px] font-bold text-slate-500 leading-relaxed">Items will be deducted from the <span className="text-[#8B5CF6] font-black">Rental Stock</span>. Security deposit is refundable upon item check-in.</p>
+               <p className="text-[10px] font-bold text-slate-500 leading-relaxed">Items will be deducted from <span className="text-[#8B5CF6] font-black">Rental Stock</span>. Refundable amount equals Deposit minus Rental Fee upon return.</p>
            </div>
         </div>
 
@@ -390,7 +400,7 @@ export const NewRentalModal: React.FC<NewRentalModalProps> = ({ isOpen, onClose 
             <div className="space-y-2">
               <div className="flex justify-between items-center ml-2">
                 <label className="text-[9px] font-black uppercase text-slate-400 tracking-widest">Security Deposit</label>
-                <span className="text-[8px] font-bold text-emerald-600 uppercase tracking-wider">100% Refundable</span>
+                <span className="text-[8px] font-bold text-[#8B5CF6] uppercase tracking-wider">Gross Deposit</span>
               </div>
               <div className="relative group">
                 <IndianRupee className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#8B5CF6] transition-colors" size={16} strokeWidth={2.5} />
@@ -400,7 +410,7 @@ export const NewRentalModal: React.FC<NewRentalModalProps> = ({ isOpen, onClose 
                   value={securityDeposit}
                   onChange={(e) => setSecurityDeposit(e.target.value)}
                   className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#8B5CF6] focus:ring-2 focus:ring-[#8B5CF6]/10 rounded-2xl outline-none transition-all font-bold text-xs text-slate-900" 
-                  placeholder="Refundable deposit amount" 
+                  placeholder="e.g. 5000" 
                 />
               </div>
             </div>
@@ -408,14 +418,24 @@ export const NewRentalModal: React.FC<NewRentalModalProps> = ({ isOpen, onClose 
             <div className="space-y-2">
               <div className="flex justify-between items-center ml-2">
                 <label className="text-[9px] font-black uppercase text-slate-400 tracking-widest">Payment Received</label>
-                {totalReceivable > 0 && (
-                  <button 
-                    type="button"
-                    onClick={() => setPaidAmount(String(totalReceivable))}
-                    className="text-[8px] font-bold text-[#8B5CF6] hover:underline uppercase tracking-wider"
-                  >
-                    Collect All (₹{totalReceivable})
-                  </button>
+                {numericDeposit > 0 && (
+                  <div className="flex items-center gap-1.5 text-[8px] font-bold uppercase tracking-wider">
+                    <button 
+                      type="button"
+                      onClick={() => setPaidAmount(String(numericDeposit))}
+                      className="text-[#8B5CF6] hover:underline"
+                    >
+                      Deposit (₹{numericDeposit})
+                    </button>
+                    <span className="text-slate-300">•</span>
+                    <button 
+                      type="button"
+                      onClick={() => setPaidAmount(String(totalAdvanceToCollect))}
+                      className="text-emerald-600 hover:underline"
+                    >
+                      Dep+Rent (₹{totalAdvanceToCollect})
+                    </button>
+                  </div>
                 )}
               </div>
               <div className="relative group">
@@ -427,13 +447,13 @@ export const NewRentalModal: React.FC<NewRentalModalProps> = ({ isOpen, onClose 
                   onChange={(e) => setPaidAmount(e.target.value)}
                   required 
                   className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#8B5CF6] focus:ring-2 focus:ring-[#8B5CF6]/10 rounded-2xl outline-none transition-all font-bold text-xs text-slate-900" 
-                  placeholder="Total payment received" 
+                  placeholder="Total payment collected upfront" 
                 />
               </div>
             </div>
           </div>
 
-          {/* Real-time Rental Fee & Refundable Deposit Calculation Summary Box */}
+          {/* Real-time Rental Fee, Security Deposit & Net Refundable Breakdown Box */}
           <div className="p-4 bg-slate-50 border border-slate-200/80 rounded-2xl space-y-2.5 text-left">
             <div className="flex justify-between items-center text-xs">
               <span className="font-bold text-slate-500 uppercase tracking-wider text-[9px]">Rental Rate</span>
@@ -443,28 +463,33 @@ export const NewRentalModal: React.FC<NewRentalModalProps> = ({ isOpen, onClose 
             </div>
             
             <div className="flex justify-between items-center text-xs">
-              <span className="font-bold text-slate-700 uppercase tracking-wider text-[9.5px]">Calculated Rental Amount</span>
+              <span className="font-bold text-slate-700 uppercase tracking-wider text-[9.5px]">Rental Amount</span>
               <span className="font-black text-slate-900 font-mono text-sm">{formatCurrency(calculatedRentalAmount)}</span>
             </div>
 
             <div className="flex justify-between items-center text-xs">
-              <span className="font-bold text-emerald-600 uppercase tracking-wider text-[9.5px]">Security Deposit (Refundable)</span>
-              <span className="font-black text-emerald-600 font-mono text-sm">{formatCurrency(numericDeposit)}</span>
+              <span className="font-bold text-slate-700 uppercase tracking-wider text-[9.5px]">Security Deposit (Held Upfront)</span>
+              <span className="font-black text-slate-900 font-mono text-sm">{formatCurrency(numericDeposit)}</span>
             </div>
 
             <div className="pt-2 border-t border-slate-200 flex justify-between items-center">
               <div>
-                <span className="font-black text-slate-900 uppercase tracking-wider text-[10px]">Total Receivable</span>
-                <p className="text-[8.5px] font-bold text-slate-400">Rental Fee ({formatCurrency(calculatedRentalAmount)}) + Deposit ({formatCurrency(numericDeposit)})</p>
+                <span className="font-black text-emerald-600 uppercase tracking-wider text-[10.5px]">Net Refundable Amount</span>
+                <p className="text-[8.5px] font-bold text-slate-400">
+                  {rentPaidSeparately 
+                    ? `Full Deposit (${formatCurrency(numericDeposit)}) returned (Rent paid separately)`
+                    : `Deposit (${formatCurrency(numericDeposit)}) minus Rent (${formatCurrency(calculatedRentalAmount)})`
+                  }
+                </p>
               </div>
-              <span className="font-black text-[#8B5CF6] font-mono text-base">{formatCurrency(totalReceivable)}</span>
+              <span className="font-black text-emerald-600 font-mono text-base">{formatCurrency(netRefundable)}</span>
             </div>
 
-            {/* Refundable Notice Box */}
+            {/* Refund Calculation Notice */}
             <div className="mt-2 p-2.5 bg-emerald-50/90 border border-emerald-100 rounded-xl flex items-start gap-2">
               <CheckCircle size={14} className="text-emerald-600 shrink-0 mt-0.5" strokeWidth={2.5} />
               <p className="text-[9.5px] font-bold text-emerald-800 leading-relaxed">
-                Security Deposit of <span className="font-mono font-black text-emerald-900">{formatCurrency(numericDeposit)}</span> is <span className="underline decoration-emerald-400 font-black">100% Refundable</span> after return inspection & deduction of any damage/late fees.
+                Refundable upon item return: <span className="font-mono font-black text-emerald-950 underline decoration-emerald-400">{formatCurrency(netRefundable)}</span>. {rentPaidSeparately ? 'Rent is paid in full.' : `Calculated as Security Deposit (${formatCurrency(numericDeposit)}) minus Rent (${formatCurrency(calculatedRentalAmount)}).`}
               </p>
             </div>
           </div>

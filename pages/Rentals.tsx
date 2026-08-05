@@ -321,7 +321,9 @@ const Rentals: React.FC = () => {
                   </div>
                   <div className="text-right">
                     <p className="text-[13px] font-bold text-slate-900 font-mono">{formatCurrency(rental.totalRentAmount)}</p>
-                    <p className="text-[9px] font-semibold text-slate-300 uppercase tracking-widest mt-0.5">Dep: {formatCurrency(rental.securityDeposit)}</p>
+                    <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest mt-0.5">
+                      Dep: {formatCurrency(rental.securityDeposit)} • <span className="text-emerald-600 font-bold">Ref: {formatCurrency(Math.max(0, rental.securityDeposit - (rental.paidAmount >= (rental.totalRentAmount + rental.securityDeposit) ? 0 : rental.totalRentAmount)))}</span>
+                    </p>
                   </div>
                 </div>
 
