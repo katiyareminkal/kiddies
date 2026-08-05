@@ -9,7 +9,8 @@ import {
   IndianRupee, 
   Tag, 
   RotateCcw,
-  Pencil
+  Pencil,
+  Clock
 } from 'lucide-react';
 import { Modal } from '../Shared';
 import { useApp } from '../../store/AppContext';
@@ -29,6 +30,7 @@ export const EditRentalModal: React.FC<EditRentalModalProps> = ({ isOpen, onClos
   const [selectedProductId, setSelectedProductId] = useState<string>('');
   const [quantity, setQuantity] = useState<number>(1);
   const [startDate, setStartDate] = useState<string>('');
+  const [startTime, setStartTime] = useState<string>('10:00');
   const [expectedReturnDate, setExpectedReturnDate] = useState<string>('');
   const [securityDeposit, setSecurityDeposit] = useState<string>('');
   const [customRentalAmount, setCustomRentalAmount] = useState<string>('');
@@ -38,7 +40,15 @@ export const EditRentalModal: React.FC<EditRentalModalProps> = ({ isOpen, onClos
       setSelectedCustomerId(rental.customerId || '');
       setSelectedProductId(rental.productId || '');
       setQuantity(rental.quantity || 1);
-      setStartDate(rental.startDate ? format(parseISO(rental.startDate), 'yyyy-MM-dd') : '');
+      if (rental.startDate) {
+        try {
+          const parsed = parseISO(rental.startDate);
+          setStartDate(format(parsed, 'yyyy-MM-dd'));
+          setStartTime(rental.startDate.includes('T') ? format(parsed, 'HH:mm') : '10:00');
+        } catch (e) {
+          setStartDate('');
+        }
+      }
       setExpectedReturnDate(rental.expectedReturnDate ? format(parseISO(rental.expectedReturnDate), 'yyyy-MM-dd') : '');
       setSecurityDeposit(String(rental.securityDeposit || 0));
       setCustomRentalAmount(String(rental.totalRentAmount || 0));
@@ -72,11 +82,13 @@ export const EditRentalModal: React.FC<EditRentalModalProps> = ({ isOpen, onClos
     e.preventDefault();
     if (!rental) return;
 
+    const startISO = `${startDate}T${startTime}`;
+
     updateRental(rental.id, {
       customerId: selectedCustomerId,
       productId: selectedProductId,
       quantity,
-      startDate,
+      startDate: startISO,
       expectedReturnDate,
       dailyRate,
       securityDeposit: numericDeposit,
@@ -92,7 +104,7 @@ export const EditRentalModal: React.FC<EditRentalModalProps> = ({ isOpen, onClos
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={`Edit Rental (${rental.invoiceNumber})`}>
       <form onSubmit={handleSubmit} className="space-y-2.5">
-        {/* Customer & Product */}
+        {/* Customer */}
         <div className="space-y-1">
           <label className="text-[8px] font-black uppercase text-slate-400 tracking-wider px-0.5">Customer *</label>
           <div className="relative group">
@@ -109,6 +121,7 @@ export const EditRentalModal: React.FC<EditRentalModalProps> = ({ isOpen, onClos
           </div>
         </div>
 
+        {/* Product */}
         <div className="space-y-1">
           <label className="text-[8px] font-black uppercase text-slate-400 tracking-wider px-0.5">Product *</label>
           <div className="relative group">
@@ -129,8 +142,8 @@ export const EditRentalModal: React.FC<EditRentalModalProps> = ({ isOpen, onClos
           </div>
         </div>
 
-        {/* Qty & Dates row */}
-        <div className="grid grid-cols-5 gap-2">
+        {/* Qty, Start Date, Start Time & Expected Return row */}
+        <div className="grid grid-cols-6 gap-1.5">
           <div className="col-span-1 space-y-1">
             <label className="text-[8px] font-black uppercase text-slate-400 tracking-wider px-0.5">Qty</label>
             <input 
@@ -139,7 +152,7 @@ export const EditRentalModal: React.FC<EditRentalModalProps> = ({ isOpen, onClos
               onChange={(e) => setQuantity(Math.max(1, Number(e.target.value)))}
               min="1" 
               required 
-              className="w-full px-2 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#8B5CF6] rounded-xl outline-none font-bold text-[11px] text-center text-slate-900" 
+              className="w-full px-1.5 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#8B5CF6] rounded-xl outline-none font-bold text-[11px] text-center text-slate-900" 
             />
           </div>
 
@@ -151,6 +164,17 @@ export const EditRentalModal: React.FC<EditRentalModalProps> = ({ isOpen, onClos
               onChange={(e) => setStartDate(e.target.value)}
               required 
               className="w-full px-2 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#8B5CF6] rounded-xl outline-none font-bold text-[10px] text-slate-900 uppercase" 
+            />
+          </div>
+
+          <div className="col-span-1 space-y-1">
+            <label className="text-[8px] font-black uppercase text-slate-400 tracking-wider px-0.5">Time *</label>
+            <input 
+              type="time" 
+              value={startTime}
+              onChange={(e) => setStartTime(e.target.value)}
+              required 
+              className="w-full px-1 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#8B5CF6] rounded-xl outline-none font-bold text-[9.5px] text-slate-900 text-center" 
             />
           </div>
 

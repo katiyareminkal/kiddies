@@ -10,7 +10,9 @@ import {
   CheckCircle,
   Package,
   User,
-  Calendar
+  Calendar,
+  RotateCcw,
+  Tag
 } from 'lucide-react';
 import { Modal } from '../Shared';
 import { useApp } from '../../store/AppContext';
@@ -32,6 +34,9 @@ export const ReturnRentalModal: React.FC<ReturnRentalModalProps> = ({ isOpen, on
   
   // Return Modal State
   const [damageFee, setDamageFee] = useState(0);
+  const [customLateFee, setCustomLateFee] = useState<string>('');
+  const [customRefundAmount, setCustomRefundAmount] = useState<string>('');
+
   const [returnImages, setReturnImages] = useState<string[]>([]);
   const [selectedReturnFiles, setSelectedReturnFiles] = useState<File[]>([]);
   const returnFileInputRef = useRef<HTMLInputElement>(null);
@@ -44,6 +49,8 @@ export const ReturnRentalModal: React.FC<ReturnRentalModalProps> = ({ isOpen, on
       setSelectedRental(null);
     }
     setDamageFee(0);
+    setCustomLateFee('');
+    setCustomRefundAmount('');
     setReturnImages([]);
     setSelectedReturnFiles([]);
   }, [rental, isOpen]);
@@ -80,17 +87,21 @@ export const ReturnRentalModal: React.FC<ReturnRentalModalProps> = ({ isOpen, on
 
   const overdueInfo = getOverdueDetails();
 
-  const getReturnSummary = () => {
-    if (!selectedRental) return { lateFee: 0, totalDue: 0, settlement: 0 };
-    
-    const lateFee = calculateLateFee(selectedRental.expectedReturnDate, undefined, selectedRental.dailyRate, selectedRental.quantity);
-    const outstandingRent = Math.max(0, selectedRental.totalRentAmount - selectedRental.paidAmount);
-    
-    const totalCharges = outstandingRent + lateFee + damageFee;
-    const settlement = selectedRental.securityDeposit - totalCharges;
-    
-    return { lateFee, outstandingRent, totalDue: totalCharges, settlement };
-  };
+  // Financial Engine with Editable Late Fee and Editable Refund Amount
+  const autoLateFee = selectedRental 
+    ? calculateLateFee(selectedRental.expectedReturnDate, undefined, selectedRental.dailyRate, selectedRental.quantity)
+    : 0;
+
+  const effectiveLateFee = customLateFee !== '' ? Math.max(0, Number(customLateFee)) : autoLateFee;
+  const isLateFeeModified = customLateFee !== '' && Number(customLateFee) !== autoLateFee;
+
+  // Formula: Refundable = Deposit - Rent - Late Fee - Damage Fee
+  const autoRefundAmount = selectedRental 
+    ? (selectedRental.securityDeposit - selectedRental.totalRentAmount - effectiveLateFee - damageFee)
+    : 0;
+
+  const effectiveRefundAmount = customRefundAmount !== '' ? Number(customRefundAmount) : autoRefundAmount;
+  const isRefundModified = customRefundAmount !== '' && Number(customRefundAmount) !== autoRefundAmount;
 
   const handleReturnImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -128,8 +139,7 @@ export const ReturnRentalModal: React.FC<ReturnRentalModalProps> = ({ isOpen, on
 
   const handleConfirmReturn = () => {
     if (selectedRental) {
-      const lateFee = calculateLateFee(selectedRental.expectedReturnDate, undefined, selectedRental.dailyRate, selectedRental.quantity);
-      const totalExtraFees = lateFee + damageFee;
+      const totalExtraFees = effectiveLateFee + damageFee;
       
       returnRental(selectedRental.id, totalExtraFees, selectedReturnFiles);
       handleClose();
@@ -139,19 +149,34 @@ export const ReturnRentalModal: React.FC<ReturnRentalModalProps> = ({ isOpen, on
   const handleClose = () => {
     setSelectedRental(null);
     setDamageFee(0);
+    setCustomLateFee('');
+    setCustomRefundAmount('');
     setReturnImages([]);
     setSelectedReturnFiles([]);
     onClose();
   };
 
-  const summary = getReturnSummary();
   const customerObj = selectedRental ? customers.find(c => c.id === selectedRental.customerId) : null;
   const productObj = selectedRental ? products.find(p => p.id === selectedRental.productId) : null;
+
+  // Format Date + Time
+  const formatDateTime = (dateStr?: string) => {
+    if (!dateStr) return 'N/A';
+    try {
+      const parsed = parseISO(dateStr);
+      if (dateStr.includes('T') || dateStr.includes(':')) {
+        return format(parsed, 'MMM dd, yyyy @ hh:mm a');
+      }
+      return format(parsed, 'MMM dd, yyyy');
+    } catch (e) {
+      return dateStr;
+    }
+  };
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title="Rental Check-In">
       <div className="space-y-3.5">
-        {/* If no rental is selected, show dropdown */}
+        {/* Dropdown if no rental pre-selected */}
         {!rental && (
           <div className="space-y-1">
             <label className="text-[8px] font-black uppercase text-slate-400 tracking-wider ml-0.5">Select Active Rental *</label>
@@ -182,7 +207,7 @@ export const ReturnRentalModal: React.FC<ReturnRentalModalProps> = ({ isOpen, on
 
         {selectedRental ? (
           <>
-            {/* Customer Details Header Card */}
+            {/* Customer Details Header */}
             <div className="p-3 bg-slate-50 border border-slate-200/80 rounded-xl space-y-1 text-left">
               <div className="flex justify-between items-start">
                 <div>
@@ -198,14 +223,14 @@ export const ReturnRentalModal: React.FC<ReturnRentalModalProps> = ({ isOpen, on
               </div>
             </div>
 
-            {/* Overdue Warning Banner (Shows Overdue Duration in Hours & Minutes) */}
+            {/* Overdue Warning Banner (With Hours & Minutes) */}
             {overdueInfo.isOverdue && (
               <div className="p-2.5 bg-rose-50 border border-rose-200 rounded-xl flex items-center gap-2.5">
                 <Clock size={15} className="text-rose-600 shrink-0 animate-pulse" strokeWidth={2.5} />
                 <div>
                   <span className="text-[8px] font-black uppercase tracking-wider text-rose-700">Late Return Warning</span>
                   <p className="text-[10px] font-bold text-rose-950 leading-tight mt-0.5">
-                    Late by <span className="font-mono font-black text-rose-700 underline">{overdueInfo.formatted}</span>. Late penalty applied.
+                    Late by <span className="font-mono font-black text-rose-700 underline">{overdueInfo.formatted}</span>.
                   </p>
                 </div>
               </div>
@@ -223,47 +248,104 @@ export const ReturnRentalModal: React.FC<ReturnRentalModalProps> = ({ isOpen, on
               </div>
             )}
 
-            {/* Key Rental & Financial Grid (Start Date, Expected Return Date, Deposit, Rent, Late Fee, Damage Fee) */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 p-3 bg-slate-50 rounded-xl border border-slate-200/80 text-left">
+            {/* Grid: Start Date (with Time), Expected Return, Security Deposit & Rent */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 p-3 bg-slate-50 rounded-xl border border-slate-200/80 text-left">
                 <div>
-                    <p className="text-slate-400 text-[8px] uppercase font-black tracking-wider">Start Date</p>
-                    <p className="font-black text-slate-900 text-[10px] font-mono">{selectedRental.startDate ? format(parseISO(selectedRental.startDate), 'MMM dd, yyyy') : 'N/A'}</p>
+                    <p className="text-slate-400 text-[8px] uppercase font-black tracking-wider">Start Date & Time</p>
+                    <p className="font-black text-slate-900 text-[9.5px] font-mono leading-tight">{formatDateTime(selectedRental.startDate)}</p>
                 </div>
                 <div>
                     <p className="text-slate-400 text-[8px] uppercase font-black tracking-wider">Expected Return</p>
-                    <p className="font-black text-slate-900 text-[10px] font-mono">{selectedRental.expectedReturnDate ? format(parseISO(selectedRental.expectedReturnDate), 'MMM dd, yyyy') : 'N/A'}</p>
+                    <p className="font-black text-slate-900 text-[9.5px] font-mono leading-tight">{formatDateTime(selectedRental.expectedReturnDate)}</p>
                 </div>
                 <div>
                     <p className="text-slate-400 text-[8px] uppercase font-black tracking-wider">Security Deposit</p>
                     <p className="font-black text-[#8B5CF6] text-[11px] font-mono">{formatCurrency(selectedRental.securityDeposit)}</p>
                 </div>
-
-                <div className="pt-2 border-t border-slate-200">
-                    <p className="text-slate-400 text-[8px] uppercase font-black tracking-wider">Total Rent</p>
+                <div>
+                    <p className="text-slate-400 text-[8px] uppercase font-black tracking-wider">Total Rent Amount</p>
                     <p className="font-black text-slate-900 text-[11px] font-mono">{formatCurrency(selectedRental.totalRentAmount)}</p>
-                </div>
-                <div className="pt-2 border-t border-slate-200">
-                    <p className="text-slate-400 text-[8px] uppercase font-black tracking-wider">Late Fee</p>
-                    <p className="font-black text-rose-500 text-[11px] font-mono">{formatCurrency(summary.lateFee)}</p>
-                </div>
-                <div className="pt-2 border-t border-slate-200">
-                    <p className="text-slate-400 text-[8px] uppercase font-black tracking-wider">Damage Fee</p>
-                    <p className="font-black text-amber-600 text-[11px] font-mono">{formatCurrency(damageFee)}</p>
                 </div>
             </div>
 
-            {/* Damage / Cleaning Fee Input */}
-            <div className="space-y-1">
-                <label className="text-[8px] font-black uppercase text-slate-400 tracking-wider px-0.5">Damage / Cleaning Fee Input</label>
+            {/* Editable Fees Row: Late Fee & Damage Fee */}
+            <div className="grid grid-cols-2 gap-2">
+              {/* Editable Late Fee */}
+              <div className="space-y-1">
+                <div className="flex justify-between items-center px-0.5">
+                  <label className="text-[8px] font-black uppercase text-slate-400 tracking-wider">Late Fee (Editable) *</label>
+                  {isLateFeeModified && (
+                    <button 
+                      type="button" 
+                      onClick={() => setCustomLateFee('')}
+                      className="text-[7px] font-bold text-rose-500 hover:underline uppercase flex items-center gap-0.5"
+                    >
+                      <RotateCcw size={7} /> Reset (₹{autoLateFee})
+                    </button>
+                  )}
+                </div>
                 <div className="relative group">
-                    <IndianRupee className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#8B5CF6]" size={13} strokeWidth={2.5} />
+                  <IndianRupee className={`absolute left-2.5 top-1/2 -translate-y-1/2 ${isLateFeeModified ? 'text-rose-500' : 'text-slate-400 group-focus-within:text-[#8B5CF6]'}`} size={13} strokeWidth={2.5} />
+                  <input 
+                    type="number" 
+                    value={customLateFee !== '' ? customLateFee : (autoLateFee > 0 ? autoLateFee : '0')} 
+                    onChange={e => setCustomLateFee(e.target.value)} 
+                    className={`w-full pl-7 pr-2 py-2 border rounded-xl outline-none font-bold text-xs ${isLateFeeModified ? 'bg-rose-50/60 border-rose-300 text-rose-950' : 'bg-slate-50 border-slate-200 focus:bg-white focus:border-[#8B5CF6] text-slate-900'}`}
+                    placeholder={String(autoLateFee)}
+                  />
+                </div>
+              </div>
+
+              {/* Editable Damage Fee */}
+              <div className="space-y-1">
+                <label className="text-[8px] font-black uppercase text-slate-400 tracking-wider px-0.5">Damage / Cleaning Fee *</label>
+                <div className="relative group">
+                  <IndianRupee className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#8B5CF6]" size={13} strokeWidth={2.5} />
+                  <input 
+                    type="number" 
+                    value={damageFee} 
+                    onChange={e => setDamageFee(Number(e.target.value))} 
+                    className="w-full pl-7 pr-2 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#8B5CF6] rounded-xl outline-none font-bold text-slate-900 text-xs"
+                    placeholder="0"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Editable Refundable Amount / Final Settlement */}
+            <div className={`p-3 rounded-xl border space-y-2 ${effectiveRefundAmount >= 0 ? 'bg-emerald-50/80 border-emerald-200' : 'bg-rose-50/80 border-rose-200'}`}>
+                <div className="flex justify-between items-center">
+                    <div>
+                      <p className="text-[8px] font-black uppercase tracking-wider opacity-70">Refundable Settlement Amount</p>
+                      <p className="text-[7.5px] font-medium text-slate-500 mt-0.5">
+                        Deposit ({formatCurrency(selectedRental.securityDeposit)}) - Rent ({formatCurrency(selectedRental.totalRentAmount)}) - Late ({formatCurrency(effectiveLateFee)}) - Damage ({formatCurrency(damageFee)})
+                      </p>
+                    </div>
+                    {isRefundModified && (
+                      <button 
+                        type="button" 
+                        onClick={() => setCustomRefundAmount('')}
+                        className="text-[7.5px] font-bold text-slate-600 hover:underline uppercase flex items-center gap-0.5 bg-white px-2 py-0.5 rounded-lg border border-slate-200"
+                      >
+                        <RotateCcw size={8} /> Auto Formula (₹{autoRefundAmount})
+                      </button>
+                    )}
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <div className="relative flex-1 group">
+                    <Tag className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-600" size={13} strokeWidth={2.5} />
                     <input 
-                       type="number" 
-                       value={damageFee} 
-                       onChange={e => setDamageFee(Number(e.target.value))} 
-                       className="w-full pl-7 pr-3 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#8B5CF6] rounded-xl outline-none font-bold text-slate-900 text-xs"
-                       placeholder="0"
+                      type="number" 
+                      value={customRefundAmount !== '' ? customRefundAmount : (autoRefundAmount !== 0 ? autoRefundAmount : '0')}
+                      onChange={e => setCustomRefundAmount(e.target.value)}
+                      className={`w-full pl-7 pr-3 py-2 border rounded-xl outline-none font-mono font-black text-sm ${effectiveRefundAmount >= 0 ? 'bg-white border-emerald-300 text-emerald-950' : 'bg-white border-rose-300 text-rose-950'}`}
+                      placeholder={String(autoRefundAmount)}
                     />
+                  </div>
+                  <div className={`px-3 py-2 rounded-xl font-bold text-xs font-mono shrink-0 ${effectiveRefundAmount >= 0 ? 'bg-emerald-600 text-white' : 'bg-rose-600 text-white'}`}>
+                    {effectiveRefundAmount >= 0 ? `Refund Customer` : `Collect Balance`}
+                  </div>
                 </div>
             </div>
 
@@ -293,22 +375,6 @@ export const ReturnRentalModal: React.FC<ReturnRentalModalProps> = ({ isOpen, on
                   </button>
                </div>
                <input type="file" ref={returnFileInputRef} onChange={handleReturnImageChange} accept="image/*" multiple className="hidden" />
-            </div>
-
-            {/* Refundable Amount & Settlement Display */}
-            <div className={`p-3 rounded-xl flex justify-between items-center ${summary.settlement >= 0 ? 'bg-emerald-50 border border-emerald-200' : 'bg-rose-50 border border-rose-200'}`}>
-                <div>
-                    <p className="text-[8px] font-black uppercase tracking-wider opacity-70 mb-0.5">Refundable Amount / Final Settlement</p>
-                    <p className={`text-base font-black font-mono tracking-tight ${summary.settlement >= 0 ? 'text-emerald-800' : 'text-rose-800'}`}>
-                        {summary.settlement >= 0 ? `Refund to Customer: ${formatCurrency(summary.settlement)}` : `Collect from Customer: ${formatCurrency(Math.abs(summary.settlement))}`}
-                    </p>
-                    <p className="text-[7.5px] font-medium text-slate-500 mt-0.5">
-                      Security Deposit ({formatCurrency(selectedRental.securityDeposit)}) minus Rent ({formatCurrency(selectedRental.totalRentAmount)}) minus Late ({formatCurrency(summary.lateFee)}) minus Damage ({formatCurrency(damageFee)})
-                    </p>
-                </div>
-                <div className={`p-2 rounded-xl ${summary.settlement >= 0 ? 'bg-emerald-500 text-white' : 'bg-rose-500 text-white'}`}>
-                    {summary.settlement >= 0 ? <ArrowRight size={18} strokeWidth={3} className="-rotate-45" /> : <IndianRupee size={18} strokeWidth={3} />}
-                </div>
             </div>
 
             {/* Action Buttons */}

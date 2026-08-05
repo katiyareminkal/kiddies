@@ -12,7 +12,8 @@ import {
   Plus,
   Tag,
   RotateCcw,
-  CheckCircle
+  CheckCircle,
+  Clock
 } from 'lucide-react';
 import { Modal } from '../Shared';
 import { useApp } from '../../store/AppContext';
@@ -40,8 +41,11 @@ export const NewRentalModal: React.FC<NewRentalModalProps> = ({ isOpen, onClose 
   const [selectedProductId, setSelectedProductId] = useState<string>('');
   const [quantity, setQuantity] = useState<number>(1);
   const todayStr = format(new Date(), 'yyyy-MM-dd');
+  const currentTimeStr = format(new Date(), 'HH:mm');
   const defaultReturnStr = format(addDays(new Date(), 3), 'yyyy-MM-dd');
+  
   const [startDate, setStartDate] = useState<string>(todayStr);
+  const [startTime, setStartTime] = useState<string>(currentTimeStr);
   const [expectedReturnDate, setExpectedReturnDate] = useState<string>(defaultReturnStr);
   const [securityDeposit, setSecurityDeposit] = useState<string>('');
   const [customRentalAmount, setCustomRentalAmount] = useState<string>('');
@@ -158,12 +162,14 @@ export const NewRentalModal: React.FC<NewRentalModalProps> = ({ isOpen, onClose 
       return;
     }
 
+    const startISO = `${startDate || todayStr}T${startTime || currentTimeStr}`;
+
     if (selectedProduct) {
       addRental({
         customerId: selectedCustomerId,
         productId: selectedProductId,
         quantity: quantity || 1,
-        startDate: startDate || todayStr,
+        startDate: startISO,
         expectedReturnDate: expectedReturnDate || defaultReturnStr,
         dailyRate: selectedProduct.rentalPrice,
         securityDeposit: numericDeposit,
@@ -184,6 +190,7 @@ export const NewRentalModal: React.FC<NewRentalModalProps> = ({ isOpen, onClose 
     setSelectedProductId('');
     setQuantity(1);
     setStartDate(todayStr);
+    setStartTime(currentTimeStr);
     setExpectedReturnDate(defaultReturnStr);
     setSecurityDeposit('');
     setCustomRentalAmount('');
@@ -296,8 +303,8 @@ export const NewRentalModal: React.FC<NewRentalModalProps> = ({ isOpen, onClose 
           </div>
         </div>
 
-        {/* Qty (1/5), Start Date & Expected Return Date in 1 Row */}
-        <div className="grid grid-cols-5 gap-2">
+        {/* Qty, Start Date, Start Time & Expected Return Date in 1 Row */}
+        <div className="grid grid-cols-6 gap-1.5">
           <div className="col-span-1 space-y-1">
             <label className="text-[8px] font-black uppercase text-slate-400 tracking-wider px-0.5">Qty</label>
             <input 
@@ -307,7 +314,7 @@ export const NewRentalModal: React.FC<NewRentalModalProps> = ({ isOpen, onClose 
               onChange={(e) => setQuantity(Math.max(1, Number(e.target.value)))}
               min="1" 
               required 
-              className="w-full px-2 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#8B5CF6] rounded-xl outline-none font-bold text-[11px] text-center text-slate-900" 
+              className="w-full px-1.5 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#8B5CF6] rounded-xl outline-none font-bold text-[11px] text-center text-slate-900" 
             />
           </div>
 
@@ -320,6 +327,18 @@ export const NewRentalModal: React.FC<NewRentalModalProps> = ({ isOpen, onClose 
               onChange={(e) => setStartDate(e.target.value)}
               required 
               className="w-full px-2 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#8B5CF6] rounded-xl outline-none font-bold text-[10px] text-slate-900 uppercase" 
+            />
+          </div>
+
+          <div className="col-span-1 space-y-1">
+            <label className="text-[8px] font-black uppercase text-slate-400 tracking-wider px-0.5">Time *</label>
+            <input 
+              name="startTime" 
+              type="time" 
+              value={startTime}
+              onChange={(e) => setStartTime(e.target.value)}
+              required 
+              className="w-full px-1 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#8B5CF6] rounded-xl outline-none font-bold text-[9.5px] text-slate-900 text-center" 
             />
           </div>
 
