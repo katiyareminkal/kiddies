@@ -1039,26 +1039,52 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
           };
         }),
         sales: combinedSales,
-        rentals: (rentals || []).map(r => ({
-          id: r.id,
-          invoiceNumber: r.invoice_number,
-          customerId: r.customer_id,
-          productId: r.product_id,
-          quantity: Number(r.quantity || 1),
-          startDate: r.start_date,
-          expectedReturnDate: r.expected_return_date,
-          actualReturnDate: r.actual_return_date || undefined,
-          dailyRate: Number(r.daily_rate || 0),
-          securityDeposit: Number(r.security_deposit || 0),
-          totalRentAmount: Number(r.total_rent_amount || 0),
-          lateFee: Number(r.late_fee || 0),
-          paidAmount: Number(r.paid_amount || 0),
-          status: r.status || RentalStatus.ACTIVE,
-          paymentStatus: r.payment_status || PaymentStatus.UNPAID,
-          images: r.images || [],
-          returnImages: r.return_images || [],
-          date: r.date
-        })),
+        rentals: (() => {
+          const remoteRentals = (rentals || []).map(r => ({
+            id: r.id,
+            invoiceNumber: r.invoice_number,
+            customerId: r.customer_id,
+            productId: r.product_id,
+            quantity: Number(r.quantity || 1),
+            startDate: r.start_date,
+            expectedReturnDate: r.expected_return_date,
+            actualReturnDate: r.actual_return_date || undefined,
+            dailyRate: Number(r.daily_rate || 0),
+            securityDeposit: Number(r.security_deposit || 0),
+            totalRentAmount: Number(r.total_rent_amount || 0),
+            lateFee: Number(r.late_fee || 0),
+            paidAmount: Number(r.paid_amount || 0),
+            status: r.status || RentalStatus.ACTIVE,
+            paymentStatus: r.payment_status || PaymentStatus.UNPAID,
+            images: r.images || [],
+            returnImages: r.return_images || [],
+            date: r.date || r.start_date
+          }));
+
+          // Merge with local offline rentals to guarantee persistence
+          try {
+            const savedLocal = localStorage.getItem('kiddies_offline_rentals');
+            if (savedLocal) {
+              const offline: Rental[] = JSON.parse(savedLocal);
+              const map = new Map(remoteRentals.map(item => [item.id, item]));
+              offline.forEach(off => {
+                if (!map.has(off.id)) {
+                  map.set(off.id, off);
+                } else {
+                  const rem = map.get(off.id)!;
+                  if (off.status === RentalStatus.RETURNED && rem.status !== RentalStatus.RETURNED) {
+                    map.set(off.id, { ...rem, ...off });
+                  }
+                }
+              });
+              return Array.from(map.values());
+            }
+          } catch (e) {
+            console.warn("Could not parse offline rentals", e);
+          }
+
+          return remoteRentals;
+        })(),
         stockLogs: (stockLogs || []).map(sl => ({
           id: sl.id,
           productId: sl.product_id,
@@ -2071,13 +2097,53 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     const id = generateID();
     const prefix = state.settings.rentalInvoicePrefix || 'RNT-';
     const invoiceNumber = `${prefix}${state.rentals.length + 1001}`;
+    const nowStr = new Date().toISOString();
 
-    try {
-      let imageUrls: string[] = [];
-      if (imageFiles) {
+    let imageUrls: string[] = [];
+    if (imageFiles && imageFiles.length > 0) {
+      try {
         imageUrls = await Promise.all(imageFiles.map(file => uploadImage(file, `rentals/${id}_${file.name}`)));
+      } catch (e) {
+        console.warn('Could not upload images to storage, fallback empty', e);
       }
+    }
 
+    const newRental: Rental = {
+      id,
+      invoiceNumber,
+      customerId: r.customerId,
+      productId: r.productId,
+      quantity: r.quantity,
+      startDate: r.startDate,
+      expectedReturnDate: r.expectedReturnDate,
+      dailyRate: r.dailyRate,
+      securityDeposit: r.securityDeposit,
+      totalRentAmount: r.totalRentAmount,
+      lateFee: 0,
+      paidAmount: r.paidAmount,
+      status: RentalStatus.ACTIVE,
+      paymentStatus: r.paymentStatus,
+      images: imageUrls,
+      date: nowStr
+    };
+
+    // 1. Optimistic Local State Update
+    setState(prev => ({
+      ...prev,
+      rentals: [newRental, ...prev.rentals.filter(item => item.id !== id)]
+    }));
+
+    // 2. LocalStorage Persistence Fallback
+    try {
+      const savedLocal = localStorage.getItem('kiddies_offline_rentals');
+      const existing: Rental[] = savedLocal ? JSON.parse(savedLocal) : [];
+      localStorage.setItem('kiddies_offline_rentals', JSON.stringify([newRental, ...existing.filter(item => item.id !== id)]));
+    } catch (e) {
+      console.warn('Could not save to localStorage', e);
+    }
+
+    // 3. Supabase DB Insert
+    try {
       const { error: rentalError } = await supabase.from('rentals').insert({
         id,
         invoice_number: invoiceNumber,
@@ -2093,9 +2159,12 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         paid_amount: r.paidAmount,
         status: RentalStatus.ACTIVE,
         payment_status: r.paymentStatus,
-        images: imageUrls
+        images: imageUrls,
+        date: nowStr
       });
-      if (rentalError) throw rentalError;
+      if (rentalError) {
+        console.warn('Supabase rental insert error:', rentalError);
+      }
 
       // Update Stock (Shared pool fallback for HYBRID products)
       const product = state.products.find(p => p.id === r.productId);
@@ -2123,7 +2192,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
           pool: poolUsed,
           type: 'OUT',
           quantity: r.quantity,
-          reason: `Rental ${invoiceNumber}${poolUsed === 'SALE' ? ' (from Sale Stock)' : ''}`
+          reason: `Rental ${invoiceNumber}${poolUsed === 'SALE' ? ' (from Sale Stock)' : ''}`,
+          date: nowStr
         });
       }
 
@@ -2136,89 +2206,135 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         message: notification.message,
         link_to: notification.linkTo
       });
-
-      await fetchAllData();
     } catch (error) {
-      console.error('Error booking rental:', error);
+      console.error('Error booking rental in Supabase:', error);
     }
   };
 
   const updateRental = async (id: string, updates: Partial<Rental>) => {
+    // 1. Optimistic Local State Update
+    setState(prev => ({
+      ...prev,
+      rentals: prev.rentals.map(r => r.id === id ? { ...r, ...updates } : r)
+    }));
+
+    // 2. LocalStorage Persistence Fallback
     try {
-      const { error } = await supabase.from('rentals').update({
-        customer_id: updates.customerId,
-        product_id: updates.productId,
-        quantity: updates.quantity,
-        start_date: updates.startDate,
-        expected_return_date: updates.expectedReturnDate,
-        actual_return_date: updates.actualReturnDate,
-        daily_rate: updates.dailyRate,
-        security_deposit: updates.securityDeposit,
-        total_rent_amount: updates.totalRentAmount,
-        late_fee: updates.lateFee,
-        paid_amount: updates.paidAmount,
-        status: updates.status,
-        payment_status: updates.paymentStatus,
-        images: updates.images,
-        return_images: updates.returnImages
-      }).eq('id', id);
-      if (error) throw error;
-      await fetchAllData();
+      const savedLocal = localStorage.getItem('kiddies_offline_rentals');
+      const existing: Rental[] = savedLocal ? JSON.parse(savedLocal) : [];
+      const updatedList = existing.map(item => item.id === id ? { ...item, ...updates } : item);
+      localStorage.setItem('kiddies_offline_rentals', JSON.stringify(updatedList));
+    } catch (e) {
+      console.warn('Could not update localStorage offline rentals', e);
+    }
+
+    // 3. Supabase Sync
+    try {
+      const dbUpdates: any = {};
+      if (updates.customerId !== undefined) dbUpdates.customer_id = updates.customerId;
+      if (updates.productId !== undefined) dbUpdates.product_id = updates.productId;
+      if (updates.quantity !== undefined) dbUpdates.quantity = updates.quantity;
+      if (updates.startDate !== undefined) dbUpdates.start_date = updates.startDate;
+      if (updates.expectedReturnDate !== undefined) dbUpdates.expected_return_date = updates.expectedReturnDate;
+      if (updates.actualReturnDate !== undefined) dbUpdates.actual_return_date = updates.actualReturnDate;
+      if (updates.dailyRate !== undefined) dbUpdates.daily_rate = updates.dailyRate;
+      if (updates.securityDeposit !== undefined) dbUpdates.security_deposit = updates.securityDeposit;
+      if (updates.totalRentAmount !== undefined) dbUpdates.total_rent_amount = updates.totalRentAmount;
+      if (updates.lateFee !== undefined) dbUpdates.late_fee = updates.lateFee;
+      if (updates.paidAmount !== undefined) dbUpdates.paid_amount = updates.paidAmount;
+      if (updates.status !== undefined) dbUpdates.status = updates.status;
+      if (updates.paymentStatus !== undefined) dbUpdates.payment_status = updates.paymentStatus;
+      if (updates.images !== undefined) dbUpdates.images = updates.images;
+      if (updates.returnImages !== undefined) dbUpdates.return_images = updates.returnImages;
+
+      const { error } = await supabase.from('rentals').update(dbUpdates).eq('id', id);
+      if (error) console.warn('Supabase updateRental error:', error);
     } catch (error) {
-      console.error('Error updating rental:', error);
+      console.error('Error updating rental in Supabase:', error);
     }
   };
 
   const returnRental = async (id: string, lateFee: number, returnImageFiles?: File[]) => {
-    try {
-      const rental = state.rentals.find(r => r.id === id);
-      if (rental) {
-        let returnImageUrls: string[] = [];
-        if (returnImageFiles) {
-          returnImageUrls = await Promise.all(returnImageFiles.map(file => uploadImage(file, `rentals/return_${id}_${file.name}`)));
-        }
+    const rental = state.rentals.find(r => r.id === id);
+    if (!rental) return;
 
-        const { error: returnError } = await supabase.from('rentals').update({
-          status: RentalStatus.RETURNED,
-          actual_return_date: new Date().toISOString(),
-          late_fee: lateFee,
-          total_rent_amount: rental.totalRentAmount + lateFee,
-          return_images: returnImageUrls
-        }).eq('id', id);
-        if (returnError) throw returnError;
+    const nowStr = new Date().toISOString();
 
-        // Restore Stock
-        const product = state.products.find(p => p.id === rental.productId);
-        if (product) {
-          await supabase.from('products').update({
-            rental_stock: product.rentalStock + rental.quantity
-          }).eq('id', rental.productId);
-
-          const logId = generateID();
-          await supabase.from('stock_logs').insert({
-            id: logId,
-            product_id: rental.productId,
-            pool: 'RENTAL',
-            type: 'IN',
-            quantity: rental.quantity,
-            reason: `Return ${rental.invoiceNumber}`
-          });
-        }
-
-        const notification = createNotification('INFO', 'RENTAL', 'Rental Returned', `Items checked in for ${rental.invoiceNumber}`, 'rentals');
-        await supabase.from('notifications').insert({
-          id: notification.id,
-          type: notification.type,
-          category: notification.category,
-          title: notification.title,
-          message: notification.message,
-          link_to: notification.linkTo
-        });
-
-        await fetchAllData();
+    let returnImageUrls: string[] = rental.returnImages || [];
+    if (returnImageFiles && returnImageFiles.length > 0) {
+      try {
+        const newUrls = await Promise.all(returnImageFiles.map(file => uploadImage(file, `rentals/return_${id}_${file.name}`)));
+        returnImageUrls = [...returnImageUrls, ...newUrls];
+      } catch (e) {
+        console.warn('Could not upload return images', e);
       }
+    }
+
+    const updates: Partial<Rental> = {
+      status: RentalStatus.RETURNED,
+      actualReturnDate: nowStr,
+      lateFee,
+      totalRentAmount: rental.totalRentAmount + lateFee,
+      returnImages: returnImageUrls
+    };
+
+    // 1. Optimistic Local State Update
+    setState(prev => ({
+      ...prev,
+      rentals: prev.rentals.map(r => r.id === id ? { ...r, ...updates } : r)
+    }));
+
+    // 2. LocalStorage Persistence Fallback
+    try {
+      const savedLocal = localStorage.getItem('kiddies_offline_rentals');
+      const existing: Rental[] = savedLocal ? JSON.parse(savedLocal) : [];
+      const updatedList = existing.map(item => item.id === id ? { ...item, ...updates } : item);
+      localStorage.setItem('kiddies_offline_rentals', JSON.stringify(updatedList));
+    } catch (e) {
+      console.warn('Could not update return in localStorage', e);
+    }
+
+    // 3. Supabase Sync
+    try {
+      const { error: returnError } = await supabase.from('rentals').update({
+        status: RentalStatus.RETURNED,
+        actual_return_date: nowStr,
+        late_fee: lateFee,
+        total_rent_amount: rental.totalRentAmount + lateFee,
+        return_images: returnImageUrls
+      }).eq('id', id);
+      if (returnError) console.warn('Supabase returnRental error:', returnError);
+
+      // Restore Stock
+      const product = state.products.find(p => p.id === rental.productId);
+      if (product) {
+        await supabase.from('products').update({
+          rental_stock: product.rentalStock + rental.quantity
+        }).eq('id', rental.productId);
+
+        const logId = generateID();
+        await supabase.from('stock_logs').insert({
+          id: logId,
+          product_id: rental.productId,
+          pool: 'RENTAL',
+          type: 'IN',
+          quantity: rental.quantity,
+          reason: `Return ${rental.invoiceNumber}`,
+          date: nowStr
+        });
+      }
+
+      const notification = createNotification('INFO', 'RENTAL', 'Rental Returned', `Items checked in for ${rental.invoiceNumber}`, 'rentals');
+      await supabase.from('notifications').insert({
+        id: notification.id,
+        type: notification.type,
+        category: notification.category,
+        title: notification.title,
+        message: notification.message,
+        link_to: notification.linkTo
+      });
     } catch (error) {
-      console.error('Error returning rental:', error);
+      console.error('Error returning rental in Supabase:', error);
     }
   };
 
