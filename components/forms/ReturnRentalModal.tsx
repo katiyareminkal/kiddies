@@ -95,9 +95,10 @@ export const ReturnRentalModal: React.FC<ReturnRentalModalProps> = ({ isOpen, on
   const effectiveLateFee = customLateFee !== '' ? Math.max(0, Number(customLateFee)) : autoLateFee;
   const isLateFeeModified = customLateFee !== '' && Number(customLateFee) !== autoLateFee;
 
-  // Formula: Refundable = Deposit - Rent - Late Fee - Damage Fee
+  // Formula: Refundable = Deposit - Unpaid Rent - Late Fee - Damage Fee
+  const unpaidRent = selectedRental ? Math.max(0, selectedRental.totalRentAmount - (selectedRental.paidAmount || 0)) : 0;
   const autoRefundAmount = selectedRental 
-    ? (selectedRental.securityDeposit - selectedRental.totalRentAmount - effectiveLateFee - damageFee)
+    ? (selectedRental.securityDeposit - unpaidRent - effectiveLateFee - damageFee)
     : 0;
 
   const effectiveRefundAmount = customRefundAmount !== '' ? Number(customRefundAmount) : autoRefundAmount;
@@ -318,7 +319,7 @@ export const ReturnRentalModal: React.FC<ReturnRentalModalProps> = ({ isOpen, on
                     <div>
                       <p className="text-[8px] font-black uppercase tracking-wider opacity-70">Refundable Settlement Amount</p>
                       <p className="text-[7.5px] font-medium text-slate-500 mt-0.5">
-                        Deposit ({formatCurrency(selectedRental.securityDeposit)}) - Rent ({formatCurrency(selectedRental.totalRentAmount)}) - Late ({formatCurrency(effectiveLateFee)}) - Damage ({formatCurrency(damageFee)})
+                        Deposit ({formatCurrency(selectedRental.securityDeposit)}) - Unpaid Rent ({formatCurrency(unpaidRent)}) - Late ({formatCurrency(effectiveLateFee)}) - Damage ({formatCurrency(damageFee)})
                       </p>
                     </div>
                     {isRefundModified && (
