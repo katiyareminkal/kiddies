@@ -852,22 +852,10 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
           </div>
 
           {chartTotals.combined === 0 ? (
-            <div className="h-[210px] w-full bg-slate-50/60 rounded-2xl border border-dashed border-slate-200/80 flex flex-col items-center justify-center p-6 text-center animate-nano">
-              <div className="w-12 h-12 rounded-2xl bg-purple-50 text-[#8B5CF6] flex items-center justify-center mb-2.5 border border-purple-100/60 shadow-inner">
-                <TrendingUp size={22} strokeWidth={2.5} />
-              </div>
-              <h4 className="text-xs font-black text-slate-900 tracking-tight">No Sales & Earnings Data</h4>
-              <p className="text-[9.5px] font-bold text-slate-400 mt-1 max-w-xs leading-relaxed">
-                There are no sales or rental earnings recorded for this period. Create a new bill to track real-time revenue graph.
+            <div className="h-[210px] w-full flex items-center justify-center text-center p-6 bg-slate-50/50 rounded-xl border border-slate-100/60">
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                No sales or rental transactions recorded for this period
               </p>
-              <button
-                type="button"
-                onClick={() => setIsCreateBillModalOpen(true)}
-                className="mt-3.5 inline-flex items-center gap-1.5 bg-[#8B5CF6] hover:bg-[#7C3AED] text-white px-4 py-2 rounded-xl text-[9.5px] font-black uppercase tracking-wider shadow-md shadow-purple-500/20 hover:scale-105 active:scale-95 transition-all cursor-pointer"
-              >
-                <ShoppingBag size={13} strokeWidth={2.5} />
-                <span>Go to Sales Billing</span>
-              </button>
             </div>
           ) : (
             <div className="h-[210px] w-full">
