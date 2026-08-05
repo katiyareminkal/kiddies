@@ -715,7 +715,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
         <div onClick={() => navigate('reports')} className="bg-white p-3.5 md:p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between cursor-pointer hover:border-highlight hover:shadow-md transition-all group relative">
           <div className="flex justify-between items-start mb-2">
             <div className="flex items-center gap-1 min-w-0">
-              <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest group-hover:text-highlight transition-colors truncate">{salesTitle}</h4>
+              <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest group-hover:text-highlight transition-colors truncate">Sales</h4>
               <div className="relative group/info" onClick={(e) => e.stopPropagation()}>
                 <Info size={11} className="text-slate-300 hover:text-slate-500 cursor-pointer transition-colors" />
                 <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-1.5 hidden group-hover/info:block bg-slate-900 text-white text-[8px] font-bold py-1 px-2 rounded-lg shadow-xl whitespace-nowrap z-30 pointer-events-none">
@@ -768,7 +768,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
         <div onClick={() => navigate('rentals')} className="bg-white p-3.5 md:p-5 rounded-2xl border border-rose-100 bg-rose-50/20 shadow-sm flex flex-col justify-between cursor-pointer hover:border-rose-300 hover:shadow-md transition-all group relative">
           <div className="flex justify-between items-start mb-2">
             <div className="flex items-center gap-1 min-w-0">
-              <h4 className="text-[10px] font-bold text-rose-500 uppercase tracking-widest truncate">{returnsDueTitle}</h4>
+              <h4 className="text-[10px] font-bold text-rose-500 uppercase tracking-widest truncate">Returns Due</h4>
               <div className="relative group/info" onClick={(e) => e.stopPropagation()}>
                 <Info size={11} className="text-rose-300 hover:text-rose-500 cursor-pointer transition-colors" />
                 <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-1.5 hidden group-hover/info:block bg-slate-900 text-white text-[8px] font-bold py-1 px-2 rounded-lg shadow-xl whitespace-nowrap z-30 pointer-events-none">
@@ -818,7 +818,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
         <div onClick={() => navigate('customers')} className="bg-white p-3.5 md:p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between cursor-pointer hover:border-highlight hover:shadow-md transition-all group relative">
           <div className="flex justify-between items-start mb-2">
             <div className="flex items-center gap-1 min-w-0">
-              <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest group-hover:text-highlight transition-colors truncate">{customersTitle}</h4>
+              <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest group-hover:text-highlight transition-colors truncate">Customers</h4>
               <div className="relative group/info" onClick={(e) => e.stopPropagation()}>
                 <Info size={11} className="text-slate-300 hover:text-slate-500 cursor-pointer transition-colors" />
                 <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-1.5 hidden group-hover/info:block bg-slate-900 text-white text-[8px] font-bold py-1 px-2 rounded-lg shadow-xl whitespace-nowrap z-30 pointer-events-none">
@@ -876,7 +876,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
         <div onClick={() => navigate('reports')} className="bg-white p-3.5 md:p-5 rounded-2xl border border-rose-100 bg-rose-50/10 shadow-sm flex flex-col justify-between cursor-pointer hover:border-rose-300 hover:shadow-md transition-all group relative">
           <div className="flex justify-between items-start mb-2">
             <div className="flex items-center gap-1 min-w-0">
-              <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest group-hover:text-rose-600 transition-colors truncate">{expensesTitle}</h4>
+              <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest group-hover:text-rose-600 transition-colors truncate">Expenses</h4>
               <div className="relative group/info" onClick={(e) => e.stopPropagation()}>
                 <Info size={11} className="text-slate-300 hover:text-rose-500 cursor-pointer transition-colors" />
                 <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-1.5 hidden group-hover/info:block bg-slate-900 text-white text-[8px] font-bold py-1 px-2 rounded-lg shadow-xl whitespace-nowrap z-30 pointer-events-none">
