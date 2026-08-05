@@ -567,26 +567,26 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
     <div className="space-y-6 pb-20 animate-nano">
 
       {showBackupAlert && (
-        <div className="bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-700 text-white rounded-xl px-3 py-2 sm:px-4 sm:py-2.5 shadow-md shadow-purple-500/15 flex items-center justify-between gap-2.5 animate-nano">
+        <div className="bg-indigo-600 text-white rounded-xl px-3 py-2 sm:px-4 sm:py-2.5 shadow-md shadow-indigo-600/15 flex items-center justify-between gap-2.5 animate-nano">
           <div className="flex items-center gap-2 min-w-0">
             <div className="w-6 h-6 rounded-lg bg-white/20 text-white flex items-center justify-center shrink-0">
               <FileSpreadsheet size={13} strokeWidth={2.5} />
             </div>
             <div className="flex items-center gap-1.5 min-w-0">
               <span className="text-[9.5px] font-extrabold uppercase tracking-wider shrink-0">Daily Backup Pending</span>
-              <span className="hidden md:inline text-[9px] text-purple-100 font-medium truncate">• Keep offline Excel archives updated</span>
+              <span className="hidden md:inline text-[9px] text-indigo-100 font-medium truncate">• Keep offline Excel archives updated</span>
             </div>
           </div>
           <div className="flex items-center gap-1.5 shrink-0">
             <button
               onClick={handleExcelBackup}
-              className="px-2.5 py-1 bg-white text-purple-700 hover:bg-purple-50 transition-colors rounded-lg text-[8.5px] font-black uppercase tracking-wider shadow-sm"
+              className="px-2.5 py-1 bg-white text-indigo-700 hover:bg-indigo-50 transition-colors rounded-lg text-[8.5px] font-black uppercase tracking-wider shadow-sm"
             >
               Backup Now
             </button>
             <button
               onClick={() => setShowBackupAlert(false)}
-              className="p-1 hover:bg-white/10 text-purple-200 hover:text-white transition-colors rounded-lg text-[10px] font-bold leading-none px-1.5"
+              className="p-1 hover:bg-white/10 text-indigo-200 hover:text-white transition-colors rounded-lg text-[10px] font-bold leading-none px-1.5"
               title="Dismiss for today"
             >
               ✕
@@ -674,35 +674,35 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
         )}
       </div>
 
-      {/* 1. Quick Actions Overview (Compact Grid - Zero Horizontal Scroll) */}
+      {/* 1. Quick Actions Overview (Compact Grid with Distinct Solid Color Styling) */}
       <div className="grid grid-cols-4 sm:grid-cols-7 gap-1.5 md:gap-2">
-        <button onClick={() => setIsProductModalOpen(true)} className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 p-2 sm:p-2.5 bg-white border border-slate-100 rounded-xl shadow-xs hover:border-indigo-200 hover:bg-indigo-50/20 transition-all group">
-          <div className="w-6 h-6 sm:w-7 sm:h-7 bg-indigo-50 text-indigo-600 rounded-lg flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform"><PlusCircle size={14} strokeWidth={2.5} /></div>
-          <span className="text-[9px] font-bold text-slate-700 text-center sm:text-left leading-tight truncate">+ Product</span>
+        <button onClick={() => setIsProductModalOpen(true)} className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 p-2 sm:p-2.5 bg-indigo-50/80 border border-indigo-100 rounded-xl hover:bg-indigo-100 transition-all group">
+          <div className="w-6 h-6 sm:w-7 sm:h-7 bg-indigo-600 text-white rounded-lg flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform"><PlusCircle size={14} strokeWidth={2.5} /></div>
+          <span className="text-[9px] font-black text-indigo-950 text-center sm:text-left leading-tight truncate">+ Product</span>
         </button>
-        <button onClick={() => setIsCreateBillModalOpen(true)} className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 p-2 sm:p-2.5 bg-white border border-slate-100 rounded-xl shadow-xs hover:border-emerald-200 hover:bg-emerald-50/20 transition-all group">
-          <div className="w-6 h-6 sm:w-7 sm:h-7 bg-emerald-50 text-emerald-600 rounded-lg flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform"><ShoppingBag size={14} strokeWidth={2.5} /></div>
-          <span className="text-[9px] font-bold text-slate-700 text-center sm:text-left leading-tight truncate">+ Bill</span>
+        <button onClick={() => setIsCreateBillModalOpen(true)} className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 p-2 sm:p-2.5 bg-emerald-50/80 border border-emerald-100 rounded-xl hover:bg-emerald-100 transition-all group">
+          <div className="w-6 h-6 sm:w-7 sm:h-7 bg-emerald-600 text-white rounded-lg flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform"><ShoppingBag size={14} strokeWidth={2.5} /></div>
+          <span className="text-[9px] font-black text-emerald-950 text-center sm:text-left leading-tight truncate">+ Bill</span>
         </button>
-        <button onClick={() => setIsNewRentalModalOpen(true)} className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 p-2 sm:p-2.5 bg-white border border-slate-100 rounded-xl shadow-xs hover:border-rose-200 hover:bg-rose-50/20 transition-all group">
-          <div className="w-6 h-6 sm:w-7 sm:h-7 bg-rose-50 text-rose-600 rounded-lg flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform"><Calendar size={14} strokeWidth={2.5} /></div>
-          <span className="text-[9px] font-bold text-slate-700 text-center sm:text-left leading-tight truncate">+ Rental</span>
+        <button onClick={() => setIsNewRentalModalOpen(true)} className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 p-2 sm:p-2.5 bg-rose-50/80 border border-rose-100 rounded-xl hover:bg-rose-100 transition-all group">
+          <div className="w-6 h-6 sm:w-7 sm:h-7 bg-rose-600 text-white rounded-lg flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform"><Calendar size={14} strokeWidth={2.5} /></div>
+          <span className="text-[9px] font-black text-rose-950 text-center sm:text-left leading-tight truncate">+ Rental</span>
         </button>
-        <button onClick={() => setIsReturnRentalModalOpen(true)} className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 p-2 sm:p-2.5 bg-white border border-slate-100 rounded-xl shadow-xs hover:border-amber-200 hover:bg-amber-50/20 transition-all group">
-          <div className="w-6 h-6 sm:w-7 sm:h-7 bg-amber-50 text-amber-600 rounded-lg flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform"><Undo2 size={14} strokeWidth={2.5} /></div>
-          <span className="text-[9px] font-bold text-slate-700 text-center sm:text-left leading-tight truncate">Return</span>
+        <button onClick={() => setIsReturnRentalModalOpen(true)} className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 p-2 sm:p-2.5 bg-amber-50/80 border border-amber-100 rounded-xl hover:bg-amber-100 transition-all group">
+          <div className="w-6 h-6 sm:w-7 sm:h-7 bg-amber-600 text-white rounded-lg flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform"><Undo2 size={14} strokeWidth={2.5} /></div>
+          <span className="text-[9px] font-black text-amber-950 text-center sm:text-left leading-tight truncate">Return</span>
         </button>
-        <button onClick={() => setIsStockModalOpen(true)} className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 p-2 sm:p-2.5 bg-white border border-slate-100 rounded-xl shadow-xs hover:border-teal-200 hover:bg-teal-50/20 transition-all group">
-          <div className="w-6 h-6 sm:w-7 sm:h-7 bg-teal-50 text-teal-600 rounded-lg flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform"><Package size={14} strokeWidth={2.5} /></div>
-          <span className="text-[9px] font-bold text-slate-700 text-center sm:text-left leading-tight truncate">+ Stock</span>
+        <button onClick={() => setIsStockModalOpen(true)} className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 p-2 sm:p-2.5 bg-teal-50/80 border border-teal-100 rounded-xl hover:bg-teal-100 transition-all group">
+          <div className="w-6 h-6 sm:w-7 sm:h-7 bg-teal-600 text-white rounded-lg flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform"><Package size={14} strokeWidth={2.5} /></div>
+          <span className="text-[9px] font-black text-teal-950 text-center sm:text-left leading-tight truncate">+ Stock</span>
         </button>
-        <button onClick={() => setIsCustomerModalOpen(true)} className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 p-2 sm:p-2.5 bg-white border border-slate-100 rounded-xl shadow-xs hover:border-sky-200 hover:bg-sky-50/20 transition-all group">
-          <div className="w-6 h-6 sm:w-7 sm:h-7 bg-sky-50 text-sky-600 rounded-lg flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform"><Users size={14} strokeWidth={2.5} /></div>
-          <span className="text-[9px] font-bold text-slate-700 text-center sm:text-left leading-tight truncate">+ Customer</span>
+        <button onClick={() => setIsCustomerModalOpen(true)} className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 p-2 sm:p-2.5 bg-sky-50/80 border border-sky-100 rounded-xl hover:bg-sky-100 transition-all group">
+          <div className="w-6 h-6 sm:w-7 sm:h-7 bg-sky-600 text-white rounded-lg flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform"><Users size={14} strokeWidth={2.5} /></div>
+          <span className="text-[9px] font-black text-sky-950 text-center sm:text-left leading-tight truncate">+ Customer</span>
         </button>
-        <button onClick={() => setIsRecordExpenseModalOpen(true)} className="col-span-2 sm:col-span-1 flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 p-2 sm:p-2.5 bg-white border border-slate-100 rounded-xl shadow-xs hover:border-rose-200 hover:bg-rose-50/20 transition-all group">
-          <div className="w-6 h-6 sm:w-7 sm:h-7 bg-rose-50 text-rose-700 rounded-lg flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform"><Wallet size={14} strokeWidth={2.5} /></div>
-          <span className="text-[9px] font-bold text-slate-700 text-center sm:text-left leading-tight truncate">+ Expense</span>
+        <button onClick={() => setIsRecordExpenseModalOpen(true)} className="col-span-2 sm:col-span-1 flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 p-2 sm:p-2.5 bg-purple-50/80 border border-purple-100 rounded-xl hover:bg-purple-100 transition-all group">
+          <div className="w-6 h-6 sm:w-7 sm:h-7 bg-purple-600 text-white rounded-lg flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform"><Wallet size={14} strokeWidth={2.5} /></div>
+          <span className="text-[9px] font-black text-purple-950 text-center sm:text-left leading-tight truncate">+ Expense</span>
         </button>
       </div>
 
