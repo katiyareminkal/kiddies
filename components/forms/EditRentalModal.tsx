@@ -199,7 +199,9 @@ export const EditRentalModal: React.FC<EditRentalModalProps> = ({ isOpen, onClos
         {/* Security Deposit & Rent row */}
         <div className="grid grid-cols-2 gap-2">
           <div className="space-y-1">
-            <label className="text-[8px] font-black uppercase text-slate-400 tracking-wider px-0.5">Deposit *</label>
+            <div className="flex justify-between items-center h-4 px-0.5">
+              <label className="text-[8px] font-black uppercase text-slate-400 tracking-wider">Deposit *</label>
+            </div>
             <div className="relative group">
               <IndianRupee className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#8B5CF6]" size={13} strokeWidth={2.5} />
               <input 
@@ -213,7 +215,7 @@ export const EditRentalModal: React.FC<EditRentalModalProps> = ({ isOpen, onClos
           </div>
 
           <div className="space-y-1">
-            <div className="flex justify-between items-center px-0.5">
+            <div className="flex justify-between items-center h-4 px-0.5">
               <label className="text-[8px] font-black uppercase text-slate-400 tracking-wider">Rent Amount *</label>
               {isDiscounted && (
                 <button 
