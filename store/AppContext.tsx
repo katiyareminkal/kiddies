@@ -756,25 +756,20 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   // -- AUTH LISTENER --
   useEffect(() => {
     let mounted = true;
-    const startTime = Date.now();
 
     const triggerReady = () => {
-      const elapsed = Date.now() - startTime;
-      const remaining = Math.max(0, 3000 - elapsed);
-      setTimeout(() => {
-        if (mounted) {
-          setIsAuthReady(true);
-        }
-      }, remaining);
+      if (mounted) {
+        setIsAuthReady(true);
+      }
     };
 
-    // Safety timeout: Ensure loading finishes within 6 seconds as a hard limit
+    // Safety timeout: Ensure loading finishes within 1.2s as a hard limit
     const fallbackTimeout = setTimeout(() => {
       if (mounted) {
         console.warn("Auth initialization timed out, forcing ready");
         triggerReady();
       }
-    }, 6000);
+    }, 1200);
 
     const initializeAuth = async () => {
       try {
