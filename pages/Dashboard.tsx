@@ -20,7 +20,8 @@ import {
   PartyPopper,
   ChevronDown,
   FileSpreadsheet,
-  Wallet
+  Wallet,
+  Info
 } from 'lucide-react';
 import {
   BarChart,
@@ -685,10 +686,20 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
 
       {/* 2. Top Summary Cards (Dense) */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
-        <div onClick={() => navigate('inventory')} className="bg-white p-3.5 md:p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between cursor-pointer hover:border-highlight hover:shadow-md transition-all group">
+        {/* Card 1: Total Stock */}
+        <div onClick={() => navigate('inventory')} className="bg-white p-3.5 md:p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between cursor-pointer hover:border-highlight hover:shadow-md transition-all group relative">
           <div className="flex justify-between items-start mb-2">
-            <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest group-hover:text-highlight transition-colors">Total Stock</h4>
-            <div className="p-1.5 bg-slate-50 text-slate-600 rounded-lg group-hover:bg-highlight group-hover:text-slate-900 transition-colors"><Package size={14} /></div>
+            <div className="flex items-center gap-1 min-w-0">
+              <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest group-hover:text-highlight transition-colors truncate">Total Stock</h4>
+              <div className="relative group/info" onClick={(e) => e.stopPropagation()}>
+                <Info size={11} className="text-slate-300 hover:text-slate-500 cursor-pointer transition-colors" />
+                <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-1.5 hidden group-hover/info:block bg-slate-900 text-white text-[8px] font-bold py-1 px-2 rounded-lg shadow-xl whitespace-nowrap z-30 pointer-events-none">
+                  Total inventory units and stock valuation
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-900" />
+                </div>
+              </div>
+            </div>
+            <div className="p-1.5 bg-slate-50 text-slate-600 rounded-lg group-hover:bg-highlight group-hover:text-slate-900 transition-colors shrink-0"><Package size={14} /></div>
           </div>
           <div>
             <h3 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">{availableStock} <span className="text-[10px] font-bold text-slate-400">Pcs</span></h3>
@@ -697,13 +708,23 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
                 Valuation: {formatMoney(stockValuation)}
               </span>
             </div>
-            <p className="text-[7px] font-bold text-amber-500 mt-2 uppercase tracking-widest">{lowStockProducts.length} low stock items</p>
           </div>
         </div>
-        <div onClick={() => navigate('reports')} className="bg-white p-3.5 md:p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between cursor-pointer hover:border-highlight hover:shadow-md transition-all group">
+
+        {/* Card 2: Sales */}
+        <div onClick={() => navigate('reports')} className="bg-white p-3.5 md:p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between cursor-pointer hover:border-highlight hover:shadow-md transition-all group relative">
           <div className="flex justify-between items-start mb-2">
-            <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest group-hover:text-highlight transition-colors">{salesTitle}</h4>
-            <div className="p-1.5 bg-emerald-50 text-emerald-600 rounded-lg group-hover:bg-highlight group-hover:text-slate-900 transition-colors"><TrendingUp size={14} /></div>
+            <div className="flex items-center gap-1 min-w-0">
+              <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest group-hover:text-highlight transition-colors truncate">{salesTitle}</h4>
+              <div className="relative group/info" onClick={(e) => e.stopPropagation()}>
+                <Info size={11} className="text-slate-300 hover:text-slate-500 cursor-pointer transition-colors" />
+                <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-1.5 hidden group-hover/info:block bg-slate-900 text-white text-[8px] font-bold py-1 px-2 rounded-lg shadow-xl whitespace-nowrap z-30 pointer-events-none">
+                  Gross revenue, net profit & profit margin
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-900" />
+                </div>
+              </div>
+            </div>
+            <div className="p-1.5 bg-emerald-50 text-emerald-600 rounded-lg group-hover:bg-highlight group-hover:text-slate-900 transition-colors shrink-0"><TrendingUp size={14} /></div>
           </div>
           <div>
             <h3 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">{formatMoney(todaySalesAmount)}</h3>
@@ -715,13 +736,23 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
                 Margin: {todayProfitPercent.toFixed(1)}%
               </span>
             </div>
-            <p className="text-[7px] font-bold text-slate-400 mt-2 uppercase tracking-widest">{salesSubText}</p>
           </div>
         </div>
-        <div onClick={() => navigate('rentals')} className="bg-white p-3.5 md:p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between cursor-pointer hover:border-highlight hover:shadow-md transition-all group">
+
+        {/* Card 3: Active Rentals */}
+        <div onClick={() => navigate('rentals')} className="bg-white p-3.5 md:p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between cursor-pointer hover:border-highlight hover:shadow-md transition-all group relative">
           <div className="flex justify-between items-start mb-2">
-            <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest group-hover:text-highlight transition-colors">Active Rentals</h4>
-            <div className="p-1.5 bg-rose-50 text-rose-600 rounded-lg group-hover:bg-highlight group-hover:text-slate-900 transition-colors"><ShoppingBag size={14} /></div>
+            <div className="flex items-center gap-1 min-w-0">
+              <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest group-hover:text-highlight transition-colors truncate">Active Rentals</h4>
+              <div className="relative group/info" onClick={(e) => e.stopPropagation()}>
+                <Info size={11} className="text-slate-300 hover:text-slate-500 cursor-pointer transition-colors" />
+                <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-1.5 hidden group-hover/info:block bg-slate-900 text-white text-[8px] font-bold py-1 px-2 rounded-lg shadow-xl whitespace-nowrap z-30 pointer-events-none">
+                  Items currently out on rent with customers
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-900" />
+                </div>
+              </div>
+            </div>
+            <div className="p-1.5 bg-rose-50 text-rose-600 rounded-lg group-hover:bg-highlight group-hover:text-slate-900 transition-colors shrink-0"><ShoppingBag size={14} /></div>
           </div>
           <div>
             <h3 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">{activeRentalsToShow.length}</h3>
@@ -730,13 +761,23 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
                 Value: {formatMoney(activeRentalsValue)}
               </span>
             </div>
-            <p className="text-[7px] font-bold text-slate-400 mt-2 uppercase tracking-widest">Currently Rented</p>
           </div>
         </div>
-        <div onClick={() => navigate('rentals')} className="bg-white p-3.5 md:p-5 rounded-2xl border border-rose-100 bg-rose-50/20 shadow-sm flex flex-col justify-between cursor-pointer hover:border-rose-300 hover:shadow-md transition-all group">
+
+        {/* Card 4: Returns Due */}
+        <div onClick={() => navigate('rentals')} className="bg-white p-3.5 md:p-5 rounded-2xl border border-rose-100 bg-rose-50/20 shadow-sm flex flex-col justify-between cursor-pointer hover:border-rose-300 hover:shadow-md transition-all group relative">
           <div className="flex justify-between items-start mb-2">
-            <h4 className="text-[10px] font-bold text-rose-500 uppercase tracking-widest">{returnsDueTitle}</h4>
-            <div className="p-1.5 bg-rose-100 text-rose-600 rounded-lg group-hover:bg-rose-200 transition-colors"><AlertTriangle size={14} /></div>
+            <div className="flex items-center gap-1 min-w-0">
+              <h4 className="text-[10px] font-bold text-rose-500 uppercase tracking-widest truncate">{returnsDueTitle}</h4>
+              <div className="relative group/info" onClick={(e) => e.stopPropagation()}>
+                <Info size={11} className="text-rose-300 hover:text-rose-500 cursor-pointer transition-colors" />
+                <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-1.5 hidden group-hover/info:block bg-slate-900 text-white text-[8px] font-bold py-1 px-2 rounded-lg shadow-xl whitespace-nowrap z-30 pointer-events-none">
+                  Rental items due for return today or overdue
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-900" />
+                </div>
+              </div>
+            </div>
+            <div className="p-1.5 bg-rose-100 text-rose-600 rounded-lg group-hover:bg-rose-200 transition-colors shrink-0"><AlertTriangle size={14} /></div>
           </div>
           <div>
             <h3 className="text-xl md:text-2xl font-black text-rose-600 tracking-tight">{returnsDueCount}</h3>
@@ -745,13 +786,23 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
                 Value: {formatMoney(returnsDueValue)}
               </span>
             </div>
-            <p className="text-[7px] font-bold text-rose-500 mt-2 uppercase tracking-widest">{returnsDueSubText}</p>
           </div>
         </div>
-        <div onClick={() => navigate('reports')} className="bg-white p-3.5 md:p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between cursor-pointer hover:border-highlight hover:shadow-md transition-all group">
+
+        {/* Card 5: Pending Payments */}
+        <div onClick={() => navigate('reports')} className="bg-white p-3.5 md:p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between cursor-pointer hover:border-highlight hover:shadow-md transition-all group relative">
           <div className="flex justify-between items-start mb-2">
-            <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest group-hover:text-highlight transition-colors">Pending Payments</h4>
-            <div className="p-1.5 bg-amber-50 text-amber-600 rounded-lg group-hover:bg-highlight group-hover:text-slate-900 transition-colors"><IndianRupee size={14} /></div>
+            <div className="flex items-center gap-1 min-w-0">
+              <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest group-hover:text-highlight transition-colors truncate">Pending Credit</h4>
+              <div className="relative group/info" onClick={(e) => e.stopPropagation()}>
+                <Info size={11} className="text-slate-300 hover:text-slate-500 cursor-pointer transition-colors" />
+                <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-1.5 hidden group-hover/info:block bg-slate-900 text-white text-[8px] font-bold py-1 px-2 rounded-lg shadow-xl whitespace-nowrap z-30 pointer-events-none">
+                  Total unpaid credit balance from customers
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-900" />
+                </div>
+              </div>
+            </div>
+            <div className="p-1.5 bg-amber-50 text-amber-600 rounded-lg group-hover:bg-highlight group-hover:text-slate-900 transition-colors shrink-0"><IndianRupee size={14} /></div>
           </div>
           <div>
             <h3 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">{formatMoney(totalPendingPayments)}</h3>
@@ -760,13 +811,23 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
                 {customersWithCredit} Customers
               </span>
             </div>
-            <p className="text-[7px] font-bold text-amber-500 mt-2 uppercase tracking-widest">Pending credit bills</p>
           </div>
         </div>
-        <div onClick={() => navigate('customers')} className="bg-white p-3.5 md:p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between cursor-pointer hover:border-highlight hover:shadow-md transition-all group">
+
+        {/* Card 6: Customers */}
+        <div onClick={() => navigate('customers')} className="bg-white p-3.5 md:p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between cursor-pointer hover:border-highlight hover:shadow-md transition-all group relative">
           <div className="flex justify-between items-start mb-2">
-            <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest group-hover:text-highlight transition-colors">{customersTitle}</h4>
-            <div className="p-1.5 bg-sky-50 text-sky-600 rounded-lg group-hover:bg-highlight group-hover:text-slate-900 transition-colors"><Users size={14} /></div>
+            <div className="flex items-center gap-1 min-w-0">
+              <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest group-hover:text-highlight transition-colors truncate">{customersTitle}</h4>
+              <div className="relative group/info" onClick={(e) => e.stopPropagation()}>
+                <Info size={11} className="text-slate-300 hover:text-slate-500 cursor-pointer transition-colors" />
+                <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-1.5 hidden group-hover/info:block bg-slate-900 text-white text-[8px] font-bold py-1 px-2 rounded-lg shadow-xl whitespace-nowrap z-30 pointer-events-none">
+                  Customer directory breakdown (New vs Repeat)
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-900" />
+                </div>
+              </div>
+            </div>
+            <div className="p-1.5 bg-sky-50 text-sky-600 rounded-lg group-hover:bg-highlight group-hover:text-slate-900 transition-colors shrink-0"><Users size={14} /></div>
           </div>
           <div>
             <h3 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">{customersCountToShow}</h3>
@@ -778,13 +839,23 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
                 New: {newCustomersCount}
               </span>
             </div>
-            <p className="text-[7px] font-bold text-sky-500 mt-2 uppercase tracking-widest">{customersSubText}</p>
           </div>
         </div>
-        <div onClick={() => navigate('reports')} className="bg-white p-3.5 md:p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between cursor-pointer hover:border-highlight hover:shadow-md transition-all group">
+
+        {/* Card 7: Net Income */}
+        <div onClick={() => navigate('reports')} className="bg-white p-3.5 md:p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between cursor-pointer hover:border-highlight hover:shadow-md transition-all group relative">
           <div className="flex justify-between items-start mb-2">
-            <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest group-hover:text-[#10B981] transition-colors">Net Income</h4>
-            <div className="p-1.5 bg-emerald-50 text-emerald-600 rounded-lg group-hover:bg-[#10B981] group-hover:text-white transition-colors"><TrendingUp size={14} /></div>
+            <div className="flex items-center gap-1 min-w-0">
+              <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest group-hover:text-[#10B981] transition-colors truncate">Net Income</h4>
+              <div className="relative group/info" onClick={(e) => e.stopPropagation()}>
+                <Info size={11} className="text-slate-300 hover:text-slate-500 cursor-pointer transition-colors" />
+                <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-1.5 hidden group-hover/info:block bg-slate-900 text-white text-[8px] font-bold py-1 px-2 rounded-lg shadow-xl whitespace-nowrap z-30 pointer-events-none">
+                  Net income calculated as gross profit minus expenses
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-900" />
+                </div>
+              </div>
+            </div>
+            <div className="p-1.5 bg-emerald-50 text-emerald-600 rounded-lg group-hover:bg-[#10B981] group-hover:text-white transition-colors shrink-0"><TrendingUp size={14} /></div>
           </div>
           <div>
             <h3 className={`text-xl md:text-2xl font-black tracking-tight ${todayProfit - totalExpensesAmount >= 0 ? 'text-[#10B981]' : 'text-rose-600'}`}>
@@ -798,13 +869,23 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
                 {todayProfit - totalExpensesAmount >= 0 ? 'Surplus' : 'Deficit'}
               </span>
             </div>
-            <p className="text-[7px] font-bold text-slate-400 mt-2 uppercase tracking-widest">Profit minus expenses</p>
           </div>
         </div>
-        <div onClick={() => navigate('reports')} className="bg-white p-3.5 md:p-5 rounded-2xl border border-rose-100 bg-rose-50/10 shadow-sm flex flex-col justify-between cursor-pointer hover:border-rose-300 hover:shadow-md transition-all group">
+
+        {/* Card 8: Expenses */}
+        <div onClick={() => navigate('reports')} className="bg-white p-3.5 md:p-5 rounded-2xl border border-rose-100 bg-rose-50/10 shadow-sm flex flex-col justify-between cursor-pointer hover:border-rose-300 hover:shadow-md transition-all group relative">
           <div className="flex justify-between items-start mb-2">
-            <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest group-hover:text-rose-600 transition-colors">{expensesTitle}</h4>
-            <div className="p-1.5 bg-rose-100 text-rose-700 rounded-lg"><Wallet size={14} /></div>
+            <div className="flex items-center gap-1 min-w-0">
+              <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest group-hover:text-rose-600 transition-colors truncate">{expensesTitle}</h4>
+              <div className="relative group/info" onClick={(e) => e.stopPropagation()}>
+                <Info size={11} className="text-slate-300 hover:text-rose-500 cursor-pointer transition-colors" />
+                <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-1.5 hidden group-hover/info:block bg-slate-900 text-white text-[8px] font-bold py-1 px-2 rounded-lg shadow-xl whitespace-nowrap z-30 pointer-events-none">
+                  Total operating cash out & store expenses recorded
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-900" />
+                </div>
+              </div>
+            </div>
+            <div className="p-1.5 bg-rose-100 text-rose-700 rounded-lg shrink-0"><Wallet size={14} /></div>
           </div>
           <div>
             <h3 className="text-xl md:text-2xl font-black text-rose-700 tracking-tight">{formatMoney(totalExpensesAmount)}</h3>
@@ -813,7 +894,6 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
                 {expensesToShow.length} Records
               </span>
             </div>
-            <p className="text-[7px] font-bold text-rose-500 mt-2 uppercase tracking-widest">{expensesSubText}</p>
           </div>
         </div>
       </div>
