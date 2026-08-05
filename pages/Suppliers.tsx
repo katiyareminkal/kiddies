@@ -17,7 +17,9 @@ import {
   Trash2,
   ArrowRight,
   ImagePlus,
-  Pencil
+  Pencil,
+  Eye,
+  CreditCard
 } from 'lucide-react';
 import { Supplier, SupplierBill } from '../types';
 
@@ -39,6 +41,7 @@ const Suppliers: React.FC = () => {
   // New Bill & Edit Bill Form State
   const [editingBill, setEditingBill] = useState<SupplierBill | null>(null);
   const [isEditBillOpen, setIsEditBillOpen] = useState(false);
+  const [viewingBillDetails, setViewingBillDetails] = useState<SupplierBill | null>(null);
   const [viewingBillImage, setViewingBillImage] = useState<string | null>(null);
   const [billItems, setBillItems] = useState<{itemName: string, quantity: string, unitPrice: string, total: number}[]>([{itemName: '', quantity: '1', unitPrice: '', total: 0}]);
   const [billImageFile, setBillImageFile] = useState<File | null>(null);
@@ -458,16 +461,14 @@ const Suppliers: React.FC = () => {
                       </td>
                       <td className="px-6 py-4 text-right">
                          <div className="flex items-center justify-end gap-2">
-                             {bill.imageUrl && (
-                               <button 
-                                 type="button"
-                                 onClick={() => setViewingBillImage(bill.imageUrl || null)}
-                                 className="text-[9px] font-black uppercase tracking-widest text-emerald-600 hover:bg-emerald-50 px-2.5 py-1.5 rounded-lg transition-colors border border-transparent hover:border-emerald-200 flex items-center gap-1"
-                                 title="View Bill Image"
-                               >
-                                 <FileText size={12} /> View Bill
-                               </button>
-                             )}
+                             <button 
+                               type="button"
+                               onClick={() => setViewingBillDetails(bill)}
+                               className="text-[9px] font-black uppercase tracking-widest text-emerald-600 hover:bg-emerald-50 px-2.5 py-1.5 rounded-lg transition-colors border border-transparent hover:border-emerald-200 flex items-center gap-1"
+                               title="View Bill Details"
+                             >
+                               <Eye size={12} /> View Bill
+                             </button>
                              <button 
                                type="button"
                                onClick={() => handleOpenEditBill(bill)}
@@ -796,6 +797,142 @@ const Suppliers: React.FC = () => {
                 Open Full Resolution Image
               </a>
               <button type="button" onClick={() => setViewingBillImage(null)} className="h-12 px-6 rounded-xl font-black uppercase tracking-widest text-[9px] text-slate-400 hover:bg-slate-50 border border-slate-200">
+                Close
+              </button>
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {/* View Bill Details Modal */}
+      {viewingBillDetails && (
+        <Modal 
+          isOpen={!!viewingBillDetails} 
+          onClose={() => setViewingBillDetails(null)} 
+          title={`Bill Details: #${viewingBillDetails.billNumber}`}
+          size="lg"
+        >
+          <div className="space-y-4 text-left">
+            {/* Header Info */}
+            <div className="p-4 bg-slate-900 text-white rounded-2xl flex flex-col md:flex-row justify-between items-start md:items-center gap-3 shadow-sm">
+              <div>
+                <span className="text-[8px] font-black uppercase tracking-widest text-slate-400">Supplier Invoice</span>
+                <h3 className="text-base font-bold text-white tracking-tight">{viewingBillDetails.billNumber}</h3>
+                <p className="text-[10px] text-slate-400 font-medium mt-0.5">Date: {viewingBillDetails.date} • {selectedSupplier?.name || 'Supplier'}</p>
+              </div>
+              <div className="text-right">
+                <span className={`inline-block px-3 py-1 text-[9px] font-black uppercase tracking-widest rounded-lg ${
+                  viewingBillDetails.status === 'PAID' ? 'bg-emerald-500 text-white' :
+                  viewingBillDetails.status === 'PARTIAL' ? 'bg-amber-500 text-white' :
+                  'bg-rose-500 text-white'
+                }`}>
+                  {viewingBillDetails.status}
+                </span>
+              </div>
+            </div>
+
+            {/* Itemized Items */}
+            {viewingBillDetails.items && viewingBillDetails.items.length > 0 ? (
+              <div className="border border-slate-200/80 rounded-2xl overflow-hidden">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-slate-50 border-b border-slate-100 text-slate-400">
+                    <tr>
+                      <th className="px-4 py-2.5 font-bold uppercase text-[8.5px] tracking-wider">Item Description</th>
+                      <th className="px-4 py-2.5 font-bold uppercase text-[8.5px] tracking-wider text-center">Qty</th>
+                      <th className="px-4 py-2.5 font-bold uppercase text-[8.5px] tracking-wider text-right">Unit Price</th>
+                      <th className="px-4 py-2.5 font-bold uppercase text-[8.5px] tracking-wider text-right">Total</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 font-medium text-slate-800">
+                    {viewingBillDetails.items.map((item, idx) => (
+                      <tr key={idx} className="hover:bg-slate-50/50">
+                        <td className="px-4 py-2.5 font-bold text-slate-900">{item.itemName}</td>
+                        <td className="px-4 py-2.5 text-center font-mono">{item.quantity}</td>
+                        <td className="px-4 py-2.5 text-right font-mono">{formatCurrency(item.unitPrice)}</td>
+                        <td className="px-4 py-2.5 text-right font-mono font-bold text-slate-900">{formatCurrency(item.total)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-slate-400 text-xs italic text-center">
+                No itemized details attached to this bill.
+              </div>
+            )}
+
+            {/* Financial Summary */}
+            <div className="grid grid-cols-3 gap-3 p-3 bg-slate-50 rounded-2xl border border-slate-200/80">
+              <div>
+                <span className="text-[8px] font-black uppercase text-slate-400 tracking-wider">Total Amount</span>
+                <p className="font-mono font-black text-slate-900 text-xs">{formatCurrency(viewingBillDetails.totalAmount)}</p>
+              </div>
+              <div>
+                <span className="text-[8px] font-black uppercase text-slate-400 tracking-wider">Amount Paid</span>
+                <p className="font-mono font-black text-emerald-600 text-xs">{formatCurrency(viewingBillDetails.paidAmount)}</p>
+              </div>
+              <div>
+                <span className="text-[8px] font-black uppercase text-slate-400 tracking-wider">Balance Due</span>
+                <p className="font-mono font-black text-rose-600 text-xs">{formatCurrency(viewingBillDetails.totalAmount - viewingBillDetails.paidAmount)}</p>
+              </div>
+            </div>
+
+            {/* Notes */}
+            {viewingBillDetails.notes && (
+              <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 text-xs">
+                <span className="text-[8px] font-black uppercase text-slate-400 tracking-wider block mb-1">Remarks / Notes</span>
+                <p className="text-slate-700 font-medium">{viewingBillDetails.notes}</p>
+              </div>
+            )}
+
+            {/* Attachment Image Preview if available */}
+            {viewingBillDetails.imageUrl && (
+              <div className="space-y-1">
+                <span className="text-[8px] font-black uppercase text-slate-400 tracking-wider">Bill Document Attachment</span>
+                <div 
+                  onClick={() => setViewingBillImage(viewingBillDetails.imageUrl || null)}
+                  className="cursor-pointer p-2 bg-slate-900 rounded-2xl border border-slate-200 group overflow-hidden max-h-48 flex items-center justify-center relative"
+                >
+                  <img src={viewingBillDetails.imageUrl} alt="Attachment" className="max-h-44 object-contain rounded-xl group-hover:scale-105 transition-transform" />
+                  <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-[10px] font-bold uppercase tracking-wider gap-1.5">
+                    <Eye size={14} /> Click to Enlarge
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Action Buttons */}
+            <div className="flex gap-2 pt-2">
+              <button 
+                type="button" 
+                onClick={() => {
+                  const b = viewingBillDetails;
+                  setViewingBillDetails(null);
+                  handleOpenEditBill(b);
+                }}
+                className="flex-1 py-2.5 rounded-xl font-bold uppercase tracking-wider text-[9.5px] text-indigo-600 bg-indigo-50 border border-indigo-200 hover:bg-indigo-100 transition-colors flex items-center justify-center gap-1"
+              >
+                <Pencil size={13} /> Edit Bill
+              </button>
+              {viewingBillDetails.status !== 'PAID' && (
+                <button 
+                  type="button" 
+                  onClick={() => {
+                    const b = viewingBillDetails;
+                    setViewingBillDetails(null);
+                    setPaymentBill(b);
+                    setIsPaymentOpen(true);
+                  }}
+                  className="flex-1 py-2.5 rounded-xl font-black uppercase tracking-wider text-[9.5px] bg-[#8B5CF6] text-white hover:bg-[#7C3AED] shadow-sm flex items-center justify-center gap-1"
+                >
+                  <CreditCard size={13} /> Pay Balance ({formatCurrency(viewingBillDetails.totalAmount - viewingBillDetails.paidAmount)})
+                </button>
+              )}
+              <button 
+                type="button" 
+                onClick={() => setViewingBillDetails(null)} 
+                className="py-2.5 px-5 rounded-xl font-bold uppercase tracking-wider text-[9.5px] text-slate-500 border border-slate-200 hover:border-slate-300"
+              >
                 Close
               </button>
             </div>
