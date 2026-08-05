@@ -281,13 +281,6 @@ const Sales: React.FC = () => {
               </div>
             )}
           </div>
-          <button
-            onClick={() => setIsAddingSale(true)}
-            className="bg-[#8B5CF6] hover:bg-[#7C3AED] text-white px-3.5 py-2.5 sm:px-4 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-1.5 shadow-md shadow-[#8B5CF6]/20 hover:shadow-lg transition-all active:scale-95 shrink-0"
-          >
-            <Plus size={15} strokeWidth={2.5} />
-            <span>New Sale</span>
-          </button>
         </div>
       </div>
 
@@ -466,7 +459,7 @@ const Sales: React.FC = () => {
 
           {/* Filters Panel (Compact for PWA - Auto Closes On Screen Click Outside) */}
           {showFilters && (
-            <div className="absolute right-0 top-full mt-2 w-[300px] sm:w-[500px] bg-white border border-slate-100 rounded-2xl p-3.5 sm:p-4 shadow-2xl z-50 animate-nano space-y-3">
+            <div className="absolute right-0 top-full mt-2 w-[calc(100vw-2.5rem)] sm:w-[480px] max-w-[calc(100vw-2rem)] bg-white border border-slate-100 rounded-2xl p-3.5 sm:p-4 shadow-2xl z-[60] animate-nano space-y-3">
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2.5">
                 <div className="space-y-1">
                   <label className="text-[8.5px] font-black uppercase text-slate-400 tracking-wider ml-1">From Date</label>
