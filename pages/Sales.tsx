@@ -277,12 +277,12 @@ const Sales: React.FC = () => {
               </div>
             )}
           </div>
-
           <button
             onClick={() => setIsAddingSale(true)}
-            className="banana-btn shadow-banana"
+            className="bg-[#8B5CF6] hover:bg-[#7C3AED] text-white px-3.5 py-2.5 sm:px-4 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-1.5 shadow-md shadow-[#8B5CF6]/20 hover:shadow-lg transition-all active:scale-95 shrink-0"
           >
-            <Plus size={14} strokeWidth={2.5} className="mr-2" /> New Sale
+            <Plus size={15} strokeWidth={2.5} />
+            <span>New Sale</span>
           </button>
         </div>
       </div>
@@ -353,7 +353,7 @@ const Sales: React.FC = () => {
         <div className="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm hover:border-[#8B5CF6]/30 hover:shadow-md transition-all relative group/card">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-1.5">
-              <span className="text-[9px] font-black uppercase text-slate-400 tracking-widest">Pending Payments</span>
+              <span className="text-[9px] font-black uppercase text-slate-400 tracking-widest">Pending Credit</span>
               <div className="relative group/tooltip">
                 <Info size={11} className="text-slate-300 hover:text-[#8B5CF6] transition-colors cursor-pointer" />
                 <div className="absolute right-0 sm:left-1/2 sm:-translate-x-1/2 bottom-full mb-2 hidden group-hover/tooltip:block w-48 p-2.5 bg-slate-900/95 text-white text-[9px] font-medium leading-relaxed rounded-xl shadow-xl z-30 backdrop-blur-md pointer-events-none animate-in fade-in duration-150">
@@ -400,80 +400,92 @@ const Sales: React.FC = () => {
         ))}
       </div>
 
-      {/* Search Bar & Filter Toggle */}
-      <div className="flex gap-4">
+      {/* Search Bar & Filter Controls (Compact Responsive PWA Layout) */}
+      <div className="flex flex-col sm:flex-row gap-2.5">
         <div className="relative group flex-1">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-slate-900 transition-colors" size={14} strokeWidth={2.5} />
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#8B5CF6] transition-colors" size={15} strokeWidth={2.5} />
           <input
             type="text"
-            placeholder="Search Sales History..."
-            className="w-full bg-white border border-slate-100 rounded-2xl py-3 pl-12 pr-4 text-[10px] font-bold uppercase tracking-widest outline-none focus:border-highlight/30 transition-all shadow-sm"
+            placeholder="Search invoices, customer name, channel..."
+            className="w-full bg-white border border-slate-200 rounded-xl py-2.5 pl-10 pr-8 text-xs font-bold text-slate-800 placeholder:text-slate-400 outline-none focus:border-[#8B5CF6] focus:ring-2 focus:ring-[#8B5CF6]/10 transition-all shadow-xs"
             value={historySearchTerm}
             onChange={(e) => setHistorySearchTerm(e.target.value)}
           />
+          {historySearchTerm && (
+            <button
+              onClick={() => setHistorySearchTerm('')}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-600 p-0.5"
+            >
+              <X size={13} />
+            </button>
+          )}
         </div>
 
-        {/* View Switcher: Card View / List View */}
-        <div className="flex items-center p-1 bg-white border border-slate-100 rounded-2xl shadow-sm">
+        <div className="flex items-center gap-2 shrink-0">
+          {/* View Switcher: Card View / List View */}
+          <div className="flex items-center p-1 bg-white border border-slate-200 rounded-xl shadow-xs">
+            <button
+              onClick={() => setViewMode('grid')}
+              className={`p-2 rounded-lg transition-all ${
+                viewMode === 'grid'
+                  ? 'bg-slate-900 text-white shadow-xs'
+                  : 'text-slate-400 hover:text-slate-700'
+              }`}
+              title="Grid View"
+            >
+              <LayoutGrid size={14} strokeWidth={2.5} />
+            </button>
+            <button
+              onClick={() => setViewMode('list')}
+              className={`p-2 rounded-lg transition-all ${
+                viewMode === 'list'
+                  ? 'bg-slate-900 text-white shadow-xs'
+                  : 'text-slate-400 hover:text-slate-700'
+              }`}
+              title="List View"
+            >
+              <List size={14} strokeWidth={2.5} />
+            </button>
+          </div>
+
           <button
-            onClick={() => setViewMode('grid')}
-            className={`p-2.5 rounded-xl transition-all ${
-              viewMode === 'grid'
-                ? 'bg-slate-900 text-white shadow-md'
-                : 'text-slate-400 hover:text-slate-700'
+            onClick={() => setShowFilters(!showFilters)}
+            className={`px-3.5 py-2.5 rounded-xl border transition-all flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider ${
+              showFilters ? 'bg-slate-900 text-white border-slate-900 shadow-sm' : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300'
             }`}
-            title="Card View"
           >
-            <LayoutGrid size={15} strokeWidth={2.5} />
-          </button>
-          <button
-            onClick={() => setViewMode('list')}
-            className={`p-2.5 rounded-xl transition-all ${
-              viewMode === 'list'
-                ? 'bg-slate-900 text-white shadow-md'
-                : 'text-slate-400 hover:text-slate-700'
-            }`}
-            title="List View"
-          >
-            <List size={15} strokeWidth={2.5} />
+            <Filter size={13} strokeWidth={showFilters ? 3 : 2.5} />
+            <span>Filter</span>
           </button>
         </div>
-
-        <button
-          onClick={() => setShowFilters(!showFilters)}
-          className={`px-6 rounded-2xl border transition-all flex items-center gap-2 text-[10px] font-black uppercase tracking-widest ${showFilters ? 'bg-slate-900 text-white border-slate-900 shadow-lg' : 'bg-white text-slate-400 border-slate-100 hover:border-slate-200'}`}
-        >
-          <Filter size={14} strokeWidth={showFilters ? 3 : 2.5} />
-          {showFilters ? 'Hide Filters' : 'Advanced Filters'}
-        </button>
       </div>
 
-      {/* Advanced Filters Panel */}
+      {/* Filters Panel (Compact for PWA) */}
       {showFilters && (
-        <div className="bg-white border border-slate-100 rounded-[2rem] p-6 shadow-xl animate-nano space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <div className="space-y-2">
-              <label className="text-[9px] font-black uppercase text-slate-300 tracking-widest ml-2">From Date</label>
+        <div className="bg-white border border-slate-100 rounded-2xl p-3.5 sm:p-4 shadow-md animate-nano space-y-3">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
+            <div className="space-y-1">
+              <label className="text-[8.5px] font-black uppercase text-slate-400 tracking-wider ml-1">From Date</label>
               <input
                 type="date"
-                className="w-full bg-slate-50 border border-transparent focus:bg-white focus:border-highlight/30 rounded-xl p-3 text-[10px] font-black uppercase outline-none transition-all"
+                className="w-full bg-slate-50 border border-slate-100 focus:bg-white focus:border-[#8B5CF6]/30 rounded-xl px-2.5 py-1.5 text-[10px] font-bold text-slate-700 outline-none uppercase transition-all"
                 value={filterStartDate}
                 onChange={(e) => setFilterStartDate(e.target.value)}
               />
             </div>
-            <div className="space-y-2">
-              <label className="text-[9px] font-black uppercase text-slate-300 tracking-widest ml-2">To Date</label>
+            <div className="space-y-1">
+              <label className="text-[8.5px] font-black uppercase text-slate-400 tracking-wider ml-1">To Date</label>
               <input
                 type="date"
-                className="w-full bg-slate-50 border border-transparent focus:bg-white focus:border-highlight/30 rounded-xl p-3 text-[10px] font-black uppercase outline-none transition-all"
+                className="w-full bg-slate-50 border border-slate-100 focus:bg-white focus:border-[#8B5CF6]/30 rounded-xl px-2.5 py-1.5 text-[10px] font-bold text-slate-700 outline-none uppercase transition-all"
                 value={filterEndDate}
                 onChange={(e) => setFilterEndDate(e.target.value)}
               />
             </div>
-            <div className="space-y-2">
-              <label className="text-[9px] font-black uppercase text-slate-300 tracking-widest ml-2">Order Status</label>
+            <div className="space-y-1">
+              <label className="text-[8.5px] font-black uppercase text-slate-400 tracking-wider ml-1">Order Status</label>
               <select
-                className="w-full bg-slate-50 border border-transparent focus:bg-white focus:border-highlight/30 rounded-xl p-3 text-[10px] font-black uppercase outline-none transition-all appearance-none"
+                className="w-full bg-slate-50 border border-slate-100 focus:bg-white focus:border-[#8B5CF6]/30 rounded-xl px-2.5 py-1.5 text-[10px] font-bold text-slate-700 outline-none uppercase transition-all appearance-none cursor-pointer"
                 value={filterStatus}
                 onChange={(e) => setFilterStatus(e.target.value as OrderStatus | 'ALL')}
               >
@@ -483,10 +495,10 @@ const Sales: React.FC = () => {
                 ))}
               </select>
             </div>
-            <div className="space-y-2">
-              <label className="text-[9px] font-black uppercase text-slate-300 tracking-widest ml-2">Sales Channel</label>
+            <div className="space-y-1">
+              <label className="text-[8.5px] font-black uppercase text-slate-400 tracking-wider ml-1">Sales Channel</label>
               <select
-                className="w-full bg-slate-50 border border-transparent focus:bg-white focus:border-highlight/30 rounded-xl p-3 text-[10px] font-black uppercase outline-none transition-all appearance-none"
+                className="w-full bg-slate-50 border border-slate-100 focus:bg-white focus:border-[#8B5CF6]/30 rounded-xl px-2.5 py-1.5 text-[10px] font-bold text-slate-700 outline-none uppercase transition-all appearance-none cursor-pointer"
                 value={filterChannel}
                 onChange={(e) => setFilterChannel(e.target.value as SalesChannel | 'ALL')}
               >
@@ -497,20 +509,24 @@ const Sales: React.FC = () => {
               </select>
             </div>
           </div>
-          <div className="flex justify-end pt-2 border-t border-slate-50">
-            <button
-              onClick={() => {
-                setFilterStartDate('');
-                setFilterEndDate('');
-                setFilterStatus('ALL');
-                setFilterChannel('ALL');
-                setHistorySearchTerm('');
-              }}
-              className="px-4 py-2 text-[9px] font-black uppercase tracking-widest text-rose-500 hover:bg-rose-50 rounded-lg transition-colors flex items-center gap-2"
-            >
-              <XCircle size={14} /> Reset All Filters
-            </button>
-          </div>
+
+          {(filterStartDate || filterEndDate || filterStatus !== 'ALL' || filterChannel !== 'ALL' || historySearchTerm) && (
+            <div className="flex justify-end pt-2 border-t border-slate-100">
+              <button
+                onClick={() => {
+                  setFilterStartDate('');
+                  setFilterEndDate('');
+                  setFilterStatus('ALL');
+                  setFilterChannel('ALL');
+                  setHistorySearchTerm('');
+                  setActiveDatePreset('ALL');
+                }}
+                className="px-3 py-1.5 text-[9px] font-black uppercase tracking-widest text-rose-500 hover:bg-rose-50 rounded-lg transition-colors flex items-center gap-1.5"
+              >
+                <XCircle size={13} /> Reset All Filters
+              </button>
+            </div>
+          )}
         </div>
       )}
 
