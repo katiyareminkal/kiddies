@@ -56,21 +56,16 @@ const canAccess = (user: any, moduleId: string) => {
 
 const Logo: React.FC<{ size?: 'sm' | 'md' | 'lg', onClick?: () => void }> = ({ size = 'md', onClick }) => {
   const sizeClasses = {
-    sm: { img: 'h-6', sub: 'text-[5px]', w: 'w-1' },
-    md: { img: 'h-12', sub: 'text-[7px]', w: 'w-3' },
-    lg: { img: 'h-16', sub: 'text-[8px]', w: 'w-4' }
+    sm: { img: 'h-7 max-w-[120px] px-1' },
+    md: { img: 'h-10 max-w-[150px] px-2' },
+    lg: { img: 'h-14 max-w-[180px] px-3' }
   };
 
   const current = sizeClasses[size];
 
   return (
-    <div className={`flex flex-col items-center ${onClick ? 'cursor-pointer' : ''}`} onClick={onClick}>
-      <img src="/logo.png" alt="Kiddies Logo" className={`${current.img} object-contain mb-1`} />
-      <div className={`flex items-center gap-1.5 text-[#A084E8] ${current.sub} font-bold uppercase tracking-[0.3em]`}>
-        <div className={`h-[1px] ${current.w} bg-[#A084E8]/30`}></div>
-        kids wear
-        <div className={`h-[1px] ${current.w} bg-[#A084E8]/30`}></div>
-      </div>
+    <div className={`flex items-center justify-center py-1 ${onClick ? 'cursor-pointer' : ''}`} onClick={onClick}>
+      <img src="/logo.png" alt="Kiddies Logo" className={`${current.img} object-contain`} />
     </div>
   );
 };
