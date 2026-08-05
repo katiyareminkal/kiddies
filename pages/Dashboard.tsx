@@ -919,24 +919,6 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
                           ))}
                         </div>
                       </div>
-
-                      {/* Current Stock Status */}
-                      <div className="pt-2 border-t border-slate-100 space-y-1">
-                        <p className="text-[9.5px] font-black text-slate-900">
-                          Current Stock Status
-                        </p>
-                        <div className="space-y-1 text-[9.5px] font-extrabold">
-                          <p className="text-emerald-700 flex items-center gap-1">
-                            🟢 <span>Good:</span> {stockStats.goodPcs} pcs
-                          </p>
-                          <p className="text-amber-700 flex items-center gap-1">
-                            🟡 <span>Low:</span> {stockStats.lowPcs} pcs
-                          </p>
-                          <p className="text-rose-700 flex items-center gap-1">
-                            🔴 <span>Out of Stock:</span> {stockStats.outOfStockSKUs} SKUs
-                          </p>
-                        </div>
-                      </div>
                     </div>
                   )}
                 </div>
