@@ -1,10 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { 
-  IndianRupee, 
-  Upload, 
-  X, 
-  ArrowRight, 
-  ChevronDown, 
+import {
+  IndianRupee,
+  Upload,
+  X,
+  ArrowRight,
+  ChevronDown,
   AlertCircle,
   Clock,
   CheckCircle,
@@ -28,10 +28,10 @@ interface ReturnRentalModalProps {
 
 export const ReturnRentalModal: React.FC<ReturnRentalModalProps> = ({ isOpen, onClose, rental }) => {
   const { rentals, customers, products, returnRental } = useApp();
-  
+
   // Selection state if no rental is pre-selected
   const [selectedRental, setSelectedRental] = useState<Rental | null>(null);
-  
+
   // Return Modal State
   const [damageFee, setDamageFee] = useState(0);
   const [customLateFee, setCustomLateFee] = useState<string>('');
@@ -88,17 +88,16 @@ export const ReturnRentalModal: React.FC<ReturnRentalModalProps> = ({ isOpen, on
   const overdueInfo = getOverdueDetails();
 
   // Financial Engine with Editable Late Fee and Editable Refund Amount
-  const autoLateFee = selectedRental 
+  const autoLateFee = selectedRental
     ? calculateLateFee(selectedRental.expectedReturnDate, undefined, selectedRental.dailyRate, selectedRental.quantity)
     : 0;
 
   const effectiveLateFee = customLateFee !== '' ? Math.max(0, Number(customLateFee)) : autoLateFee;
   const isLateFeeModified = customLateFee !== '' && Number(customLateFee) !== autoLateFee;
 
-  // Formula: Refundable = Deposit - Unpaid Rent - Late Fee - Damage Fee
-  const unpaidRent = selectedRental ? Math.max(0, selectedRental.totalRentAmount - (selectedRental.paidAmount || 0)) : 0;
-  const autoRefundAmount = selectedRental 
-    ? (selectedRental.securityDeposit - unpaidRent - effectiveLateFee - damageFee)
+  // Formula: Refundable = Deposit - Rent - Late Fee - Damage Fee
+  const autoRefundAmount = selectedRental
+    ? (selectedRental.securityDeposit - selectedRental.totalRentAmount - effectiveLateFee - damageFee)
     : 0;
 
   const effectiveRefundAmount = customRefundAmount !== '' ? Number(customRefundAmount) : autoRefundAmount;
@@ -107,7 +106,7 @@ export const ReturnRentalModal: React.FC<ReturnRentalModalProps> = ({ isOpen, on
   const handleReturnImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const files = Array.from(e.target.files) as File[];
-      
+
       const validFiles: File[] = [];
       for (const file of files) {
         if (file.size > 5 * 1024 * 1024) {
@@ -141,7 +140,7 @@ export const ReturnRentalModal: React.FC<ReturnRentalModalProps> = ({ isOpen, on
   const handleConfirmReturn = () => {
     if (selectedRental) {
       const totalExtraFees = effectiveLateFee + damageFee;
-      
+
       returnRental(selectedRental.id, totalExtraFees, selectedReturnFiles);
       handleClose();
     }
@@ -182,8 +181,8 @@ export const ReturnRentalModal: React.FC<ReturnRentalModalProps> = ({ isOpen, on
           <div className="space-y-1">
             <label className="text-[8px] font-black uppercase text-slate-400 tracking-wider ml-0.5">Select Active Rental *</label>
             <div className="relative group">
-              <select 
-                value={selectedRental?.id || ''} 
+              <select
+                value={selectedRental?.id || ''}
                 onChange={(e) => {
                   const r = activeRentals.find(item => item.id === e.target.value);
                   setSelectedRental(r || null);
@@ -240,44 +239,44 @@ export const ReturnRentalModal: React.FC<ReturnRentalModalProps> = ({ isOpen, on
             {/* Condition Photos At Rent */}
             {selectedRental.images && selectedRental.images.length > 0 && (
               <div className="space-y-1">
-                 <p className="text-[8px] font-black text-slate-400 uppercase tracking-wider">Condition Photos (At Rent)</p>
-                 <div className="flex gap-1.5 overflow-x-auto pb-1 hide-scrollbar">
-                    {selectedRental.images.map((img, i) => (
-                       <img key={i} src={img} alt="proof" className="w-14 h-14 rounded-xl object-cover border border-slate-200 shrink-0" />
-                    ))}
-                 </div>
+                <p className="text-[8px] font-black text-slate-400 uppercase tracking-wider">Condition Photos (At Rent)</p>
+                <div className="flex gap-1.5 overflow-x-auto pb-1 hide-scrollbar">
+                  {selectedRental.images.map((img, i) => (
+                    <img key={i} src={img} alt="proof" className="w-14 h-14 rounded-xl object-cover border border-slate-200 shrink-0" />
+                  ))}
+                </div>
               </div>
             )}
 
             {/* Grid: Start Date (with Time), Expected Return, Security Deposit & Rent */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 p-3 bg-slate-50 rounded-xl border border-slate-200/80 text-left">
-                <div>
-                    <p className="text-slate-400 text-[8px] uppercase font-black tracking-wider">Start Date & Time</p>
-                    <p className="font-black text-slate-900 text-[9.5px] font-mono leading-tight">{formatDateTime(selectedRental.startDate)}</p>
-                </div>
-                <div>
-                    <p className="text-slate-400 text-[8px] uppercase font-black tracking-wider">Expected Return</p>
-                    <p className="font-black text-slate-900 text-[9.5px] font-mono leading-tight">{formatDateTime(selectedRental.expectedReturnDate)}</p>
-                </div>
-                <div>
-                    <p className="text-slate-400 text-[8px] uppercase font-black tracking-wider">Security Deposit</p>
-                    <p className="font-black text-[#8B5CF6] text-[11px] font-mono">{formatCurrency(selectedRental.securityDeposit)}</p>
-                </div>
-                <div>
-                    <p className="text-slate-400 text-[8px] uppercase font-black tracking-wider">Total Rent Amount</p>
-                    <p className="font-black text-slate-900 text-[11px] font-mono">{formatCurrency(selectedRental.totalRentAmount)}</p>
-                </div>
+              <div>
+                <p className="text-slate-400 text-[8px] uppercase font-black tracking-wider">Start Date & Time</p>
+                <p className="font-black text-slate-900 text-[9.5px] font-mono leading-tight">{formatDateTime(selectedRental.startDate)}</p>
+              </div>
+              <div>
+                <p className="text-slate-400 text-[8px] uppercase font-black tracking-wider">Expected Return</p>
+                <p className="font-black text-slate-900 text-[9.5px] font-mono leading-tight">{formatDateTime(selectedRental.expectedReturnDate)}</p>
+              </div>
+              <div>
+                <p className="text-slate-400 text-[8px] uppercase font-black tracking-wider">Security Deposit</p>
+                <p className="font-black text-[#8B5CF6] text-[11px] font-mono">{formatCurrency(selectedRental.securityDeposit)}</p>
+              </div>
+              <div>
+                <p className="text-slate-400 text-[8px] uppercase font-black tracking-wider">Total Rent Amount</p>
+                <p className="font-black text-slate-900 text-[11px] font-mono">{formatCurrency(selectedRental.totalRentAmount)}</p>
+              </div>
             </div>
 
             {/* Editable Fees Row: Late Fee & Damage Fee */}
             <div className="grid grid-cols-2 gap-2">
               {/* Editable Late Fee */}
               <div className="space-y-1">
-                <div className="flex justify-between items-center h-4 px-0.5">
+                <div className="flex justify-between items-center px-0.5">
                   <label className="text-[8px] font-black uppercase text-slate-400 tracking-wider">Late Fee *</label>
                   {isLateFeeModified && (
-                    <button 
-                      type="button" 
+                    <button
+                      type="button"
                       onClick={() => setCustomLateFee('')}
                       className="text-[7px] font-bold text-rose-500 hover:underline uppercase flex items-center gap-0.5"
                     >
@@ -287,10 +286,10 @@ export const ReturnRentalModal: React.FC<ReturnRentalModalProps> = ({ isOpen, on
                 </div>
                 <div className="relative group">
                   <IndianRupee className={`absolute left-2.5 top-1/2 -translate-y-1/2 ${isLateFeeModified ? 'text-rose-500' : 'text-slate-400 group-focus-within:text-[#8B5CF6]'}`} size={13} strokeWidth={2.5} />
-                  <input 
-                    type="number" 
-                    value={customLateFee !== '' ? customLateFee : (autoLateFee > 0 ? autoLateFee : '0')} 
-                    onChange={e => setCustomLateFee(e.target.value)} 
+                  <input
+                    type="number"
+                    value={customLateFee !== '' ? customLateFee : (autoLateFee > 0 ? autoLateFee : '0')}
+                    onChange={e => setCustomLateFee(e.target.value)}
                     className={`w-full pl-7 pr-2 py-2 border rounded-xl outline-none font-bold text-xs ${isLateFeeModified ? 'bg-rose-50/60 border-rose-300 text-rose-950' : 'bg-slate-50 border-slate-200 focus:bg-white focus:border-[#8B5CF6] text-slate-900'}`}
                     placeholder={String(autoLateFee)}
                   />
@@ -299,15 +298,13 @@ export const ReturnRentalModal: React.FC<ReturnRentalModalProps> = ({ isOpen, on
 
               {/* Editable Damage Fee */}
               <div className="space-y-1">
-                <div className="flex justify-between items-center h-4 px-0.5">
-                  <label className="text-[8px] font-black uppercase text-slate-400 tracking-wider">Damage / Cleaning Fee *</label>
-                </div>
+                <label className="text-[8px] font-black uppercase text-slate-400 tracking-wider px-0.5">Damage / Cleaning Fee *</label>
                 <div className="relative group">
                   <IndianRupee className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#8B5CF6]" size={13} strokeWidth={2.5} />
-                  <input 
-                    type="number" 
-                    value={damageFee} 
-                    onChange={e => setDamageFee(Number(e.target.value))} 
+                  <input
+                    type="number"
+                    value={damageFee}
+                    onChange={e => setDamageFee(Number(e.target.value))}
                     className="w-full pl-7 pr-2 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#8B5CF6] rounded-xl outline-none font-bold text-slate-900 text-xs"
                     placeholder="0"
                   />
@@ -317,73 +314,73 @@ export const ReturnRentalModal: React.FC<ReturnRentalModalProps> = ({ isOpen, on
 
             {/* Editable Refundable Amount / Final Settlement */}
             <div className={`p-3 rounded-xl border space-y-2 ${effectiveRefundAmount >= 0 ? 'bg-emerald-50/80 border-emerald-200' : 'bg-rose-50/80 border-rose-200'}`}>
-                <div className="flex justify-between items-center">
-                    <div>
-                      <p className="text-[8px] font-black uppercase tracking-wider opacity-70">Refundable Settlement Amount</p>
-                      <p className="text-[7.5px] font-medium text-slate-500 mt-0.5">
-                        Deposit ({formatCurrency(selectedRental.securityDeposit)}) - Unpaid Rent ({formatCurrency(unpaidRent)}) - Late ({formatCurrency(effectiveLateFee)}) - Damage ({formatCurrency(damageFee)})
-                      </p>
-                    </div>
-                    {isRefundModified && (
-                      <button 
-                        type="button" 
-                        onClick={() => setCustomRefundAmount('')}
-                        className="text-[7.5px] font-bold text-slate-600 hover:underline uppercase flex items-center gap-0.5 bg-white px-2 py-0.5 rounded-lg border border-slate-200"
-                      >
-                        <RotateCcw size={8} /> Auto Formula (₹{autoRefundAmount})
-                      </button>
-                    )}
+              <div className="flex justify-between items-center">
+                <div>
+                  <p className="text-[8px] font-black uppercase tracking-wider opacity-70">Refundable Settlement Amount</p>
+                  <p className="text-[7.5px] font-medium text-slate-500 mt-0.5">
+                    Deposit ({formatCurrency(selectedRental.securityDeposit)}) - Rent ({formatCurrency(selectedRental.totalRentAmount)}) - Late ({formatCurrency(effectiveLateFee)}) - Damage ({formatCurrency(damageFee)})
+                  </p>
                 </div>
+                {isRefundModified && (
+                  <button
+                    type="button"
+                    onClick={() => setCustomRefundAmount('')}
+                    className="text-[7.5px] font-bold text-slate-600 hover:underline uppercase flex items-center gap-0.5 bg-white px-2 py-0.5 rounded-lg border border-slate-200"
+                  >
+                    <RotateCcw size={8} /> Auto Formula (₹{autoRefundAmount})
+                  </button>
+                )}
+              </div>
 
-                <div className="flex items-center gap-2">
-                  <div className="relative flex-1 group">
-                    <Tag className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-600" size={13} strokeWidth={2.5} />
-                    <input 
-                      type="number" 
-                      value={customRefundAmount !== '' ? customRefundAmount : (autoRefundAmount !== 0 ? autoRefundAmount : '0')}
-                      onChange={e => setCustomRefundAmount(e.target.value)}
-                      className={`w-full pl-7 pr-3 py-2 border rounded-xl outline-none font-mono font-black text-sm ${effectiveRefundAmount >= 0 ? 'bg-white border-emerald-300 text-emerald-950' : 'bg-white border-rose-300 text-rose-950'}`}
-                      placeholder={String(autoRefundAmount)}
-                    />
-                  </div>
-                  <div className={`px-3 py-2 rounded-xl font-bold text-xs font-mono shrink-0 ${effectiveRefundAmount >= 0 ? 'bg-emerald-600 text-white' : 'bg-rose-600 text-white'}`}>
-                    {effectiveRefundAmount >= 0 ? `Refund Customer` : `Collect Balance`}
-                  </div>
+              <div className="flex items-center gap-2">
+                <div className="relative flex-1 group">
+                  <Tag className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-600" size={13} strokeWidth={2.5} />
+                  <input
+                    type="number"
+                    value={customRefundAmount !== '' ? customRefundAmount : (autoRefundAmount !== 0 ? autoRefundAmount : '0')}
+                    onChange={e => setCustomRefundAmount(e.target.value)}
+                    className={`w-full pl-7 pr-3 py-2 border rounded-xl outline-none font-mono font-black text-sm ${effectiveRefundAmount >= 0 ? 'bg-white border-emerald-300 text-emerald-950' : 'bg-white border-rose-300 text-rose-950'}`}
+                    placeholder={String(autoRefundAmount)}
+                  />
                 </div>
+                <div className={`px-3 py-2 rounded-xl font-bold text-xs font-mono shrink-0 ${effectiveRefundAmount >= 0 ? 'bg-emerald-600 text-white' : 'bg-rose-600 text-white'}`}>
+                  {effectiveRefundAmount >= 0 ? `Refund Customer` : `Collect Balance`}
+                </div>
+              </div>
             </div>
 
             {/* Return Condition Photos Upload */}
             <div className="space-y-1">
-               <div className="flex items-center gap-2">
-                 <div className="h-px flex-1 bg-slate-100"></div>
-                 <h4 className="text-[8px] font-black uppercase text-slate-400 tracking-wider">Return Condition Photos</h4>
-                 <div className="h-px flex-1 bg-slate-100"></div>
-               </div>
-               <div className="flex gap-1.5 flex-wrap">
-                  {returnImages.map((img, i) => (
-                     <div key={i} className="relative w-12 h-12 rounded-xl overflow-hidden border border-slate-200 group">
-                        <img src={img} alt="return proof" className="w-full h-full object-cover" />
-                        <button type="button" onClick={() => removeReturnImage(i)} className="absolute top-0.5 right-0.5 bg-rose-500 text-white p-0.5 rounded opacity-0 group-hover:opacity-100 transition-all">
-                           <X size={9} strokeWidth={3} />
-                        </button>
-                     </div>
-                  ))}
-                  <button 
-                    type="button"
-                    className="w-12 h-12 rounded-xl border border-dashed border-slate-300 flex flex-col items-center justify-center gap-0.5 text-slate-400 hover:border-[#8B5CF6] hover:text-[#8B5CF6] hover:bg-[#8B5CF6]/5 transition-all group" 
-                    onClick={() => returnFileInputRef.current?.click()}
-                  >
-                     <Upload size={12} strokeWidth={2.5} className="group-hover:scale-110 transition-transform" />
-                     <span className="text-[7px] font-black uppercase tracking-wider">Add</span>
-                  </button>
-               </div>
-               <input type="file" ref={returnFileInputRef} onChange={handleReturnImageChange} accept="image/*" multiple className="hidden" />
+              <div className="flex items-center gap-2">
+                <div className="h-px flex-1 bg-slate-100"></div>
+                <h4 className="text-[8px] font-black uppercase text-slate-400 tracking-wider">Return Condition Photos</h4>
+                <div className="h-px flex-1 bg-slate-100"></div>
+              </div>
+              <div className="flex gap-1.5 flex-wrap">
+                {returnImages.map((img, i) => (
+                  <div key={i} className="relative w-12 h-12 rounded-xl overflow-hidden border border-slate-200 group">
+                    <img src={img} alt="return proof" className="w-full h-full object-cover" />
+                    <button type="button" onClick={() => removeReturnImage(i)} className="absolute top-0.5 right-0.5 bg-rose-500 text-white p-0.5 rounded opacity-0 group-hover:opacity-100 transition-all">
+                      <X size={9} strokeWidth={3} />
+                    </button>
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  className="w-12 h-12 rounded-xl border border-dashed border-slate-300 flex flex-col items-center justify-center gap-0.5 text-slate-400 hover:border-[#8B5CF6] hover:text-[#8B5CF6] hover:bg-[#8B5CF6]/5 transition-all group"
+                  onClick={() => returnFileInputRef.current?.click()}
+                >
+                  <Upload size={12} strokeWidth={2.5} className="group-hover:scale-110 transition-transform" />
+                  <span className="text-[7px] font-black uppercase tracking-wider">Add</span>
+                </button>
+              </div>
+              <input type="file" ref={returnFileInputRef} onChange={handleReturnImageChange} accept="image/*" multiple className="hidden" />
             </div>
 
             {/* Action Buttons */}
             <div className="flex gap-2 pt-1">
-               <button type="button" onClick={handleClose} className="flex-1 py-2 rounded-xl font-bold uppercase tracking-wider text-[9.5px] text-slate-500 border border-slate-200 hover:border-slate-300">Cancel</button>
-               <button type="button" onClick={handleConfirmReturn} className="flex-1 py-2 rounded-xl font-black uppercase tracking-wider text-[9.5px] bg-[#8B5CF6] text-white hover:bg-[#7C3AED] shadow-md shadow-[#8B5CF6]/20">Confirm Return</button>
+              <button type="button" onClick={handleClose} className="flex-1 py-2 rounded-xl font-bold uppercase tracking-wider text-[9.5px] text-slate-500 border border-slate-200 hover:border-slate-300">Cancel</button>
+              <button type="button" onClick={handleConfirmReturn} className="flex-1 py-2 rounded-xl font-black uppercase tracking-wider text-[9.5px] bg-[#8B5CF6] text-white hover:bg-[#7C3AED] shadow-md shadow-[#8B5CF6]/20">Confirm Return</button>
             </div>
           </>
         ) : (

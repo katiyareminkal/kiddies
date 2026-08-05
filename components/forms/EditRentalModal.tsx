@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { differenceInDays, parseISO, format } from 'date-fns';
-import { 
-  AlertCircle, 
-  User, 
-  ChevronDown, 
-  Package, 
-  Hash, 
-  IndianRupee, 
-  Tag, 
+import {
+  AlertCircle,
+  User,
+  ChevronDown,
+  Package,
+  Hash,
+  IndianRupee,
+  Tag,
   RotateCcw,
   Pencil,
   Clock
@@ -76,8 +76,7 @@ export const EditRentalModal: React.FC<EditRentalModalProps> = ({ isOpen, onClos
   const isDiscounted = customRentalAmount !== '' && Number(customRentalAmount) !== autoRentalAmount;
 
   const numericDeposit = Number(securityDeposit) || 0;
-  const unpaidRent = Math.max(0, effectiveRentalAmount - (rental?.paidAmount || 0));
-  const netRefundable = Math.max(0, numericDeposit - unpaidRent);
+  const netRefundable = Math.max(0, numericDeposit - effectiveRentalAmount);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -110,10 +109,10 @@ export const EditRentalModal: React.FC<EditRentalModalProps> = ({ isOpen, onClos
           <label className="text-[8px] font-black uppercase text-slate-400 tracking-wider px-0.5">Customer *</label>
           <div className="relative group">
             <User className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#8B5CF6]" size={13} strokeWidth={2.5} />
-            <select 
+            <select
               value={selectedCustomerId}
               onChange={(e) => setSelectedCustomerId(e.target.value)}
-              required 
+              required
               className="w-full pl-7 pr-6 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#8B5CF6] rounded-xl outline-none font-bold text-[11px] text-slate-900 appearance-none cursor-pointer"
             >
               {customers.map(c => <option key={c.id} value={c.id}>{c.name} ({c.phone || 'No phone'})</option>)}
@@ -127,10 +126,10 @@ export const EditRentalModal: React.FC<EditRentalModalProps> = ({ isOpen, onClos
           <label className="text-[8px] font-black uppercase text-slate-400 tracking-wider px-0.5">Product *</label>
           <div className="relative group">
             <Package className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#8B5CF6]" size={13} strokeWidth={2.5} />
-            <select 
+            <select
               value={selectedProductId}
               onChange={(e) => setSelectedProductId(e.target.value)}
-              required 
+              required
               className="w-full pl-7 pr-6 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#8B5CF6] rounded-xl outline-none font-bold text-[11px] text-slate-900 appearance-none cursor-pointer"
             >
               {products.map(p => (
@@ -147,23 +146,23 @@ export const EditRentalModal: React.FC<EditRentalModalProps> = ({ isOpen, onClos
         <div className="grid grid-cols-2 gap-2">
           <div className="space-y-1">
             <label className="text-[8px] font-black uppercase text-slate-400 tracking-wider px-0.5">Start Date *</label>
-            <input 
-              type="date" 
+            <input
+              type="date"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              required 
-              className="w-full px-2 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#8B5CF6] rounded-xl outline-none font-bold text-[10px] text-slate-900 uppercase" 
+              required
+              className="w-full px-2 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#8B5CF6] rounded-xl outline-none font-bold text-[10px] text-slate-900 uppercase"
             />
           </div>
 
           <div className="space-y-1">
             <label className="text-[8px] font-black uppercase text-slate-400 tracking-wider px-0.5">Expected Return *</label>
-            <input 
-              type="date" 
+            <input
+              type="date"
               value={expectedReturnDate}
               onChange={(e) => setExpectedReturnDate(e.target.value)}
-              required 
-              className="w-full px-2 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#8B5CF6] rounded-xl outline-none font-bold text-[10px] text-slate-900 uppercase" 
+              required
+              className="w-full px-2 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#8B5CF6] rounded-xl outline-none font-bold text-[10px] text-slate-900 uppercase"
             />
           </div>
         </div>
@@ -172,13 +171,13 @@ export const EditRentalModal: React.FC<EditRentalModalProps> = ({ isOpen, onClos
         <div className="grid grid-cols-2 gap-2">
           <div className="space-y-1">
             <label className="text-[8px] font-black uppercase text-slate-400 tracking-wider px-0.5">Quantity *</label>
-            <input 
-              type="number" 
+            <input
+              type="number"
               value={quantity}
               onChange={(e) => setQuantity(Math.max(1, Number(e.target.value)))}
-              min="1" 
-              required 
-              className="w-full px-2 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#8B5CF6] rounded-xl outline-none font-bold text-[11px] text-slate-900" 
+              min="1"
+              required
+              className="w-full px-2 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#8B5CF6] rounded-xl outline-none font-bold text-[11px] text-slate-900"
             />
           </div>
 
@@ -186,12 +185,12 @@ export const EditRentalModal: React.FC<EditRentalModalProps> = ({ isOpen, onClos
             <label className="text-[8px] font-black uppercase text-slate-400 tracking-wider px-0.5">Start Time *</label>
             <div className="relative group">
               <Clock className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#8B5CF6]" size={13} strokeWidth={2.5} />
-              <input 
-                type="time" 
+              <input
+                type="time"
                 value={startTime}
                 onChange={(e) => setStartTime(e.target.value)}
-                required 
-                className="w-full pl-7 pr-2 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#8B5CF6] rounded-xl outline-none font-bold text-[10px] text-slate-900" 
+                required
+                className="w-full pl-7 pr-2 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#8B5CF6] rounded-xl outline-none font-bold text-[10px] text-slate-900"
               />
             </div>
           </div>
@@ -200,27 +199,25 @@ export const EditRentalModal: React.FC<EditRentalModalProps> = ({ isOpen, onClos
         {/* Security Deposit & Rent row */}
         <div className="grid grid-cols-2 gap-2">
           <div className="space-y-1">
-            <div className="flex justify-between items-center h-4 px-0.5">
-              <label className="text-[8px] font-black uppercase text-slate-400 tracking-wider">Deposit *</label>
-            </div>
+            <label className="text-[8px] font-black uppercase text-slate-400 tracking-wider px-0.5">Deposit *</label>
             <div className="relative group">
               <IndianRupee className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#8B5CF6]" size={13} strokeWidth={2.5} />
-              <input 
-                type="number" 
+              <input
+                type="number"
                 value={securityDeposit}
                 onChange={(e) => setSecurityDeposit(e.target.value)}
                 required
-                className="w-full pl-7 pr-2 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#8B5CF6] rounded-xl outline-none font-bold text-[11px] text-slate-900" 
+                className="w-full pl-7 pr-2 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#8B5CF6] rounded-xl outline-none font-bold text-[11px] text-slate-900"
               />
             </div>
           </div>
 
           <div className="space-y-1">
-            <div className="flex justify-between items-center h-4 px-0.5">
+            <div className="flex justify-between items-center px-0.5">
               <label className="text-[8px] font-black uppercase text-slate-400 tracking-wider">Rent Amount *</label>
               {isDiscounted && (
-                <button 
-                  type="button" 
+                <button
+                  type="button"
                   onClick={() => setCustomRentalAmount('')}
                   className="text-[7px] font-bold text-rose-500 hover:underline uppercase flex items-center gap-0.5"
                 >
@@ -230,12 +227,12 @@ export const EditRentalModal: React.FC<EditRentalModalProps> = ({ isOpen, onClos
             </div>
             <div className="relative group">
               <Tag className={`absolute left-2.5 top-1/2 -translate-y-1/2 ${isDiscounted ? 'text-amber-500' : 'text-slate-400 group-focus-within:text-[#8B5CF6]'}`} size={13} strokeWidth={2.5} />
-              <input 
-                type="number" 
+              <input
+                type="number"
                 value={customRentalAmount !== '' ? customRentalAmount : (autoRentalAmount > 0 ? autoRentalAmount : '')}
                 onChange={(e) => setCustomRentalAmount(e.target.value)}
-                required 
-                className={`w-full pl-7 pr-2 py-2 border rounded-xl outline-none font-bold text-[11px] ${isDiscounted ? 'bg-amber-50/60 border-amber-300 text-amber-950' : 'bg-slate-50 border-slate-200 focus:bg-white focus:border-[#8B5CF6] text-slate-900'}`} 
+                required
+                className={`w-full pl-7 pr-2 py-2 border rounded-xl outline-none font-bold text-[11px] ${isDiscounted ? 'bg-amber-50/60 border-amber-300 text-amber-950' : 'bg-slate-50 border-slate-200 focus:bg-white focus:border-[#8B5CF6] text-slate-900'}`}
               />
             </div>
           </div>
@@ -255,15 +252,15 @@ export const EditRentalModal: React.FC<EditRentalModalProps> = ({ isOpen, onClos
 
         {/* Actions */}
         <div className="flex gap-2 pt-1">
-          <button 
-            type="button" 
-            onClick={onClose} 
+          <button
+            type="button"
+            onClick={onClose}
             className="flex-1 py-2 rounded-xl font-bold uppercase tracking-wider text-[9.5px] text-slate-500 border border-slate-200 hover:border-slate-300"
           >
             Cancel
           </button>
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             className="flex-1 py-2 rounded-xl font-black uppercase tracking-wider text-[9.5px] bg-[#8B5CF6] hover:bg-[#7C3AED] text-white shadow-md shadow-[#8B5CF6]/20"
           >
             Save Changes

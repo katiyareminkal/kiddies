@@ -1,13 +1,13 @@
 import React, { useState, useMemo } from 'react';
 import { useApp } from '../store/AppContext';
 import { Card, Button, Modal } from '../components/Shared';
-import { 
-  Plus, 
-  Search, 
-  Calendar, 
-  AlertCircle, 
-  CheckCircle, 
-  Clock, 
+import {
+  Plus,
+  Search,
+  Calendar,
+  AlertCircle,
+  CheckCircle,
+  Clock,
   User,
   Box,
   ArrowRight,
@@ -38,7 +38,7 @@ import { EditRentalModal } from '../components/forms/EditRentalModal';
 
 const Rentals: React.FC = () => {
   const { rentals, products, customers, updateRental } = useApp();
-  
+
   // View mode state (card vs list)
   const [viewMode, setViewMode] = useState<'card' | 'list'>('card');
 
@@ -47,11 +47,11 @@ const Rentals: React.FC = () => {
   const [isCheckInModalOpen, setIsCheckInModalOpen] = useState(false);
   const [isExtendModalOpen, setIsExtendModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  
+
   // Selection
   const [selectedRental, setSelectedRental] = useState<Rental | null>(null);
   const [editingRental, setEditingRental] = useState<Rental | null>(null);
-  
+
   // Extend Modal State
   const [extendDays, setExtendDays] = useState(1);
 
@@ -67,32 +67,32 @@ const Rentals: React.FC = () => {
 
   // --- Handlers ---
   const openExtend = (rental: Rental) => {
-      setSelectedRental(rental);
-      setExtendDays(1);
-      setIsExtendModalOpen(true);
+    setSelectedRental(rental);
+    setExtendDays(1);
+    setIsExtendModalOpen(true);
   };
 
   const openEdit = (rental: Rental) => {
-      setEditingRental(rental);
-      setIsEditModalOpen(true);
+    setEditingRental(rental);
+    setIsEditModalOpen(true);
   };
 
   const handleConfirmExtend = () => {
-      if (selectedRental) {
-          const currentEnd = parseISO(selectedRental.expectedReturnDate);
-          const newEnd = addDays(currentEnd, extendDays);
-          const newEndDateStr = format(newEnd, 'yyyy-MM-dd');
-          
-          const additionalCost = extendDays * selectedRental.dailyRate * selectedRental.quantity;
-          
-          updateRental(selectedRental.id, {
-              expectedReturnDate: newEndDateStr,
-              totalRentAmount: selectedRental.totalRentAmount + additionalCost,
-          });
-          
-          setIsExtendModalOpen(false);
-          setSelectedRental(null);
-      }
+    if (selectedRental) {
+      const currentEnd = parseISO(selectedRental.expectedReturnDate);
+      const newEnd = addDays(currentEnd, extendDays);
+      const newEndDateStr = format(newEnd, 'yyyy-MM-dd');
+
+      const additionalCost = extendDays * selectedRental.dailyRate * selectedRental.quantity;
+
+      updateRental(selectedRental.id, {
+        expectedReturnDate: newEndDateStr,
+        totalRentAmount: selectedRental.totalRentAmount + additionalCost,
+      });
+
+      setIsExtendModalOpen(false);
+      setSelectedRental(null);
+    }
   };
 
   // --- Calculations for Views ---
@@ -101,15 +101,15 @@ const Rentals: React.FC = () => {
       const cust = customers.find(c => c.id === r.customerId);
       const prod = products.find(p => p.id === r.productId);
       const searchStr = searchTerm.toLowerCase();
-      
+
       const matchesSearch = (
-        cust?.name.toLowerCase().includes(searchStr) || 
+        cust?.name.toLowerCase().includes(searchStr) ||
         prod?.name.toLowerCase().includes(searchStr) ||
         r.invoiceNumber.toLowerCase().includes(searchStr)
       );
 
       const today = new Date();
-      today.setHours(0,0,0,0);
+      today.setHours(0, 0, 0, 0);
       const returnDate = parseISO(r.expectedReturnDate);
       const startDate = parseISO(r.startDate);
       const isOverdue = isBefore(returnDate, today) && r.status === RentalStatus.ACTIVE;
@@ -157,7 +157,7 @@ const Rentals: React.FC = () => {
           <h1 className="text-xl font-bold text-slate-900 tracking-tight">Rentals Desk</h1>
           <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest mt-0.5">Manage Active Leases & Returns</p>
         </div>
-        <button 
+        <button
           onClick={() => setIsNewRentalModalOpen(true)}
           className="banana-btn"
         >
@@ -171,7 +171,7 @@ const Rentals: React.FC = () => {
           <p className="text-[9px] font-semibold uppercase text-slate-400 tracking-widest mb-0.5 group-hover:text-slate-500 transition-colors">Active</p>
           <h3 className="text-lg font-bold text-slate-900 group-hover:text-white transition-colors tracking-tight">{activeCount}</h3>
         </div>
-        
+
         <div className="nano-card p-4 group hover:bg-slate-900 transition-all duration-300">
           <p className="text-[9px] font-semibold uppercase text-slate-400 tracking-widest mb-0.5 group-hover:text-slate-500 transition-colors">Overdue</p>
           <h3 className={`text-lg font-bold group-hover:text-white transition-colors tracking-tight ${overdueCount > 0 ? 'text-rose-500' : 'text-slate-900'}`}>{overdueCount}</h3>
@@ -196,30 +196,29 @@ const Rentals: React.FC = () => {
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`flex-1 md:flex-none px-5 py-2 rounded-md text-[9px] font-bold uppercase tracking-widest transition-all ${
-                  activeTab === tab 
-                    ? 'bg-[#8B5CF6] text-white shadow-sm' 
+                className={`flex-1 md:flex-none px-5 py-2 rounded-md text-[9px] font-bold uppercase tracking-widest transition-all ${activeTab === tab
+                    ? 'bg-[#8B5CF6] text-white shadow-sm'
                     : 'text-slate-400 hover:text-slate-600'
-                }`}
+                  }`}
               >
                 {tab}
               </button>
             ))}
           </div>
-          
+
           <div className="flex items-center gap-2 w-full md:w-auto">
             {/* View Mode Toggle: Icons Only */}
             <div className="flex bg-white border border-slate-200/80 p-0.5 rounded-xl shadow-sm shrink-0">
-              <button 
-                onClick={() => setViewMode('card')} 
-                className={`p-2 rounded-lg transition-all ${viewMode === 'card' ? 'bg-[#8B5CF6] text-white shadow-sm' : 'text-slate-400 hover:text-slate-700'}`} 
+              <button
+                onClick={() => setViewMode('card')}
+                className={`p-2 rounded-lg transition-all ${viewMode === 'card' ? 'bg-[#8B5CF6] text-white shadow-sm' : 'text-slate-400 hover:text-slate-700'}`}
                 title="Card View"
               >
                 <LayoutGrid size={15} strokeWidth={2.5} />
               </button>
-              <button 
-                onClick={() => setViewMode('list')} 
-                className={`p-2 rounded-lg transition-all ${viewMode === 'list' ? 'bg-[#8B5CF6] text-white shadow-sm' : 'text-slate-400 hover:text-slate-700'}`} 
+              <button
+                onClick={() => setViewMode('list')}
+                className={`p-2 rounded-lg transition-all ${viewMode === 'list' ? 'bg-[#8B5CF6] text-white shadow-sm' : 'text-slate-400 hover:text-slate-700'}`}
                 title="List View"
               >
                 <List size={15} strokeWidth={2.5} />
@@ -228,16 +227,16 @@ const Rentals: React.FC = () => {
 
             <div className="relative group flex-1 md:w-72">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-slate-900 transition-colors" size={14} strokeWidth={2.5} />
-              <input 
-                type="text" 
-                placeholder="Search Rentals..." 
+              <input
+                type="text"
+                placeholder="Search Rentals..."
                 className="w-full pl-9 pr-3 py-2 bg-white border border-slate-200/80 rounded-xl text-[10px] font-semibold uppercase tracking-widest outline-none focus:border-[#8B5CF6] transition-all shadow-sm"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
 
-            <button 
+            <button
               onClick={() => setShowFilters(!showFilters)}
               className={`p-2 rounded-xl border transition-all flex items-center justify-center ${showFilters ? 'bg-slate-900 text-white border-slate-900 shadow-md' : 'bg-white text-slate-400 border-slate-200/80 hover:border-slate-300 shadow-sm'}`}
               title="Advanced Filters"
@@ -253,8 +252,8 @@ const Rentals: React.FC = () => {
             <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-3">
               <div className="space-y-1">
                 <label className="text-[8px] font-black uppercase text-slate-300 tracking-widest ml-1">From Date</label>
-                <input 
-                  type="date" 
+                <input
+                  type="date"
                   className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2 text-[10px] font-bold uppercase outline-none"
                   value={filterStartDate}
                   onChange={(e) => setFilterStartDate(e.target.value)}
@@ -262,8 +261,8 @@ const Rentals: React.FC = () => {
               </div>
               <div className="space-y-1">
                 <label className="text-[8px] font-black uppercase text-slate-300 tracking-widest ml-1">To Date</label>
-                <input 
-                  type="date" 
+                <input
+                  type="date"
                   className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2 text-[10px] font-bold uppercase outline-none"
                   value={filterEndDate}
                   onChange={(e) => setFilterEndDate(e.target.value)}
@@ -271,7 +270,7 @@ const Rentals: React.FC = () => {
               </div>
               <div className="space-y-1">
                 <label className="text-[8px] font-black uppercase text-slate-300 tracking-widest ml-1">Payment</label>
-                <select 
+                <select
                   className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2 text-[10px] font-bold uppercase outline-none appearance-none"
                   value={filterPaymentStatus}
                   onChange={(e) => setFilterPaymentStatus(e.target.value as PaymentStatus | 'ALL')}
@@ -284,7 +283,7 @@ const Rentals: React.FC = () => {
               </div>
               <div className="space-y-1">
                 <label className="text-[8px] font-black uppercase text-slate-300 tracking-widest ml-1">Product</label>
-                <select 
+                <select
                   className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2 text-[10px] font-bold uppercase outline-none appearance-none"
                   value={filterProductId}
                   onChange={(e) => setFilterProductId(e.target.value)}
@@ -297,7 +296,7 @@ const Rentals: React.FC = () => {
               </div>
               <div className="space-y-1">
                 <label className="text-[8px] font-black uppercase text-slate-300 tracking-widest ml-1">Customer</label>
-                <select 
+                <select
                   className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2 text-[10px] font-bold uppercase outline-none appearance-none"
                   value={filterCustomerId}
                   onChange={(e) => setFilterCustomerId(e.target.value)}
@@ -310,7 +309,7 @@ const Rentals: React.FC = () => {
               </div>
             </div>
             <div className="flex justify-end pt-2 border-t border-slate-50">
-              <button 
+              <button
                 onClick={() => {
                   setFilterStartDate('');
                   setFilterEndDate('');
@@ -335,9 +334,8 @@ const Rentals: React.FC = () => {
               const product = products.find(p => p.id === rental.productId);
               const progress = getProgress(rental.startDate, rental.expectedReturnDate);
               const isLate = activeTab === 'OVERDUE';
-              const unpaidRent = Math.max(0, rental.totalRentAmount - (rental.paidAmount || 0));
-              const netRefundable = Math.max(0, rental.securityDeposit - unpaidRent - (rental.lateFee || 0));
-              
+              const netRefundable = Math.max(0, rental.securityDeposit - rental.totalRentAmount);
+
               return (
                 <div key={rental.id} className="nano-card p-4 group">
                   <div className="flex justify-between items-start mb-3">
@@ -366,12 +364,11 @@ const Rentals: React.FC = () => {
                       </span>
                     </div>
                     <div className="w-full h-1 bg-slate-100 rounded-full overflow-hidden">
-                      <div 
-                        className={`h-full rounded-full transition-all duration-700 ${
-                          rental.status === 'RETURNED' ? 'bg-emerald-500' :
-                          isLate ? 'bg-rose-500 animate-pulse' : 
-                          progress > 80 ? 'bg-amber-500' : 'bg-slate-900'
-                        }`} 
+                      <div
+                        className={`h-full rounded-full transition-all duration-700 ${rental.status === 'RETURNED' ? 'bg-emerald-500' :
+                            isLate ? 'bg-rose-500 animate-pulse' :
+                              progress > 80 ? 'bg-amber-500' : 'bg-slate-900'
+                          }`}
                         style={{ width: rental.status === 'RETURNED' ? '100%' : `${progress}%` }}
                       ></div>
                     </div>
@@ -392,7 +389,7 @@ const Rentals: React.FC = () => {
 
                     <div className="flex items-center gap-1.5">
                       {/* Edit Option */}
-                      <button 
+                      <button
                         onClick={() => openEdit(rental)}
                         className="p-1.5 text-slate-400 hover:text-[#8B5CF6] hover:bg-[#8B5CF6]/10 rounded-lg transition-colors"
                         title="Edit Rental"
@@ -402,14 +399,14 @@ const Rentals: React.FC = () => {
 
                       {rental.status === 'ACTIVE' && (
                         <>
-                          <button 
+                          <button
                             onClick={() => openExtend(rental)}
                             className="p-1.5 text-slate-400 hover:text-[#8B5CF6] hover:bg-[#8B5CF6]/10 rounded-lg transition-colors"
                             title="Extend Duration"
                           >
                             <CalendarDays size={14} strokeWidth={2.5} />
                           </button>
-                          <button 
+                          <button
                             onClick={() => { setSelectedRental(rental); setIsCheckInModalOpen(true); }}
                             className="px-3.5 py-1.5 bg-slate-900 text-white rounded-lg text-[9px] font-bold uppercase tracking-wider hover:bg-[#8B5CF6] transition-all shadow-sm"
                           >
@@ -443,8 +440,7 @@ const Rentals: React.FC = () => {
                     const customer = customers.find(c => c.id === rental.customerId);
                     const product = products.find(p => p.id === rental.productId);
                     const isLate = activeTab === 'OVERDUE';
-                    const unpaidRent = Math.max(0, rental.totalRentAmount - (rental.paidAmount || 0));
-                    const netRefundable = Math.max(0, rental.securityDeposit - unpaidRent - (rental.lateFee || 0));
+                    const netRefundable = Math.max(0, rental.securityDeposit - rental.totalRentAmount);
 
                     return (
                       <tr key={rental.id} className="hover:bg-slate-50/50 transition-colors">
@@ -481,7 +477,7 @@ const Rentals: React.FC = () => {
                         <td className="px-4 py-3 text-right">
                           <div className="flex items-center justify-end gap-1.5">
                             {/* Edit Option */}
-                            <button 
+                            <button
                               onClick={() => openEdit(rental)}
                               className="p-1.5 text-slate-400 hover:text-[#8B5CF6] hover:bg-[#8B5CF6]/10 rounded-lg transition-colors"
                               title="Edit Rental"
@@ -491,14 +487,14 @@ const Rentals: React.FC = () => {
 
                             {rental.status === 'ACTIVE' && (
                               <>
-                                <button 
+                                <button
                                   onClick={() => openExtend(rental)}
                                   className="p-1.5 text-slate-400 hover:text-[#8B5CF6] hover:bg-[#8B5CF6]/10 rounded-lg transition-colors"
                                   title="Extend Duration"
                                 >
                                   <CalendarDays size={14} strokeWidth={2.5} />
                                 </button>
-                                <button 
+                                <button
                                   onClick={() => { setSelectedRental(rental); setIsCheckInModalOpen(true); }}
                                   className="px-3 py-1.5 bg-slate-900 text-white rounded-lg text-[9px] font-bold uppercase tracking-wider hover:bg-[#8B5CF6] transition-all shadow-sm"
                                 >
@@ -529,7 +525,7 @@ const Rentals: React.FC = () => {
 
       {/* New Rental Modal */}
       <NewRentalModal isOpen={isNewRentalModalOpen} onClose={() => setIsNewRentalModalOpen(false)} />
-      
+
       {/* Return / Check-In Modal */}
       <ReturnRentalModal isOpen={isCheckInModalOpen} onClose={() => { setIsCheckInModalOpen(false); setSelectedRental(null); }} rental={selectedRental} />
 
@@ -538,37 +534,37 @@ const Rentals: React.FC = () => {
 
       {/* Extend Rental Modal */}
       <Modal isOpen={isExtendModalOpen} onClose={() => setIsExtendModalOpen(false)} title="Extend Rental">
-          {selectedRental && (
-              <div className="space-y-4">
-                 <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 space-y-1">
-                    <p className="text-[8.5px] font-bold text-slate-400 uppercase tracking-wider">Current Expected Return</p>
-                    <p className="text-sm font-black text-slate-900 font-mono">{format(parseISO(selectedRental.expectedReturnDate), 'MMM dd, yyyy')}</p>
-                 </div>
+        {selectedRental && (
+          <div className="space-y-4">
+            <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 space-y-1">
+              <p className="text-[8.5px] font-bold text-slate-400 uppercase tracking-wider">Current Expected Return</p>
+              <p className="text-sm font-black text-slate-900 font-mono">{format(parseISO(selectedRental.expectedReturnDate), 'MMM dd, yyyy')}</p>
+            </div>
 
-                 <div className="space-y-1">
-                    <label className="text-[8.5px] font-black uppercase text-slate-400 tracking-wider">Extend By (Days)</label>
-                    <input 
-                      type="number" 
-                      min="1" 
-                      value={extendDays} 
-                      onChange={e => setExtendDays(Math.max(1, Number(e.target.value)))}
-                      className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#8B5CF6] rounded-xl outline-none font-bold text-xs text-slate-900"
-                    />
-                 </div>
+            <div className="space-y-1">
+              <label className="text-[8.5px] font-black uppercase text-slate-400 tracking-wider">Extend By (Days)</label>
+              <input
+                type="number"
+                min="1"
+                value={extendDays}
+                onChange={e => setExtendDays(Math.max(1, Number(e.target.value)))}
+                className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#8B5CF6] rounded-xl outline-none font-bold text-xs text-slate-900"
+              />
+            </div>
 
-                 <div className="p-3 bg-[#8B5CF6]/5 border border-[#8B5CF6]/20 rounded-xl flex justify-between items-center text-xs">
-                     <span className="font-bold text-slate-600 uppercase text-[9px]">Additional Rental Cost</span>
-                     <span className="font-black text-[#8B5CF6] font-mono text-sm">
-                        +{formatCurrency(extendDays * selectedRental.dailyRate * selectedRental.quantity)}
-                     </span>
-                 </div>
+            <div className="p-3 bg-[#8B5CF6]/5 border border-[#8B5CF6]/20 rounded-xl flex justify-between items-center text-xs">
+              <span className="font-bold text-slate-600 uppercase text-[9px]">Additional Rental Cost</span>
+              <span className="font-black text-[#8B5CF6] font-mono text-sm">
+                +{formatCurrency(extendDays * selectedRental.dailyRate * selectedRental.quantity)}
+              </span>
+            </div>
 
-                 <div className="flex gap-2 pt-2">
-                    <button type="button" onClick={() => setIsExtendModalOpen(false)} className="flex-1 py-2.5 rounded-xl font-bold uppercase tracking-wider text-[9.5px] text-slate-500 border border-slate-200">Cancel</button>
-                    <button type="button" onClick={handleConfirmExtend} className="flex-1 py-2.5 rounded-xl font-black uppercase tracking-wider text-[9.5px] bg-[#8B5CF6] text-white">Confirm Extension</button>
-                 </div>
-              </div>
-          )}
+            <div className="flex gap-2 pt-2">
+              <button type="button" onClick={() => setIsExtendModalOpen(false)} className="flex-1 py-2.5 rounded-xl font-bold uppercase tracking-wider text-[9.5px] text-slate-500 border border-slate-200">Cancel</button>
+              <button type="button" onClick={handleConfirmExtend} className="flex-1 py-2.5 rounded-xl font-black uppercase tracking-wider text-[9.5px] bg-[#8B5CF6] text-white">Confirm Extension</button>
+            </div>
+          </div>
+        )}
       </Modal>
     </div>
   );

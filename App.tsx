@@ -480,14 +480,6 @@ const ResetPasswordScreen: React.FC = () => {
 const AppContent: React.FC = () => {
   const { currentUser, isAuthReady, isPasswordRecovery } = useApp();
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [showSplash, setShowSplash] = useState(true);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowSplash(false);
-    }, 2000);
-    return () => clearTimeout(timer);
-  }, []);
 
   useEffect(() => {
     const handleHashChange = () => {
@@ -510,21 +502,6 @@ const AppContent: React.FC = () => {
       window.history.pushState(null, '', `#${activeTab}`);
     }
   }, [activeTab]);
-
-  if (showSplash || !isAuthReady) {
-    return (
-      <div className="h-screen w-screen flex items-center justify-center bg-white relative overflow-hidden">
-        <motion.img
-          src="/logo.png"
-          alt="Kiddies Logo"
-          initial={{ opacity: 0.6, scale: 0.96 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-          className="h-24 md:h-28 max-w-[85vw] object-contain drop-shadow-sm"
-        />
-      </div>
-    );
-  }
 
   if (isPasswordRecovery) {
     return <ResetPasswordScreen />;

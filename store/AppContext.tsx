@@ -827,11 +827,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'INITIAL_SESSION') return; // Handled by initializeAuth
-      
+
       if (event === 'PASSWORD_RECOVERY' && mounted) {
         setIsPasswordRecovery(true);
       }
-      
+
       if (session?.user) {
         const name = session.user.user_metadata?.name || 'User';
         const role = session.user.user_metadata?.role || UserRole.STAFF;
@@ -900,25 +900,25 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         { data: rentals },
         { data: stockLogs },
         { data: notifications },
-          { data: storeProfile },
-          { data: settings },
-          { data: creditNotes },
-          { data: expenses }
-        ] = await Promise.all([
-          supabase.from('profiles').select('*'),
-          supabase.from('products').select('*'),
-          supabase.from('customers').select('*'),
-          supabase.from('suppliers').select('*'),
-          supabase.from('supplier_bills').select('*').order('created_at', { ascending: false }),
-          supabase.from('sales').select('*').order('date', { ascending: false }),
-          supabase.from('rentals').select('*').order('date', { ascending: false }),
-          supabase.from('stock_logs').select('*').order('date', { ascending: false }),
-          supabase.from('notifications').select('*').order('timestamp', { ascending: false }),
-          supabase.from('store_profile').select('*').eq('id', 'default').maybeSingle(),
-          supabase.from('settings').select('*').eq('id', 'default').maybeSingle(),
-          supabase.from('credit_notes').select('*').order('created_at', { ascending: false }),
-          supabase.from('expenses').select('*').order('date', { ascending: false })
-        ]);
+        { data: storeProfile },
+        { data: settings },
+        { data: creditNotes },
+        { data: expenses }
+      ] = await Promise.all([
+        supabase.from('profiles').select('*'),
+        supabase.from('products').select('*'),
+        supabase.from('customers').select('*'),
+        supabase.from('suppliers').select('*'),
+        supabase.from('supplier_bills').select('*').order('created_at', { ascending: false }),
+        supabase.from('sales').select('*').order('date', { ascending: false }),
+        supabase.from('rentals').select('*').order('date', { ascending: false }),
+        supabase.from('stock_logs').select('*').order('date', { ascending: false }),
+        supabase.from('notifications').select('*').order('timestamp', { ascending: false }),
+        supabase.from('store_profile').select('*').eq('id', 'default').maybeSingle(),
+        supabase.from('settings').select('*').eq('id', 'default').maybeSingle(),
+        supabase.from('credit_notes').select('*').order('created_at', { ascending: false }),
+        supabase.from('expenses').select('*').order('date', { ascending: false })
+      ]);
 
       const { data: saleItems } = await supabase.from('sale_items').select('*');
       const { data: supplierBillItems } = await supabase.from('supplier_bill_items').select('*');
@@ -968,31 +968,31 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         })),
         products: (products && products.length > 0)
           ? products.map(p => ({
-              id: p.id,
-              name: p.name,
-              sku: p.sku,
-              barcode: p.barcode || '',
-              category: p.category || '',
-              subCategory: p.sub_category || undefined,
-              gender: p.gender || undefined,
-              clothingType: p.clothing_type || undefined,
-              brand: p.brand || '',
-              color: p.color || '',
-              material: p.material || '',
-              sizes: p.sizes || [],
-              purchasePrice: Number(p.purchase_price || 0),
-              sellingPrice: Number(p.selling_price || 0),
-              rentalPrice: Number(p.rental_price || 0),
-              taxPercent: Number(p.tax_percent || 0),
-              saleStock: Number(p.sale_stock || 0),
-              rentalStock: Number(p.rental_stock || 0),
-              purpose: p.purpose || 'SALE',
-              minStockAlert: Number(p.min_stock_alert || 0),
-              supplierId: p.supplier_id || '',
-              description: p.description || '',
-              imageUrl: p.image_url || '',
-              createdAt: p.created_at
-            }))
+            id: p.id,
+            name: p.name,
+            sku: p.sku,
+            barcode: p.barcode || '',
+            category: p.category || '',
+            subCategory: p.sub_category || undefined,
+            gender: p.gender || undefined,
+            clothingType: p.clothing_type || undefined,
+            brand: p.brand || '',
+            color: p.color || '',
+            material: p.material || '',
+            sizes: p.sizes || [],
+            purchasePrice: Number(p.purchase_price || 0),
+            sellingPrice: Number(p.selling_price || 0),
+            rentalPrice: Number(p.rental_price || 0),
+            taxPercent: Number(p.tax_percent || 0),
+            saleStock: Number(p.sale_stock || 0),
+            rentalStock: Number(p.rental_stock || 0),
+            purpose: p.purpose || 'SALE',
+            minStockAlert: Number(p.min_stock_alert || 0),
+            supplierId: p.supplier_id || '',
+            description: p.description || '',
+            imageUrl: p.image_url || '',
+            createdAt: p.created_at
+          }))
           : INITIAL_DATA.products,
         customers: (customers || []).map(c => ({
           id: c.id,
@@ -1106,29 +1106,29 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         })),
         storeProfile: storeProfile
           ? {
-              storeName: storeProfile.store_name || 'Kiddies',
-              address: storeProfile.address || '',
-              phone: storeProfile.phone || '',
-              email: storeProfile.email || '',
-              gstin: storeProfile.gstin || '',
-              website: storeProfile.website || '',
-              logo: storeProfile.logo || ''
-            }
+            storeName: storeProfile.store_name || 'Kiddies',
+            address: storeProfile.address || '',
+            phone: storeProfile.phone || '',
+            email: storeProfile.email || '',
+            gstin: storeProfile.gstin || '',
+            website: storeProfile.website || '',
+            logo: storeProfile.logo || ''
+          }
           : prev.storeProfile,
         settings: settings
           ? {
-              defaultTaxRate: Number(settings.default_tax_rate || 12),
-              currency: settings.currency || 'INR',
-              enableLowStockAlerts: !!settings.enable_low_stock_alerts,
-              lowStockThreshold: Number(settings.low_stock_threshold || 3),
-              salesInvoicePrefix: settings.sales_invoice_prefix || 'INV-',
-              rentalInvoicePrefix: settings.rental_invoice_prefix || 'RNT-',
-              enableDeleteInventory: !!settings.enable_delete_inventory,
-              enableDeleteCustomers: !!settings.enable_delete_customers,
-              enableDeleteTransactions: !!settings.enable_delete_transactions,
-              enableDeleteSuppliers: !!settings.enable_delete_suppliers,
-              enableDeleteUsers: !!settings.enable_delete_users
-            }
+            defaultTaxRate: Number(settings.default_tax_rate || 12),
+            currency: settings.currency || 'INR',
+            enableLowStockAlerts: !!settings.enable_low_stock_alerts,
+            lowStockThreshold: Number(settings.low_stock_threshold || 3),
+            salesInvoicePrefix: settings.sales_invoice_prefix || 'INV-',
+            rentalInvoicePrefix: settings.rental_invoice_prefix || 'RNT-',
+            enableDeleteInventory: !!settings.enable_delete_inventory,
+            enableDeleteCustomers: !!settings.enable_delete_customers,
+            enableDeleteTransactions: !!settings.enable_delete_transactions,
+            enableDeleteSuppliers: !!settings.enable_delete_suppliers,
+            enableDeleteUsers: !!settings.enable_delete_users
+          }
           : prev.settings,
         creditNotes: (creditNotes || []).map(cn => ({
           id: cn.id,
@@ -1216,7 +1216,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     try {
       const { data, error } = await supabase.auth.signInWithPassword({ email, password: pass });
       if (error) throw error;
-      
+
       if (data?.user) {
         const name = data.user.user_metadata?.name || 'User';
         const role = data.user.user_metadata?.role || UserRole.STAFF;
@@ -1269,7 +1269,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const loginWithGoogle = async () => {
     try {
-      const { error } = await supabase.auth.signInWithOAuth({ 
+      const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: window.location.origin
@@ -1539,7 +1539,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         image_url: imageUrl
       }]).select().single();
       if (error) throw error;
-      
+
       const newBillId = data.id;
 
       if (bill.items && bill.items.length > 0) {
@@ -1562,8 +1562,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   };
 
   const updateSupplierBill = async (
-    billId: string, 
-    bill: Partial<Omit<SupplierBill, 'id' | 'createdAt' | 'items'>> & { items?: Omit<SupplierBillItem, 'id' | 'billId' | 'createdAt'>[] }, 
+    billId: string,
+    bill: Partial<Omit<SupplierBill, 'id' | 'createdAt' | 'items'>> & { items?: Omit<SupplierBillItem, 'id' | 'billId' | 'createdAt'>[] },
     imageFile?: File
   ) => {
     try {
@@ -1668,7 +1668,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         payment_method: s.paymentMethod,
         order_status: s.orderStatus
       };
-      
+
       if (s.date) {
         saleInsertData.date = s.date;
       }
@@ -1739,7 +1739,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     try {
       const sale = state.sales.find(s => s.id === saleId);
       if (!sale) throw new Error("Sale not found");
-      
+
       const item = sale.items.find(i => i.productId === customItemId);
       if (!item) throw new Error("Custom item not found in sale");
 
@@ -1747,9 +1747,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         .update({ product_id: realProductId })
         .eq('sale_id', saleId)
         .eq('product_id', customItemId);
-        
+
       if (updateError) throw updateError;
-      
+
       const product = state.products.find(p => p.id === realProductId);
       if (product) {
         await supabase.from('products').update({
@@ -1766,9 +1766,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
           reason: `Linked from Sale ${sale.invoiceNumber}`,
         });
       }
-      
+
       await fetchAllData();
-      
+
     } catch (err) {
       console.error('Error linking custom item:', err);
       throw err;
@@ -1850,7 +1850,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         if (product) {
           const newStock = Math.max(0, product.saleStock - e.quantity);
           await supabase.from('products').update({ sale_stock: newStock }).eq('id', e.productId);
-          
+
           // Log stock out
           const logId = generateID();
           await supabase.from('stock_logs').insert({
@@ -1912,7 +1912,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       // Restock items
       for (const item of sale.items) {
         if (item.productId.startsWith('CUSTOM_')) continue;
-        
+
         const product = state.products.find(p => p.id === item.productId);
         if (product) {
           await supabase.from('products').update({
@@ -1945,9 +1945,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
       const newItems = [...sale.items.map(item => ({ ...item }))];
       const targetItem = newItems[itemIndex];
-      
+
       if (!targetItem) throw new Error('Item not found');
-      
+
       const alreadyReturned = targetItem.returnedQuantity || 0;
       if (returnQty > targetItem.quantity - alreadyReturned) {
         throw new Error('Cannot return more than purchased');
@@ -1980,7 +1980,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         const newProduct = state.products.find(p => p.id === exchangeProductId);
         if (newProduct) {
           if (newProduct.saleStock < exchangeQty) throw new Error('Not enough stock for exchange');
-          
+
           await supabase.from('products').update({
             sale_stock: newProduct.saleStock - exchangeQty
           }).eq('id', newProduct.id);
@@ -1996,9 +1996,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
           const newItemTax = (newProduct.sellingPrice * (newProduct.taxPercent || 0)) / 100;
           const newItemGross = newProduct.sellingPrice + newItemTax;
-          
+
           exchangeItemTotal = newItemGross * exchangeQty;
-          
+
           newItems.push({
             productId: newProduct.id,
             name: newProduct.name,
@@ -2015,15 +2015,15 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       const refundAmount = returnQty * (targetItem.total / targetItem.quantity);
       const newTotalAmount = sale.totalAmount - refundAmount + exchangeItemTotal;
       const newNetPayout = sale.netPayout - refundAmount + exchangeItemTotal;
-      
+
       // Determine new order status safely
       let newOrderStatus = OrderStatus.PARTIALLY_RETURNED;
-      
+
       // 4. Update Sale items in DB
       const { error: itemUpdateError } = await supabase.from('sale_items').update({
         returned_quantity: targetItem.returnedQuantity
       }).eq('sale_id', saleId).eq('product_id', targetItem.productId);
-      
+
       if (itemUpdateError) throw itemUpdateError;
 
       // 5. Insert new exchange item into sale_items if present
@@ -2270,15 +2270,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       }
     }
 
-    const finalTotalRent = rental.totalRentAmount + lateFee;
-
     const updates: Partial<Rental> = {
       status: RentalStatus.RETURNED,
       actualReturnDate: nowStr,
       lateFee,
-      totalRentAmount: finalTotalRent,
-      paidAmount: finalTotalRent,
-      paymentStatus: PaymentStatus.PAID,
+      totalRentAmount: rental.totalRentAmount + lateFee,
       returnImages: returnImageUrls
     };
 
@@ -2304,9 +2300,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         status: RentalStatus.RETURNED,
         actual_return_date: nowStr,
         late_fee: lateFee,
-        total_rent_amount: finalTotalRent,
-        paid_amount: finalTotalRent,
-        payment_status: PaymentStatus.PAID,
+        total_rent_amount: rental.totalRentAmount + lateFee,
         return_images: returnImageUrls
       }).eq('id', id);
       if (returnError) console.warn('Supabase returnRental error:', returnError);
