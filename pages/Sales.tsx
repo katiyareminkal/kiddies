@@ -37,8 +37,7 @@ import {
   Info,
   Edit2,
   Phone,
-  CheckCircle2,
-  Trash2
+  CheckCircle2
 } from 'lucide-react';
 import { formatCurrency } from '../utils/helpers';
 import { format, parseISO, isAfter, isBefore, isSameDay } from 'date-fns';
