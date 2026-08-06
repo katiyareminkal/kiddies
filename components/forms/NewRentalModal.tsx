@@ -49,7 +49,6 @@ export const NewRentalModal: React.FC<NewRentalModalProps> = ({ isOpen, onClose 
   const [expectedReturnDate, setExpectedReturnDate] = useState<string>(defaultReturnStr);
   const [securityDeposit, setSecurityDeposit] = useState<string>('');
   const [customRentalAmount, setCustomRentalAmount] = useState<string>('');
-  const [discountInput, setDiscountInput] = useState<string>('');
 
   // Selected product & calculated breakdown
   const selectedProduct = useMemo(() => {
@@ -195,7 +194,6 @@ export const NewRentalModal: React.FC<NewRentalModalProps> = ({ isOpen, onClose 
     setExpectedReturnDate(defaultReturnStr);
     setSecurityDeposit('');
     setCustomRentalAmount('');
-    setDiscountInput('');
     setIsAddingCustomer(false);
     onClose();
   };
@@ -363,22 +361,22 @@ export const NewRentalModal: React.FC<NewRentalModalProps> = ({ isOpen, onClose 
           </div>
         </div>
 
-        {/* Security Deposit, Discount & Final Rent (3 Columns Grid on 1 Row) */}
-        <div className="grid grid-cols-3 gap-2">
+        {/* Security Deposit & Rental Amount (2 Columns Grid on 1 Row) */}
+        <div className="grid grid-cols-2 gap-2">
           <div className="space-y-1">
             <div className="flex justify-between items-center px-0.5">
               <label className="text-[8px] font-black uppercase text-slate-400 tracking-wider">Deposit *</label>
               <span className="text-[7px] font-bold text-[#8B5CF6] uppercase tracking-wider">Gross</span>
             </div>
             <div className="relative group">
-              <IndianRupee className="absolute left-2 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#8B5CF6] transition-colors" size={12} strokeWidth={2.5} />
+              <IndianRupee className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#8B5CF6] transition-colors" size={13} strokeWidth={2.5} />
               <input
                 name="securityDeposit"
                 type="number"
                 value={securityDeposit}
                 onChange={(e) => setSecurityDeposit(e.target.value)}
                 required
-                className="w-full pl-6 pr-1.5 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#8B5CF6] rounded-xl outline-none font-bold text-[11px] text-slate-900"
+                className="w-full pl-7 pr-2 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#8B5CF6] rounded-xl outline-none font-bold text-[11px] text-slate-900"
                 placeholder="5000"
               />
             </div>
@@ -386,65 +384,26 @@ export const NewRentalModal: React.FC<NewRentalModalProps> = ({ isOpen, onClose 
 
           <div className="space-y-1">
             <div className="flex justify-between items-center px-0.5">
-              <label className="text-[8px] font-black uppercase text-slate-400 tracking-wider">Discount (₹)</label>
-              {actualDiscount > 0 && (
-                <span className="text-[7px] font-bold text-amber-600 uppercase tracking-wider">Off</span>
-              )}
-            </div>
-            <div className="relative group">
-              <Tag className="absolute left-2 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-amber-500 transition-colors" size={12} strokeWidth={2.5} />
-              <input
-                type="number"
-                min="0"
-                value={discountInput !== '' ? discountInput : (actualDiscount > 0 ? String(actualDiscount) : '')}
-                onChange={(e) => {
-                  const val = e.target.value;
-                  setDiscountInput(val);
-                  if (val !== '') {
-                    const discNum = Math.max(0, Number(val) || 0);
-                    const newRent = Math.max(0, autoRentalAmount - discNum);
-                    setCustomRentalAmount(String(newRent));
-                  } else {
-                    setCustomRentalAmount('');
-                  }
-                }}
-                className="w-full pl-6 pr-1.5 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-amber-500 rounded-xl outline-none font-bold text-[11px] text-slate-900"
-                placeholder="0"
-              />
-            </div>
-          </div>
-
-          <div className="space-y-1">
-            <div className="flex justify-between items-center px-0.5">
-              <label className="text-[8px] font-black uppercase text-slate-400 tracking-wider">Final Rent *</label>
+              <label className="text-[8px] font-black uppercase text-slate-400 tracking-wider">Rent Amount *</label>
               {isDiscounted && (
                 <button
                   type="button"
-                  onClick={() => { setCustomRentalAmount(''); setDiscountInput(''); }}
+                  onClick={() => setCustomRentalAmount('')}
                   className="text-[7px] font-bold text-rose-500 hover:underline uppercase tracking-wider flex items-center gap-0.5"
                 >
-                  <RotateCcw size={7} /> Reset
+                  <RotateCcw size={7} /> Reset (₹{autoRentalAmount})
                 </button>
               )}
             </div>
             <div className="relative group">
-              <IndianRupee className={`absolute left-2 top-1/2 -translate-y-1/2 transition-colors ${isDiscounted ? 'text-amber-500' : 'text-slate-400 group-focus-within:text-[#8B5CF6]'}`} size={12} strokeWidth={2.5} />
+              <IndianRupee className={`absolute left-2.5 top-1/2 -translate-y-1/2 transition-colors ${isDiscounted ? 'text-amber-500' : 'text-slate-400 group-focus-within:text-[#8B5CF6]'}`} size={13} strokeWidth={2.5} />
               <input
                 name="rentalAmount"
                 type="number"
                 value={customRentalAmount !== '' ? customRentalAmount : (autoRentalAmount > 0 ? autoRentalAmount : '')}
-                onChange={(e) => {
-                  const custom = e.target.value;
-                  setCustomRentalAmount(custom);
-                  if (custom !== '') {
-                    const disc = Math.max(0, autoRentalAmount - Number(custom));
-                    setDiscountInput(disc > 0 ? String(disc) : '');
-                  } else {
-                    setDiscountInput('');
-                  }
-                }}
+                onChange={(e) => setCustomRentalAmount(e.target.value)}
                 required
-                className={`w-full pl-6 pr-1.5 py-2 border rounded-xl outline-none transition-all font-bold text-[11px] ${isDiscounted ? 'bg-amber-50/60 border-amber-300 text-amber-950 focus:bg-white focus:border-amber-500' : 'bg-slate-50 border-slate-200 focus:bg-white focus:border-[#8B5CF6] text-slate-900'}`}
+                className={`w-full pl-7 pr-2 py-2 border rounded-xl outline-none transition-all font-bold text-[11px] ${isDiscounted ? 'bg-amber-50/60 border-amber-300 text-amber-950 focus:bg-white focus:border-amber-500' : 'bg-slate-50 border-slate-200 focus:bg-white focus:border-[#8B5CF6] text-slate-900'}`}
                 placeholder={String(autoRentalAmount)}
               />
             </div>
@@ -459,13 +418,6 @@ export const NewRentalModal: React.FC<NewRentalModalProps> = ({ isOpen, onClose 
               {selectedProduct ? `${formatCurrency(dailyRate)}/d × ${rentalDays}d × ${quantity} = ${formatCurrency(autoRentalAmount)}` : 'Select product'}
             </span>
           </div>
-
-          {actualDiscount > 0 && (
-            <div className="flex justify-between items-center text-[10px]">
-              <span className="font-bold text-amber-600 uppercase tracking-wider text-[8px]">Discount</span>
-              <span className="font-black text-amber-600 font-mono text-[10px]">-{formatCurrency(Math.abs(actualDiscount))}</span>
-            </div>
-          )}
 
           <div className="pt-1 border-t border-slate-200/80 flex justify-between items-center">
             <div>
