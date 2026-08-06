@@ -26,8 +26,10 @@ interface AppContextType extends AppState {
   updateProduct: (id: string, product: Partial<Product>, imageFile?: File, onProgress?: (status: string) => void) => Promise<void>;
   deleteProduct: (id: string) => Promise<void>;
   addCustomer: (customer: Omit<Customer, 'id' | 'createdAt'>) => Promise<string | undefined>;
+  deleteCustomer: (id: string) => Promise<void>;
   addSupplier: (supplier: Omit<Supplier, 'id' | 'createdAt'>) => Promise<void>;
   updateSupplier: (id: string, updates: Partial<Supplier>) => Promise<void>;
+  deleteSupplier: (id: string) => Promise<void>;
   addSale: (sale: Omit<Sale, 'id' | 'invoiceNumber' | 'date' | 'netPayout'> & { date?: string }) => Promise<{ id: string, invoiceNumber: string } | undefined>;
   addCreditNote: (customerId: string, amount: number, reason: string) => Promise<void>;
   consumeStoreCredit: (customerId: string, amountToConsume: number, invoiceNumber: string) => Promise<void>;
@@ -729,6 +731,7 @@ const INITIAL_DATA: AppState = {
     enableDeleteInventory: false,
     enableDeleteCustomers: false,
     enableDeleteTransactions: false,
+    enableDeleteRentals: false,
     enableDeleteSuppliers: false,
     enableDeleteUsers: false
   },
@@ -1126,6 +1129,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
             enableDeleteInventory: !!settings.enable_delete_inventory,
             enableDeleteCustomers: !!settings.enable_delete_customers,
             enableDeleteTransactions: !!settings.enable_delete_transactions,
+            enableDeleteRentals: !!settings.enable_delete_rentals,
             enableDeleteSuppliers: !!settings.enable_delete_suppliers,
             enableDeleteUsers: !!settings.enable_delete_users
           }
@@ -1481,6 +1485,20 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
   };
 
+  const deleteCustomer = async (id: string) => {
+    try {
+      setState(prev => ({
+        ...prev,
+        customers: prev.customers.filter(c => c.id !== id)
+      }));
+      const { error } = await supabase.from('customers').delete().eq('id', id);
+      if (error) console.warn('Supabase deleteCustomer error:', error);
+      await fetchAllData();
+    } catch (error) {
+      console.error('Error deleting customer:', error);
+    }
+  };
+
   // -- SUPPLIERS --
   const addSupplier = async (s: Omit<Supplier, 'id' | 'createdAt'>) => {
     const id = generateID();
@@ -1518,6 +1536,20 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       await fetchAllData();
     } catch (error) {
       console.error('Error updating supplier:', error);
+    }
+  };
+
+  const deleteSupplier = async (id: string) => {
+    try {
+      setState(prev => ({
+        ...prev,
+        suppliers: prev.suppliers.filter(s => s.id !== id)
+      }));
+      const { error } = await supabase.from('suppliers').delete().eq('id', id);
+      if (error) console.warn('Supabase deleteSupplier error:', error);
+      await fetchAllData();
+    } catch (error) {
+      console.error('Error deleting supplier:', error);
     }
   };
 
@@ -2404,6 +2436,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         enable_delete_inventory: settings.enableDeleteInventory,
         enable_delete_customers: settings.enableDeleteCustomers,
         enable_delete_transactions: settings.enableDeleteTransactions,
+        enable_delete_rentals: settings.enableDeleteRentals,
         enable_delete_suppliers: settings.enableDeleteSuppliers,
         enable_delete_users: settings.enableDeleteUsers
       }).eq('id', 'default');
@@ -2502,9 +2535,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       isPasswordRecovery,
       login, loginWithGoogle, logout, addUser, updateUser, deleteUser,
       addProduct, updateProduct, deleteProduct,
-      addCustomer,
-      addSupplier,
-      updateSupplier,
+      addCustomer, deleteCustomer,
+      addSupplier, updateSupplier, deleteSupplier,
       addSale, updateOrderStatus, updateSale, addPaymentToSale,
       addRental, updateRental, returnRental,
       updateStock, updateStoreProfile, updateSettings,

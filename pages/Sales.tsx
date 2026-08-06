@@ -37,7 +37,8 @@ import {
   Info,
   Edit2,
   Phone,
-  CheckCircle2
+  CheckCircle2,
+  Trash2
 } from 'lucide-react';
 import { formatCurrency } from '../utils/helpers';
 import { format, parseISO, isAfter, isBefore, isSameDay } from 'date-fns';
@@ -51,7 +52,7 @@ import {
 import { subDays, startOfMonth, startOfYear } from 'date-fns';
 
 const Sales: React.FC = () => {
-  const { sales, products, customers, settings, updateOrderStatus } = useApp();
+  const { sales, products, customers, settings, updateOrderStatus, deleteSale } = useApp();
   const [isAddingSale, setIsAddingSale] = useState(false);
   const [historySearchTerm, setHistorySearchTerm] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
@@ -541,6 +542,7 @@ const Sales: React.FC = () => {
                   <th className="py-3 px-4 text-center">Channel</th>
                   <th className="py-3 px-4 text-center">Status</th>
                   <th className="py-3 px-4 text-right">Total Amount</th>
+                  <th className="py-3 px-4 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100/60">
@@ -615,6 +617,23 @@ const Sales: React.FC = () => {
                       </td>
                       <td className="py-3 px-4 text-right font-mono font-black text-[11px] text-slate-900">
                         {formatCurrency(sale.totalAmount)}
+                      </td>
+                      <td className="py-3 px-4 text-right">
+                        {settings?.enableDeleteTransactions && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (window.confirm(`Delete sale transaction ${sale.invoiceNumber}?`)) {
+                                deleteSale(sale.id);
+                              }
+                            }}
+                            className="p-1.5 text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-colors inline-block"
+                            title="Delete Sale Transaction"
+                          >
+                            <Trash2 size={13} strokeWidth={2.5} />
+                          </button>
+                        )}
                       </td>
                     </tr>
                   );
@@ -697,6 +716,21 @@ const Sales: React.FC = () => {
                     }`}>
                       {sale.paymentStatus === PaymentStatus.PAID ? 'PAID' : (dueAmount > 0 ? `DUE ₹${dueAmount}` : sale.paymentStatus)}
                     </span>
+                    {settings?.enableDeleteTransactions && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (window.confirm(`Delete sale transaction ${sale.invoiceNumber}?`)) {
+                            deleteSale(sale.id);
+                          }
+                        }}
+                        className="p-1 text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-colors"
+                        title="Delete Sale Transaction"
+                      >
+                        <Trash2 size={13} strokeWidth={2.5} />
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>

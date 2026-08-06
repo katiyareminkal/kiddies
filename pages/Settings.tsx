@@ -84,6 +84,7 @@ const Settings: React.FC = () => {
       enableDeleteInventory: formData.get('enableDeleteInventory') === 'on',
       enableDeleteCustomers: formData.get('enableDeleteCustomers') === 'on',
       enableDeleteTransactions: formData.get('enableDeleteTransactions') === 'on',
+      enableDeleteRentals: formData.get('enableDeleteRentals') === 'on',
       enableDeleteSuppliers: formData.get('enableDeleteSuppliers') === 'on',
       enableDeleteUsers: formData.get('enableDeleteUsers') === 'on',
     });
@@ -285,6 +286,26 @@ const Settings: React.FC = () => {
                                         <div className="w-10 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-highlight"></div>
                                     </label>
                                 </div>
+                                 <div className="p-4 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between">
+                                     <div>
+                                         <p className="text-[10px] font-bold text-slate-900 uppercase tracking-tight">Sales & Transactions</p>
+                                         <p className="text-[8px] font-semibold text-slate-400 mt-0.5 uppercase tracking-widest">Allow deletion of sales history</p>
+                                     </div>
+                                     <label className="relative inline-flex items-center cursor-pointer">
+                                         <input type="checkbox" name="enableDeleteTransactions" defaultChecked={settings.enableDeleteTransactions} className="sr-only peer" />
+                                         <div className="w-10 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-highlight"></div>
+                                     </label>
+                                 </div>
+                                 <div className="p-4 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between">
+                                     <div>
+                                         <p className="text-[10px] font-bold text-slate-900 uppercase tracking-tight">Rentals</p>
+                                         <p className="text-[8px] font-semibold text-slate-400 mt-0.5 uppercase tracking-widest">Allow deletion of rental bookings</p>
+                                     </div>
+                                     <label className="relative inline-flex items-center cursor-pointer">
+                                         <input type="checkbox" name="enableDeleteRentals" defaultChecked={settings.enableDeleteRentals} className="sr-only peer" />
+                                         <div className="w-10 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-highlight"></div>
+                                     </label>
+                                 </div>
                                 <div className="space-y-1.5">
                                     <label className="text-[9px] font-bold uppercase tracking-widest text-slate-400 ml-1">Global Low Stock Threshold</label>
                                     <input type="number" name="lowStockThreshold" defaultValue={settings.lowStockThreshold} className="w-full md:w-1/3 px-4 py-2 bg-white border border-slate-200 rounded-lg outline-none focus:border-highlight/30 font-semibold text-slate-900 text-[11px]" />

@@ -27,7 +27,8 @@ import {
   CreditCard,
   LayoutGrid,
   List,
-  Pencil
+  Pencil,
+  Trash2
 } from 'lucide-react';
 import { formatCurrency, calculateLateFee } from '../utils/helpers';
 import { PaymentStatus, RentalStatus, Rental } from '../types';
@@ -37,7 +38,7 @@ import { ReturnRentalModal } from '../components/forms/ReturnRentalModal';
 import { EditRentalModal } from '../components/forms/EditRentalModal';
 
 const Rentals: React.FC = () => {
-  const { rentals, products, customers, updateRental } = useApp();
+  const { rentals, products, customers, updateRental, deleteRental, settings } = useApp();
 
   // View mode state (card vs list)
   const [viewMode, setViewMode] = useState<'card' | 'list'>('card');
@@ -397,6 +398,21 @@ const Rentals: React.FC = () => {
                         <Pencil size={14} strokeWidth={2.5} />
                       </button>
 
+                      {/* Delete Option */}
+                      {(settings?.enableDeleteRentals || settings?.enableDeleteTransactions) && (
+                        <button
+                          onClick={() => {
+                            if (window.confirm(`Delete rental booking ${rental.invoiceNumber}?`)) {
+                              deleteRental(rental.id);
+                            }
+                          }}
+                          className="p-1.5 text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-colors"
+                          title="Delete Rental Booking"
+                        >
+                          <Trash2 size={14} strokeWidth={2.5} />
+                        </button>
+                      )}
+
                       {rental.status === 'ACTIVE' && (
                         <>
                           <button
@@ -484,6 +500,21 @@ const Rentals: React.FC = () => {
                             >
                               <Pencil size={14} strokeWidth={2.5} />
                             </button>
+
+                            {/* Delete Option */}
+                            {(settings?.enableDeleteRentals || settings?.enableDeleteTransactions) && (
+                              <button
+                                onClick={() => {
+                                  if (window.confirm(`Delete rental booking ${rental.invoiceNumber}?`)) {
+                                    deleteRental(rental.id);
+                                  }
+                                }}
+                                className="p-1.5 text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-colors"
+                                title="Delete Rental Booking"
+                              >
+                                <Trash2 size={14} strokeWidth={2.5} />
+                              </button>
+                            )}
 
                             {rental.status === 'ACTIVE' && (
                               <>

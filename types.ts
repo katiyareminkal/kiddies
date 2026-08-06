@@ -211,6 +211,7 @@ export interface AppSettings {
   enableDeleteInventory: boolean;
   enableDeleteCustomers: boolean;
   enableDeleteTransactions: boolean;
+  enableDeleteRentals: boolean;
   enableDeleteSuppliers: boolean;
   enableDeleteUsers: boolean;
 }

@@ -30,7 +30,7 @@ import { Sale, Rental, Customer, PaymentStatus } from '../types';
 import { ReturnRentalModal } from '../components/forms/ReturnRentalModal';
 
 const Customers: React.FC = () => {
-  const { customers, addCustomer, sales, rentals, products, addPaymentToSale, creditNotes, addCreditNote, consumeStoreCredit, settings, deleteSale, deleteRental, deleteCreditNote } = useApp();
+  const { customers, addCustomer, deleteCustomer, sales, rentals, products, addPaymentToSale, creditNotes, addCreditNote, consumeStoreCredit, settings, deleteSale, deleteRental, deleteCreditNote } = useApp();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [isIssueCreditModalOpen, setIsIssueCreditModalOpen] = useState(false);
@@ -219,12 +219,29 @@ const Customers: React.FC = () => {
           >
             <ArrowLeft size={16} strokeWidth={2.5} className="group-hover:-translate-x-1 transition-transform" />
           </button>
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-xl font-bold text-slate-900 tracking-tight">{selectedCustomer.name}</h1>
-              {getVipBadge(customerHistory.stats.totalSpent)}
+          <div className="flex-1 flex justify-between items-center">
+            <div>
+              <div className="flex items-center gap-2">
+                <h1 className="text-xl font-bold text-slate-900 tracking-tight">{selectedCustomer.name}</h1>
+                {getVipBadge(customerHistory.stats.totalSpent)}
+              </div>
+              <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest mt-0.5">Customer Ledger</p>
             </div>
-            <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest mt-0.5">Customer Ledger</p>
+            {settings?.enableDeleteCustomers && (
+              <button
+                type="button"
+                onClick={async () => {
+                  if (window.confirm(`Delete customer ${selectedCustomer.name} and clear customer profile?`)) {
+                    await deleteCustomer(selectedCustomer.id);
+                    setSelectedCustomerId(null);
+                  }
+                }}
+                className="px-3 py-1.5 text-rose-600 bg-rose-50 border border-rose-100 hover:bg-rose-100 rounded-xl transition-colors text-[9px] font-black uppercase tracking-widest flex items-center gap-1.5"
+                title="Delete Customer"
+              >
+                <Trash2 size={13} strokeWidth={2.5} /> Delete Customer
+              </button>
+            )}
           </div>
         </div>
 
@@ -826,9 +843,26 @@ const Customers: React.FC = () => {
                 {customer.name.charAt(0)}
               </div>
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <h4 className="text-xs font-black text-slate-900 uppercase tracking-tight truncate group-hover:text-highlight transition-colors line-clamp-1">{customer.name}</h4>
-                  {getVipBadge(customer.totalSpent)}
+                <div className="flex items-center justify-between gap-1">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <h4 className="text-xs font-black text-slate-900 uppercase tracking-tight truncate group-hover:text-highlight transition-colors line-clamp-1">{customer.name}</h4>
+                    {getVipBadge(customer.totalSpent)}
+                  </div>
+                  {settings?.enableDeleteCustomers && (
+                    <button
+                      type="button"
+                      onClick={async (e) => {
+                        e.stopPropagation();
+                        if (window.confirm(`Delete customer ${customer.name}?`)) {
+                          await deleteCustomer(customer.id);
+                        }
+                      }}
+                      className="p-1 text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-colors shrink-0"
+                      title="Delete Customer"
+                    >
+                      <Trash2 size={13} strokeWidth={2.5} />
+                    </button>
+                  )}
                 </div>
                 <div className="flex items-center gap-1.5 mt-1 text-[9px] font-bold text-slate-500 uppercase tracking-widest bg-slate-50 px-2 py-1 rounded-md group-hover:bg-highlight/5 transition-colors border border-slate-50 group-hover:border-highlight/20 w-fit">
                     <Phone size={10} strokeWidth={3} className="text-slate-300 group-hover:text-highlight" />
