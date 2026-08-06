@@ -818,7 +818,7 @@ export const CreateBillModal: React.FC<CreateBillModalProps> = ({ isOpen, onClos
                   {discountAmount > 0 && (
                     <div style={{ display: 'flex', justifyContent: 'space-between', color: '#F43F5E' }}>
                       <span>Discount</span>
-                      <span className="font-mono font-black">-{formatCurrency(discountAmount)}</span>
+                      <span className="font-mono font-black">-{formatCurrency(Math.abs(discountAmount))}</span>
                     </div>
                   )}
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: '#64748B' }}>
@@ -864,7 +864,7 @@ export const CreateBillModal: React.FC<CreateBillModalProps> = ({ isOpen, onClos
                             min={0}
                             className="w-16 px-1.5 py-0.5 border border-slate-200 rounded-lg text-[9px] font-bold font-mono text-emerald-600 outline-none focus:border-[#8B5CF6]/30 text-right"
                           />
-                          <span className="font-mono font-black text-emerald-500 text-[10px]">-{formatCurrency(creditApplied)}</span>
+                          <span className="font-mono font-black text-emerald-500 text-[10px]">-{formatCurrency(Math.abs(creditApplied))}</span>
                         </div>
                       )}
                     </div>

@@ -3,11 +3,14 @@ import { differenceInDays, parseISO, isAfter } from 'date-fns';
 import { Rental, RentalStatus } from '../types';
 
 export const formatCurrency = (amount: number) => {
-  return new Intl.NumberFormat('en-IN', {
+  const val = Number(amount) || 0;
+  const isNegative = val < 0;
+  const formatted = new Intl.NumberFormat('en-IN', {
     style: 'currency',
     currency: 'INR',
     maximumFractionDigits: 0,
-  }).format(amount);
+  }).format(Math.abs(val));
+  return isNegative ? `-${formatted}` : formatted;
 };
 
 export const calculateRentalTotal = (startDate: string, endDate: string, dailyRate: number, quantity: number) => {
