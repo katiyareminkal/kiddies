@@ -22,9 +22,9 @@ export default defineConfig(({ mode }) => {
           maximumFileSizeToCacheInBytes: 5242880 // 5 MB
         },
         manifest: {
-          name: 'Kiddies | Premium Kids Wear Management',
-          short_name: 'Kiddies',
-          description: 'Premium Kids Wear Management App',
+          name: 'kiddies SM',
+          short_name: 'kiddies SM',
+          description: 'kiddies SM - Premium Kids Wear Management App',
           theme_color: '#ffffff',
           background_color: '#ffffff',
           display: 'standalone',
