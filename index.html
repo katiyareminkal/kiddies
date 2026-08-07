@@ -7,7 +7,7 @@
     <meta name="theme-color" content="#ffffff">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <title>kiddies SM | Premium Kids Wear Management</title>
+    <title>Kiddies | Premium Kids Wear Management</title>
     <link rel="icon" type="image/png" href="/favicon.png">
     <link rel="shortcut icon" href="/favicon.ico">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -42,12 +42,12 @@
                         'brand-2xl': '1.25rem',
                     },
                     fontFamily: {
-                        sans: ['Plus Jakarta Sans', 'Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+                        sans: ['Plus Jakarta Sans', 'Inter', 'ui-sans-serif', 'system-ui', 'sanrif'],
                         mono: ['JetBrains Mono', 'monospace'],
                     },
                     boxShadow: {
-                        'nano': '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
-                        'banana': '0 4px 6px -1px rgba(250, 204, 21, 0.1), 0 2px 4px -1px rgba(250, 204, 21, 0.06)',
+                        'nano': '0 1px 2px 0 rgba(0, 0, 0, 0.03)',
+                        'banana': '0 2px 4px 0 rgba(250, 204, 21, 0.08)',
                     }
                 }
             }
@@ -55,14 +55,16 @@
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400..800;1,400..800&family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400..800;1,400..800&family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
     <style>
         :root {
             --nano-primary: #1E293B;
             --nano-banana: #FACC15;
             --nano-bg: #F8FAFC;
             --nano-surface: #FFFFFF;
-            --nano-line: #E2E8F0;
+            --nano-line: #F1F5F9;
         }
 
         html {
@@ -112,8 +114,8 @@
 
         /* Nano Scrollbar */
         ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
+            width: 5px;
+            height: 5px;
         }
 
         ::-webkit-scrollbar-track {
@@ -121,12 +123,12 @@
         }
 
         ::-webkit-scrollbar-thumb {
-            background: #CBD5E1;
-            border-radius: 10px;
+            background: #E2E8F0;
+            border-radius: 8px;
         }
 
         ::-webkit-scrollbar-thumb:hover {
-            background: #94A3B8;
+            background: #CBD5E1;
         }
 
         /* App Utilities */
@@ -144,14 +146,14 @@
 
         .nano-card {
             background: var(--nano-surface);
-            border: 1px solid var(--nano-line);
+            border: 1px solid #F1F5F9;
             border-radius: 0.75rem;
-            transition: all 0.2s ease;
+            transition: border-color 0.15s ease, background-color 0.15s ease;
         }
 
         .nano-card:hover {
             border-color: #CBD5E1;
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.03);
         }
 
         .banana-btn {
@@ -261,8 +263,9 @@
 
 <body class="bg-gray-50 text-gray-900">
     <div id="root">
-        <div style="height: 100vh; width: 100vw; display: flex; flex-direction: column; align-items: center; justify-content: center; background-color: #ffffff;">
-            <img src="/logo.png" alt="Kiddies Logo" style="height: 96px; width: 96px; border-radius: 1.25rem; object-fit: cover; box-shadow: 0 12px 30px rgba(14, 165, 233, 0.2);" />
+        <div
+            style="height: 100vh; width: 100vw; display: flex; align-items: center; justify-content: center; background-color: #ffffff;">
+            <img src="/logo.png" alt="Kiddies Logo" style="height: 96px; max-width: 85vw; object-fit: contain;" />
         </div>
     </div>
     <script type="module" src="/index.tsx"></script>

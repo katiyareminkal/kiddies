@@ -287,59 +287,62 @@ const Inventory: React.FC = () => {
 
         {/* Advanced Filters Panel */}
         {showFilters && (
-          <div className="bg-white border border-slate-100 rounded-2xl p-4 md:p-5 shadow-xl animate-nano space-y-4">
+          <div className="bg-white border border-slate-100 rounded-2xl p-4 md:p-5 shadow-sm animate-nano space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-1">
                 <label className="text-[8px] font-black uppercase text-slate-300 tracking-widest ml-1">Stock Availability</label>
                 <select
                   className="w-full bg-slate-50 border border-transparent focus:bg-white focus:border-[#8B5CF6]/30 rounded-lg p-2.5 text-[9px] font-black uppercase outline-none transition-all appearance-none"
-                  value={filterStockStatus}
-                  onChange={(e) => setFilterStockStatus(e.target.value as any)}
+                  value={stockFilter}
+                  onChange={(e) => setStockFilter(e.target.value as any)}
                 >
-                  <option value="ALL">Any Stock Level</option>
-                  <option value="LOW">Low Stock Alerts</option>
-                  <option value="OUT">Out of Stock</option>
+                  <option value="ALL">All Products</option>
+                  <option value="AVAILABLE">In Stock Only</option>
+                  <option value="LOW_STOCK">Low Stock Alert</option>
+                  <option value="OUT_OF_STOCK">Out of Stock</option>
                 </select>
               </div>
-              <div className="space-y-1">
-                <label className="text-[8px] font-black uppercase text-slate-300 tracking-widest ml-1">Brand Selection</label>
-                <select
-                  className="w-full bg-slate-50 border border-transparent focus:bg-white focus:border-[#8B5CF6]/30 rounded-lg p-2.5 text-[9px] font-black uppercase outline-none transition-all appearance-none"
-                  value={filterBrand}
-                  onChange={(e) => setFilterBrand(e.target.value)}
-                >
-                  <option value="ALL">All Brands</option>
-                  {brands.map(brand => (
-                    <option key={brand} value={brand}>{brand}</option>
-                  ))}
-                </select>
-              </div>
+
               <div className="space-y-1">
                 <label className="text-[8px] font-black uppercase text-slate-300 tracking-widest ml-1">Product Category</label>
                 <select
                   className="w-full bg-slate-50 border border-transparent focus:bg-white focus:border-[#8B5CF6]/30 rounded-lg p-2.5 text-[9px] font-black uppercase outline-none transition-all appearance-none"
-                  value={selectedCategory}
-                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  value={categoryFilter}
+                  onChange={(e) => setCategoryFilter(e.target.value)}
                 >
-                  <option value="All">All Categories</option>
-                  {CATEGORIES.map(cat => (
-                    <option key={cat} value={cat}>{cat}</option>
+                  {categories.map(c => (
+                    <option key={c} value={c}>{c === 'ALL' ? 'All Categories' : c}</option>
                   ))}
+                </select>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[8px] font-black uppercase text-slate-300 tracking-widest ml-1">Product Purpose</label>
+                <select
+                  className="w-full bg-slate-50 border border-transparent focus:bg-white focus:border-[#8B5CF6]/30 rounded-lg p-2.5 text-[9px] font-black uppercase outline-none transition-all appearance-none"
+                  value={purposeFilter}
+                  onChange={(e) => setPurposeFilter(e.target.value as any)}
+                >
+                  <option value="ALL">All Purposes</option>
+                  <option value="SALE">For Direct Sale</option>
+                  <option value="RENTAL">For Rental Leasing</option>
+                  <option value="HYBRID">Hybrid (Sale & Rental)</option>
                 </select>
               </div>
             </div>
           </div>
         )}
       </div>
-      {/* Product List */}
-      {viewLayout === 'GRID' ? (
-        <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-3 transition-all duration-300">
-          {groupedProducts.map(product => (
-            <div
-              key={product.id}
-              className="bg-white border border-slate-150 rounded-xl p-2.5 pb-3 flex flex-col gap-2 group cursor-pointer hover:border-[#8B5CF6]/30 hover:shadow-lg hover:shadow-[#8B5CF6]/5 transition-all duration-300 h-[230px] w-full overflow-hidden"
-              onClick={() => setViewProductDetails(product)}
-            >
+
+        {/* Product Grid / Table */}
+        {viewLayout === 'GRID' ? (
+          <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-3 transition-all duration-300">
+            {groupedProducts.map(product => (
+              <div
+                key={product.id}
+                className="bg-white border border-slate-100 rounded-xl p-2.5 pb-3 flex flex-col gap-2 group cursor-pointer hover:border-[#8B5CF6]/40 transition-all duration-200 h-[230px] w-full overflow-hidden"
+                onClick={() => setViewProductDetails(product)}
+              >
               {/* Product Image Container (Fixed Height) */}
               <div className="h-24 bg-slate-50/80 rounded-lg relative overflow-hidden transition-all duration-500 shadow-inner group/img flex items-center justify-center shrink-0">
                 {product.imageUrl ? (

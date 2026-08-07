@@ -102,18 +102,14 @@ const Login: React.FC = () => {
         <Cloud size={40} fill="currentColor" />
       </div>
 
-      {/* Background Shapes */}
-      <div className="absolute top-0 left-0 w-64 h-64 bg-[#FFE5E5] rounded-full -translate-x-1/2 -translate-y-1/2 blur-3xl opacity-50"></div>
-      <div className="absolute bottom-0 right-0 w-96 h-96 bg-[#E5F9FF] rounded-full translate-x-1/3 translate-y-1/3 blur-3xl opacity-50"></div>
-
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-[440px] bg-white rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.05)] p-10 relative z-10 border border-white/50"
+        className="w-full max-w-[420px] bg-white rounded-3xl shadow-md p-8 relative z-10 border border-slate-100"
       >
         {/* Logo Section */}
         <div className="flex flex-col items-center mb-8">
-          <img src="/logo.png" alt="Kiddies Logo" className="h-20 w-20 rounded-2xl object-cover mb-3 shadow-lg shadow-[#0EA5E9]/20" />
+          <img src="/logo.png" alt="Kiddies Logo" className="h-20 object-contain mb-2" />
           <div className="flex items-center gap-3 text-[#A084E8] text-[10px] font-bold uppercase tracking-[0.3em]">
             <div className="h-[1.5px] w-6 bg-[#A084E8]/30"></div>
             kids wear

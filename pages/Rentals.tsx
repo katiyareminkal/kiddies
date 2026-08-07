@@ -249,7 +249,7 @@ const Rentals: React.FC = () => {
 
         {/* Advanced Filters Panel */}
         {showFilters && (
-          <div className="bg-white border border-slate-100 rounded-2xl p-4 shadow-xl animate-nano space-y-4">
+          <div className="bg-white border border-slate-100 rounded-2xl p-4 shadow-sm animate-nano space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-3">
               <div className="space-y-1">
                 <label className="text-[8px] font-black uppercase text-slate-300 tracking-widest ml-1">From Date</label>

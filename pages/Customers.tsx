@@ -287,7 +287,7 @@ const Customers: React.FC = () => {
           </div>
 
           <div className="lg:col-span-8 grid grid-cols-1 sm:grid-cols-4 gap-4">
-            <div className="nano-card p-5 bg-slate-900 text-white relative overflow-hidden group shadow-lg">
+            <div className="nano-card p-5 bg-slate-900 text-white relative overflow-hidden group border border-slate-800">
               <div className="relative z-10">
                 <div className="flex items-center gap-2 mb-4 text-slate-400 group-hover:text-highlight transition-colors">
                   <TrendingUp size={14} strokeWidth={2.5} />
@@ -300,10 +300,9 @@ const Customers: React.FC = () => {
                   </div>
                 </div>
               </div>
-              <div className="absolute -right-8 -bottom-8 w-24 h-24 bg-slate-800/50 rounded-full blur-2xl group-hover:bg-highlight/10 transition-all"></div>
             </div>
 
-            <div className="nano-card p-5 bg-emerald-950 text-white relative overflow-hidden group shadow-lg flex flex-col justify-between">
+            <div className="nano-card p-5 bg-emerald-950 text-white relative overflow-hidden group border border-emerald-900 flex flex-col justify-between">
               <div className="relative z-10">
                 <div className="flex items-center gap-2 mb-4 text-emerald-300">
                   <Banknote size={14} strokeWidth={2.5} />
@@ -332,7 +331,6 @@ const Customers: React.FC = () => {
                   💡 How to use: Select this customer on the Sales page & toggle "Apply Store Credit" at checkout.
                 </p>
               </div>
-              <div className="absolute -right-8 -bottom-8 w-24 h-24 bg-emerald-900/50 rounded-full blur-2xl group-hover:bg-highlight/10 transition-all"></div>
             </div>
 
             <div className="nano-card p-5 group hover:bg-slate-900 transition-all duration-500">

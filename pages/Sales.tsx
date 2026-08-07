@@ -196,7 +196,7 @@ const Sales: React.FC = () => {
             </div>
 
             {showExportMenu && (
-              <div className="absolute right-0 mt-2 w-56 bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl border border-slate-100 p-2.5 z-50 animate-nano space-y-2.5">
+              <div className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-md border border-slate-100 p-2.5 z-50 animate-nano space-y-2.5">
                 {/* Format Selector: Modern Cards highlighting Formatted vs Raw */}
                 <div className="space-y-1">
                   <div className="text-[7.5px] font-black uppercase tracking-widest text-slate-400 px-1">Output Format</div>
@@ -659,7 +659,7 @@ const Sales: React.FC = () => {
             return (
               <div 
                 key={sale.id} 
-                className="bg-white rounded-2xl border border-slate-100/80 p-3.5 shadow-sm hover:shadow-lg hover:shadow-purple-500/5 hover:border-[#8B5CF6]/30 transition-all duration-200 cursor-pointer group flex flex-col justify-between min-h-[125px]"
+                className="bg-white rounded-2xl border border-slate-100 p-3.5 shadow-sm hover:border-[#8B5CF6]/40 transition-all duration-200 cursor-pointer group flex flex-col justify-between min-h-[125px]"
                 onClick={() => setSelectedSaleId(sale.id)}
               >
                 <div>
