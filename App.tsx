@@ -56,24 +56,19 @@ const canAccess = (user: any, moduleId: string) => {
 
 const Logo: React.FC<{ size?: 'sm' | 'md' | 'lg', onClick?: () => void }> = ({ size = 'md', onClick }) => {
   const sizeClasses = {
-    sm: { img: 'h-8 w-8 rounded-lg', title: 'text-sm', sub: 'text-[7.5px]' },
-    md: { img: 'h-10 w-10 rounded-xl', title: 'text-base', sub: 'text-[8.5px]' },
-    lg: { img: 'h-11 w-11 rounded-xl', title: 'text-lg', sub: 'text-[9px]' }
+    sm: { img: 'h-8 w-8 rounded-lg', text: 'text-xs' },
+    md: { img: 'h-10 w-10 rounded-xl', text: 'text-sm' },
+    lg: { img: 'h-11 w-11 rounded-xl', text: 'text-base' }
   };
 
   const current = sizeClasses[size];
 
   return (
-    <div className={`flex items-center gap-3 py-1 ${onClick ? 'cursor-pointer' : ''}`} onClick={onClick}>
-      <img src="/logo.png" alt="Kiddies Logo" className={`${current.img} object-cover shadow-sm shrink-0`} />
-      <div className="flex flex-col">
-        <span className={`font-display font-black text-slate-900 tracking-tight leading-none ${current.title}`}>
-          Kiddies
-        </span>
-        <span className={`font-black text-[#0EA5E9] uppercase tracking-wider mt-1 ${current.sub}`}>
-          Stock Management
-        </span>
-      </div>
+    <div className={`flex items-center gap-2.5 py-1 ${onClick ? 'cursor-pointer' : ''}`} onClick={onClick}>
+      <img src="/logo.png" alt="Logo" className={`${current.img} object-cover shadow-sm shrink-0`} />
+      <span className={`font-display font-black text-slate-900 tracking-tight leading-snug uppercase ${current.text}`}>
+        Stock Management
+      </span>
     </div>
   );
 };
