@@ -56,16 +56,20 @@ const canAccess = (user: any, moduleId: string) => {
 
 const Logo: React.FC<{ size?: 'sm' | 'md' | 'lg', onClick?: () => void }> = ({ size = 'md', onClick }) => {
   const sizeClasses = {
-    sm: { img: 'h-7 max-w-[120px] px-1' },
-    md: { img: 'h-10 max-w-[150px] px-2' },
-    lg: { img: 'h-14 max-w-[180px] px-3' }
+    sm: { img: 'h-8 w-8 rounded-lg' },
+    md: { img: 'h-10 w-10 rounded-xl' },
+    lg: { img: 'h-12 w-12 rounded-xl' }
   };
 
   const current = sizeClasses[size];
 
   return (
-    <div className={`flex items-center justify-center py-1 ${onClick ? 'cursor-pointer' : ''}`} onClick={onClick}>
-      <img src="/logo.png" alt="Kiddies Logo" className={`${current.img} object-contain`} />
+    <div className={`flex items-center gap-2.5 py-1 ${onClick ? 'cursor-pointer' : ''}`} onClick={onClick}>
+      <img src="/logo.png" alt="Kiddies Logo" className={`${current.img} object-cover shadow-sm shrink-0`} />
+      <div className="flex flex-col">
+        <span className="font-display font-black text-slate-900 tracking-tight leading-none text-lg">Kiddies</span>
+        <span className="text-[8px] font-black text-[#0EA5E9] uppercase tracking-[0.2em] mt-0.5">Kids Wear</span>
+      </div>
     </div>
   );
 };
