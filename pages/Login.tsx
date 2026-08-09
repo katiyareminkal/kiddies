@@ -98,7 +98,7 @@ const Login: React.FC = () => {
       >
         {/* Logo & Branding */}
         <div className="flex flex-col items-center mb-10">
-          <img src="/kiddies-wordmark.png" alt="Kiddies" className="h-14 w-auto object-contain mb-2" />
+          <img src="/kiddies-wordmark.png" alt="Kiddies" className="h-14 w-auto object-contain mb-2 drop-shadow-[0_6px_12px_rgba(0,0,0,0.08)]" />
           <span className="text-[9px] font-semibold text-slate-400 uppercase tracking-[0.25em]">Stock Manager</span>
         </div>
 

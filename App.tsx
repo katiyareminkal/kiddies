@@ -56,20 +56,18 @@ const canAccess = (user: any, moduleId: string) => {
 
 const Logo: React.FC<{ size?: 'sm' | 'md' | 'lg', onClick?: () => void }> = ({ size = 'md', onClick }) => {
   const sizeClasses = {
-    sm: { img: 'h-7 w-7 rounded-lg', title: 'text-xs', sub: 'text-[8px]' },
-    md: { img: 'h-8 w-8 rounded-lg', title: 'text-[13px]', sub: 'text-[8px]' },
-    lg: { img: 'h-9 w-9 rounded-xl', title: 'text-sm', sub: 'text-[9px]' }
+    sm: 'h-6 w-auto',
+    md: 'h-8 w-auto',
+    lg: 'h-9 w-auto'
   };
 
-  const current = sizeClasses[size];
-
   return (
-    <div className={`flex items-center gap-2.5 py-1 ${onClick ? 'cursor-pointer' : ''}`} onClick={onClick}>
-      <img src="/logo.png" alt="K Logo" className={`${current.img} object-contain shrink-0`} />
-      <div className="flex flex-col leading-tight">
-        <span className={`font-extrabold text-slate-900 tracking-tight ${current.title}`}>Kiddies</span>
-        <span className={`font-semibold text-slate-400 tracking-wide ${current.sub}`}>Stock Manager</span>
-      </div>
+    <div className={`flex items-center py-1 ${onClick ? 'cursor-pointer' : ''}`} onClick={onClick}>
+      <img
+        src="/logo.png"
+        alt="Kiddies Logo"
+        className={`${sizeClasses[size]} object-contain drop-shadow-[0_3px_6px_rgba(0,0,0,0.12)] transition-transform hover:scale-105 shrink-0`}
+      />
     </div>
   );
 };
@@ -516,26 +514,25 @@ const AppContent: React.FC = () => {
   if (showSplash) {
     return (
       <div style={{ height: '100vh', width: '100vw', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', backgroundColor: '#ffffff' }}>
-        <div style={{ position: 'relative', width: '120px', height: '120px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          {/* Spinning ring */}
-          <svg
-            style={{ position: 'absolute', inset: 0, animation: 'splash-spin 1.5s linear infinite' }}
-            width="120" height="120" viewBox="0 0 120 120"
-          >
-            <circle cx="60" cy="60" r="54" fill="none" stroke="#F1F5F9" strokeWidth="4" />
-            <circle cx="60" cy="60" r="54" fill="none" stroke="url(#splash-gradient)" strokeWidth="4" strokeLinecap="round" strokeDasharray="120 220" />
-            <defs>
-              <linearGradient id="splash-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#06B6D4" />
-                <stop offset="50%" stopColor="#8B5CF6" />
-                <stop offset="100%" stopColor="#EC4899" />
-              </linearGradient>
-            </defs>
-          </svg>
-          {/* K icon */}
-          <img src="/logo.png" alt="K Logo" style={{ height: '64px', width: '64px', objectFit: 'contain', position: 'relative', zIndex: 1 }} />
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px' }}>
+          <img
+            src="/logo.png"
+            alt="Kiddies Logo"
+            style={{ height: 'auto', width: '210px', maxWidth: '80vw', objectFit: 'contain', filter: 'drop-shadow(0 8px 16px rgba(0, 0, 0, 0.1))' }}
+          />
+          {/* Dotted loading animation */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '8px' }}>
+            <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#0EA5E9', animation: 'dotPulse 1.4s infinite ease-in-out both', animationDelay: '0s' }}></div>
+            <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#8B5CF6', animation: 'dotPulse 1.4s infinite ease-in-out both', animationDelay: '0.2s' }}></div>
+            <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#EC4899', animation: 'dotPulse 1.4s infinite ease-in-out both', animationDelay: '0.4s' }}></div>
+          </div>
         </div>
-        <style>{`@keyframes splash-spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
+        <style>{`
+          @keyframes dotPulse {
+            0%, 80%, 100% { transform: scale(0.6); opacity: 0.3; }
+            40% { transform: scale(1.3); opacity: 1; }
+          }
+        `}</style>
       </div>
     );
   }
