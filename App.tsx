@@ -515,17 +515,27 @@ const AppContent: React.FC = () => {
 
   if (showSplash) {
     return (
-      <div style={{ height: '100vh', width: '100vw', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#ffffff', padding: '40px 20px', boxSizing: 'border-box' }}>
-        <div style={{ flexGrow: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '16px' }}>
-          <img src="/logo.png" alt="K Logo" style={{ height: '80px', width: '80px', objectFit: 'contain' }} />
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '28px', fontWeight: 800, color: '#0F172A', letterSpacing: '-0.02em' }}>Kiddies</div>
-            <div style={{ fontSize: '11px', fontWeight: 600, color: '#94A3B8', letterSpacing: '0.15em', textTransform: 'uppercase', marginTop: '2px' }}>Stock Manager</div>
-          </div>
+      <div style={{ height: '100vh', width: '100vw', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', backgroundColor: '#ffffff' }}>
+        <div style={{ position: 'relative', width: '120px', height: '120px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          {/* Spinning ring */}
+          <svg
+            style={{ position: 'absolute', inset: 0, animation: 'splash-spin 1.5s linear infinite' }}
+            width="120" height="120" viewBox="0 0 120 120"
+          >
+            <circle cx="60" cy="60" r="54" fill="none" stroke="#F1F5F9" strokeWidth="4" />
+            <circle cx="60" cy="60" r="54" fill="none" stroke="url(#splash-gradient)" strokeWidth="4" strokeLinecap="round" strokeDasharray="120 220" />
+            <defs>
+              <linearGradient id="splash-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#06B6D4" />
+                <stop offset="50%" stopColor="#8B5CF6" />
+                <stop offset="100%" stopColor="#EC4899" />
+              </linearGradient>
+            </defs>
+          </svg>
+          {/* K icon */}
+          <img src="/logo.png" alt="K Logo" style={{ height: '64px', width: '64px', objectFit: 'contain', position: 'relative', zIndex: 1 }} />
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
-          <div className="splash-loading-line"></div>
-        </div>
+        <style>{`@keyframes splash-spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
       </div>
     );
   }

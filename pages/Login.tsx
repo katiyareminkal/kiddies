@@ -98,9 +98,8 @@ const Login: React.FC = () => {
       >
         {/* Logo & Branding */}
         <div className="flex flex-col items-center mb-10">
-          <img src="/logo.png" alt="K Logo" className="h-16 w-16 object-contain mb-3" />
-          <span className="text-xl font-extrabold text-slate-900 tracking-tight">Kiddies</span>
-          <span className="text-[9px] font-semibold text-slate-400 uppercase tracking-[0.2em] mt-0.5">Stock Manager</span>
+          <img src="/kiddies-wordmark.png" alt="Kiddies" className="h-14 w-auto object-contain mb-2" />
+          <span className="text-[9px] font-semibold text-slate-400 uppercase tracking-[0.25em]">Stock Manager</span>
         </div>
 
         {/* Card */}
