@@ -1002,8 +1002,8 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
                 <div
                   key={event.id}
                   className={`rounded-2xl border transition-all overflow-hidden ${isExpanded
-                      ? 'bg-white border-purple-200 shadow-md ring-1 ring-purple-100'
-                      : 'bg-white/90 hover:bg-white border-slate-100 hover:border-purple-200'
+                    ? 'bg-white border-purple-200 shadow-md ring-1 ring-purple-100'
+                    : 'bg-white/90 hover:bg-white border-slate-100 hover:border-purple-200'
                     }`}
                 >
                   <button
