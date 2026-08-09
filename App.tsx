@@ -483,6 +483,12 @@ const ResetPasswordScreen: React.FC = () => {
 const AppContent: React.FC = () => {
   const { currentUser, isAuthReady, isPasswordRecovery } = useApp();
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [showSplash, setShowSplash] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setShowSplash(false), 3000);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     const handleHashChange = () => {
@@ -505,6 +511,20 @@ const AppContent: React.FC = () => {
       window.history.pushState(null, '', `#${activeTab}`);
     }
   }, [activeTab]);
+
+  if (showSplash) {
+    return (
+      <div style={{ height: '100vh', width: '100vw', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#ffffff', padding: '40px 20px', boxSizing: 'border-box' }}>
+        <div style={{ flexGrow: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <img src="/splash-logo.png" alt="Kiddies Logo" style={{ height: 'auto', width: '220px', objectFit: 'contain' }} />
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
+          <div className="splash-loading-line"></div>
+          <span style={{ fontSize: '10px', fontWeight: 800, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.25em' }}>Stock Management</span>
+        </div>
+      </div>
+    );
+  }
 
   if (isPasswordRecovery) {
     return <ResetPasswordScreen />;
