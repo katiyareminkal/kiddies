@@ -343,19 +343,19 @@ const BottomNav: React.FC<{ activeTab: string; onTabChange: (id: string) => void
   ];
 
   return (
-    <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-100 flex justify-around items-center h-16 z-40 pb-safe shadow-sm">
+    <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-lg border-t border-slate-100 flex justify-around items-center h-16 z-40 pb-[env(safe-area-inset-bottom,0px)] shadow-[0_-2px_10px_rgba(0,0,0,0.03)]">
       {bottomNavItems.map(item => {
         const isActive = activeTab === item.id;
         return (
           <button
             key={item.id}
             onClick={() => onTabChange(item.id)}
-            className={`flex flex-col items-center justify-center w-full h-full space-y-1 transition-all ${isActive ? 'text-slate-900' : 'text-slate-400 hover:text-slate-600'}`}
+            className={`flex flex-col items-center justify-center w-full h-full transition-all active:scale-95 ${isActive ? 'text-violet-600' : 'text-slate-400 hover:text-slate-600'}`}
           >
-            <div className={`p-1 rounded-xl transition-all ${isActive ? 'bg-highlight' : ''}`}>
-              {React.cloneElement(item.icon as React.ReactElement<any>, { size: 18, className: isActive ? 'stroke-[3px]' : '' })}
+            <div className={`p-1.5 rounded-xl transition-all ${isActive ? 'bg-violet-50 text-violet-600' : ''}`}>
+              {React.cloneElement(item.icon as React.ReactElement<any>, { size: 19, strokeWidth: isActive ? 2.3 : 1.7 })}
             </div>
-            <span className={`text-[8px] uppercase tracking-[0.2em] ${isActive ? 'font-black' : 'font-bold'}`}>{item.label}</span>
+            <span className={`text-[9px] tracking-wide ${isActive ? 'font-bold text-violet-600' : 'font-medium text-slate-400'}`}>{item.label}</span>
           </button>
         );
       })}
