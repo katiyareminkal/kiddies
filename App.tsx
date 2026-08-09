@@ -56,17 +56,17 @@ const canAccess = (user: any, moduleId: string) => {
 
 const Logo: React.FC<{ size?: 'sm' | 'md' | 'lg', onClick?: () => void }> = ({ size = 'md', onClick }) => {
   const sizeClasses = {
-    sm: 'h-6 w-auto',
-    md: 'h-8 w-auto',
-    lg: 'h-9 w-auto'
+    sm: 'h-7',
+    md: 'h-8.5',
+    lg: 'h-10'
   };
 
   return (
-    <div className={`flex items-center py-1 ${onClick ? 'cursor-pointer' : ''}`} onClick={onClick}>
+    <div className={`flex items-center ${onClick ? 'cursor-pointer' : ''}`} onClick={onClick}>
       <img
         src="/logo.png"
         alt="Kiddies Logo"
-        className={`${sizeClasses[size]} object-contain drop-shadow-[0_3px_6px_rgba(0,0,0,0.12)] transition-transform hover:scale-105 shrink-0`}
+        className={`${sizeClasses[size]} w-auto object-contain drop-shadow-[0_2px_5px_rgba(0,0,0,0.08)] transition-transform active:scale-95 shrink-0`}
       />
     </div>
   );
@@ -207,8 +207,8 @@ const TopBar: React.FC<{ activeTab: string; onTabChange: (id: string) => void }>
     <header className="h-16 bg-white border-b border-slate-100 flex items-center justify-between px-4 md:px-6 sticky top-0 z-30">
       <div className="flex items-center gap-4 flex-1">
         {!isSearchOpen && (
-          <div className="md:hidden">
-            <Logo size="sm" onClick={() => onTabChange('dashboard')} />
+          <div className="md:hidden flex items-center pr-1">
+            <Logo size="md" onClick={() => onTabChange('dashboard')} />
           </div>
         )}
 
