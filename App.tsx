@@ -56,19 +56,20 @@ const canAccess = (user: any, moduleId: string) => {
 
 const Logo: React.FC<{ size?: 'sm' | 'md' | 'lg', onClick?: () => void }> = ({ size = 'md', onClick }) => {
   const sizeClasses = {
-    sm: { img: 'h-8 w-8 rounded-lg', text: 'text-xs' },
-    md: { img: 'h-10 w-10 rounded-xl', text: 'text-sm' },
-    lg: { img: 'h-11 w-11 rounded-xl', text: 'text-base' }
+    sm: { img: 'h-9 w-9 rounded-xl', title: 'text-sm', sub: 'text-[9px]' },
+    md: { img: 'h-10 w-10 rounded-xl', title: 'text-[15px]', sub: 'text-[10px]' },
+    lg: { img: 'h-11 w-11 rounded-xl', title: 'text-base', sub: 'text-[10px]' }
   };
 
   const current = sizeClasses[size];
 
   return (
     <div className={`flex items-center gap-2.5 py-1 ${onClick ? 'cursor-pointer' : ''}`} onClick={onClick}>
-      <img src="/logo.png" alt="Logo" className={`${current.img} object-cover shadow-sm shrink-0`} />
-      <span className={`font-display font-black text-slate-900 tracking-tight leading-snug uppercase ${current.text}`}>
-        Stock Management
-      </span>
+      <img src="/logo.png" alt="K Logo" className={`${current.img} object-contain shrink-0`} />
+      <div className="flex flex-col leading-tight">
+        <span className={`font-extrabold text-slate-900 tracking-tight ${current.title}`}>Kiddies</span>
+        <span className={`font-semibold text-slate-400 tracking-wide ${current.sub}`}>Stock Manager</span>
+      </div>
     </div>
   );
 };
@@ -515,12 +516,15 @@ const AppContent: React.FC = () => {
   if (showSplash) {
     return (
       <div style={{ height: '100vh', width: '100vw', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#ffffff', padding: '40px 20px', boxSizing: 'border-box' }}>
-        <div style={{ flexGrow: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <img src="/splash-logo.png" alt="Kiddies Logo" style={{ height: 'auto', width: '220px', objectFit: 'contain' }} />
+        <div style={{ flexGrow: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '16px' }}>
+          <img src="/logo.png" alt="K Logo" style={{ height: '80px', width: '80px', objectFit: 'contain' }} />
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: '28px', fontWeight: 800, color: '#0F172A', letterSpacing: '-0.02em' }}>Kiddies</div>
+            <div style={{ fontSize: '11px', fontWeight: 600, color: '#94A3B8', letterSpacing: '0.15em', textTransform: 'uppercase', marginTop: '2px' }}>Stock Manager</div>
+          </div>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
           <div className="splash-loading-line"></div>
-          <span style={{ fontSize: '10px', fontWeight: 800, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.25em' }}>Stock Management</span>
         </div>
       </div>
     );
