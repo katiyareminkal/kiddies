@@ -108,8 +108,8 @@ const Login: React.FC = () => {
         className="w-full max-w-[420px] bg-white rounded-3xl shadow-md p-8 relative z-10 border border-slate-100"
       >
         {/* Logo Section */}
-        <div className="flex flex-col items-center mb-6">
-          <img src="/logo.png" alt="Logo" className="h-20 w-20 rounded-2xl object-cover mb-3 shadow-md" />
+        <div className="flex flex-col items-center mb-8">
+          <img src="/logo.png" alt="Kiddies Logo" className="h-16 w-auto object-contain mb-3" />
           <h1 className="text-lg font-black text-slate-900 uppercase tracking-wider">Stock Management</h1>
         </div>
 
