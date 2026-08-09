@@ -56,9 +56,9 @@ const canAccess = (user: any, moduleId: string) => {
 
 const Logo: React.FC<{ size?: 'sm' | 'md' | 'lg', onClick?: () => void }> = ({ size = 'md', onClick }) => {
   const sizeClasses = {
-    sm: { img: 'h-9 w-9 rounded-xl', title: 'text-sm', sub: 'text-[9px]' },
-    md: { img: 'h-10 w-10 rounded-xl', title: 'text-[15px]', sub: 'text-[10px]' },
-    lg: { img: 'h-11 w-11 rounded-xl', title: 'text-base', sub: 'text-[10px]' }
+    sm: { img: 'h-7 w-7 rounded-lg', title: 'text-sm', sub: 'text-[9px]' },
+    md: { img: 'h-8 w-8 rounded-lg', title: 'text-[15px]', sub: 'text-[10px]' },
+    lg: { img: 'h-9 w-9 rounded-xl', title: 'text-base', sub: 'text-[10px]' }
   };
 
   const current = sizeClasses[size];
