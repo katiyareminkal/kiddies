@@ -56,9 +56,9 @@ const canAccess = (user: any, moduleId: string) => {
 
 const Logo: React.FC<{ size?: 'sm' | 'md' | 'lg', onClick?: () => void }> = ({ size = 'md', onClick }) => {
   const sizeClasses = {
-    sm: 'h-7',
-    md: 'h-8.5',
-    lg: 'h-10'
+    sm: 'h-5',
+    md: 'h-6',
+    lg: 'h-7.5'
   };
 
   return (
@@ -66,7 +66,7 @@ const Logo: React.FC<{ size?: 'sm' | 'md' | 'lg', onClick?: () => void }> = ({ s
       <img
         src="/logo.png"
         alt="Kiddies Logo"
-        className={`${sizeClasses[size]} w-auto object-contain drop-shadow-[0_2px_5px_rgba(0,0,0,0.08)] transition-transform active:scale-95 shrink-0`}
+        className={`${sizeClasses[size]} w-auto object-contain drop-shadow-[0_2px_4px_rgba(0,0,0,0.08)] transition-transform active:scale-95 shrink-0`}
       />
     </div>
   );
@@ -518,7 +518,7 @@ const AppContent: React.FC = () => {
           <img
             src="/logo.png"
             alt="Kiddies Logo"
-            style={{ height: 'auto', width: '210px', maxWidth: '80vw', objectFit: 'contain', filter: 'drop-shadow(0 8px 16px rgba(0, 0, 0, 0.1))' }}
+            style={{ height: 'auto', width: '150px', maxWidth: '60vw', objectFit: 'contain', filter: 'drop-shadow(0 6px 12px rgba(0, 0, 0, 0.08))' }}
           />
           {/* Dotted loading animation */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '8px' }}>
