@@ -343,19 +343,19 @@ const BottomNav: React.FC<{ activeTab: string; onTabChange: (id: string) => void
   ];
 
   return (
-    <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-100 flex justify-around items-center h-16 z-40 pb-safe shadow-sm">
+    <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-100 flex justify-around items-center h-16 z-40 pb-safe shadow-[0_-4px_16px_rgba(0,0,0,0.03)]">
       {bottomNavItems.map(item => {
         const isActive = activeTab === item.id;
         return (
           <button
             key={item.id}
             onClick={() => onTabChange(item.id)}
-            className={`flex flex-col items-center justify-center w-full h-full space-y-1 transition-all ${isActive ? 'text-slate-900' : 'text-slate-400 hover:text-slate-600'}`}
+            className={`flex flex-col items-center justify-center w-full h-full py-1 transition-all active:scale-95 ${isActive ? 'text-violet-600' : 'text-slate-400 hover:text-slate-600'}`}
           >
-            <div className={`p-1 rounded-xl transition-all ${isActive ? 'bg-highlight' : ''}`}>
-              {React.cloneElement(item.icon as React.ReactElement<any>, { size: 18, className: isActive ? 'stroke-[3px]' : '' })}
+            <div className={`p-1.5 rounded-xl transition-all ${isActive ? 'bg-violet-50 text-violet-600' : ''}`}>
+              {React.cloneElement(item.icon as React.ReactElement<any>, { size: 18, strokeWidth: isActive ? 2.5 : 1.8 })}
             </div>
-            <span className={`text-[8px] uppercase tracking-[0.2em] ${isActive ? 'font-black' : 'font-bold'}`}>{item.label}</span>
+            <span className={`text-[9px] uppercase tracking-wider ${isActive ? 'font-bold text-violet-600' : 'font-medium text-slate-400'}`}>{item.label}</span>
           </button>
         );
       })}
@@ -398,82 +398,76 @@ const ResetPasswordScreen: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#FFF9F0] flex items-center justify-center p-6 relative overflow-hidden font-sans">
-      <div className="absolute top-10 left-10 text-[#FFB7B7] opacity-40 animate-bounce" style={{ animationDuration: '3s' }}>
-        <Heart size={48} fill="currentColor" />
-      </div>
-      <div className="absolute top-20 right-20 text-[#FFD93D] opacity-60 animate-pulse">
-        <Sun size={80} strokeWidth={1.5} />
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-5 relative overflow-hidden font-sans">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-[500px] h-[500px] rounded-full bg-gradient-to-br from-violet-100/60 to-sky-100/40 blur-3xl" />
+        <div className="absolute -bottom-40 -left-40 w-[400px] h-[400px] rounded-full bg-gradient-to-tr from-rose-100/40 to-amber-100/30 blur-3xl" />
       </div>
 
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-[440px] bg-white rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.05)] p-10 relative z-10 border border-white/50"
+        transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
+        className="w-full max-w-[400px] relative z-10"
       >
-        <div className="flex flex-col items-center mb-8">
-          <div className="flex text-5xl font-black tracking-tight mb-1">
-            <span className="text-[#FF7B7B]">k</span>
-            <span className="text-[#FFD93D]">i</span>
-            <span className="text-[#FF8AAE]">d</span>
-            <span className="text-[#A084E8]">d</span>
-            <span className="text-[#6AD4DD]">i</span>
-            <span className="text-[#F99417]">e</span>
-            <span className="text-[#F99417]">s</span>
-          </div>
+        <div className="flex flex-col items-center mb-10">
+          <img src="/logo.png" alt="Kiddies Logo" className="h-14 w-auto object-contain mb-2 drop-shadow-[0_6px_12px_rgba(0,0,0,0.08)]" />
+          <span className="text-[9px] font-semibold text-slate-400 uppercase tracking-[0.25em]">Stock Manager</span>
         </div>
 
-        <div className="text-center mb-8">
-          <h2 className="text-2xl font-bold text-[#2D3648] mb-1">Reset Password</h2>
-          <p className="text-[#718096] text-sm">Enter your new secure password below</p>
-        </div>
-
-        {error && (
-          <div className="mb-6 bg-red-50 text-red-500 p-4 rounded-2xl text-xs font-bold text-center border border-red-100 animate-nano">
-            {error}
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-7">
+          <div className="mb-7">
+            <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">Reset Password</h2>
+            <p className="text-slate-400 text-xs mt-1 font-medium">Enter your new secure password below</p>
           </div>
-        )}
 
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <div className="relative">
-            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-[#A0AEC0]" size={20} />
-            <input
-              type={showPassword ? "text" : "password"}
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full pl-12 pr-12 py-4 bg-white border border-[#E2E8F0] rounded-2xl outline-none focus:border-[#A084E8] transition-all text-[#2D3648] placeholder-[#A0AEC0]"
-              placeholder="New Password"
-            />
+          {error && (
+            <div className="mb-5 bg-red-50 text-red-600 px-4 py-3 rounded-xl text-xs font-semibold border border-red-100 animate-nano">
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="relative">
+              <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-300" size={17} />
+              <input
+                type={showPassword ? "text" : "password"}
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full pl-11 pr-11 py-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-violet-400 focus:bg-white transition-all text-sm text-slate-800 placeholder-slate-400 font-medium"
+                placeholder="New Password"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500 transition-colors"
+              >
+                {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
+              </button>
+            </div>
+
+            <div className="relative">
+              <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-300" size={17} />
+              <input
+                type={showPassword ? "text" : "password"}
+                required
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="w-full pl-11 pr-11 py-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-violet-400 focus:bg-white transition-all text-sm text-slate-800 placeholder-slate-400 font-medium"
+                placeholder="Confirm New Password"
+              />
+            </div>
+
             <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-[#A0AEC0] hover:text-[#718096]"
+              type="submit"
+              disabled={isUpdating}
+              className="w-full py-3.5 bg-slate-900 text-white text-sm font-bold rounded-xl hover:bg-slate-800 transition-all active:scale-[0.98] disabled:opacity-60 flex items-center justify-center gap-2 mt-2"
             >
-              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              {isUpdating ? 'Updating...' : 'Update Password'}
             </button>
-          </div>
-
-          <div className="relative">
-            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-[#A0AEC0]" size={20} />
-            <input
-              type={showPassword ? "text" : "password"}
-              required
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full pl-12 pr-12 py-4 bg-white border border-[#E2E8F0] rounded-2xl outline-none focus:border-[#A084E8] transition-all text-[#2D3648] placeholder-[#A0AEC0]"
-              placeholder="Confirm New Password"
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={isUpdating}
-            className="w-full py-4 bg-[#8B5CF6] text-white font-bold rounded-2xl shadow-[0_10px_20px_rgba(139,92,246,0.3)] hover:bg-[#7C3AED] transition-all active:scale-[0.98] disabled:opacity-50"
-          >
-            {isUpdating ? 'Updating...' : 'Update Password'}
-          </button>
-        </form>
+          </form>
+        </div>
       </motion.div>
     </div>
   );
