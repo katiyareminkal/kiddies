@@ -981,74 +981,74 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
         </div>
 
         {/* 4. Upcoming Events & Stocking Strategy Guide (Side Panel) */}
-        <div className="lg:col-span-4 bg-[#FAF5FF] p-4 md:p-5 rounded-2xl border border-purple-100/60 shadow-sm flex flex-col">
+        <div className="lg:col-span-4 bg-white p-4 md:p-6 rounded-2xl border border-slate-100/90 shadow-[0_2px_8px_rgba(0,0,0,0.03)] flex flex-col">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
-              <PartyPopper size={16} className="text-[#8B5CF6]" />
-              <h3 className="text-sm font-extrabold text-slate-900 tracking-tight">Upcoming Events</h3>
+              <PartyPopper size={16} className="text-violet-500" />
+              <h3 className="text-base font-bold text-slate-900 tracking-tight">Upcoming Events</h3>
             </div>
-            <span className="text-[8px] font-black text-purple-600 bg-purple-100/80 px-2 py-0.5 rounded-full uppercase tracking-wider">
+            <span className="text-xs font-semibold text-violet-700 bg-violet-50 px-2.5 py-0.5 rounded-lg border border-violet-100/60">
               {UPCOMING_EVENTS.length} Events
             </span>
           </div>
-          <p className="text-[9px] text-slate-400 font-semibold uppercase tracking-wider mb-3">
+          <p className="text-[10px] text-slate-400 font-medium tracking-wide mb-4">
             Click event to view stocking strategy
           </p>
 
-          <div className="space-y-2.5 overflow-y-auto max-h-[350px] pr-1 hide-scrollbar">
+          <div className="space-y-2 overflow-y-auto max-h-[350px] pr-1 hide-scrollbar">
             {UPCOMING_EVENTS.map((event, idx) => {
               const isExpanded = expandedEventIdx === idx;
               return (
                 <div
                   key={event.id}
-                  className={`rounded-2xl border transition-all overflow-hidden ${isExpanded
-                    ? 'bg-white border-purple-200 shadow-md ring-1 ring-purple-100'
-                    : 'bg-white/90 hover:bg-white border-slate-100 hover:border-purple-200'
+                  className={`rounded-xl border transition-all overflow-hidden ${isExpanded
+                    ? 'bg-slate-50/50 border-slate-200'
+                    : 'bg-white hover:bg-slate-50 border-slate-100 hover:border-slate-200'
                     }`}
                 >
                   <button
                     type="button"
                     onClick={() => setExpandedEventIdx(isExpanded ? null : idx)}
-                    className="w-full p-3 flex items-center justify-between text-left cursor-pointer hover:bg-purple-50/30 transition-colors"
+                    className="w-full p-3.5 flex items-center justify-between text-left cursor-pointer transition-colors"
                   >
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-black text-slate-900">{event.title}</span>
+                      <span className="text-xs font-bold text-slate-900">{event.title}</span>
                     </div>
                     <div className="flex items-center gap-1.5">
-                      <span className={`text-[8px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider shrink-0 ${event.badgeClass}`}>
+                      <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-md ${event.badgeClass}`}>
                         {event.date}
                       </span>
-                      <div className="p-1 rounded-lg text-slate-400 hover:text-purple-600 transition-all">
+                      <div className="text-slate-400 hover:text-slate-600 transition-all">
                         <ChevronDown
                           size={14}
-                          strokeWidth={2.5}
-                          className={`transition-transform duration-200 ${isExpanded ? 'rotate-180 text-purple-600' : ''}`}
+                          strokeWidth={2}
+                          className={`transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
                         />
                       </div>
                     </div>
                   </button>
 
                   {isExpanded && (
-                    <div className="px-3.5 pb-4 pt-1 border-t border-slate-100 space-y-3 animate-nano">
+                    <div className="px-4 pb-4 pt-1 space-y-3 animate-nano">
                       {/* Date & Remaining */}
-                      <div className="space-y-1 text-[10px] font-bold text-slate-600 bg-slate-50/80 p-2.5 rounded-xl border border-slate-100">
+                      <div className="space-y-1.5 text-[11px] font-medium text-slate-600 bg-white p-3 rounded-xl border border-slate-100">
                         <p className="flex items-center gap-1.5">
-                          📅 <span>Date:</span> <strong className="text-slate-900 font-extrabold">{event.date}</strong>
+                          📅 <span>Date:</span> <strong className="text-slate-900 font-bold">{event.date}</strong>
                         </p>
                         <p className="flex items-center gap-1.5">
-                          ⏳ <span>Remaining:</span> <strong className="text-purple-700 font-extrabold">{calcEventRemaining(event.date)}</strong>
+                          ⏳ <span>Remaining:</span> <strong className="text-violet-600 font-bold">{calcEventRemaining(event.date)}</strong>
                         </p>
                       </div>
 
                       {/* Suggested Stock List */}
                       <div>
-                        <p className="text-[10px] font-black text-slate-900 flex items-center gap-1 mb-1.5">
+                        <p className="text-[11px] font-semibold text-slate-900 flex items-center gap-1 mb-2">
                           🔥 <span>Suggested Stock</span>
                         </p>
-                        <div className="space-y-1 pl-0.5">
+                        <div className="space-y-1.5 pl-0.5">
                           {event.suggestedStock.map((item, sIdx) => (
-                            <p key={sIdx} className="text-[9.5px] font-bold text-slate-700 flex items-center gap-1.5">
-                              <span className="text-emerald-500 font-black">✔</span> {item}
+                            <p key={sIdx} className="text-[11px] text-slate-700 flex items-center gap-1.5">
+                              <span className="text-emerald-500 font-bold">✓</span> {item}
                             </p>
                           ))}
                         </div>
@@ -1064,19 +1064,19 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* 5. Rental Management Section */}
-        <div className="bg-white p-4 md:p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-sm font-bold text-slate-900 tracking-tight">Active Rentals Tracker</h3>
+        <div className="bg-white p-4 md:p-6 rounded-2xl border border-slate-100/90 shadow-[0_2px_8px_rgba(0,0,0,0.03)] flex flex-col">
+          <div className="flex justify-between items-center mb-5">
+            <h3 className="text-base font-bold text-slate-900 tracking-tight">Active Rentals Tracker</h3>
           </div>
 
           <div className="overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0">
             <table className="w-full text-left">
               <thead>
-                <tr className="border-b border-slate-50">
-                  <th className="pb-3 text-[9px] font-bold text-slate-400 uppercase tracking-widest min-w-[100px]">Customer</th>
-                  <th className="pb-3 text-[9px] font-bold text-slate-400 uppercase tracking-widest min-w-[120px]">Item</th>
-                  <th className="pb-3 text-[9px] font-bold text-slate-400 uppercase tracking-widest">Return Date</th>
-                  <th className="pb-3 text-[9px] font-bold text-slate-400 uppercase tracking-widest text-right">Status</th>
+                <tr className="border-b border-slate-100">
+                  <th className="pb-3 text-[10px] font-semibold text-slate-400 uppercase tracking-wider min-w-[100px]">Customer</th>
+                  <th className="pb-3 text-[10px] font-semibold text-slate-400 uppercase tracking-wider min-w-[120px]">Item</th>
+                  <th className="pb-3 text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Return Date</th>
+                  <th className="pb-3 text-[10px] font-semibold text-slate-400 uppercase tracking-wider text-right">Status</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
@@ -1087,16 +1087,16 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
                   const prod = products.find(p => p.id === rental.productId)?.name || 'Unknown Item';
 
                   return (
-                    <tr key={rental.id} className="group">
-                      <td className="py-3 text-[10px] font-bold text-slate-900 truncate max-w-[100px]">{cust}</td>
-                      <td className="py-3 text-[10px] font-semibold text-slate-600 truncate max-w-[120px]">{prod}</td>
-                      <td className="py-3 text-[10px] font-bold text-slate-900">
+                    <tr key={rental.id} className="group hover:bg-slate-50/50 transition-colors">
+                      <td className="py-3 text-xs font-semibold text-slate-900 truncate max-w-[100px]">{cust}</td>
+                      <td className="py-3 text-xs text-slate-600 truncate max-w-[120px]">{prod}</td>
+                      <td className="py-3 text-xs font-medium text-slate-900">
                         {isDue ? 'Today' : format(parseISO(rental.expectedReturnDate), 'MMM dd')}
                       </td>
                       <td className="py-3 text-right">
-                        <span className={`text-[8px] font-black px-2 py-1 rounded-md uppercase tracking-widest ${isOverdue ? 'bg-rose-100 text-rose-700' :
-                          isDue ? 'bg-amber-100 text-amber-700' :
-                            'bg-emerald-100 text-emerald-700'
+                        <span className={`text-[10px] font-semibold px-2.5 py-1 rounded-md ${isOverdue ? 'bg-rose-50 text-rose-600 border border-rose-100/60' :
+                          isDue ? 'bg-amber-50 text-amber-700 border border-amber-100/60' :
+                            'bg-emerald-50 text-emerald-700 border border-emerald-100/60'
                           }`}>
                           {isOverdue ? 'Overdue' : isDue ? 'Due Today' : 'Active'}
                         </span>
@@ -1104,7 +1104,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
                     </tr>
                   )
                 }) : (
-                  <tr><td colSpan={4} className="py-6 text-center text-[10px] text-slate-400 font-bold uppercase tracking-widest">No active rentals right now</td></tr>
+                  <tr><td colSpan={4} className="py-6 text-center text-[11px] text-slate-400 font-medium">No active rentals right now</td></tr>
                 )}
               </tbody>
             </table>
@@ -1115,25 +1115,25 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
         <div className="flex flex-col gap-6">
 
           {/* Inventory Alerts */}
-          <div className="bg-white p-4 md:p-6 rounded-2xl border border-rose-100 shadow-sm">
+          <div className="bg-white p-4 md:p-6 rounded-2xl border border-rose-100/80 shadow-[0_2px_8px_rgba(0,0,0,0.03)] bg-rose-50/10">
             <div className="flex items-center gap-2 mb-4">
-              <AlertTriangle size={16} className="text-rose-500" />
-              <h3 className="text-sm font-bold text-rose-900 tracking-tight">Inventory Alerts</h3>
+              <AlertTriangle size={18} className="text-rose-500" />
+              <h3 className="text-base font-bold text-slate-900 tracking-tight">Inventory Alerts</h3>
             </div>
             {outOfStockProducts.length === 0 && lowStockProducts.length === 0 ? (
-              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">All stock levels look good.</p>
+              <p className="text-[11px] text-slate-500 font-medium">All stock levels look good.</p>
             ) : (
               <div className="space-y-3">
                 {outOfStockProducts.slice(0, 2).map(p => (
-                  <div key={p.id} className="flex justify-between border-b border-rose-50 pb-2">
-                    <span className="text-[10px] font-bold text-slate-700 truncate">{p.name} <span className="text-rose-500">(Sizes: {p.sizes.join(', ')})</span></span>
-                    <span className="text-[9px] font-black bg-rose-100 text-rose-700 px-2 py-0.5 rounded uppercase flex-shrink-0">Out of Stock</span>
+                  <div key={p.id} className="flex justify-between items-center border-b border-rose-50 pb-2.5">
+                    <span className="text-[11px] font-semibold text-slate-700 truncate pr-2">{p.name} <span className="text-rose-400 font-normal">(Sizes: {p.sizes.join(', ')})</span></span>
+                    <span className="text-[10px] font-semibold bg-rose-100 text-rose-700 px-2 py-0.5 rounded flex-shrink-0">Out of Stock</span>
                   </div>
                 ))}
                 {lowStockProducts.slice(0, 3).map(p => (
-                  <div key={p.id} className="flex justify-between border-b border-rose-50 pb-2">
-                    <span className="text-[10px] font-bold text-slate-700 truncate">{p.name}</span>
-                    <span className="text-[9px] font-black bg-amber-100 text-amber-700 px-2 py-0.5 rounded uppercase flex-shrink-0">{p.saleStock + p.rentalStock} Left</span>
+                  <div key={p.id} className="flex justify-between items-center border-b border-amber-50 pb-2.5">
+                    <span className="text-[11px] font-semibold text-slate-700 truncate pr-2">{p.name}</span>
+                    <span className="text-[10px] font-semibold bg-amber-100/80 text-amber-700 px-2 py-0.5 rounded flex-shrink-0">{p.saleStock + p.rentalStock} Left</span>
                   </div>
                 ))}
               </div>
@@ -1141,21 +1141,21 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
           </div>
 
           {/* Recent Activity */}
-          <div className="bg-white p-4 justify-between h-full rounded-2xl border border-slate-100 shadow-sm flex flex-col">
-            <h3 className="text-sm font-bold text-slate-900 tracking-tight mb-4">Recent Activity Feed</h3>
+          <div className="bg-white p-4 md:p-6 justify-between h-full rounded-2xl border border-slate-100/90 shadow-[0_2px_8px_rgba(0,0,0,0.03)] flex flex-col">
+            <h3 className="text-base font-bold text-slate-900 tracking-tight mb-5">Recent Activity Feed</h3>
             <div className="space-y-4">
               {recentActivities.length > 0 ? recentActivities.map((act, i) => (
                 <div key={`${act.id}-${i}`} className="flex items-start gap-3">
-                  <div className={`p-2 rounded-xl mt-0.5 ${act.color}`}>
-                    {act.icon}
+                  <div className={`p-2 rounded-xl border ${act.type.includes('Sale') ? 'bg-emerald-50 text-emerald-600 border-emerald-100/60' : act.type.includes('Rental') ? 'bg-violet-50 text-violet-600 border-violet-100/60' : 'bg-slate-50 text-slate-600 border-slate-100'}`}>
+                    {React.cloneElement(act.icon as React.ReactElement, { size: 16, strokeWidth: 1.8 })}
                   </div>
-                  <div>
-                    <p className="text-xs font-bold text-slate-800">{act.type}</p>
-                    <p className="text-[9px] text-slate-400 font-bold mt-1 uppercase tracking-widest">{format(parseISO(act.time), 'MMM dd, h:mm a')}</p>
+                  <div className="pt-0.5">
+                    <p className="text-xs font-semibold text-slate-800 leading-tight">{act.type}</p>
+                    <p className="text-[10px] text-slate-400 font-medium mt-1">{format(parseISO(act.time), 'MMM dd, h:mm a')}</p>
                   </div>
                 </div>
               )) : (
-                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">No recent activity.</p>
+                <p className="text-[11px] text-slate-400 font-medium">No recent activity.</p>
               )}
             </div>
           </div>
