@@ -350,12 +350,12 @@ const BottomNav: React.FC<{ activeTab: string; onTabChange: (id: string) => void
           <button
             key={item.id}
             onClick={() => onTabChange(item.id)}
-            className={`flex flex-col items-center justify-center w-full h-full space-y-1 transition-all ${isActive ? 'text-slate-900' : 'text-slate-400 hover:text-slate-600'}`}
+            className={`flex flex-col items-center justify-center w-full h-full transition-all active:scale-95 ${isActive ? 'text-slate-900' : 'text-slate-400 hover:text-slate-600'}`}
           >
-            <div className={`p-1 rounded-xl transition-all ${isActive ? 'bg-highlight' : ''}`}>
-              {React.cloneElement(item.icon as React.ReactElement<any>, { size: 18, className: isActive ? 'stroke-[3px]' : '' })}
+            <div className={`p-1 rounded-md transition-all ${isActive ? 'bg-slate-100 text-slate-900' : ''}`}>
+              {React.cloneElement(item.icon as React.ReactElement<any>, { size: 18, strokeWidth: isActive ? 2.2 : 1.7 })}
             </div>
-            <span className={`text-[8px] uppercase tracking-[0.2em] ${isActive ? 'font-black' : 'font-bold'}`}>{item.label}</span>
+            <span className={`text-[9px] tracking-wide ${isActive ? 'font-bold text-slate-900' : 'font-medium text-slate-400'}`}>{item.label}</span>
           </button>
         );
       })}

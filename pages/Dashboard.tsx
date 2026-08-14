@@ -657,11 +657,11 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
       )}
 
       {/* Date Range Filter Header */}
-      <div className="bg-white border border-slate-100 rounded-2xl p-3 md:p-5 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+      <div className="bg-white border border-slate-200/80 rounded-lg p-3 md:p-4 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
         <div className="flex items-center justify-between sm:block">
           <div>
-            <h2 className="text-sm md:text-base font-black text-slate-900 tracking-tight">Overview Dashboard</h2>
-            <p className="hidden sm:block text-[9px] font-semibold text-slate-400 uppercase tracking-widest mt-0.5">Performance & Operations</p>
+            <h2 className="text-sm md:text-base font-bold text-slate-900 tracking-tight">Overview Dashboard</h2>
+            <p className="hidden sm:block text-[10px] font-semibold text-slate-400 uppercase tracking-wider mt-0.5">Performance & Operations</p>
           </div>
 
           {/* Mobile compact dropdown */}
@@ -669,7 +669,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
             <select
               value={filterPreset}
               onChange={(e) => handlePresetChange(e.target.value)}
-              className="appearance-none bg-slate-50 border border-slate-100 px-3 py-1.5 pr-7 rounded-xl text-[10px] font-black text-slate-700 uppercase outline-none cursor-pointer w-auto"
+              className="appearance-none bg-slate-50 border border-slate-200 px-3 py-1.5 pr-7 rounded-md text-xs font-semibold text-slate-700 outline-none cursor-pointer w-auto"
             >
               <option value="TODAY">Today</option>
               <option value="YESTERDAY">Yesterday</option>
@@ -680,7 +680,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
               <option value="LIFETIME">Lifetime</option>
               <option value="CUSTOM">Custom Range</option>
             </select>
-            <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={10} strokeWidth={3} />
+            <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={12} />
           </div>
         </div>
 
@@ -690,7 +690,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
               <select
                 value={filterPreset}
                 onChange={(e) => handlePresetChange(e.target.value)}
-                className="appearance-none bg-slate-50 border border-slate-100 hover:border-slate-200 px-4 py-2 pr-10 rounded-xl text-[10px] font-black text-slate-655 uppercase outline-none cursor-pointer transition-all shadow-sm font-sans w-full"
+                className="appearance-none bg-slate-50 border border-slate-200 hover:border-slate-300 px-3.5 py-1.5 pr-8 rounded-md text-xs font-semibold text-slate-700 outline-none cursor-pointer transition-all w-full"
               >
                 <option value="TODAY">Today</option>
                 <option value="YESTERDAY">Yesterday</option>
@@ -701,93 +701,56 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
                 <option value="LIFETIME">Lifetime</option>
                 <option value="CUSTOM">Custom Range</option>
               </select>
-              <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={10} strokeWidth={3} />
+              <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={12} />
             </div>
-            {allDates.first && allDates.last && (
-              <span className="text-[7px] font-bold text-slate-400 uppercase tracking-widest ml-1">
-                Data Bounds: {format(parseISO(allDates.first), 'dd MMM yy')} - {format(parseISO(allDates.last), 'dd MMM yy')}
-              </span>
-            )}
           </div>
         </div>
-
-        {filterPreset === 'CUSTOM' && (
-          <div className="flex items-center gap-2 w-full sm:w-auto">
-            <div className="flex-1 sm:flex-initial flex items-center gap-1.5 bg-slate-50 border border-slate-100 rounded-xl px-2.5 py-1.5 shadow-sm">
-              <span className="text-[8px] font-black uppercase text-slate-400 tracking-widest">From</span>
-              <input
-                type="date"
-                value={startDateFilter}
-                onChange={(e) => setStartDateFilter(e.target.value)}
-                className="bg-transparent text-[10px] font-bold text-slate-700 outline-none uppercase w-full"
-              />
-            </div>
-            <div className="flex-1 sm:flex-initial flex items-center gap-1.5 bg-slate-50 border border-slate-100 rounded-xl px-2.5 py-1.5 shadow-sm">
-              <span className="text-[8px] font-black uppercase text-slate-400 tracking-widest">To</span>
-              <input
-                type="date"
-                value={endDateFilter}
-                onChange={(e) => setEndDateFilter(e.target.value)}
-                className="bg-transparent text-[10px] font-bold text-slate-700 outline-none uppercase w-full"
-              />
-            </div>
-          </div>
-        )}
       </div>
 
-      {/* 1. Quick Actions Overview (Compact Grid with Distinct Solid Color Styling) */}
+      {/* 1. Quick Actions Overview */}
       <div className="grid grid-cols-4 sm:grid-cols-7 gap-1.5 md:gap-2">
-        <button onClick={() => setIsProductModalOpen(true)} className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 p-2 sm:p-2.5 bg-indigo-50/80 border border-indigo-100 rounded-xl hover:bg-indigo-100 transition-all group">
-          <div className="w-6 h-6 sm:w-7 sm:h-7 bg-indigo-600 text-white rounded-lg flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform"><PlusCircle size={14} strokeWidth={2.5} /></div>
-          <span className="text-[9px] font-black text-indigo-950 text-center sm:text-left leading-tight truncate">+ Product</span>
+        <button onClick={() => setIsProductModalOpen(true)} className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 p-2 bg-indigo-50/80 border border-indigo-100 rounded-md hover:bg-indigo-100 transition-all group">
+          <div className="w-5 h-5 sm:w-6 sm:h-6 bg-indigo-600 text-white rounded-md flex items-center justify-center shrink-0"><PlusCircle size={13} /></div>
+          <span className="text-[10px] font-bold text-indigo-950 truncate">+ Product</span>
         </button>
-        <button onClick={() => setIsCreateBillModalOpen(true)} className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 p-2 sm:p-2.5 bg-emerald-50/80 border border-emerald-100 rounded-xl hover:bg-emerald-100 transition-all group">
-          <div className="w-6 h-6 sm:w-7 sm:h-7 bg-emerald-600 text-white rounded-lg flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform"><ShoppingBag size={14} strokeWidth={2.5} /></div>
-          <span className="text-[9px] font-black text-emerald-950 text-center sm:text-left leading-tight truncate">+ Bill</span>
+        <button onClick={() => setIsCreateBillModalOpen(true)} className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 p-2 bg-emerald-50/80 border border-emerald-100 rounded-md hover:bg-emerald-100 transition-all group">
+          <div className="w-5 h-5 sm:w-6 sm:h-6 bg-emerald-600 text-white rounded-md flex items-center justify-center shrink-0"><ShoppingBag size={13} /></div>
+          <span className="text-[10px] font-bold text-emerald-950 truncate">+ Bill</span>
         </button>
-        <button onClick={() => setIsNewRentalModalOpen(true)} className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 p-2 sm:p-2.5 bg-rose-50/80 border border-rose-100 rounded-xl hover:bg-rose-100 transition-all group">
-          <div className="w-6 h-6 sm:w-7 sm:h-7 bg-rose-600 text-white rounded-lg flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform"><Calendar size={14} strokeWidth={2.5} /></div>
-          <span className="text-[9px] font-black text-rose-950 text-center sm:text-left leading-tight truncate">+ Rental</span>
+        <button onClick={() => setIsNewRentalModalOpen(true)} className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 p-2 bg-rose-50/80 border border-rose-100 rounded-md hover:bg-rose-100 transition-all group">
+          <div className="w-5 h-5 sm:w-6 sm:h-6 bg-rose-600 text-white rounded-md flex items-center justify-center shrink-0"><Calendar size={13} /></div>
+          <span className="text-[10px] font-bold text-rose-950 truncate">+ Rental</span>
         </button>
-        <button onClick={() => setIsReturnRentalModalOpen(true)} className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 p-2 sm:p-2.5 bg-amber-50/80 border border-amber-100 rounded-xl hover:bg-amber-100 transition-all group">
-          <div className="w-6 h-6 sm:w-7 sm:h-7 bg-amber-600 text-white rounded-lg flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform"><Undo2 size={14} strokeWidth={2.5} /></div>
-          <span className="text-[9px] font-black text-amber-950 text-center sm:text-left leading-tight truncate">Return</span>
+        <button onClick={() => setIsReturnRentalModalOpen(true)} className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 p-2 bg-amber-50/80 border border-amber-100 rounded-md hover:bg-amber-100 transition-all group">
+          <div className="w-5 h-5 sm:w-6 sm:h-6 bg-amber-600 text-white rounded-md flex items-center justify-center shrink-0"><Undo2 size={13} /></div>
+          <span className="text-[10px] font-bold text-amber-950 truncate">Return</span>
         </button>
-        <button onClick={() => setIsStockModalOpen(true)} className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 p-2 sm:p-2.5 bg-teal-50/80 border border-teal-100 rounded-xl hover:bg-teal-100 transition-all group">
-          <div className="w-6 h-6 sm:w-7 sm:h-7 bg-teal-600 text-white rounded-lg flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform"><Package size={14} strokeWidth={2.5} /></div>
-          <span className="text-[9px] font-black text-teal-950 text-center sm:text-left leading-tight truncate">+ Stock</span>
+        <button onClick={() => setIsStockModalOpen(true)} className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 p-2 bg-teal-50/80 border border-teal-100 rounded-md hover:bg-teal-100 transition-all group">
+          <div className="w-5 h-5 sm:w-6 sm:h-6 bg-teal-600 text-white rounded-md flex items-center justify-center shrink-0"><Package size={13} /></div>
+          <span className="text-[10px] font-bold text-teal-950 truncate">+ Stock</span>
         </button>
-        <button onClick={() => setIsCustomerModalOpen(true)} className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 p-2 sm:p-2.5 bg-sky-50/80 border border-sky-100 rounded-xl hover:bg-sky-100 transition-all group">
-          <div className="w-6 h-6 sm:w-7 sm:h-7 bg-sky-600 text-white rounded-lg flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform"><Users size={14} strokeWidth={2.5} /></div>
-          <span className="text-[9px] font-black text-sky-950 text-center sm:text-left leading-tight truncate">+ Customer</span>
+        <button onClick={() => setIsCustomerModalOpen(true)} className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 p-2 bg-sky-50/80 border border-sky-100 rounded-md hover:bg-sky-100 transition-all group">
+          <div className="w-5 h-5 sm:w-6 sm:h-6 bg-sky-600 text-white rounded-md flex items-center justify-center shrink-0"><Users size={13} /></div>
+          <span className="text-[10px] font-bold text-sky-950 truncate">+ Customer</span>
         </button>
-        <button onClick={() => setIsRecordExpenseModalOpen(true)} className="col-span-2 sm:col-span-1 flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 p-2 sm:p-2.5 bg-purple-50/80 border border-purple-100 rounded-xl hover:bg-purple-100 transition-all group">
-          <div className="w-6 h-6 sm:w-7 sm:h-7 bg-purple-600 text-white rounded-lg flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform"><Wallet size={14} strokeWidth={2.5} /></div>
-          <span className="text-[9px] font-black text-purple-950 text-center sm:text-left leading-tight truncate">+ Expense</span>
+        <button onClick={() => setIsRecordExpenseModalOpen(true)} className="col-span-2 sm:col-span-1 flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 p-2 bg-purple-50/80 border border-purple-100 rounded-md hover:bg-purple-100 transition-all group">
+          <div className="w-5 h-5 sm:w-6 sm:h-6 bg-purple-600 text-white rounded-md flex items-center justify-center shrink-0"><Wallet size={13} /></div>
+          <span className="text-[10px] font-bold text-purple-950 truncate">+ Expense</span>
         </button>
       </div>
 
-      {/* 2. Top Summary Cards (Dense) */}
+      {/* 2. Top Summary Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
         {/* Card 1: Total Stock */}
-        <div onClick={() => navigate('inventory')} className="bg-white p-3.5 md:p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between cursor-pointer hover:border-highlight hover:shadow-md transition-all group relative">
+        <div onClick={() => navigate('inventory')} className="bg-white p-4 rounded-lg border border-slate-200/80 shadow-xs flex flex-col justify-between cursor-pointer hover:border-slate-300 transition-all group relative">
           <div className="flex justify-between items-start mb-2">
-            <div className="flex items-center gap-1 min-w-0">
-              <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest group-hover:text-highlight transition-colors truncate">Total Stock</h4>
-              <div className="relative group/info" onClick={(e) => e.stopPropagation()}>
-                <Info size={11} className="text-slate-300 hover:text-slate-500 cursor-pointer transition-colors" />
-                <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-1.5 hidden group-hover/info:block bg-slate-900 text-white text-[8px] font-bold py-1 px-2 rounded-lg shadow-xl whitespace-nowrap z-30 pointer-events-none">
-                  Total inventory units and stock valuation
-                  <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-900" />
-                </div>
-              </div>
-            </div>
-            <div className="p-1.5 bg-slate-50 text-slate-600 rounded-lg group-hover:bg-highlight group-hover:text-slate-900 transition-colors shrink-0"><Package size={14} /></div>
+            <h4 className="text-xs font-semibold text-slate-500 truncate">Total Stock</h4>
+            <div className="p-1.5 bg-slate-50 text-slate-600 rounded-md border border-slate-100 shrink-0"><Package size={15} /></div>
           </div>
           <div>
-            <h3 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">{availableStock} <span className="text-[10px] font-bold text-slate-400">Pcs</span></h3>
-            <div className="flex flex-wrap gap-x-1.5 gap-y-1 mt-1.5">
-              <span className="text-[8px] font-black text-indigo-600 bg-indigo-50 border border-indigo-100/30 px-1.5 py-0.5 rounded-lg uppercase tracking-wider">
+            <h3 className="text-2xl font-bold text-slate-900 tracking-tight">{availableStock} <span className="text-xs font-medium text-slate-400">Pcs</span></h3>
+            <div className="flex flex-wrap gap-1 mt-1.5">
+              <span className="text-[11px] font-medium text-violet-700 bg-violet-50 px-2 py-0.5 rounded">
                 Valuation: {formatMoney(stockValuation)}
               </span>
             </div>
@@ -795,52 +758,31 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
         </div>
 
         {/* Card 2: Sales */}
-        <div onClick={() => navigate('reports')} className="bg-white p-3.5 md:p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between cursor-pointer hover:border-highlight hover:shadow-md transition-all group relative">
+        <div onClick={() => navigate('reports')} className="bg-white p-4 rounded-lg border border-slate-200/80 shadow-xs flex flex-col justify-between cursor-pointer hover:border-slate-300 transition-all group relative">
           <div className="flex justify-between items-start mb-2">
-            <div className="flex items-center gap-1 min-w-0">
-              <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest group-hover:text-highlight transition-colors truncate">Sales</h4>
-              <div className="relative group/info" onClick={(e) => e.stopPropagation()}>
-                <Info size={11} className="text-slate-300 hover:text-slate-500 cursor-pointer transition-colors" />
-                <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-1.5 hidden group-hover/info:block bg-slate-900 text-white text-[8px] font-bold py-1 px-2 rounded-lg shadow-xl whitespace-nowrap z-30 pointer-events-none">
-                  Gross revenue, net profit & profit margin
-                  <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-900" />
-                </div>
-              </div>
-            </div>
-            <div className="p-1.5 bg-emerald-50 text-emerald-600 rounded-lg group-hover:bg-highlight group-hover:text-slate-900 transition-colors shrink-0"><TrendingUp size={14} /></div>
+            <h4 className="text-xs font-semibold text-slate-500 truncate">{salesTitle}</h4>
+            <div className="p-1.5 bg-emerald-50 text-emerald-600 rounded-md border border-emerald-100 shrink-0"><TrendingUp size={15} /></div>
           </div>
           <div>
-            <h3 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">{formatMoney(todaySalesAmount)}</h3>
-            <div className="flex flex-wrap gap-x-1.5 gap-y-1 mt-1.5">
-              <span className="text-[8px] font-black text-emerald-600 bg-emerald-50 border border-emerald-100/30 px-1.5 py-0.5 rounded-lg uppercase tracking-wider">
+            <h3 className="text-2xl font-bold text-slate-900 tracking-tight">{formatMoney(todaySalesAmount)}</h3>
+            <div className="flex flex-wrap gap-1 mt-1.5">
+              <span className="text-[11px] font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">
                 Profit: {formatMoney(todayProfit)}
-              </span>
-              <span className="text-[8px] font-black text-[#8B5CF6] bg-[#8B5CF6]/5 border border-[#8B5CF6]/10 px-1.5 py-0.5 rounded-lg uppercase tracking-wider">
-                Margin: {todayProfitPercent.toFixed(1)}%
               </span>
             </div>
           </div>
         </div>
 
         {/* Card 3: Active Rentals */}
-        <div onClick={() => navigate('rentals')} className="bg-white p-3.5 md:p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between cursor-pointer hover:border-highlight hover:shadow-md transition-all group relative">
+        <div onClick={() => navigate('rentals')} className="bg-white p-4 rounded-lg border border-slate-200/80 shadow-xs flex flex-col justify-between cursor-pointer hover:border-slate-300 transition-all group relative">
           <div className="flex justify-between items-start mb-2">
-            <div className="flex items-center gap-1 min-w-0">
-              <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest group-hover:text-highlight transition-colors truncate">Active Rentals</h4>
-              <div className="relative group/info" onClick={(e) => e.stopPropagation()}>
-                <Info size={11} className="text-slate-300 hover:text-slate-500 cursor-pointer transition-colors" />
-                <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-1.5 hidden group-hover/info:block bg-slate-900 text-white text-[8px] font-bold py-1 px-2 rounded-lg shadow-xl whitespace-nowrap z-30 pointer-events-none">
-                  Items currently out on rent with customers
-                  <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-900" />
-                </div>
-              </div>
-            </div>
-            <div className="p-1.5 bg-rose-50 text-rose-600 rounded-lg group-hover:bg-highlight group-hover:text-slate-900 transition-colors shrink-0"><ShoppingBag size={14} /></div>
+            <h4 className="text-xs font-semibold text-slate-500 truncate">Active Rentals</h4>
+            <div className="p-1.5 bg-rose-50 text-rose-600 rounded-md border border-rose-100 shrink-0"><ShoppingBag size={15} /></div>
           </div>
           <div>
-            <h3 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">{activeRentalsToShow.length}</h3>
-            <div className="flex flex-wrap gap-x-1.5 gap-y-1 mt-1.5">
-              <span className="text-[8px] font-black text-rose-600 bg-rose-50 border border-rose-100/30 px-1.5 py-0.5 rounded-lg uppercase tracking-wider">
+            <h3 className="text-2xl font-bold text-slate-900 tracking-tight">{activeRentalsToShow.length}</h3>
+            <div className="flex flex-wrap gap-1 mt-1.5">
+              <span className="text-[11px] font-medium text-rose-700 bg-rose-50 px-2 py-0.5 rounded">
                 Value: {formatMoney(activeRentalsValue)}
               </span>
             </div>
@@ -848,24 +790,15 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
         </div>
 
         {/* Card 4: Returns Due */}
-        <div onClick={() => navigate('rentals')} className="bg-white p-3.5 md:p-5 rounded-2xl border border-rose-100 bg-rose-50/20 shadow-sm flex flex-col justify-between cursor-pointer hover:border-rose-300 hover:shadow-md transition-all group relative">
+        <div onClick={() => navigate('rentals')} className="bg-white p-4 rounded-lg border border-amber-200/80 bg-amber-50/10 shadow-xs flex flex-col justify-between cursor-pointer hover:border-amber-300 transition-all group relative">
           <div className="flex justify-between items-start mb-2">
-            <div className="flex items-center gap-1 min-w-0">
-              <h4 className="text-[10px] font-bold text-rose-500 uppercase tracking-widest truncate">Returns Due</h4>
-              <div className="relative group/info" onClick={(e) => e.stopPropagation()}>
-                <Info size={11} className="text-rose-300 hover:text-rose-500 cursor-pointer transition-colors" />
-                <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-1.5 hidden group-hover/info:block bg-slate-900 text-white text-[8px] font-bold py-1 px-2 rounded-lg shadow-xl whitespace-nowrap z-30 pointer-events-none">
-                  Rental items due for return today or overdue
-                  <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-900" />
-                </div>
-              </div>
-            </div>
-            <div className="p-1.5 bg-rose-100 text-rose-600 rounded-lg group-hover:bg-rose-200 transition-colors shrink-0"><AlertTriangle size={14} /></div>
+            <h4 className="text-xs font-semibold text-amber-800 truncate">{returnsDueTitle}</h4>
+            <div className="p-1.5 bg-amber-100 text-amber-700 rounded-md border border-amber-200/60 shrink-0"><AlertTriangle size={15} /></div>
           </div>
           <div>
-            <h3 className="text-xl md:text-2xl font-black text-rose-600 tracking-tight">{returnsDueCount}</h3>
-            <div className="flex flex-wrap gap-x-1.5 gap-y-1 mt-1.5">
-              <span className="text-[8px] font-black text-rose-600 bg-rose-50 border border-rose-100/30 px-1.5 py-0.5 rounded-lg uppercase tracking-wider">
+            <h3 className="text-2xl font-bold text-amber-800 tracking-tight">{returnsDueCount}</h3>
+            <div className="flex flex-wrap gap-1 mt-1.5">
+              <span className="text-[11px] font-medium text-amber-800 bg-amber-100/60 px-2 py-0.5 rounded">
                 Value: {formatMoney(returnsDueValue)}
               </span>
             </div>
@@ -873,24 +806,15 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
         </div>
 
         {/* Card 5: Pending Payments */}
-        <div onClick={() => navigate('reports')} className="bg-white p-3.5 md:p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between cursor-pointer hover:border-highlight hover:shadow-md transition-all group relative">
+        <div onClick={() => navigate('reports')} className="bg-white p-4 rounded-lg border border-slate-200/80 shadow-xs flex flex-col justify-between cursor-pointer hover:border-slate-300 transition-all group relative">
           <div className="flex justify-between items-start mb-2">
-            <div className="flex items-center gap-1 min-w-0">
-              <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest group-hover:text-highlight transition-colors truncate">Pending Credit</h4>
-              <div className="relative group/info" onClick={(e) => e.stopPropagation()}>
-                <Info size={11} className="text-slate-300 hover:text-slate-500 cursor-pointer transition-colors" />
-                <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-1.5 hidden group-hover/info:block bg-slate-900 text-white text-[8px] font-bold py-1 px-2 rounded-lg shadow-xl whitespace-nowrap z-30 pointer-events-none">
-                  Total unpaid credit balance from customers
-                  <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-900" />
-                </div>
-              </div>
-            </div>
-            <div className="p-1.5 bg-amber-50 text-amber-600 rounded-lg group-hover:bg-highlight group-hover:text-slate-900 transition-colors shrink-0"><IndianRupee size={14} /></div>
+            <h4 className="text-xs font-semibold text-slate-500 truncate">Pending Credit</h4>
+            <div className="p-1.5 bg-amber-50 text-amber-600 rounded-md border border-amber-100 shrink-0"><IndianRupee size={15} /></div>
           </div>
           <div>
-            <h3 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">{formatMoney(totalPendingPayments)}</h3>
-            <div className="flex flex-wrap gap-x-1.5 gap-y-1 mt-1.5">
-              <span className="text-[8px] font-black text-amber-600 bg-amber-50 border border-amber-100/30 px-1.5 py-0.5 rounded-lg uppercase tracking-wider">
+            <h3 className="text-2xl font-bold text-slate-900 tracking-tight">{formatMoney(totalPendingPayments)}</h3>
+            <div className="flex flex-wrap gap-1 mt-1.5">
+              <span className="text-[11px] font-medium text-amber-700 bg-amber-50 px-2 py-0.5 rounded">
                 {customersWithCredit} Customers
               </span>
             </div>
@@ -898,57 +822,33 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
         </div>
 
         {/* Card 6: Customers */}
-        <div onClick={() => navigate('customers')} className="bg-white p-3.5 md:p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between cursor-pointer hover:border-highlight hover:shadow-md transition-all group relative">
+        <div onClick={() => navigate('customers')} className="bg-white p-4 rounded-lg border border-slate-200/80 shadow-xs flex flex-col justify-between cursor-pointer hover:border-slate-300 transition-all group relative">
           <div className="flex justify-between items-start mb-2">
-            <div className="flex items-center gap-1 min-w-0">
-              <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest group-hover:text-highlight transition-colors truncate">Customers</h4>
-              <div className="relative group/info" onClick={(e) => e.stopPropagation()}>
-                <Info size={11} className="text-slate-300 hover:text-slate-500 cursor-pointer transition-colors" />
-                <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-1.5 hidden group-hover/info:block bg-slate-900 text-white text-[8px] font-bold py-1 px-2 rounded-lg shadow-xl whitespace-nowrap z-30 pointer-events-none">
-                  Customer directory breakdown (New vs Repeat)
-                  <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-900" />
-                </div>
-              </div>
-            </div>
-            <div className="p-1.5 bg-sky-50 text-sky-600 rounded-lg group-hover:bg-highlight group-hover:text-slate-900 transition-colors shrink-0"><Users size={14} /></div>
+            <h4 className="text-xs font-semibold text-slate-500 truncate">{customersTitle}</h4>
+            <div className="p-1.5 bg-sky-50 text-sky-600 rounded-md border border-sky-100 shrink-0"><Users size={15} /></div>
           </div>
           <div>
-            <h3 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">{customersCountToShow}</h3>
-            <div className="flex flex-wrap gap-x-1.5 gap-y-1 mt-1.5">
-              <span className="text-[8px] font-black text-emerald-650 bg-emerald-50 border border-emerald-100/30 px-1.5 py-0.5 rounded-lg uppercase tracking-wider">
+            <h3 className="text-2xl font-bold text-slate-900 tracking-tight">{customersCountToShow}</h3>
+            <div className="flex flex-wrap gap-1 mt-1.5">
+              <span className="text-[11px] font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">
                 Repeat: {repeatCustomersCount}
-              </span>
-              <span className="text-[8px] font-black text-indigo-650 bg-indigo-50 border border-indigo-100/30 px-1.5 py-0.5 rounded-lg uppercase tracking-wider">
-                New: {newCustomersCount}
               </span>
             </div>
           </div>
         </div>
 
         {/* Card 7: Net Income */}
-        <div onClick={() => navigate('reports')} className="bg-white p-3.5 md:p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between cursor-pointer hover:border-highlight hover:shadow-md transition-all group relative">
+        <div onClick={() => navigate('reports')} className="bg-white p-4 rounded-lg border border-slate-200/80 shadow-xs flex flex-col justify-between cursor-pointer hover:border-slate-300 transition-all group relative">
           <div className="flex justify-between items-start mb-2">
-            <div className="flex items-center gap-1 min-w-0">
-              <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest group-hover:text-[#10B981] transition-colors truncate">Net Income</h4>
-              <div className="relative group/info" onClick={(e) => e.stopPropagation()}>
-                <Info size={11} className="text-slate-300 hover:text-slate-500 cursor-pointer transition-colors" />
-                <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-1.5 hidden group-hover/info:block bg-slate-900 text-white text-[8px] font-bold py-1 px-2 rounded-lg shadow-xl whitespace-nowrap z-30 pointer-events-none">
-                  Net income calculated as gross profit minus expenses
-                  <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-900" />
-                </div>
-              </div>
-            </div>
-            <div className="p-1.5 bg-emerald-50 text-emerald-600 rounded-lg group-hover:bg-[#10B981] group-hover:text-white transition-colors shrink-0"><TrendingUp size={14} /></div>
+            <h4 className="text-xs font-semibold text-slate-500 truncate">Net Income</h4>
+            <div className="p-1.5 bg-emerald-50 text-emerald-600 rounded-md border border-emerald-100 shrink-0"><TrendingUp size={15} /></div>
           </div>
           <div>
-            <h3 className={`text-xl md:text-2xl font-black tracking-tight ${todayProfit - totalExpensesAmount >= 0 ? 'text-[#10B981]' : 'text-rose-600'}`}>
+            <h3 className={`text-2xl font-bold tracking-tight ${todayProfit - totalExpensesAmount >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
               {formatMoney(todayProfit - totalExpensesAmount)}
             </h3>
-            <div className="flex flex-wrap gap-x-1.5 gap-y-1 mt-1.5">
-              <span className={`text-[8px] font-black px-1.5 py-0.5 rounded-lg uppercase tracking-wider ${todayProfit - totalExpensesAmount >= 0
-                ? 'text-emerald-600 bg-emerald-50 border border-emerald-100/30'
-                : 'text-rose-650 bg-rose-50 border border-rose-100/30'
-                }`}>
+            <div className="flex flex-wrap gap-1 mt-1.5">
+              <span className={`text-[11px] font-medium px-2 py-0.5 rounded ${todayProfit - totalExpensesAmount >= 0 ? 'text-emerald-700 bg-emerald-50' : 'text-rose-700 bg-rose-50'}`}>
                 {todayProfit - totalExpensesAmount >= 0 ? 'Surplus' : 'Deficit'}
               </span>
             </div>
@@ -956,24 +856,15 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
         </div>
 
         {/* Card 8: Expenses */}
-        <div onClick={() => navigate('reports')} className="bg-white p-3.5 md:p-5 rounded-2xl border border-rose-100 bg-rose-50/10 shadow-sm flex flex-col justify-between cursor-pointer hover:border-rose-300 hover:shadow-md transition-all group relative">
+        <div onClick={() => navigate('reports')} className="bg-white p-4 rounded-lg border border-slate-200/80 shadow-xs flex flex-col justify-between cursor-pointer hover:border-slate-300 transition-all group relative">
           <div className="flex justify-between items-start mb-2">
-            <div className="flex items-center gap-1 min-w-0">
-              <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest group-hover:text-rose-600 transition-colors truncate">Expenses</h4>
-              <div className="relative group/info" onClick={(e) => e.stopPropagation()}>
-                <Info size={11} className="text-slate-300 hover:text-rose-500 cursor-pointer transition-colors" />
-                <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-1.5 hidden group-hover/info:block bg-slate-900 text-white text-[8px] font-bold py-1 px-2 rounded-lg shadow-xl whitespace-nowrap z-30 pointer-events-none">
-                  Total operating cash out & store expenses recorded
-                  <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-900" />
-                </div>
-              </div>
-            </div>
-            <div className="p-1.5 bg-rose-100 text-rose-700 rounded-lg shrink-0"><Wallet size={14} /></div>
+            <h4 className="text-xs font-semibold text-slate-500 truncate">{expensesTitle}</h4>
+            <div className="p-1.5 bg-rose-50 text-rose-600 rounded-md border border-rose-100 shrink-0"><Wallet size={15} /></div>
           </div>
           <div>
-            <h3 className="text-xl md:text-2xl font-black text-rose-700 tracking-tight">{formatMoney(totalExpensesAmount)}</h3>
-            <div className="flex flex-wrap gap-x-1.5 gap-y-1 mt-1.5">
-              <span className="text-[8px] font-black text-rose-650 bg-rose-50 border border-rose-100/30 px-1.5 py-0.5 rounded-lg uppercase tracking-wider">
+            <h3 className="text-2xl font-bold text-slate-900 tracking-tight">{formatMoney(totalExpensesAmount)}</h3>
+            <div className="flex flex-wrap gap-1 mt-1.5">
+              <span className="text-[11px] font-medium text-rose-700 bg-rose-50 px-2 py-0.5 rounded">
                 {expensesToShow.length} Records
               </span>
             </div>
@@ -983,18 +874,18 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* 3. Sales & Earnings Graph */}
-        <div className="lg:col-span-8 bg-white p-4 md:p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between">
+        <div className="lg:col-span-8 bg-white p-4 md:p-5 rounded-lg border border-slate-200/80 shadow-xs flex flex-col justify-between">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
             <div>
-              <h3 className="text-sm font-black text-slate-900 tracking-tight">Sales & Earnings</h3>
-              <div className="flex flex-wrap items-center gap-2 mt-1.5 text-[9.5px] font-extrabold">
-                <span className="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-lg border border-emerald-100/60">
+              <h3 className="text-sm font-bold text-slate-900 tracking-tight">Sales & Earnings</h3>
+              <div className="flex flex-wrap items-center gap-2 mt-1">
+                <span className="text-xs font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">
                   Sales: {formatMoney(chartTotals.totalSales)}
                 </span>
-                <span className="text-blue-700 bg-blue-50 px-2 py-0.5 rounded-lg border border-blue-100/60">
+                <span className="text-xs font-medium text-sky-700 bg-sky-50 px-2 py-0.5 rounded">
                   Rentals: {formatMoney(chartTotals.totalRentals)}
                 </span>
-                <span className="text-purple-700 bg-purple-50 px-2 py-0.5 rounded-lg border border-purple-100/60">
+                <span className="text-xs font-medium text-violet-700 bg-violet-50 px-2 py-0.5 rounded">
                   Total: {formatMoney(chartTotals.combined)}
                 </span>
               </div>
@@ -1004,19 +895,19 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
               <select
                 value={timeframe}
                 onChange={(e) => setTimeframe(e.target.value as 'WEEKLY' | 'MONTHLY' | 'YEARLY')}
-                className="appearance-none bg-slate-50 border border-slate-200 hover:border-slate-300 px-3 py-1.5 pr-8 rounded-xl text-[10px] font-black text-slate-700 uppercase outline-none cursor-pointer transition-all shadow-xs"
+                className="appearance-none bg-slate-50 border border-slate-200 px-3 py-1.5 pr-8 rounded-md text-xs font-semibold text-slate-700 outline-none cursor-pointer"
               >
                 <option value="WEEKLY">Weekly View</option>
                 <option value="MONTHLY">Monthly View</option>
                 <option value="YEARLY">Yearly View</option>
               </select>
-              <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={12} strokeWidth={2.5} />
+              <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={12} />
             </div>
           </div>
 
           {chartTotals.combined === 0 ? (
-            <div className="h-[210px] w-full flex items-center justify-center text-center p-6 bg-slate-50/50 rounded-xl border border-slate-100/60">
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+            <div className="h-[210px] w-full flex items-center justify-center text-center p-6 bg-slate-50 rounded-md border border-slate-100">
+              <p className="text-xs font-medium text-slate-400">
                 No transactions recorded for this period
               </p>
             </div>
@@ -1025,91 +916,88 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={salesGraphData} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 700, fill: '#94a3b8' }} dy={10} />
-                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 700, fill: '#94a3b8' }} tickFormatter={(val) => `₹${val >= 1000 ? `${(val / 1000).toFixed(0)}k` : val}`} />
+                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 600, fill: '#94a3b8' }} dy={10} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 600, fill: '#94a3b8' }} tickFormatter={(val) => `₹${val >= 1000 ? `${(val / 1000).toFixed(0)}k` : val}`} />
                   <Tooltip
                     cursor={{ fill: '#f8fafc' }}
                     formatter={(value: any) => [`₹${Number(value || 0).toLocaleString('en-IN')}`, '']}
-                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgb(0 0 0 / 0.08)', fontSize: '11px', fontWeight: 'bold' }}
+                    contentStyle={{ borderRadius: '8px', border: '1px solid #e2e8f0', boxShadow: '0 2px 8px rgb(0 0 0 / 0.05)', fontSize: '11px', fontWeight: '600' }}
                   />
-                  <Legend iconType="circle" wrapperStyle={{ fontSize: '10px', fontWeight: 700, textTransform: 'uppercase' }} />
-                  <Bar dataKey="Sales" stackId="a" fill="#10b981" radius={[0, 0, 4, 4]} />
-                  <Bar dataKey="Rentals" stackId="a" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                  <Legend iconType="circle" wrapperStyle={{ fontSize: '11px', fontWeight: 600 }} />
+                  <Bar dataKey="Sales" stackId="a" fill="#10b981" radius={[0, 0, 2, 2]} />
+                  <Bar dataKey="Rentals" stackId="a" fill="#8b5cf6" radius={[2, 2, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
           )}
         </div>
 
-        {/* 4. Upcoming Events & Stocking Strategy Guide (Side Panel) */}
-        <div className="lg:col-span-4 bg-[#FAF5FF] p-4 md:p-5 rounded-2xl border border-purple-100/60 shadow-sm flex flex-col">
+        {/* 4. Upcoming Events */}
+        <div className="lg:col-span-4 bg-white p-4 md:p-5 rounded-lg border border-slate-200/80 shadow-xs flex flex-col">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
-              <PartyPopper size={16} className="text-[#8B5CF6]" />
-              <h3 className="text-sm font-extrabold text-slate-900 tracking-tight">Upcoming Events</h3>
+              <PartyPopper size={16} className="text-violet-600" />
+              <h3 className="text-sm font-bold text-slate-900 tracking-tight">Upcoming Events</h3>
             </div>
-            <span className="text-[8px] font-black text-purple-600 bg-purple-100/80 px-2 py-0.5 rounded-full uppercase tracking-wider">
+            <span className="text-xs font-semibold text-violet-700 bg-violet-50 px-2 py-0.5 rounded border border-violet-100">
               {UPCOMING_EVENTS.length} Events
             </span>
           </div>
-          <p className="text-[9px] text-slate-400 font-semibold uppercase tracking-wider mb-3">
+          <p className="text-[11px] text-slate-400 font-medium mb-3">
             Click event to view stocking strategy
           </p>
 
-          <div className="space-y-2.5 overflow-y-auto max-h-[350px] pr-1 hide-scrollbar">
+          <div className="space-y-2 overflow-y-auto max-h-[350px] pr-1 hide-scrollbar">
             {UPCOMING_EVENTS.map((event, idx) => {
               const isExpanded = expandedEventIdx === idx;
               return (
                 <div
                   key={event.id}
-                  className={`rounded-2xl border transition-all overflow-hidden ${isExpanded
-                    ? 'bg-white border-purple-200 shadow-md ring-1 ring-purple-100'
-                    : 'bg-white/90 hover:bg-white border-slate-100 hover:border-purple-200'
+                  className={`rounded-md border transition-all overflow-hidden ${isExpanded
+                    ? 'bg-slate-50 border-slate-300'
+                    : 'bg-white hover:bg-slate-50 border-slate-200/80'
                     }`}
                 >
                   <button
                     type="button"
                     onClick={() => setExpandedEventIdx(isExpanded ? null : idx)}
-                    className="w-full p-3 flex items-center justify-between text-left cursor-pointer hover:bg-purple-50/30 transition-colors"
+                    className="w-full p-2.5 flex items-center justify-between text-left cursor-pointer transition-colors"
                   >
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-black text-slate-900">{event.title}</span>
+                      <span className="text-xs font-bold text-slate-900">{event.title}</span>
                     </div>
                     <div className="flex items-center gap-1.5">
-                      <span className={`text-[8px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider shrink-0 ${event.badgeClass}`}>
+                      <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded ${event.badgeClass}`}>
                         {event.date}
                       </span>
-                      <div className="p-1 rounded-lg text-slate-400 hover:text-purple-600 transition-all">
+                      <div className="text-slate-400 hover:text-slate-600 transition-all">
                         <ChevronDown
                           size={14}
-                          strokeWidth={2.5}
-                          className={`transition-transform duration-200 ${isExpanded ? 'rotate-180 text-purple-600' : ''}`}
+                          className={`transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
                         />
                       </div>
                     </div>
                   </button>
 
                   {isExpanded && (
-                    <div className="px-3.5 pb-4 pt-1 border-t border-slate-100 space-y-3 animate-nano">
-                      {/* Date & Remaining */}
-                      <div className="space-y-1 text-[10px] font-bold text-slate-600 bg-slate-50/80 p-2.5 rounded-xl border border-slate-100">
+                    <div className="px-3 pb-3 pt-1 space-y-2">
+                      <div className="space-y-1 text-xs font-medium text-slate-600 bg-white p-2 rounded border border-slate-100">
                         <p className="flex items-center gap-1.5">
-                          📅 <span>Date:</span> <strong className="text-slate-900 font-extrabold">{event.date}</strong>
+                          📅 <span>Date:</span> <strong className="text-slate-900 font-bold">{event.date}</strong>
                         </p>
                         <p className="flex items-center gap-1.5">
-                          ⏳ <span>Remaining:</span> <strong className="text-purple-700 font-extrabold">{calcEventRemaining(event.date)}</strong>
+                          ⏳ <span>Remaining:</span> <strong className="text-violet-600 font-bold">{calcEventRemaining(event.date)}</strong>
                         </p>
                       </div>
 
-                      {/* Suggested Stock List */}
                       <div>
-                        <p className="text-[10px] font-black text-slate-900 flex items-center gap-1 mb-1.5">
+                        <p className="text-xs font-semibold text-slate-900 flex items-center gap-1 mb-1">
                           🔥 <span>Suggested Stock</span>
                         </p>
                         <div className="space-y-1 pl-0.5">
                           {event.suggestedStock.map((item, sIdx) => (
-                            <p key={sIdx} className="text-[9.5px] font-bold text-slate-700 flex items-center gap-1.5">
-                              <span className="text-emerald-500 font-black">✔</span> {item}
+                            <p key={sIdx} className="text-xs text-slate-700 flex items-center gap-1.5">
+                              <span className="text-emerald-600 font-bold">✓</span> {item}
                             </p>
                           ))}
                         </div>
@@ -1125,7 +1013,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* 5. Rental Management Section */}
-        <div className="bg-white p-4 md:p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col">
+        <div className="bg-white p-4 md:p-5 rounded-lg border border-slate-200/80 shadow-xs flex flex-col">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-sm font-bold text-slate-900 tracking-tight">Active Rentals Tracker</h3>
           </div>
@@ -1133,14 +1021,14 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
           <div className="overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0">
             <table className="w-full text-left">
               <thead>
-                <tr className="border-b border-slate-50">
-                  <th className="pb-3 text-[9px] font-bold text-slate-400 uppercase tracking-widest min-w-[100px]">Customer</th>
-                  <th className="pb-3 text-[9px] font-bold text-slate-400 uppercase tracking-widest min-w-[120px]">Item</th>
-                  <th className="pb-3 text-[9px] font-bold text-slate-400 uppercase tracking-widest">Return Date</th>
-                  <th className="pb-3 text-[9px] font-bold text-slate-400 uppercase tracking-widest text-right">Status</th>
+                <tr className="border-b border-slate-100">
+                  <th className="pb-2 text-xs font-semibold text-slate-400 uppercase tracking-wider min-w-[100px]">Customer</th>
+                  <th className="pb-2 text-xs font-semibold text-slate-400 uppercase tracking-wider min-w-[120px]">Item</th>
+                  <th className="pb-2 text-xs font-semibold text-slate-400 uppercase tracking-wider">Return Date</th>
+                  <th className="pb-2 text-xs font-semibold text-slate-400 uppercase tracking-wider text-right">Status</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-50">
+              <tbody className="divide-y divide-slate-100">
                 {activeRentals.slice(0, 5).length > 0 ? activeRentals.slice(0, 5).map(rental => {
                   const isDue = isToday(parseISO(rental.expectedReturnDate));
                   const isOverdue = isPast(parseISO(rental.expectedReturnDate)) && !isToday(parseISO(rental.expectedReturnDate));
@@ -1148,16 +1036,16 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
                   const prod = products.find(p => p.id === rental.productId)?.name || 'Unknown Item';
 
                   return (
-                    <tr key={rental.id} className="group">
-                      <td className="py-3 text-[10px] font-bold text-slate-900 truncate max-w-[100px]">{cust}</td>
-                      <td className="py-3 text-[10px] font-semibold text-slate-600 truncate max-w-[120px]">{prod}</td>
-                      <td className="py-3 text-[10px] font-bold text-slate-900">
+                    <tr key={rental.id} className="group hover:bg-slate-50/60 transition-colors">
+                      <td className="py-2.5 text-xs font-semibold text-slate-900 truncate max-w-[100px]">{cust}</td>
+                      <td className="py-2.5 text-xs text-slate-600 truncate max-w-[120px]">{prod}</td>
+                      <td className="py-2.5 text-xs font-medium text-slate-900">
                         {isDue ? 'Today' : format(parseISO(rental.expectedReturnDate), 'MMM dd')}
                       </td>
-                      <td className="py-3 text-right">
-                        <span className={`text-[8px] font-black px-2 py-1 rounded-md uppercase tracking-widest ${isOverdue ? 'bg-rose-100 text-rose-700' :
-                          isDue ? 'bg-amber-100 text-amber-700' :
-                            'bg-emerald-100 text-emerald-700'
+                      <td className="py-2.5 text-right">
+                        <span className={`text-[10px] font-semibold px-2 py-0.5 rounded ${isOverdue ? 'bg-rose-50 text-rose-600 border border-rose-100' :
+                          isDue ? 'bg-amber-50 text-amber-700 border border-amber-100' :
+                            'bg-emerald-50 text-emerald-700 border border-emerald-100'
                           }`}>
                           {isOverdue ? 'Overdue' : isDue ? 'Due Today' : 'Active'}
                         </span>
@@ -1165,7 +1053,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
                     </tr>
                   )
                 }) : (
-                  <tr><td colSpan={4} className="py-6 text-center text-[10px] text-slate-400 font-bold uppercase tracking-widest">No active rentals right now</td></tr>
+                  <tr><td colSpan={4} className="py-6 text-center text-xs text-slate-400 font-medium">No active rentals right now</td></tr>
                 )}
               </tbody>
             </table>
@@ -1176,25 +1064,25 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
         <div className="flex flex-col gap-6">
 
           {/* Inventory Alerts */}
-          <div className="bg-white p-4 md:p-6 rounded-2xl border border-rose-100 shadow-sm">
-            <div className="flex items-center gap-2 mb-4">
+          <div className="bg-white p-4 md:p-5 rounded-lg border border-rose-200/80 shadow-xs bg-rose-50/10">
+            <div className="flex items-center gap-2 mb-3">
               <AlertTriangle size={16} className="text-rose-500" />
-              <h3 className="text-sm font-bold text-rose-900 tracking-tight">Inventory Alerts</h3>
+              <h3 className="text-sm font-bold text-slate-900 tracking-tight">Inventory Alerts</h3>
             </div>
             {outOfStockProducts.length === 0 && lowStockProducts.length === 0 ? (
-              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">All stock levels look good.</p>
+              <p className="text-xs text-slate-500 font-medium">All stock levels look good.</p>
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-2.5">
                 {outOfStockProducts.slice(0, 2).map(p => (
-                  <div key={p.id} className="flex justify-between border-b border-rose-50 pb-2">
-                    <span className="text-[10px] font-bold text-slate-700 truncate">{p.name} <span className="text-rose-500">(Sizes: {p.sizes.join(', ')})</span></span>
-                    <span className="text-[9px] font-black bg-rose-100 text-rose-700 px-2 py-0.5 rounded uppercase flex-shrink-0">Out of Stock</span>
+                  <div key={p.id} className="flex justify-between items-center border-b border-rose-50 pb-2">
+                    <span className="text-xs font-semibold text-slate-700 truncate pr-2">{p.name} <span className="text-rose-400 font-normal">(Sizes: {p.sizes.join(', ')})</span></span>
+                    <span className="text-[10px] font-semibold bg-rose-100 text-rose-700 px-2 py-0.5 rounded flex-shrink-0">Out of Stock</span>
                   </div>
                 ))}
                 {lowStockProducts.slice(0, 3).map(p => (
-                  <div key={p.id} className="flex justify-between border-b border-rose-50 pb-2">
-                    <span className="text-[10px] font-bold text-slate-700 truncate">{p.name}</span>
-                    <span className="text-[9px] font-black bg-amber-100 text-amber-700 px-2 py-0.5 rounded uppercase flex-shrink-0">{p.saleStock + p.rentalStock} Left</span>
+                  <div key={p.id} className="flex justify-between items-center border-b border-amber-50 pb-2">
+                    <span className="text-xs font-semibold text-slate-700 truncate pr-2">{p.name}</span>
+                    <span className="text-[10px] font-semibold bg-amber-100/80 text-amber-700 px-2 py-0.5 rounded flex-shrink-0">{p.saleStock + p.rentalStock} Left</span>
                   </div>
                 ))}
               </div>
@@ -1202,21 +1090,21 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
           </div>
 
           {/* Recent Activity */}
-          <div className="bg-white p-4 justify-between h-full rounded-2xl border border-slate-100 shadow-sm flex flex-col">
+          <div className="bg-white p-4 md:p-5 justify-between h-full rounded-lg border border-slate-200/80 shadow-xs flex flex-col">
             <h3 className="text-sm font-bold text-slate-900 tracking-tight mb-4">Recent Activity Feed</h3>
-            <div className="space-y-4">
+            <div className="space-y-3.5">
               {recentActivities.length > 0 ? recentActivities.map((act, i) => (
-                <div key={`${act.id}-${i}`} className="flex items-start gap-3">
-                  <div className={`p-2 rounded-xl mt-0.5 ${act.color}`}>
-                    {act.icon}
+                <div key={`${act.id}-${i}`} className="flex items-start gap-2.5">
+                  <div className={`p-1.5 rounded-md border ${act.type.includes('Sale') ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : act.type.includes('Rental') ? 'bg-violet-50 text-violet-600 border-violet-100' : 'bg-slate-50 text-slate-600 border-slate-100'}`}>
+                    {React.cloneElement(act.icon as React.ReactElement, { size: 15, strokeWidth: 1.8 })}
                   </div>
                   <div>
-                    <p className="text-xs font-bold text-slate-800">{act.type}</p>
-                    <p className="text-[9px] text-slate-400 font-bold mt-1 uppercase tracking-widest">{format(parseISO(act.time), 'MMM dd, h:mm a')}</p>
+                    <p className="text-xs font-semibold text-slate-800 leading-tight">{act.type}</p>
+                    <p className="text-[10px] text-slate-400 font-medium mt-0.5">{format(parseISO(act.time), 'MMM dd, h:mm a')}</p>
                   </div>
                 </div>
               )) : (
-                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">No recent activity.</p>
+                <p className="text-xs text-slate-400 font-medium">No recent activity.</p>
               )}
             </div>
           </div>
@@ -1224,22 +1112,22 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
       </div>
 
       {/* 7. High Sales Days Section */}
-      <div className="bg-white rounded-2xl border border-slate-100/90 shadow-[0_2px_8px_rgba(0,0,0,0.03)] overflow-hidden">
+      <div className="bg-white rounded-lg border border-slate-200/80 shadow-xs overflow-hidden">
         {/* Header */}
-        <div className="p-4 md:p-6 border-b border-slate-100">
+        <div className="p-4 md:p-5 border-b border-slate-100">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <div className="flex items-center gap-2">
-                <TrendingUp size={18} className="text-violet-600" />
-                <h3 className="text-base font-bold text-slate-900 tracking-tight">High Sales Days</h3>
+                <TrendingUp size={16} className="text-violet-600" />
+                <h3 className="text-sm font-bold text-slate-900 tracking-tight">High Sales Days</h3>
               </div>
               <p className="text-xs text-slate-400 font-medium mt-0.5">All dates where total sales met or exceeded your threshold</p>
             </div>
             {/* Threshold Input */}
             <div className="flex items-center gap-2">
               <span className="text-xs font-semibold text-slate-500 whitespace-nowrap">Min. Sales</span>
-              <div className="flex items-center bg-slate-50 border border-slate-200/80 rounded-xl overflow-hidden">
-                <span className="px-3 py-2 text-sm font-semibold text-slate-500 border-r border-slate-200/80 bg-slate-100/50">₹</span>
+              <div className="flex items-center bg-slate-50 border border-slate-200 rounded-md overflow-hidden">
+                <span className="px-2.5 py-1.5 text-xs font-semibold text-slate-500 border-r border-slate-200 bg-slate-100/50">₹</span>
                 <input
                   type="number"
                   value={salesThresholdInput}
@@ -1257,7 +1145,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
                       (e.target as HTMLInputElement).blur();
                     }
                   }}
-                  className="w-28 px-3 py-2 text-sm font-bold text-slate-800 bg-transparent outline-none"
+                  className="w-24 px-2.5 py-1.5 text-xs font-bold text-slate-800 bg-transparent outline-none"
                   placeholder="5000"
                 />
               </div>
@@ -1266,10 +1154,10 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
                   <button
                     key={amt}
                     onClick={() => { setSalesThreshold(amt); setSalesThresholdInput(String(amt)); }}
-                    className={`px-2.5 py-1.5 rounded-lg text-[10px] font-semibold transition-all ${
+                    className={`px-2 py-1 rounded text-[10px] font-semibold transition-all ${
                       salesThreshold === amt
-                        ? 'bg-violet-600 text-white'
-                        : 'bg-slate-50 text-slate-600 border border-slate-200/80 hover:bg-slate-100'
+                        ? 'bg-slate-900 text-white'
+                        : 'bg-slate-50 text-slate-600 border border-slate-200 hover:bg-slate-100'
                     }`}
                   >
                     {amt >= 1000 ? `${amt / 1000}k` : amt}
@@ -1282,7 +1170,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
           {/* Summary badge */}
           {highSalesDays.length > 0 && (
             <div className="flex items-center gap-2 mt-3">
-              <span className="text-xs font-semibold text-violet-700 bg-violet-50 px-2.5 py-0.5 rounded-lg border border-violet-100/60">
+              <span className="text-xs font-semibold text-slate-700 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
                 {highSalesDays.length} {highSalesDays.length === 1 ? 'day' : 'days'} found
               </span>
               <span className="text-xs text-slate-500 font-medium">
