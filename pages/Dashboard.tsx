@@ -767,217 +767,96 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
         </button>
       </div>
 
-      {/* 2. Top Summary Cards (Dense) */}
+      {/* 2. Top Summary Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
         {/* Card 1: Total Stock */}
-        <div onClick={() => navigate('inventory')} className="bg-white p-3.5 md:p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between cursor-pointer hover:border-highlight hover:shadow-md transition-all group relative">
-          <div className="flex justify-between items-start mb-2">
-            <div className="flex items-center gap-1 min-w-0">
-              <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest group-hover:text-highlight transition-colors truncate">Total Stock</h4>
-              <div className="relative group/info" onClick={(e) => e.stopPropagation()}>
-                <Info size={11} className="text-slate-300 hover:text-slate-500 cursor-pointer transition-colors" />
-                <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-1.5 hidden group-hover/info:block bg-slate-900 text-white text-[8px] font-bold py-1 px-2 rounded-lg shadow-xl whitespace-nowrap z-30 pointer-events-none">
-                  Total inventory units and stock valuation
-                  <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-900" />
-                </div>
-              </div>
-            </div>
-            <div className="p-1.5 bg-slate-50 text-slate-600 rounded-lg group-hover:bg-highlight group-hover:text-slate-900 transition-colors shrink-0"><Package size={14} /></div>
+        <div onClick={() => navigate('inventory')} className="bg-white p-4 md:p-5 rounded-lg border border-slate-200/60 hover:border-slate-300 hover:shadow-md transition-all cursor-pointer group">
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-[11px] font-medium text-slate-400 uppercase tracking-widest">Total Stock</p>
+            <div className="w-8 h-8 bg-slate-100 text-slate-500 rounded-md flex items-center justify-center group-hover:bg-slate-900 group-hover:text-white transition-colors"><Package size={16} /></div>
           </div>
-          <div>
-            <h3 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">{availableStock} <span className="text-[10px] font-bold text-slate-400">Pcs</span></h3>
-            <div className="flex flex-wrap gap-x-1.5 gap-y-1 mt-1.5">
-              <span className="text-[8px] font-black text-indigo-600 bg-indigo-50 border border-indigo-100/30 px-1.5 py-0.5 rounded-lg uppercase tracking-wider">
-                Valuation: {formatMoney(stockValuation)}
-              </span>
-            </div>
-          </div>
+          <h3 className="text-[28px] md:text-[32px] font-extrabold text-slate-900 leading-none tracking-tight">{availableStock}</h3>
+          <p className="text-[13px] font-medium text-slate-400 mt-1">Valuation: <span className="text-slate-600 font-semibold">{formatMoney(stockValuation)}</span></p>
         </div>
 
         {/* Card 2: Sales */}
-        <div onClick={() => navigate('reports')} className="bg-white p-3.5 md:p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between cursor-pointer hover:border-highlight hover:shadow-md transition-all group relative">
-          <div className="flex justify-between items-start mb-2">
-            <div className="flex items-center gap-1 min-w-0">
-              <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest group-hover:text-highlight transition-colors truncate">Sales</h4>
-              <div className="relative group/info" onClick={(e) => e.stopPropagation()}>
-                <Info size={11} className="text-slate-300 hover:text-slate-500 cursor-pointer transition-colors" />
-                <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-1.5 hidden group-hover/info:block bg-slate-900 text-white text-[8px] font-bold py-1 px-2 rounded-lg shadow-xl whitespace-nowrap z-30 pointer-events-none">
-                  Gross revenue, net profit & profit margin
-                  <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-900" />
-                </div>
-              </div>
-            </div>
-            <div className="p-1.5 bg-emerald-50 text-emerald-600 rounded-lg group-hover:bg-highlight group-hover:text-slate-900 transition-colors shrink-0"><TrendingUp size={14} /></div>
+        <div onClick={() => navigate('reports')} className="bg-white p-4 md:p-5 rounded-lg border border-slate-200/60 hover:border-emerald-300 hover:shadow-md transition-all cursor-pointer group">
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-[11px] font-medium text-slate-400 uppercase tracking-widest">Sales</p>
+            <div className="w-8 h-8 bg-emerald-50 text-emerald-600 rounded-md flex items-center justify-center group-hover:bg-emerald-600 group-hover:text-white transition-colors"><TrendingUp size={16} /></div>
           </div>
-          <div>
-            <h3 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">{formatMoney(todaySalesAmount)}</h3>
-            <div className="flex flex-wrap gap-x-1.5 gap-y-1 mt-1.5">
-              <span className="text-[8px] font-black text-emerald-600 bg-emerald-50 border border-emerald-100/30 px-1.5 py-0.5 rounded-lg uppercase tracking-wider">
-                Profit: {formatMoney(todayProfit)}
-              </span>
-              <span className="text-[8px] font-black text-[#8B5CF6] bg-[#8B5CF6]/5 border border-[#8B5CF6]/10 px-1.5 py-0.5 rounded-lg uppercase tracking-wider">
-                Margin: {todayProfitPercent.toFixed(1)}%
-              </span>
-            </div>
+          <h3 className="text-[28px] md:text-[32px] font-extrabold text-slate-900 leading-none tracking-tight">{formatMoney(todaySalesAmount)}</h3>
+          <div className="flex items-center gap-2 mt-1.5">
+            <p className="text-[13px] font-medium text-emerald-600">Profit: <span className="font-semibold">{formatMoney(todayProfit)}</span></p>
+            <span className="text-[11px] font-semibold text-violet-600 bg-violet-50 px-1.5 py-0.5 rounded">{todayProfitPercent.toFixed(1)}%</span>
           </div>
         </div>
 
         {/* Card 3: Active Rentals */}
-        <div onClick={() => navigate('rentals')} className="bg-white p-3.5 md:p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between cursor-pointer hover:border-highlight hover:shadow-md transition-all group relative">
-          <div className="flex justify-between items-start mb-2">
-            <div className="flex items-center gap-1 min-w-0">
-              <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest group-hover:text-highlight transition-colors truncate">Active Rentals</h4>
-              <div className="relative group/info" onClick={(e) => e.stopPropagation()}>
-                <Info size={11} className="text-slate-300 hover:text-slate-500 cursor-pointer transition-colors" />
-                <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-1.5 hidden group-hover/info:block bg-slate-900 text-white text-[8px] font-bold py-1 px-2 rounded-lg shadow-xl whitespace-nowrap z-30 pointer-events-none">
-                  Items currently out on rent with customers
-                  <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-900" />
-                </div>
-              </div>
-            </div>
-            <div className="p-1.5 bg-rose-50 text-rose-600 rounded-lg group-hover:bg-highlight group-hover:text-slate-900 transition-colors shrink-0"><ShoppingBag size={14} /></div>
+        <div onClick={() => navigate('rentals')} className="bg-white p-4 md:p-5 rounded-lg border border-slate-200/60 hover:border-blue-300 hover:shadow-md transition-all cursor-pointer group">
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-[11px] font-medium text-slate-400 uppercase tracking-widest">Active Rentals</p>
+            <div className="w-8 h-8 bg-blue-50 text-blue-600 rounded-md flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-colors"><ShoppingBag size={16} /></div>
           </div>
-          <div>
-            <h3 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">{activeRentalsToShow.length}</h3>
-            <div className="flex flex-wrap gap-x-1.5 gap-y-1 mt-1.5">
-              <span className="text-[8px] font-black text-rose-600 bg-rose-50 border border-rose-100/30 px-1.5 py-0.5 rounded-lg uppercase tracking-wider">
-                Value: {formatMoney(activeRentalsValue)}
-              </span>
-            </div>
-          </div>
+          <h3 className="text-[28px] md:text-[32px] font-extrabold text-slate-900 leading-none tracking-tight">{activeRentalsToShow.length}</h3>
+          <p className="text-[13px] font-medium text-slate-400 mt-1">Value: <span className="text-slate-600 font-semibold">{formatMoney(activeRentalsValue)}</span></p>
         </div>
 
         {/* Card 4: Returns Due */}
-        <div onClick={() => navigate('rentals')} className="bg-white p-3.5 md:p-5 rounded-2xl border border-rose-100 bg-rose-50/20 shadow-sm flex flex-col justify-between cursor-pointer hover:border-rose-300 hover:shadow-md transition-all group relative">
-          <div className="flex justify-between items-start mb-2">
-            <div className="flex items-center gap-1 min-w-0">
-              <h4 className="text-[10px] font-bold text-rose-500 uppercase tracking-widest truncate">Returns Due</h4>
-              <div className="relative group/info" onClick={(e) => e.stopPropagation()}>
-                <Info size={11} className="text-rose-300 hover:text-rose-500 cursor-pointer transition-colors" />
-                <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-1.5 hidden group-hover/info:block bg-slate-900 text-white text-[8px] font-bold py-1 px-2 rounded-lg shadow-xl whitespace-nowrap z-30 pointer-events-none">
-                  Rental items due for return today or overdue
-                  <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-900" />
-                </div>
-              </div>
-            </div>
-            <div className="p-1.5 bg-rose-100 text-rose-600 rounded-lg group-hover:bg-rose-200 transition-colors shrink-0"><AlertTriangle size={14} /></div>
+        <div onClick={() => navigate('rentals')} className="bg-rose-50/40 p-4 md:p-5 rounded-lg border border-rose-200/60 hover:border-rose-300 hover:shadow-md transition-all cursor-pointer group">
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-[11px] font-medium text-rose-400 uppercase tracking-widest">Returns Due</p>
+            <div className="w-8 h-8 bg-rose-100 text-rose-600 rounded-md flex items-center justify-center group-hover:bg-rose-600 group-hover:text-white transition-colors"><AlertTriangle size={16} /></div>
           </div>
-          <div>
-            <h3 className="text-xl md:text-2xl font-black text-rose-600 tracking-tight">{returnsDueCount}</h3>
-            <div className="flex flex-wrap gap-x-1.5 gap-y-1 mt-1.5">
-              <span className="text-[8px] font-black text-rose-600 bg-rose-50 border border-rose-100/30 px-1.5 py-0.5 rounded-lg uppercase tracking-wider">
-                Value: {formatMoney(returnsDueValue)}
-              </span>
-            </div>
-          </div>
+          <h3 className="text-[28px] md:text-[32px] font-extrabold text-rose-600 leading-none tracking-tight">{returnsDueCount}</h3>
+          <p className="text-[13px] font-medium text-rose-400 mt-1">Value: <span className="text-rose-600 font-semibold">{formatMoney(returnsDueValue)}</span></p>
         </div>
 
         {/* Card 5: Pending Payments */}
-        <div onClick={() => navigate('reports')} className="bg-white p-3.5 md:p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between cursor-pointer hover:border-highlight hover:shadow-md transition-all group relative">
-          <div className="flex justify-between items-start mb-2">
-            <div className="flex items-center gap-1 min-w-0">
-              <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest group-hover:text-highlight transition-colors truncate">Pending Credit</h4>
-              <div className="relative group/info" onClick={(e) => e.stopPropagation()}>
-                <Info size={11} className="text-slate-300 hover:text-slate-500 cursor-pointer transition-colors" />
-                <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-1.5 hidden group-hover/info:block bg-slate-900 text-white text-[8px] font-bold py-1 px-2 rounded-lg shadow-xl whitespace-nowrap z-30 pointer-events-none">
-                  Total unpaid credit balance from customers
-                  <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-900" />
-                </div>
-              </div>
-            </div>
-            <div className="p-1.5 bg-amber-50 text-amber-600 rounded-lg group-hover:bg-highlight group-hover:text-slate-900 transition-colors shrink-0"><IndianRupee size={14} /></div>
+        <div onClick={() => navigate('reports')} className="bg-white p-4 md:p-5 rounded-lg border border-slate-200/60 hover:border-amber-300 hover:shadow-md transition-all cursor-pointer group">
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-[11px] font-medium text-slate-400 uppercase tracking-widest">Pending Credit</p>
+            <div className="w-8 h-8 bg-amber-50 text-amber-600 rounded-md flex items-center justify-center group-hover:bg-amber-600 group-hover:text-white transition-colors"><IndianRupee size={16} /></div>
           </div>
-          <div>
-            <h3 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">{formatMoney(totalPendingPayments)}</h3>
-            <div className="flex flex-wrap gap-x-1.5 gap-y-1 mt-1.5">
-              <span className="text-[8px] font-black text-amber-600 bg-amber-50 border border-amber-100/30 px-1.5 py-0.5 rounded-lg uppercase tracking-wider">
-                {customersWithCredit} Customers
-              </span>
-            </div>
-          </div>
+          <h3 className="text-[28px] md:text-[32px] font-extrabold text-slate-900 leading-none tracking-tight">{formatMoney(totalPendingPayments)}</h3>
+          <p className="text-[13px] font-medium text-slate-400 mt-1"><span className="text-slate-600 font-semibold">{customersWithCredit}</span> Customers</p>
         </div>
 
         {/* Card 6: Customers */}
-        <div onClick={() => navigate('customers')} className="bg-white p-3.5 md:p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between cursor-pointer hover:border-highlight hover:shadow-md transition-all group relative">
-          <div className="flex justify-between items-start mb-2">
-            <div className="flex items-center gap-1 min-w-0">
-              <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest group-hover:text-highlight transition-colors truncate">Customers</h4>
-              <div className="relative group/info" onClick={(e) => e.stopPropagation()}>
-                <Info size={11} className="text-slate-300 hover:text-slate-500 cursor-pointer transition-colors" />
-                <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-1.5 hidden group-hover/info:block bg-slate-900 text-white text-[8px] font-bold py-1 px-2 rounded-lg shadow-xl whitespace-nowrap z-30 pointer-events-none">
-                  Customer directory breakdown (New vs Repeat)
-                  <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-900" />
-                </div>
-              </div>
-            </div>
-            <div className="p-1.5 bg-sky-50 text-sky-600 rounded-lg group-hover:bg-highlight group-hover:text-slate-900 transition-colors shrink-0"><Users size={14} /></div>
+        <div onClick={() => navigate('customers')} className="bg-white p-4 md:p-5 rounded-lg border border-slate-200/60 hover:border-sky-300 hover:shadow-md transition-all cursor-pointer group">
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-[11px] font-medium text-slate-400 uppercase tracking-widest">Customers</p>
+            <div className="w-8 h-8 bg-sky-50 text-sky-600 rounded-md flex items-center justify-center group-hover:bg-sky-600 group-hover:text-white transition-colors"><Users size={16} /></div>
           </div>
-          <div>
-            <h3 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">{customersCountToShow}</h3>
-            <div className="flex flex-wrap gap-x-1.5 gap-y-1 mt-1.5">
-              <span className="text-[8px] font-black text-emerald-650 bg-emerald-50 border border-emerald-100/30 px-1.5 py-0.5 rounded-lg uppercase tracking-wider">
-                Repeat: {repeatCustomersCount}
-              </span>
-              <span className="text-[8px] font-black text-indigo-650 bg-indigo-50 border border-indigo-100/30 px-1.5 py-0.5 rounded-lg uppercase tracking-wider">
-                New: {newCustomersCount}
-              </span>
-            </div>
+          <h3 className="text-[28px] md:text-[32px] font-extrabold text-slate-900 leading-none tracking-tight">{customersCountToShow}</h3>
+          <div className="flex items-center gap-3 mt-1.5">
+            <p className="text-[13px] font-medium text-emerald-600">Repeat: <span className="font-semibold">{repeatCustomersCount}</span></p>
+            <p className="text-[13px] font-medium text-indigo-600">New: <span className="font-semibold">{newCustomersCount}</span></p>
           </div>
         </div>
 
         {/* Card 7: Net Income */}
-        <div onClick={() => navigate('reports')} className="bg-white p-3.5 md:p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col justify-between cursor-pointer hover:border-highlight hover:shadow-md transition-all group relative">
-          <div className="flex justify-between items-start mb-2">
-            <div className="flex items-center gap-1 min-w-0">
-              <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest group-hover:text-[#10B981] transition-colors truncate">Net Income</h4>
-              <div className="relative group/info" onClick={(e) => e.stopPropagation()}>
-                <Info size={11} className="text-slate-300 hover:text-slate-500 cursor-pointer transition-colors" />
-                <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-1.5 hidden group-hover/info:block bg-slate-900 text-white text-[8px] font-bold py-1 px-2 rounded-lg shadow-xl whitespace-nowrap z-30 pointer-events-none">
-                  Net income calculated as gross profit minus expenses
-                  <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-900" />
-                </div>
-              </div>
-            </div>
-            <div className="p-1.5 bg-emerald-50 text-emerald-600 rounded-lg group-hover:bg-[#10B981] group-hover:text-white transition-colors shrink-0"><TrendingUp size={14} /></div>
+        <div onClick={() => navigate('reports')} className="bg-white p-4 md:p-5 rounded-lg border border-slate-200/60 hover:border-emerald-300 hover:shadow-md transition-all cursor-pointer group">
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-[11px] font-medium text-slate-400 uppercase tracking-widest">Net Income</p>
+            <div className={`w-8 h-8 rounded-md flex items-center justify-center transition-colors ${todayProfit - totalExpensesAmount >= 0 ? 'bg-emerald-50 text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white' : 'bg-rose-50 text-rose-600 group-hover:bg-rose-600 group-hover:text-white'}`}><TrendingUp size={16} /></div>
           </div>
-          <div>
-            <h3 className={`text-lg md:text-xl font-black tracking-tight ${todayProfit - totalExpensesAmount >= 0 ? 'text-[#10B981]' : 'text-rose-600'}`}>
-              {formatMoney(todayProfit - totalExpensesAmount)}
-            </h3>
-            <div className="flex flex-wrap gap-x-1.5 gap-y-1 mt-1.5">
-              <span className={`text-[8px] font-black px-1.5 py-0.5 rounded-lg uppercase tracking-wider ${todayProfit - totalExpensesAmount >= 0
-                ? 'text-emerald-600 bg-emerald-50 border border-emerald-100/30'
-                : 'text-rose-650 bg-rose-50 border border-rose-100/30'
-                }`}>
-                {todayProfit - totalExpensesAmount >= 0 ? 'Surplus' : 'Deficit'}
-              </span>
-            </div>
-          </div>
+          <h3 className={`text-[28px] md:text-[32px] font-extrabold leading-none tracking-tight ${todayProfit - totalExpensesAmount >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
+            {formatMoney(todayProfit - totalExpensesAmount)}
+          </h3>
+          <p className={`text-[13px] font-semibold mt-1 ${todayProfit - totalExpensesAmount >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
+            {todayProfit - totalExpensesAmount >= 0 ? '↑ Surplus' : '↓ Deficit'}
+          </p>
         </div>
 
         {/* Card 8: Expenses */}
-        <div onClick={() => navigate('reports')} className="bg-white p-3.5 md:p-5 rounded-2xl border border-rose-100 bg-rose-50/10 shadow-sm flex flex-col justify-between cursor-pointer hover:border-rose-300 hover:shadow-md transition-all group relative">
-          <div className="flex justify-between items-start mb-2">
-            <div className="flex items-center gap-1 min-w-0">
-              <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest group-hover:text-rose-600 transition-colors truncate">Expenses</h4>
-              <div className="relative group/info" onClick={(e) => e.stopPropagation()}>
-                <Info size={11} className="text-slate-300 hover:text-rose-500 cursor-pointer transition-colors" />
-                <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-1.5 hidden group-hover/info:block bg-slate-900 text-white text-[8px] font-bold py-1 px-2 rounded-lg shadow-xl whitespace-nowrap z-30 pointer-events-none">
-                  Total operating cash out & store expenses recorded
-                  <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-900" />
-                </div>
-              </div>
-            </div>
-            <div className="p-1.5 bg-rose-100 text-rose-700 rounded-lg shrink-0"><Wallet size={14} /></div>
+        <div onClick={() => navigate('reports')} className="bg-white p-4 md:p-5 rounded-lg border border-slate-200/60 hover:border-rose-300 hover:shadow-md transition-all cursor-pointer group">
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-[11px] font-medium text-slate-400 uppercase tracking-widest">Expenses</p>
+            <div className="w-8 h-8 bg-rose-50 text-rose-600 rounded-md flex items-center justify-center group-hover:bg-rose-600 group-hover:text-white transition-colors"><Wallet size={16} /></div>
           </div>
-          <div>
-            <h3 className="text-xl md:text-2xl font-black text-rose-700 tracking-tight">{formatMoney(totalExpensesAmount)}</h3>
-            <div className="flex flex-wrap gap-x-1.5 gap-y-1 mt-1.5">
-              <span className="text-[8px] font-black text-rose-650 bg-rose-50 border border-rose-100/30 px-1.5 py-0.5 rounded-lg uppercase tracking-wider">
-                {expensesToShow.length} Records
-              </span>
-            </div>
-          </div>
+          <h3 className="text-[28px] md:text-[32px] font-extrabold text-slate-900 leading-none tracking-tight">{formatMoney(totalExpensesAmount)}</h3>
+          <p className="text-[13px] font-medium text-slate-400 mt-1"><span className="text-slate-600 font-semibold">{expensesToShow.length}</span> Records</p>
         </div>
       </div>
 
