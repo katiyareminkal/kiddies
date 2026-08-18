@@ -44,21 +44,21 @@ const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ onScanSuccess, onClose 
 
   return (
     <div className="fixed inset-0 z-[100] bg-slate-900/40 backdrop-blur-sm flex flex-col items-center justify-center p-4">
-      <div className="bg-white rounded-2xl md:rounded-[2rem] w-full max-w-md shadow-2xl overflow-hidden animate-nano flex flex-col">
-        <div className="flex items-center justify-between p-4 md:p-6 border-b border-slate-50">
-          <h3 className="text-[10px] md:text-xs font-black text-slate-900 uppercase tracking-widest">
+      <div className="bg-white rounded-lg w-full max-w-md shadow-lg overflow-hidden animate-nano flex flex-col">
+        <div className="flex items-center justify-between p-4 md:p-5 border-b border-gray-100">
+          <h3 className="text-[10px] md:text-xs font-bold text-gray-900 uppercase tracking-widest">
             Scan Barcode / SKU
           </h3>
           <button 
             onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center bg-slate-50 text-slate-400 hover:bg-slate-100 hover:text-slate-900 rounded-xl transition-colors"
+            className="w-8 h-8 flex items-center justify-center bg-gray-50 text-gray-400 hover:bg-gray-100 hover:text-gray-900 rounded-md transition-colors"
           >
             <X size={14} strokeWidth={3} />
           </button>
         </div>
-        <div className="p-4 md:p-6 relative">
-          <div id="reader" className="w-full rounded-2xl overflow-hidden border-2 border-slate-50"></div>
-          <p className="text-[8px] md:text-[9px] font-bold text-slate-400 text-center mt-4 uppercase tracking-widest">
+        <div className="p-4 md:p-5 relative">
+          <div id="reader" className="w-full rounded-md overflow-hidden border border-gray-200"></div>
+          <p className="text-[8px] md:text-[9px] font-bold text-gray-400 text-center mt-4 uppercase tracking-widest">
             Position barcode inside the frame
           </p>
         </div>

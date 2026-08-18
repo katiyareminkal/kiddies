@@ -566,7 +566,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
         <select 
           value={printGarmentSize} 
           onChange={e => setPrintGarmentSize(e.target.value)}
-          className="text-[9px] font-bold uppercase tracking-widest border border-slate-200 rounded-lg px-2 py-1.5 outline-none bg-slate-50 text-slate-700 max-w-[80px]"
+          className="text-[9px] font-bold uppercase tracking-wider border border-slate-200 rounded-md px-2 py-1.5 outline-none bg-slate-50 text-slate-700 max-w-[80px]"
         >
           <option value="">Size...</option>
           {selectedSizes.map(s => <option key={s} value={s}>{s}</option>)}
@@ -575,7 +575,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
       <select 
         value={printLabelSize} 
         onChange={e => setPrintLabelSize(e.target.value as '50x30' | '30x50')}
-        className="text-[9px] font-bold uppercase tracking-widest border border-slate-200 rounded-lg px-2 py-1.5 outline-none bg-slate-50 text-slate-700"
+        className="text-[9px] font-bold uppercase tracking-wider border border-slate-200 rounded-md px-2 py-1.5 outline-none bg-slate-50 text-slate-700"
       >
         <option value="30x50">30x50mm</option>
         <option value="50x30">50x30mm</option>
@@ -583,7 +583,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
       <button 
         type="button" 
         onClick={handleOpenLabelEditor}
-        className="px-3 py-1.5 bg-[#8B5CF6] text-white rounded-lg font-black uppercase tracking-widest text-[9px] flex items-center gap-1.5 shadow-sm hover:bg-[#7C3AED] transition-colors"
+        className="px-3 py-1.5 bg-[#fe569f] text-white rounded-md font-extrabold uppercase tracking-wider text-[9px] flex items-center gap-1.5 shadow-xs hover:bg-[#eb4890] transition-colors"
         title="Create Thermal Label"
       >
         <Palette size={12} strokeWidth={2.5} />
@@ -596,7 +596,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
     <>
       {successMessage && createPortal(
         <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[9999] pointer-events-none animate-in slide-in-from-top-4 fade-in duration-300">
-          <div className="bg-slate-900/90 backdrop-blur-xl border border-slate-700/50 text-white rounded-full px-5 py-2.5 shadow-2xl shadow-slate-950/50 flex items-center gap-3">
+          <div className="bg-slate-900/90 backdrop-blur-xl border border-slate-700/50 text-white rounded-md px-5 py-2.5 shadow-2xl shadow-slate-950/50 flex items-center gap-3">
             <div className="w-6 h-6 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center shrink-0">
               <CheckCircle2 size={14} strokeWidth={2.5} />
             </div>
@@ -612,21 +612,21 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
         title={productToEdit ? "Edit Product" : "New Product"}
         headerActions={headerActions}
       >
-        <form ref={formRef} onSubmit={handleSaveProduct} className="space-y-4 max-h-[70vh] overflow-y-auto px-1 scrollbar-hide">
+        <form ref={formRef} onSubmit={handleSaveProduct} className="space-y-3.5 max-h-[70vh] overflow-y-auto px-1 scrollbar-hide">
           {/* Image Upload Section */}
           <div className="space-y-1.5">
-            <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Product Image</label>
-            <div className="flex items-center gap-4">
-              <div className="w-24 h-24 bg-slate-50 rounded-3xl border border-slate-100 overflow-hidden shrink-0 flex items-center justify-center relative group">
+            <label className="text-[9px] font-extrabold uppercase tracking-wider text-slate-400 ml-1">Product Image</label>
+            <div className="flex items-center gap-3">
+              <div className="w-20 h-20 bg-slate-50 rounded-md border border-slate-200/80 overflow-hidden shrink-0 flex items-center justify-center relative group">
                 {previewImage ? (
                   <>
                     <img src={previewImage} alt="Preview" className="w-full h-full object-cover" />
                     <button 
                       type="button" 
                       onClick={handleRemoveImage}
-                      className="absolute top-1 right-1 bg-rose-500 text-white p-1 rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-all"
+                      className="absolute top-1 right-1 bg-rose-500 text-white p-1 rounded shadow-md opacity-0 group-hover:opacity-100 transition-all"
                     >
-                      <X size={12} strokeWidth={3} />
+                      <X size={11} strokeWidth={3} />
                     </button>
                   </>
                 ) : (
@@ -637,10 +637,10 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
                 <button 
                   type="button" 
                   onClick={() => fileInputRef.current?.click()}
-                  className="w-full border border-dashed border-slate-200 rounded-2xl py-6 flex flex-col items-center gap-2 text-slate-400 hover:border-[#8B5CF6] hover:text-[#8B5CF6] hover:bg-[#8B5CF6]/5 transition-all outline-none"
+                  className="w-full border border-dashed border-slate-200 rounded-md py-4 flex flex-col items-center gap-1 text-slate-400 hover:border-[#01a9fb] hover:text-[#01a9fb] hover:bg-[#01a9fb]/5 transition-all outline-none"
                 >
-                  <Upload size={18} strokeWidth={3} />
-                  <span className="text-[8px] font-black uppercase tracking-widest text-center">Upload Photo<br/><span className="text-slate-300 font-bold lowercase tracking-normal">(Max 5MB)</span></span>
+                  <Upload size={16} strokeWidth={2.5} />
+                  <span className="text-[8px] font-extrabold uppercase tracking-wider text-center">Upload Photo <span className="text-slate-300 lowercase font-normal">(Max 5MB)</span></span>
                 </button>
                 <input 
                   type="file" 
@@ -653,20 +653,18 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
             </div>
           </div>
 
-
-
           <div className="space-y-1.5">
-            <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Product Purpose</label>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+            <label className="text-[9px] font-extrabold uppercase tracking-wider text-slate-400 ml-1">Product Purpose</label>
+            <div className="grid grid-cols-3 gap-2">
               {(['SALE', 'RENTAL', 'HYBRID'] as const).map(p => (
                 <button
                   key={p}
                   type="button"
                   onClick={() => setProductPurpose(p)}
-                  className={`py-2.5 rounded-xl text-[8px] font-black uppercase tracking-widest transition-all border ${
+                  className={`py-2 rounded-md text-[9px] font-extrabold uppercase tracking-wider transition-all border ${
                     productPurpose === p 
-                      ? 'bg-[#8B5CF6] border-[#8B5CF6] text-white shadow-lg shadow-[#8B5CF6]/20' 
-                      : 'bg-slate-50 border-slate-50 text-slate-400'
+                      ? p === 'RENTAL' ? 'bg-[#fe569f] border-[#fe569f] text-white shadow-xs' : 'bg-[#01a9fb] border-[#01a9fb] text-white shadow-xs'
+                      : 'bg-slate-50 border-slate-200 text-slate-500 hover:bg-slate-100'
                   }`}
                 >
                   {p === 'SALE' ? 'Sale Only' : p === 'RENTAL' ? 'Rental Only' : 'Hybrid'}
@@ -677,11 +675,11 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Product Name <span className="text-red-500">*</span></label>
-              <input name="name" defaultValue={productToEdit?.name} required className="w-full px-4 py-3 bg-slate-50 border-slate-100 border focus:bg-white focus:border-[#8B5CF6]/30 rounded-2xl outline-none transition-all font-black uppercase tracking-widest text-slate-700 text-[10px]" placeholder="e.g. Designer Suit" />
+              <label className="text-[9px] font-bold uppercase tracking-widest text-gray-400 ml-1">Product Name <span className="text-red-500">*</span></label>
+              <input name="name" defaultValue={productToEdit?.name} required className="w-full px-4 py-3 bg-gray-50 border-gray-200/60 border focus:bg-white focus:border-[#8B5CF6]/30 rounded-xl outline-none transition-all font-bold uppercase tracking-widest text-gray-700 text-[10px]" placeholder="e.g. Designer Suit" />
             </div>
             <div className="space-y-1.5">
-              <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Gender</label>
+              <label className="text-[9px] font-bold uppercase tracking-widest text-gray-400 ml-1">Gender</label>
               <select 
                 name="gender" 
                 value={selectedGender} 
@@ -692,7 +690,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
                   setSelectedCategory(firstCat);
                   setSelectedSubCategory('');
                 }}
-                className="w-full px-4 py-3 bg-slate-50 border-slate-100 border focus:bg-white focus:border-[#8B5CF6]/30 rounded-2xl outline-none transition-all font-black uppercase tracking-widest text-slate-700 text-[10px] appearance-none"
+                className="w-full px-4 py-3 bg-gray-50 border-gray-200/60 border focus:bg-white focus:border-[#8B5CF6]/30 rounded-xl outline-none transition-all font-bold uppercase tracking-widest text-gray-700 text-[10px] appearance-none"
               >
                 <option value="">-- Select Gender --</option>
                 {Array.from(new Set([...GENDERS, ...(selectedGender ? [selectedGender] : [])])).map(g => (
@@ -704,7 +702,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Category</label>
+              <label className="text-[9px] font-bold uppercase tracking-widest text-gray-400 ml-1">Category</label>
               <select 
                 name="category" 
                 id="category-select" 
@@ -713,7 +711,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
                   setSelectedCategory(e.target.value);
                   setSelectedSubCategory('');
                 }} 
-                className="w-full px-4 py-3 bg-slate-50 border-slate-100 border focus:bg-white focus:border-[#8B5CF6]/30 rounded-2xl outline-none transition-all font-black uppercase tracking-widest text-slate-700 text-[10px] appearance-none"
+                className="w-full px-4 py-3 bg-gray-50 border-gray-200/60 border focus:bg-white focus:border-[#8B5CF6]/30 rounded-xl outline-none transition-all font-bold uppercase tracking-widest text-gray-700 text-[10px] appearance-none"
               >
                 <option value="">-- Select Category --</option>
                 {Array.from(new Set([
@@ -723,13 +721,13 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
               </select>
             </div>
             <div className="space-y-1.5">
-              <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Sub Category</label>
+              <label className="text-[9px] font-bold uppercase tracking-widest text-gray-400 ml-1">Sub Category</label>
               <select 
                 name="subCategory" 
                 id="subcategory-select" 
                 value={selectedSubCategory} 
                 onChange={(e) => setSelectedSubCategory(e.target.value)}
-                className="w-full px-4 py-3 bg-slate-50 border-slate-100 border focus:bg-white focus:border-[#8B5CF6]/30 rounded-2xl outline-none transition-all font-black uppercase tracking-widest text-slate-700 text-[10px] appearance-none"
+                className="w-full px-4 py-3 bg-gray-50 border-gray-200/60 border focus:bg-white focus:border-[#8B5CF6]/30 rounded-xl outline-none transition-all font-bold uppercase tracking-widest text-gray-700 text-[10px] appearance-none"
               >
                 <option value="">-- Select Sub Category --</option>
                 {Array.from(new Set([
@@ -741,12 +739,12 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
               </select>
             </div>
             <div className="space-y-1.5 md:col-span-2">
-              <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Type (Half/Full/Set)</label>
+              <label className="text-[9px] font-bold uppercase tracking-widest text-gray-400 ml-1">Type (Half/Full/Set)</label>
               <select 
                 name="clothingType" 
                 value={selectedClothingType} 
                 onChange={(e) => setSelectedClothingType(e.target.value)}
-                className="w-full px-4 py-3 bg-slate-50 border-slate-100 border focus:bg-white focus:border-[#8B5CF6]/30 rounded-2xl outline-none transition-all font-black uppercase tracking-widest text-slate-700 text-[10px] appearance-none"
+                className="w-full px-4 py-3 bg-gray-50 border-gray-200/60 border focus:bg-white focus:border-[#8B5CF6]/30 rounded-xl outline-none transition-all font-bold uppercase tracking-widest text-gray-700 text-[10px] appearance-none"
               >
                 <option value="">-- Select Clothing Type --</option>
                 {Array.from(new Set([
@@ -760,9 +758,9 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
           </div>
 
           {/* Sizes Management */}
-          <div className="space-y-3 border-t border-slate-50 pt-4">
+          <div className="space-y-3 border-t border-gray-100 pt-4">
             <div className="flex justify-between items-center ml-1">
-              <label className="text-[9px] font-black uppercase tracking-widest text-slate-400">Sizes <span className="text-red-500">*</span></label>
+              <label className="text-[9px] font-bold uppercase tracking-widest text-gray-400">Sizes <span className="text-red-500">*</span></label>
               {selectedSizes.length > 0 && (
                 <button 
                   type="button" 
@@ -776,9 +774,9 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
 
             {/* Active Selected Size Tags */}
             {selectedSizes.length > 0 && (
-              <div className="flex flex-wrap gap-2 mb-2 bg-slate-50 p-3 rounded-2xl border border-slate-100">
+              <div className="flex flex-wrap gap-2 mb-2 bg-gray-50 p-3 rounded-xl border border-gray-200/60">
                 {selectedSizes.map(size => (
-                  <span key={size} className="bg-slate-900 text-white text-[10px] font-black uppercase tracking-wider px-3.5 py-2 rounded-xl flex items-center gap-2 shadow-xs">
+                  <span key={size} className="bg-slate-900 text-white text-[10px] font-bold uppercase tracking-wider px-3.5 py-2 rounded-xl flex items-center gap-2 shadow-xs">
                     {size}
                     <button type="button" onClick={() => removeSizeTag(size)} className="hover:text-rose-400 transition-colors">
                       <X size={12} strokeWidth={4} />
@@ -795,31 +793,31 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
                 value={sizeInput}
                 onChange={(e) => setSizeInput(e.target.value)}
                 onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addSizeTag(sizeInput); } }}
-                className="flex-1 px-4 py-3 bg-slate-50 border-slate-100 border focus:bg-white focus:border-[#8B5CF6]/30 rounded-2xl outline-none transition-all font-black uppercase tracking-widest text-slate-700 text-[11px]" 
+                className="flex-1 px-3 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#01a9fb] rounded-md outline-none transition-all font-bold uppercase tracking-wider text-slate-800 text-xs" 
                 placeholder="Custom size (e.g. 28, 45cm, 2-3Y) & press Enter" 
               />
               <button 
                 type="button" 
                 onClick={() => addSizeTag(sizeInput)}
-                className="bg-slate-100 text-slate-700 px-5 py-3 rounded-2xl hover:bg-slate-200 transition-all font-black uppercase tracking-widest text-[9.5px]"
+                className="bg-slate-100 text-slate-800 px-4 py-2 rounded-md hover:bg-slate-200 transition-all font-bold uppercase tracking-wider text-xs"
               >
                 Add
               </button>
             </div>
 
             {/* Size Category Tabs & Organized Quick Picks */}
-            <div className="bg-slate-50/80 p-3.5 rounded-2xl border border-slate-100 space-y-3">
-              <div className="flex flex-wrap items-center gap-2 pb-1">
-                <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest mr-1 shrink-0">Articles:</span>
+            <div className="bg-slate-50/80 p-3 rounded-md border border-slate-200 space-y-2.5">
+              <div className="flex flex-wrap items-center gap-1.5 pb-1">
+                <span className="text-[9px] font-extrabold text-slate-400 uppercase tracking-wider mr-1 shrink-0">Articles:</span>
                 {SIZE_CATEGORIES.map(cat => (
                   <button
                     key={cat.id}
                     type="button"
                     onClick={() => setActiveSizeCategory(cat.id)}
-                    className={`text-[9.5px] font-black uppercase tracking-wider px-3.5 py-2 rounded-xl transition-all shrink-0 ${
+                    className={`text-[9.5px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-md transition-all shrink-0 ${
                       activeSizeCategory === cat.id
-                        ? 'bg-[#8B5CF6] text-white shadow-sm'
-                        : 'bg-white text-slate-600 hover:text-slate-900 border border-slate-200/80'
+                        ? 'bg-[#01a9fb] text-white shadow-xs'
+                        : 'bg-white text-slate-600 hover:text-slate-900 border border-slate-200'
                     }`}
                   >
                     {cat.label}
@@ -827,8 +825,8 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
                 ))}
               </div>
 
-              {/* Categorized Size Chips (Toggleable) */}
-              <div className="flex flex-wrap gap-2 pt-1">
+              {/* Categorized Size Chips */}
+              <div className="flex flex-wrap gap-1.5 pt-0.5">
                 {SIZE_CATEGORIES.find(c => c.id === activeSizeCategory)?.sizes.map(size => {
                   const isSelected = selectedSizes.includes(size);
                   return (
@@ -836,10 +834,10 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
                       key={size} 
                       type="button"
                       onClick={() => isSelected ? removeSizeTag(size) : addSizeTag(size)}
-                      className={`text-[10.5px] font-black px-3 py-2 rounded-xl transition-all ${
+                      className={`text-[10px] font-bold px-2.5 py-1 rounded-md transition-all ${
                         isSelected
-                          ? 'bg-[#8B5CF6] text-white shadow-xs scale-105'
-                          : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-100 hover:border-slate-300'
+                          ? 'bg-[#01a9fb] text-white shadow-xs'
+                          : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-100'
                       }`}
                     >
                       {isSelected ? `✓ ${size}` : size}
@@ -850,14 +848,14 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-slate-50 pt-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 border-t border-slate-100 pt-3.5">
             <div className="space-y-1.5">
               <div className="flex justify-between items-center ml-1">
-                <label className="text-[9px] font-black uppercase tracking-widest text-slate-400">SKU <span className="text-red-500">*</span></label>
+                <label className="text-[9px] font-extrabold uppercase tracking-wider text-slate-400">SKU <span className="text-red-500">*</span></label>
                 <button 
                   type="button" 
                   onClick={generateAutoSKU}
-                  className="text-[8px] font-black uppercase tracking-widest text-[#8B5CF6] hover:underline transition-all"
+                  className="text-[8px] font-bold uppercase tracking-wider text-[#01a9fb] hover:underline transition-all"
                 >
                   Auto-Generate
                 </button>
@@ -868,63 +866,63 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
                   value={skuValue}
                   onChange={(e) => setSkuValue(e.target.value)}
                   required 
-                  className="w-full pl-4 pr-10 py-3 bg-slate-50 border-slate-100 border focus:bg-white focus:border-[#8B5CF6]/30 rounded-2xl outline-none transition-all font-black uppercase tracking-widest text-slate-700 text-[10px]" 
+                  className="w-full pl-3 pr-10 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#01a9fb] rounded-md outline-none transition-all font-bold uppercase tracking-wider text-slate-800 text-xs" 
                   placeholder="DSG-001" 
                 />
                 <button 
                   type="button"
                   onClick={() => { setScannerTarget('SKU'); setIsScannerOpen(true); }}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-slate-100 text-slate-400 hover:bg-[#8B5CF6] hover:text-white rounded-xl transition-all shadow-sm group"
+                  className="absolute right-1.5 top-1/2 -translate-y-1/2 p-1.5 bg-slate-100 text-slate-500 hover:bg-[#01a9fb] hover:text-white rounded-md transition-all shadow-xs group"
                   title="Scan Barcode"
                 >
-                  <ScanLine size={14} strokeWidth={2.5} className="group-active:scale-95 transition-transform" />
+                  <ScanLine size={13} strokeWidth={2.2} className="group-active:scale-95 transition-transform" />
                 </button>
               </div>
             </div>
             <div className="space-y-1.5">
-              <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Brand</label>
-              <input name="brand" defaultValue={productToEdit?.brand} className="w-full px-4 py-3 bg-slate-50 border-slate-100 border focus:bg-white focus:border-[#8B5CF6]/30 rounded-2xl outline-none transition-all font-black uppercase tracking-widest text-slate-700 text-[10px]" placeholder="Brand Name" />
+              <label className="text-[9px] font-extrabold uppercase tracking-wider text-slate-400 ml-1">Brand</label>
+              <input name="brand" defaultValue={productToEdit?.brand} className="w-full px-3 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#01a9fb] rounded-md outline-none transition-all font-bold uppercase tracking-wider text-slate-800 text-xs" placeholder="Brand Name" />
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 border-t border-slate-50 pt-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 border-t border-slate-100 pt-3.5">
             <div className="space-y-1.5">
-              <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Color</label>
-              <input name="color" defaultValue={productToEdit?.color} className="w-full px-4 py-3 bg-slate-50 border-slate-100 border focus:bg-white focus:border-[#8B5CF6]/30 rounded-2xl outline-none transition-all font-black uppercase tracking-widest text-slate-700 text-[10px]" placeholder="Blue" />
+              <label className="text-[9px] font-extrabold uppercase tracking-wider text-slate-400 ml-1">Color</label>
+              <input name="color" defaultValue={productToEdit?.color} className="w-full px-3 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#01a9fb] rounded-md outline-none transition-all font-bold uppercase tracking-wider text-slate-800 text-xs" placeholder="Blue" />
             </div>
             <div className="space-y-1.5">
-              <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Material</label>
-              <input name="material" defaultValue={productToEdit?.material} className="w-full px-4 py-3 bg-slate-50 border-slate-100 border focus:bg-white focus:border-[#8B5CF6]/30 rounded-2xl outline-none transition-all font-black uppercase tracking-widest text-slate-700 text-[10px]" placeholder="Cotton" />
+              <label className="text-[9px] font-extrabold uppercase tracking-wider text-slate-400 ml-1">Material</label>
+              <input name="material" defaultValue={productToEdit?.material} className="w-full px-3 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#01a9fb] rounded-md outline-none transition-all font-bold uppercase tracking-wider text-slate-800 text-xs" placeholder="Cotton" />
             </div>
             <div className="space-y-1.5">
-              <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Barcode</label>
+              <label className="text-[9px] font-extrabold uppercase tracking-wider text-slate-400 ml-1">Barcode</label>
               <div className="relative">
                 <input 
                   name="barcode" 
                   value={barcodeValue}
                   onChange={(e) => setBarcodeValue(e.target.value)}
-                  className="w-full pl-4 pr-10 py-3 bg-slate-50 border-slate-100 border focus:bg-white focus:border-[#8B5CF6]/30 rounded-2xl outline-none transition-all font-black uppercase tracking-widest text-slate-700 text-[10px]" 
+                  className="w-full pl-3 pr-10 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#01a9fb] rounded-md outline-none transition-all font-bold uppercase tracking-wider text-slate-800 text-xs" 
                   placeholder="Optional" 
                 />
                 <button 
                   type="button"
                   onClick={() => { setScannerTarget('BARCODE'); setIsScannerOpen(true); }}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-slate-100 text-slate-400 hover:bg-[#8B5CF6] hover:text-white rounded-xl transition-all shadow-sm group"
+                  className="absolute right-1.5 top-1/2 -translate-y-1/2 p-1.5 bg-slate-100 text-slate-500 hover:bg-[#01a9fb] hover:text-white rounded-md transition-all shadow-xs group"
                   title="Scan Barcode"
                 >
-                  <ScanLine size={14} strokeWidth={2.5} className="group-active:scale-95 transition-transform" />
+                  <ScanLine size={13} strokeWidth={2.2} className="group-active:scale-95 transition-transform" />
                 </button>
               </div>
             </div>
           </div>
 
-          <div className="space-y-1.5 border-t border-slate-50 pt-4">
-            <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Supplier</label>
+          <div className="space-y-1.5 border-t border-slate-100 pt-3.5">
+            <label className="text-[9px] font-extrabold uppercase tracking-wider text-slate-400 ml-1">Supplier</label>
             <select 
               name="supplierId" 
               value={selectedSupplierId} 
               onChange={(e) => setSelectedSupplierId(e.target.value)}
-              className="w-full px-4 py-3 bg-slate-50 border-slate-100 border focus:bg-white focus:border-[#8B5CF6]/30 rounded-2xl outline-none transition-all font-black uppercase tracking-widest text-slate-700 text-[10px] appearance-none"
+              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#01a9fb] rounded-md outline-none transition-all font-bold uppercase tracking-wider text-slate-800 text-xs appearance-none"
             >
               <option value="">Select Supplier (Optional)</option>
               {suppliers.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
@@ -932,32 +930,32 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
           </div>
 
           {/* Prices Section */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
             {(productPurpose === 'SALE' || productPurpose === 'HYBRID') && (
               <div className="space-y-1.5">
-                <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Selling Price <span className="text-red-500">*</span></label>
-                <input name="sellingPrice" type="number" step="0.01" defaultValue={productToEdit?.sellingPrice} required className="w-full px-4 py-3 bg-slate-50 border-slate-100 border focus:bg-white focus:border-[#8B5CF6]/30 rounded-2xl outline-none transition-all font-black uppercase tracking-widest text-slate-700 text-[10px]" placeholder="0.00" />
+                <label className="text-[9px] font-extrabold uppercase tracking-wider text-slate-400 ml-1">Selling Price <span className="text-red-500">*</span></label>
+                <input name="sellingPrice" type="number" step="0.01" defaultValue={productToEdit?.sellingPrice} required className="w-full px-3 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#01a9fb] rounded-md outline-none transition-all font-bold uppercase tracking-wider text-slate-800 text-xs" placeholder="0.00" />
               </div>
             )}
             {(productPurpose === 'RENTAL' || productPurpose === 'HYBRID') && (
               <div className="space-y-1.5">
-                <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Rental Price (Daily) <span className="text-red-500">*</span></label>
-                <input name="rentalPrice" type="number" step="0.01" defaultValue={productToEdit?.rentalPrice} required className="w-full px-4 py-3 bg-slate-50 border-slate-100 border focus:bg-white focus:border-[#8B5CF6]/30 rounded-2xl outline-none transition-all font-black uppercase tracking-widest text-slate-700 text-[10px]" placeholder="0.00" />
+                <label className="text-[9px] font-extrabold uppercase tracking-wider text-slate-400 ml-1">Rental Price (Daily) <span className="text-red-500">*</span></label>
+                <input name="rentalPrice" type="number" step="0.01" defaultValue={productToEdit?.rentalPrice} required className="w-full px-3 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#fe569f] rounded-md outline-none transition-all font-bold uppercase tracking-wider text-slate-800 text-xs" placeholder="0.00" />
               </div>
             )}
           </div>
 
           {/* Stock per Size Variant Section */}
-          <div className="space-y-2 border-t border-slate-50 pt-4">
-            <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Stock per Size <span className="text-red-500">*</span></label>
+          <div className="space-y-2 border-t border-slate-100 pt-3.5">
+            <label className="text-[9px] font-extrabold uppercase tracking-wider text-slate-400 ml-1">Stock per Size <span className="text-red-500">*</span></label>
             {selectedSizes.length > 0 ? (
-              <div className="space-y-3">
+              <div className="space-y-2.5">
                 {selectedSizes.map(size => (
-                  <div key={size} className="flex flex-col sm:flex-row sm:items-center gap-3 bg-slate-50 p-3 rounded-2xl border border-slate-100">
-                    <span className="text-xs font-black uppercase tracking-widest text-slate-700 min-w-[60px]">{size}</span>
-                    <div className="flex-1 grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div key={size} className="flex flex-col sm:flex-row sm:items-center gap-2.5 bg-slate-50 p-2.5 rounded-md border border-slate-200">
+                    <span className="text-xs font-black uppercase tracking-wider text-slate-800 min-w-[60px]">{size}</span>
+                    <div className="flex-1 grid grid-cols-1 sm:grid-cols-3 gap-2">
                       <div className="space-y-1">
-                        <label className="text-[7px] font-black uppercase tracking-widest text-slate-400 ml-1">Color (Optional)</label>
+                        <label className="text-[8px] font-extrabold uppercase tracking-wider text-slate-400 ml-0.5">Color (Opt)</label>
                         <input 
                           type="text" 
                           value={variantStocks[size]?.color ?? ''}
@@ -965,13 +963,13 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
                             ...prev,
                             [size]: { ...prev[size], color: e.target.value }
                           }))}
-                          className="w-full px-3 py-2 bg-white border border-slate-150 focus:border-[#8B5CF6]/30 rounded-xl outline-none transition-all font-black text-slate-700 text-[10px]" 
+                          className="w-full px-2.5 py-1.5 bg-white border border-slate-200 focus:border-[#01a9fb] rounded-md outline-none transition-all font-bold text-slate-800 text-xs" 
                           placeholder="Main Color" 
                         />
                       </div>
                       {(productPurpose === 'SALE' || productPurpose === 'HYBRID') && (
                         <div className="space-y-1">
-                          <label className="text-[7px] font-black uppercase tracking-widest text-slate-400 ml-1">Sale Stock</label>
+                          <label className="text-[8px] font-extrabold uppercase tracking-wider text-slate-400 ml-0.5">Sale Stock</label>
                           <input 
                             type="number" 
                             value={variantStocks[size]?.saleStock ?? 0}
@@ -979,7 +977,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
                               ...prev,
                               [size]: { ...prev[size], saleStock: Math.max(0, Number(e.target.value) || 0) }
                             }))}
-                            className="w-full px-3 py-2 bg-white border border-slate-150 focus:border-[#8B5CF6]/30 rounded-xl outline-none transition-all font-black text-slate-700 text-[10px]" 
+                            className="w-full px-2.5 py-1.5 bg-white border border-slate-200 focus:border-[#01a9fb] rounded-md outline-none transition-all font-bold text-slate-800 text-xs" 
                             placeholder="0" 
                             min="0"
                           />
@@ -987,7 +985,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
                       )}
                       {(productPurpose === 'RENTAL' || productPurpose === 'HYBRID') && (
                         <div className="space-y-1">
-                          <label className="text-[7px] font-black uppercase tracking-widest text-slate-400 ml-1">Rental Stock</label>
+                          <label className="text-[8px] font-extrabold uppercase tracking-wider text-slate-400 ml-0.5">Rental Stock</label>
                           <input 
                             type="number" 
                             value={variantStocks[size]?.rentalStock ?? 0}
@@ -995,7 +993,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
                               ...prev,
                               [size]: { ...prev[size], rentalStock: Math.max(0, Number(e.target.value) || 0) }
                             }))}
-                            className="w-full px-3 py-2 bg-white border border-slate-150 focus:border-[#8B5CF6]/30 rounded-xl outline-none transition-all font-black text-slate-700 text-[10px]" 
+                            className="w-full px-2.5 py-1.5 bg-white border border-slate-200 focus:border-[#fe569f] rounded-md outline-none transition-all font-bold text-slate-800 text-xs" 
                             placeholder="0" 
                             min="0"
                           />
@@ -1006,45 +1004,45 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
                 ))}
               </div>
             ) : (
-              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest text-center py-4 bg-slate-50 border border-dashed border-slate-200 rounded-2xl">
+              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider text-center py-3 bg-slate-50 border border-dashed border-slate-200 rounded-md">
                 Please add at least one size above to set stock.
               </p>
             )}
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 border-t border-slate-50 pt-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 border-t border-slate-100 pt-3.5">
             <div className="space-y-1.5">
-              <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Purchase Price <span className="text-red-500">*</span></label>
-              <input name="purchasePrice" type="number" step="0.01" defaultValue={productToEdit?.purchasePrice || 0} required className="w-full px-4 py-3 bg-slate-50 border-slate-100 border focus:bg-white focus:border-[#8B5CF6]/30 rounded-2xl outline-none transition-all font-black uppercase tracking-widest text-slate-700 text-[10px]" placeholder="0.00" />
+              <label className="text-[9px] font-extrabold uppercase tracking-wider text-slate-400 ml-1">Purchase Price <span className="text-red-500">*</span></label>
+              <input name="purchasePrice" type="number" step="0.01" defaultValue={productToEdit?.purchasePrice || 0} required className="w-full px-3 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#01a9fb] rounded-md outline-none transition-all font-bold uppercase tracking-wider text-slate-800 text-xs" placeholder="0.00" />
             </div>
             <div className="space-y-1.5">
-              <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Tax (%)</label>
-              <input name="taxPercent" type="number" defaultValue={productToEdit?.taxPercent || 12} className="w-full px-4 py-3 bg-slate-50 border-slate-100 border focus:bg-white focus:border-[#8B5CF6]/30 rounded-2xl outline-none transition-all font-black uppercase tracking-widest text-slate-700 text-[10px]" placeholder="12" />
+              <label className="text-[9px] font-extrabold uppercase tracking-wider text-slate-400 ml-1">Tax (%)</label>
+              <input name="taxPercent" type="number" defaultValue={productToEdit?.taxPercent || 12} className="w-full px-3 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#01a9fb] rounded-md outline-none transition-all font-bold uppercase tracking-wider text-slate-800 text-xs" placeholder="12" />
             </div>
             <div className="space-y-1.5">
-              <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Min Stock</label>
-              <input name="minStockAlert" type="number" defaultValue={productToEdit?.minStockAlert || 0} className="w-full px-4 py-3 bg-slate-50 border-slate-100 border focus:bg-white focus:border-[#8B5CF6]/30 rounded-2xl outline-none transition-all font-black uppercase tracking-widest text-slate-700 text-[10px]" placeholder="0" />
+              <label className="text-[9px] font-extrabold uppercase tracking-wider text-slate-400 ml-1">Min Stock</label>
+              <input name="minStockAlert" type="number" defaultValue={productToEdit?.minStockAlert || 0} className="w-full px-3 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#01a9fb] rounded-md outline-none transition-all font-bold uppercase tracking-wider text-slate-800 text-xs" placeholder="0" />
             </div>
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">Description</label>
-            <textarea name="description" defaultValue={productToEdit?.description} className="w-full px-4 py-3 bg-slate-50 border-slate-100 border focus:bg-white focus:border-[#8B5CF6]/30 rounded-2xl outline-none transition-all font-black uppercase tracking-widest text-slate-700 text-[10px] min-h-[80px] resize-none" placeholder="Product details..." />
+            <label className="text-[9px] font-extrabold uppercase tracking-wider text-slate-400 ml-1">Description</label>
+            <textarea name="description" defaultValue={productToEdit?.description} className="w-full px-3 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#01a9fb] rounded-md outline-none transition-all font-bold text-slate-800 text-xs min-h-[70px] resize-none" placeholder="Product details..." />
           </div>
           
-          <div className="flex gap-3 pt-6 sticky bottom-0 bg-white">
+          <div className="flex gap-2 pt-3 sticky bottom-0 bg-white">
             <button 
               type="button" 
               onClick={onClose} 
               disabled={isSaving}
-              className="flex-1 rounded-2xl border border-slate-100 font-black uppercase tracking-widest text-[9px] text-slate-400 py-4 disabled:opacity-50"
+              className="flex-1 rounded-md border border-slate-200 font-bold uppercase tracking-wider text-[10px] text-slate-600 py-2.5 disabled:opacity-50 hover:bg-slate-50 transition-colors"
             >
               Cancel
             </button>
             <button 
               type="submit" 
               disabled={isSaving}
-              className={`flex-1 ${isSaving ? 'bg-slate-100 text-slate-400' : 'bg-slate-900 text-white'} rounded-2xl font-black uppercase tracking-widest text-[9px] shadow-lg py-4 transition-all active:scale-[0.98] flex items-center justify-center gap-2 hover:opacity-90 active:bg-slate-800`}
+              className={`flex-1 ${isSaving ? 'bg-slate-100 text-slate-400' : 'bg-[#01a9fb] hover:bg-[#0098e6] text-white'} rounded-md font-extrabold uppercase tracking-wider text-[10px] shadow-xs py-2.5 transition-all active:scale-[0.98] flex items-center justify-center gap-2`}
             >
               {isSaving ? (
                 <>

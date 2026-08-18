@@ -28,7 +28,10 @@ import {
   LayoutGrid,
   List,
   Pencil,
-  Trash2
+  Trash2,
+  AlertTriangle,
+  RefreshCw,
+  Sparkles
 } from 'lucide-react';
 import { formatCurrency, calculateLateFee } from '../utils/helpers';
 import { PaymentStatus, RentalStatus, Rental } from '../types';
@@ -137,6 +140,7 @@ const Rentals: React.FC = () => {
     const endDate = parseISO(end).getTime();
     const now = new Date().getTime();
     const totalDuration = endDate - startDate;
+    if (totalDuration <= 0) return 100;
     const elapsed = now - startDate;
     const percentage = Math.max(0, Math.min(100, (elapsed / totalDuration) * 100));
     return percentage;
@@ -148,131 +152,206 @@ const Rentals: React.FC = () => {
   const returnsDueToday = rentals.filter(r => r.status === 'ACTIVE' && isSameDay(parseISO(r.expectedReturnDate), new Date())).length;
   const activeDeposits = rentals
     .filter(r => r.status === 'ACTIVE')
-    .reduce((acc, r) => acc + r.securityDeposit, 0);
+    .reduce((acc, r) => acc + (r.securityDeposit || 0), 0);
 
   return (
-    <div className="space-y-4 animate-nano pb-10">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 py-2">
-        <div>
-          <h1 className="text-xl font-bold text-slate-900 tracking-tight">Rentals Desk</h1>
-          <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest mt-0.5">Manage Active Leases & Returns</p>
+    <div className="space-y-5 animate-nano pb-20 max-w-[1600px] mx-auto">
+      {/* ── Executive Header ── */}
+      <div className="bg-white border border-slate-200/80 rounded-md p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-md bg-[#fe569f] text-white flex items-center justify-center shadow-xs shrink-0">
+            <Calendar size={20} strokeWidth={2.2} />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <h1 className="text-lg sm:text-xl font-extrabold text-slate-900 tracking-tight">Rentals Desk</h1>
+              <span className="text-[10px] font-extrabold text-[#fe569f] bg-[#fe569f]/10 border border-[#fe569f]/30 px-2 py-0.5 rounded-md">
+                {activeCount} Active Leases
+              </span>
+            </div>
+            <p className="text-xs text-slate-500 font-medium mt-0.5">Manage garment rentals, return schedules, and security deposits</p>
+          </div>
         </div>
+
         <button
           onClick={() => setIsNewRentalModalOpen(true)}
-          className="banana-btn"
+          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[#fe569f] hover:bg-[#eb4890] text-white text-xs font-extrabold uppercase tracking-wider rounded-md shadow-xs transition-all active:scale-95"
         >
-          <Plus size={14} strokeWidth={2.5} className="mr-2" /> Create Rental
+          <Plus size={16} strokeWidth={2.5} />
+          <span>New Rental Booking</span>
         </button>
       </div>
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <div className="nano-card p-4 group hover:bg-slate-900 transition-all duration-300">
-          <p className="text-[9px] font-semibold uppercase text-slate-400 tracking-widest mb-0.5 group-hover:text-slate-500 transition-colors">Active</p>
-          <h3 className="text-lg font-bold text-slate-900 group-hover:text-white transition-colors tracking-tight">{activeCount}</h3>
+      {/* ── KPI Cards (4 Cards) ── */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3.5">
+        <div
+          onClick={() => setActiveTab('ACTIVE')}
+          className={`p-3 sm:p-4 rounded-md border transition-all duration-200 cursor-pointer ${activeTab === 'ACTIVE'
+            ? 'bg-[#fe569f]/10 border-[#fe569f]/50'
+            : 'bg-white hover:bg-slate-50/60 border-slate-200/80 hover:border-[#fe569f]/30'
+            }`}
+        >
+          <div className="flex items-center justify-between mb-1.5">
+            <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-500 whitespace-nowrap">Active Rentals</span>
+            <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-md bg-[#fe569f]/10 text-[#fe569f] flex items-center justify-center font-bold text-xs shrink-0">
+              <Calendar size={13} />
+            </div>
+          </div>
+          <h3 className="text-lg sm:text-2xl font-black text-slate-900 tracking-tight leading-none whitespace-nowrap truncate">{activeCount}</h3>
+          <p className="text-[10px] sm:text-[11px] font-bold text-[#fe569f] mt-1.5 whitespace-nowrap truncate">Currently out on lease</p>
         </div>
 
-        <div className="nano-card p-4 group hover:bg-slate-900 transition-all duration-300">
-          <p className="text-[9px] font-semibold uppercase text-slate-400 tracking-widest mb-0.5 group-hover:text-slate-500 transition-colors">Overdue</p>
-          <h3 className={`text-lg font-bold group-hover:text-white transition-colors tracking-tight ${overdueCount > 0 ? 'text-rose-500' : 'text-slate-900'}`}>{overdueCount}</h3>
+        <div
+          onClick={() => setActiveTab('OVERDUE')}
+          className={`p-3 sm:p-4 rounded-md border transition-all duration-200 cursor-pointer ${activeTab === 'OVERDUE'
+            ? 'bg-rose-50/70 border-rose-300'
+            : overdueCount > 0
+              ? 'bg-rose-50/30 border-rose-200/80 hover:border-rose-300'
+              : 'bg-white hover:bg-slate-50/60 border-slate-200/80 hover:border-rose-200'
+            }`}
+        >
+          <div className="flex items-center justify-between mb-1.5">
+            <span className={`text-[10px] sm:text-[11px] font-bold uppercase tracking-wider whitespace-nowrap ${overdueCount > 0 ? 'text-rose-600' : 'text-slate-500'}`}>Overdue</span>
+            <div className={`w-6 h-6 sm:w-7 sm:h-7 rounded-md flex items-center justify-center font-bold text-xs shrink-0 ${overdueCount > 0 ? 'bg-rose-100 text-rose-600' : 'bg-slate-100 text-slate-400'}`}>
+              <AlertTriangle size={13} />
+            </div>
+          </div>
+          <h3 className={`text-lg sm:text-2xl font-black tracking-tight leading-none whitespace-nowrap truncate ${overdueCount > 0 ? 'text-rose-600' : 'text-slate-900'}`}>{overdueCount}</h3>
+          <p className={`text-[10px] sm:text-[11px] font-bold mt-1.5 whitespace-nowrap truncate ${overdueCount > 0 ? 'text-rose-600' : 'text-slate-400'}`}>
+            {overdueCount > 0 ? 'Action required' : 'No overdue items'}
+          </p>
         </div>
 
-        <div className="nano-card p-4 group hover:bg-slate-900 transition-all duration-300">
-          <p className="text-[9px] font-semibold uppercase text-slate-400 tracking-widest mb-0.5 group-hover:text-slate-500 transition-colors">Due Today</p>
-          <h3 className="text-lg font-bold text-slate-900 group-hover:text-white transition-colors tracking-tight">{returnsDueToday}</h3>
+        <div className="bg-white hover:bg-slate-50/60 p-3 sm:p-4 rounded-md border border-slate-200/80 hover:border-yellow-300 transition-all">
+          <div className="flex items-center justify-between mb-1.5">
+            <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-500 whitespace-nowrap">Due Today</span>
+            <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-md bg-yellow-100 text-yellow-800 flex items-center justify-center font-bold text-xs shrink-0">
+              <Clock size={13} />
+            </div>
+          </div>
+          <h3 className="text-lg sm:text-2xl font-black text-slate-900 tracking-tight leading-none whitespace-nowrap truncate">{returnsDueToday}</h3>
+          <p className="text-[10px] sm:text-[11px] font-bold text-yellow-700 mt-1.5 whitespace-nowrap truncate">Expected return today</p>
         </div>
 
-        <div className="nano-card p-4 group hover:bg-slate-900 transition-all duration-300">
-          <p className="text-[9px] font-semibold uppercase text-slate-400 tracking-widest mb-0.5 group-hover:text-slate-500 transition-colors">Deposits Held</p>
-          <h3 className="text-lg font-bold text-slate-900 group-hover:text-white transition-colors tracking-tight">{formatCurrency(activeDeposits)}</h3>
+        <div className="bg-white hover:bg-slate-50/60 p-3 sm:p-4 rounded-md border border-slate-200/80 hover:border-[#01a9fb]/50 transition-all">
+          <div className="flex items-center justify-between mb-1.5">
+            <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-500 whitespace-nowrap">Security Held</span>
+            <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-md bg-[#01a9fb]/10 text-[#01a9fb] flex items-center justify-center font-bold text-xs shrink-0">
+              <IndianRupee size={13} />
+            </div>
+          </div>
+          <h3 className="text-lg sm:text-2xl font-black text-[#01a9fb] tracking-tight leading-none whitespace-nowrap truncate">{formatCurrency(activeDeposits)}</h3>
+          <p className="text-[10px] sm:text-[11px] font-bold text-[#01a9fb] mt-1.5 whitespace-nowrap truncate">Refundable on return</p>
         </div>
       </div>
 
+      {/* ── Toolbar: Status Tabs + Search + Filters + View Toggle ── */}
       <div className="flex flex-col gap-3">
-        {/* Toolbar: Navigation Tabs + Search + View Mode (Icons Only) */}
-        <div className="flex flex-col md:flex-row items-center justify-between gap-3">
-          <div className="flex bg-white border border-slate-100 p-1 rounded-lg w-full md:w-auto shadow-sm">
+        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+          {/* Status Tabs */}
+          <div className="inline-flex bg-slate-100/90 p-1 rounded-md border border-slate-200/70 shrink-0">
             {(['ACTIVE', 'OVERDUE', 'RETURNED'] as const).map(tab => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`flex-1 md:flex-none px-5 py-2 rounded-md text-[9px] font-bold uppercase tracking-widest transition-all ${activeTab === tab
-                    ? 'bg-[#8B5CF6] text-white shadow-sm'
-                    : 'text-slate-400 hover:text-slate-600'
+                className={`px-4 py-1.5 rounded text-xs font-bold transition-all ${activeTab === tab
+                  ? 'bg-[#fe569f] text-white shadow-xs font-extrabold'
+                  : 'text-slate-500 hover:text-slate-900 hover:bg-slate-200/50'
                   }`}
               >
-                {tab}
+                {tab === 'ACTIVE' ? 'Active' : tab === 'OVERDUE' ? 'Overdue' : 'Returned'}
               </button>
             ))}
           </div>
 
-          <div className="flex items-center gap-2 w-full md:w-auto">
-            {/* View Mode Toggle: Icons Only */}
-            <div className="flex bg-white border border-slate-200/80 p-0.5 rounded-xl shadow-sm shrink-0">
+          <div className="flex items-center gap-2 flex-1 md:justify-end">
+            {/* Search Input */}
+            <div className="relative group flex-1 max-w-md">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors" size={15} strokeWidth={2.5} />
+              <input
+                type="text"
+                placeholder="Search invoice, customer, product..."
+                className="w-full pl-10 pr-3.5 py-2 bg-white border border-slate-200/80 rounded-md text-xs font-bold text-slate-900 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all shadow-xs placeholder:text-slate-400"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+
+            {/* Filter Toggle Button */}
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className={`p-2 rounded-md border transition-all flex items-center justify-center shrink-0 ${showFilters ? 'bg-slate-900 text-white border-slate-900 shadow-xs' : 'bg-white text-slate-600 border-slate-200/80 hover:border-slate-300 shadow-xs'}`}
+              title="Advanced Filters"
+            >
+              <Filter size={15} strokeWidth={showFilters ? 3 : 2.5} />
+            </button>
+
+            {/* Card vs List View Toggle */}
+            <div className="inline-flex bg-slate-100 p-1 rounded-md border border-slate-200/70 shrink-0">
               <button
                 onClick={() => setViewMode('card')}
-                className={`p-2 rounded-lg transition-all ${viewMode === 'card' ? 'bg-[#8B5CF6] text-white shadow-sm' : 'text-slate-400 hover:text-slate-700'}`}
+                className={`p-1.5 rounded transition-all ${viewMode === 'card' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-400 hover:text-slate-700'}`}
                 title="Card View"
               >
                 <LayoutGrid size={15} strokeWidth={2.5} />
               </button>
               <button
                 onClick={() => setViewMode('list')}
-                className={`p-2 rounded-lg transition-all ${viewMode === 'list' ? 'bg-[#8B5CF6] text-white shadow-sm' : 'text-slate-400 hover:text-slate-700'}`}
+                className={`p-1.5 rounded transition-all ${viewMode === 'list' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-400 hover:text-slate-700'}`}
                 title="List View"
               >
                 <List size={15} strokeWidth={2.5} />
               </button>
             </div>
-
-            <div className="relative group flex-1 md:w-72">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-slate-900 transition-colors" size={14} strokeWidth={2.5} />
-              <input
-                type="text"
-                placeholder="Search Rentals..."
-                className="w-full pl-9 pr-3 py-2 bg-white border border-slate-200/80 rounded-xl text-[10px] font-semibold uppercase tracking-widest outline-none focus:border-[#8B5CF6] transition-all shadow-sm"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-
-            <button
-              onClick={() => setShowFilters(!showFilters)}
-              className={`p-2 rounded-xl border transition-all flex items-center justify-center ${showFilters ? 'bg-slate-900 text-white border-slate-900 shadow-md' : 'bg-white text-slate-400 border-slate-200/80 hover:border-slate-300 shadow-sm'}`}
-              title="Advanced Filters"
-            >
-              <Filter size={15} strokeWidth={showFilters ? 3 : 2.5} />
-            </button>
           </div>
         </div>
 
-        {/* Advanced Filters Panel */}
+        {/* ── Advanced Filters Drawer ── */}
         {showFilters && (
-          <div className="bg-white border border-slate-100 rounded-2xl p-4 shadow-sm animate-nano space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+          <div className="bg-white border border-slate-200/80 rounded-lg p-4 sm:p-5 shadow-xs animate-nano space-y-3.5">
+            <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+              <span className="text-xs font-extrabold uppercase text-slate-600 tracking-wider">Advanced Filter Options</span>
+              <button
+                onClick={() => {
+                  setFilterStartDate('');
+                  setFilterEndDate('');
+                  setFilterPaymentStatus('ALL');
+                  setFilterProductId('ALL');
+                  setFilterCustomerId('ALL');
+                  setSearchTerm('');
+                }}
+                className="text-[11px] font-bold text-rose-600 hover:text-rose-800 flex items-center gap-1"
+              >
+                <XCircle size={13} />
+                <span>Reset All Filters</span>
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
               <div className="space-y-1">
-                <label className="text-[8px] font-black uppercase text-slate-300 tracking-widest ml-1">From Date</label>
+                <label className="text-[10px] font-bold uppercase text-slate-400 tracking-wider">From Start Date</label>
                 <input
                   type="date"
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2 text-[10px] font-bold uppercase outline-none"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-md px-3 py-2 text-xs font-bold text-slate-800 outline-none focus:bg-white focus:border-indigo-500"
                   value={filterStartDate}
                   onChange={(e) => setFilterStartDate(e.target.value)}
                 />
               </div>
+
               <div className="space-y-1">
-                <label className="text-[8px] font-black uppercase text-slate-300 tracking-widest ml-1">To Date</label>
+                <label className="text-[10px] font-bold uppercase text-slate-400 tracking-wider">To Return Date</label>
                 <input
                   type="date"
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2 text-[10px] font-bold uppercase outline-none"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-md px-3 py-2 text-xs font-bold text-slate-800 outline-none focus:bg-white focus:border-indigo-500"
                   value={filterEndDate}
                   onChange={(e) => setFilterEndDate(e.target.value)}
                 />
               </div>
+
               <div className="space-y-1">
-                <label className="text-[8px] font-black uppercase text-slate-300 tracking-widest ml-1">Payment</label>
+                <label className="text-[10px] font-bold uppercase text-slate-400 tracking-wider">Payment Status</label>
                 <select
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2 text-[10px] font-bold uppercase outline-none appearance-none"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-md px-3 py-2 text-xs font-bold text-slate-800 outline-none focus:bg-white focus:border-indigo-500"
                   value={filterPaymentStatus}
                   onChange={(e) => setFilterPaymentStatus(e.target.value as PaymentStatus | 'ALL')}
                 >
@@ -282,10 +361,11 @@ const Rentals: React.FC = () => {
                   ))}
                 </select>
               </div>
+
               <div className="space-y-1">
-                <label className="text-[8px] font-black uppercase text-slate-300 tracking-widest ml-1">Product</label>
+                <label className="text-[10px] font-bold uppercase text-slate-400 tracking-wider">Product</label>
                 <select
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2 text-[10px] font-bold uppercase outline-none appearance-none"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-md px-3 py-2 text-xs font-bold text-slate-800 outline-none focus:bg-white focus:border-indigo-500"
                   value={filterProductId}
                   onChange={(e) => setFilterProductId(e.target.value)}
                 >
@@ -295,10 +375,11 @@ const Rentals: React.FC = () => {
                   ))}
                 </select>
               </div>
+
               <div className="space-y-1">
-                <label className="text-[8px] font-black uppercase text-slate-300 tracking-widest ml-1">Customer</label>
+                <label className="text-[10px] font-bold uppercase text-slate-400 tracking-wider">Customer</label>
                 <select
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2 text-[10px] font-bold uppercase outline-none appearance-none"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-md px-3 py-2 text-xs font-bold text-slate-800 outline-none focus:bg-white focus:border-indigo-500"
                   value={filterCustomerId}
                   onChange={(e) => setFilterCustomerId(e.target.value)}
                 >
@@ -309,126 +390,134 @@ const Rentals: React.FC = () => {
                 </select>
               </div>
             </div>
-            <div className="flex justify-end pt-2 border-t border-slate-50">
-              <button
-                onClick={() => {
-                  setFilterStartDate('');
-                  setFilterEndDate('');
-                  setFilterPaymentStatus('ALL');
-                  setFilterProductId('ALL');
-                  setFilterCustomerId('ALL');
-                  setSearchTerm('');
-                }}
-                className="px-3 py-1.5 text-[8.5px] font-black uppercase tracking-wider text-rose-500 hover:bg-rose-50 rounded-lg transition-colors flex items-center gap-1.5"
-              >
-                <XCircle size={13} /> Reset Filters
-              </button>
-            </div>
           </div>
         )}
 
-        {/* View Mode 1: CARD VIEW */}
+        {/* ── View Mode 1: CARD VIEW (2 columns on mobile, 3 on tablet/desktop) ── */}
         {viewMode === 'card' ? (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-2.5 sm:gap-3.5">
             {filteredRentals.map(rental => {
               const customer = customers.find(c => c.id === rental.customerId);
               const product = products.find(p => p.id === rental.productId);
               const progress = getProgress(rental.startDate, rental.expectedReturnDate);
               const isLate = activeTab === 'OVERDUE';
-              const netRefundable = Math.max(0, rental.securityDeposit - rental.totalRentAmount);
+              const netRefundable = Math.max(0, (rental.securityDeposit || 0) - (rental.totalRentAmount || 0));
 
               return (
-                <div key={rental.id} className="nano-card p-4 group">
-                  <div className="flex justify-between items-start mb-3">
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 bg-slate-50 rounded-lg flex items-center justify-center text-slate-400 border border-slate-100 group-hover:bg-[#8B5CF6] group-hover:text-white transition-all">
-                        <Package size={16} strokeWidth={2.5} />
-                      </div>
-                      <div>
-                        <h4 className="text-[13px] font-bold text-slate-900 uppercase tracking-tight group-hover:text-[#8B5CF6] transition-colors">{product?.name}</h4>
-                        <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest mt-0.5">{rental.invoiceNumber} • {customer?.name}</p>
+                <div
+                  key={rental.id}
+                  className={`bg-white rounded-md border p-2.5 sm:p-3.5 transition-all duration-200 flex flex-col justify-between group ${isLate ? 'border-rose-300' : 'border-slate-200/90 hover:border-[#fe569f]/60'
+                    }`}
+                >
+                  <div>
+                    {/* Header: Initial & Amount */}
+                    <div className="flex items-start justify-between gap-1.5 mb-2">
+                      <div className="flex items-center gap-1.5 min-w-0 flex-1">
+                        <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-md bg-[#fe569f]/10 text-[#fe569f] group-hover:bg-[#fe569f] group-hover:text-white transition-colors flex items-center justify-center font-extrabold text-xs shrink-0">
+                          {(customer?.name || 'C').charAt(0).toUpperCase()}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <h4 className="font-black text-xs text-slate-900 truncate leading-tight group-hover:text-[#fe569f] transition-colors">
+                            {customer?.name || 'Customer'}
+                          </h4>
+                          <p className="text-[9px] sm:text-[10px] text-slate-400 font-mono truncate leading-none mt-0.5">{rental.invoiceNumber}</p>
+                        </div>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <p className="text-[13px] font-bold text-slate-900 font-mono">{formatCurrency(rental.totalRentAmount)}</p>
-                      <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest mt-0.5">
-                        Dep: {formatCurrency(rental.securityDeposit)} • <span className="text-emerald-600 font-bold">Ref: {formatCurrency(netRefundable)}</span>
-                      </p>
-                    </div>
-                  </div>
 
-                  <div className="space-y-1.5">
-                    <div className="flex justify-between text-[9px] font-semibold uppercase tracking-widest">
-                      <span className="text-slate-400">{format(parseISO(rental.startDate), 'MMM dd')}</span>
-                      <span className={isLate ? 'text-rose-500 font-bold' : 'text-slate-400'}>
-                        {format(parseISO(rental.expectedReturnDate), 'MMM dd')}
+                    {/* Product Name Pill */}
+                    <div className="mb-2 bg-slate-50/80 px-2 py-1 rounded border border-slate-100 flex items-center justify-between gap-1">
+                      <span className="text-[10px] font-bold text-slate-800 truncate">
+                        {product?.name || 'Garment Item'}
+                      </span>
+                      <span className="text-xs sm:text-sm font-black text-slate-900 font-mono whitespace-nowrap">
+                        {formatCurrency(rental.totalRentAmount)}
                       </span>
                     </div>
-                    <div className="w-full h-1 bg-slate-100 rounded-full overflow-hidden">
-                      <div
-                        className={`h-full rounded-full transition-all duration-700 ${rental.status === 'RETURNED' ? 'bg-emerald-500' :
-                            isLate ? 'bg-rose-500 animate-pulse' :
-                              progress > 80 ? 'bg-amber-500' : 'bg-slate-900'
-                          }`}
-                        style={{ width: rental.status === 'RETURNED' ? '100%' : `${progress}%` }}
-                      ></div>
+
+                    {/* Due Date & Deposit */}
+                    <div className="space-y-1 my-2 bg-slate-50/70 p-2 rounded-md border border-slate-100 text-[9px] sm:text-[10px]">
+                      <div className="flex justify-between items-center font-bold">
+                        <span className="text-slate-500 uppercase tracking-wider text-[8px] sm:text-[9px]">Due Date</span>
+                        <span className={`font-mono font-extrabold whitespace-nowrap ${isLate ? 'text-rose-600' : 'text-slate-800'}`}>
+                          {format(parseISO(rental.expectedReturnDate), 'dd MMM yyyy')}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center font-bold">
+                        <span className="text-slate-400 uppercase tracking-wider text-[8px] sm:text-[9px]">Deposit</span>
+                        <span className="text-slate-700 font-mono">{formatCurrency(rental.securityDeposit)}</span>
+                      </div>
+                      <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden mt-1">
+                        <div
+                          className={`h-full rounded-full transition-all duration-700 ${rental.status === 'RETURNED'
+                            ? 'bg-emerald-500'
+                            : isLate
+                              ? 'bg-rose-500 animate-pulse'
+                              : progress > 80
+                                ? 'bg-yellow-400'
+                                : 'bg-[#fe569f]'
+                            }`}
+                          style={{ width: rental.status === 'RETURNED' ? '100%' : `${progress}%` }}
+                        />
+                      </div>
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between mt-4 pt-3 border-t border-slate-100">
-                    <div className="flex items-center gap-2">
-                      {rental.status === 'ACTIVE' ? (
-                        <span className={`text-[8.5px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-md ${isLate ? 'bg-rose-50 text-rose-600 border border-rose-100' : 'bg-slate-50 text-slate-500'}`}>
-                          {isLate ? 'Overdue' : 'Active'}
-                        </span>
-                      ) : (
-                        <span className="text-[8.5px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-600 border border-emerald-100">
-                          Returned
-                        </span>
-                      )}
-                    </div>
+                  {/* Card Footer Actions */}
+                  <div className="flex items-center justify-between pt-2 mt-1 border-t border-slate-100 gap-1">
+                    <span className={`inline-flex items-center gap-1 px-1.5 py-0.2 rounded text-[9px] font-black uppercase tracking-wider whitespace-nowrap ${rental.status === 'RETURNED'
+                      ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                      : isLate
+                        ? 'bg-rose-50 text-rose-700 border border-rose-200'
+                        : 'bg-[#fe569f]/10 text-[#fe569f] border border-[#fe569f]/30'
+                      }`}>
+                      <span className={`w-1 h-1 rounded-full ${rental.status === 'RETURNED' ? 'bg-emerald-500' : isLate ? 'bg-rose-500' : 'bg-[#fe569f]'}`}></span>
+                      {rental.status === 'RETURNED' ? 'Returned' : isLate ? 'Overdue' : 'Active'}
+                    </span>
 
-                    <div className="flex items-center gap-1.5">
-                      {/* Edit Option */}
+                    <div className="flex items-center gap-1">
+                      {rental.status === 'ACTIVE' && (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => openExtend(rental)}
+                            className="p-1 text-slate-400 hover:text-[#01a9fb] hover:bg-[#01a9fb]/10 rounded transition-colors"
+                            title="Extend Lease"
+                          >
+                            <CalendarDays size={12} strokeWidth={2.2} />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => { setSelectedRental(rental); setIsCheckInModalOpen(true); }}
+                            className="px-2 py-0.5 bg-[#fe569f] hover:bg-[#eb4890] text-white rounded text-[9px] font-black uppercase tracking-wider transition-all shadow-xs"
+                          >
+                            Return
+                          </button>
+                        </>
+                      )}
+
                       <button
+                        type="button"
                         onClick={() => openEdit(rental)}
-                        className="p-1.5 text-slate-400 hover:text-[#8B5CF6] hover:bg-[#8B5CF6]/10 rounded-lg transition-colors"
-                        title="Edit Rental"
+                        className="p-1 text-slate-400 hover:text-[#fe569f] hover:bg-[#fe569f]/10 rounded transition-colors"
+                        title="Edit Booking"
                       >
-                        <Pencil size={14} strokeWidth={2.5} />
+                        <Pencil size={12} strokeWidth={2.2} />
                       </button>
 
-                      {/* Delete Option */}
                       {(settings?.enableDeleteRentals || settings?.enableDeleteTransactions) && (
                         <button
+                          type="button"
                           onClick={() => {
                             if (window.confirm(`Delete rental booking ${rental.invoiceNumber}?`)) {
                               deleteRental(rental.id);
                             }
                           }}
-                          className="p-1.5 text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-colors"
-                          title="Delete Rental Booking"
+                          className="p-1 text-slate-300 hover:text-rose-600 hover:bg-rose-50 rounded transition-colors"
+                          title="Delete Booking"
                         >
-                          <Trash2 size={14} strokeWidth={2.5} />
+                          <Trash2 size={12} />
                         </button>
-                      )}
-
-                      {rental.status === 'ACTIVE' && (
-                        <>
-                          <button
-                            onClick={() => openExtend(rental)}
-                            className="p-1.5 text-slate-400 hover:text-[#8B5CF6] hover:bg-[#8B5CF6]/10 rounded-lg transition-colors"
-                            title="Extend Duration"
-                          >
-                            <CalendarDays size={14} strokeWidth={2.5} />
-                          </button>
-                          <button
-                            onClick={() => { setSelectedRental(rental); setIsCheckInModalOpen(true); }}
-                            className="px-3.5 py-1.5 bg-slate-900 text-white rounded-lg text-[9px] font-bold uppercase tracking-wider hover:bg-[#8B5CF6] transition-all shadow-sm"
-                          >
-                            Check In
-                          </button>
-                        </>
                       )}
                     </div>
                   </div>
@@ -437,71 +526,69 @@ const Rentals: React.FC = () => {
             })}
           </div>
         ) : (
-          /* View Mode 2: LIST / TABLE VIEW */
-          <Card className="overflow-hidden border border-slate-200/80 shadow-sm rounded-2xl">
+          /* ── View Mode 2: LIST / TABLE VIEW ── */
+          <div className="bg-white rounded-lg border border-slate-200/80 shadow-xs overflow-hidden">
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm">
+              <table className="w-full text-left">
                 <thead>
-                  <tr className="bg-slate-50/80 border-b border-slate-100 text-slate-400">
-                    <th className="px-4 py-3 font-bold uppercase text-[9px] tracking-wider">Invoice & Customer</th>
-                    <th className="px-4 py-3 font-bold uppercase text-[9px] tracking-wider">Product</th>
-                    <th className="px-4 py-3 font-bold uppercase text-[9px] tracking-wider">Dates</th>
-                    <th className="px-4 py-3 font-bold uppercase text-[9px] tracking-wider">Financials</th>
-                    <th className="px-4 py-3 font-bold uppercase text-[9px] tracking-wider">Status</th>
-                    <th className="px-4 py-3 font-bold uppercase text-[9px] tracking-wider text-right">Actions</th>
+                  <tr className="border-b border-slate-100 bg-slate-50/60 text-[10px] font-extrabold uppercase text-slate-400 tracking-wider">
+                    <th className="px-5 py-3.5">Invoice & Customer</th>
+                    <th className="px-4 py-3.5">Outfit / Product</th>
+                    <th className="px-4 py-3.5">Dates Span</th>
+                    <th className="px-4 py-3.5">Financials</th>
+                    <th className="px-4 py-3.5">Status</th>
+                    <th className="px-5 py-3.5 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-slate-100 text-xs">
                   {filteredRentals.map(rental => {
                     const customer = customers.find(c => c.id === rental.customerId);
                     const product = products.find(p => p.id === rental.productId);
                     const isLate = activeTab === 'OVERDUE';
-                    const netRefundable = Math.max(0, rental.securityDeposit - rental.totalRentAmount);
+                    const netRefundable = Math.max(0, (rental.securityDeposit || 0) - (rental.totalRentAmount || 0));
 
                     return (
-                      <tr key={rental.id} className="hover:bg-slate-50/50 transition-colors">
-                        <td className="px-4 py-3">
-                          <p className="font-bold text-slate-900 text-xs">{rental.invoiceNumber}</p>
-                          <p className="text-[10px] text-slate-500 font-medium">{customer?.name || 'Unknown'}</p>
+                      <tr key={rental.id} className="hover:bg-slate-50/70 transition-colors group">
+                        <td className="px-5 py-3.5">
+                          <p className="font-extrabold text-slate-900">{rental.invoiceNumber}</p>
+                          <p className="text-[11px] text-slate-500 font-semibold mt-0.5">{customer?.name || 'Customer'}</p>
                         </td>
-                        <td className="px-4 py-3">
-                          <p className="font-bold text-slate-800 text-xs">{product?.name || 'Unknown'}</p>
-                          <p className="text-[9.5px] text-slate-400 font-bold">Qty: {rental.quantity}</p>
+                        <td className="px-4 py-3.5">
+                          <p className="font-bold text-slate-800">{product?.name || 'Item'}</p>
+                          <p className="text-[10px] text-slate-400 font-bold">Qty: {rental.quantity}</p>
                         </td>
-                        <td className="px-4 py-3">
-                          <p className="text-[10px] font-bold text-slate-700">
-                            {format(parseISO(rental.startDate), 'MMM dd')} → <span className={isLate ? 'text-rose-600 font-black' : ''}>{format(parseISO(rental.expectedReturnDate), 'MMM dd')}</span>
+                        <td className="px-4 py-3.5">
+                          <p className="font-bold text-slate-700">
+                            {format(parseISO(rental.startDate), 'dd MMM')} → <span className={isLate ? 'text-rose-600 font-extrabold' : 'text-slate-900 font-bold'}>{format(parseISO(rental.expectedReturnDate), 'dd MMM yyyy')}</span>
                           </p>
                         </td>
-                        <td className="px-4 py-3">
-                          <p className="font-bold text-slate-900 font-mono text-xs">{formatCurrency(rental.totalRentAmount)}</p>
-                          <p className="text-[9px] text-slate-400 font-medium">
-                            Dep: {formatCurrency(rental.securityDeposit)} • <span className="text-emerald-600 font-bold">Ref: {formatCurrency(netRefundable)}</span>
+                        <td className="px-4 py-3.5">
+                          <p className="font-extrabold text-slate-900 font-mono">{formatCurrency(rental.totalRentAmount)}</p>
+                          <p className="text-[10px] text-slate-500 font-medium">
+                            Dep: {formatCurrency(rental.securityDeposit)} • <span className="text-emerald-700 font-bold">Ref: {formatCurrency(netRefundable)}</span>
                           </p>
                         </td>
-                        <td className="px-4 py-3">
-                          {rental.status === 'ACTIVE' ? (
-                            <span className={`px-2 py-0.5 rounded-md text-[8.5px] font-bold uppercase tracking-wider ${isLate ? 'bg-rose-50 text-rose-600 border border-rose-100' : 'bg-slate-100 text-slate-600'}`}>
-                              {isLate ? 'Overdue' : 'Active'}
-                            </span>
-                          ) : (
-                            <span className="px-2 py-0.5 rounded-md text-[8.5px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-600 border border-emerald-100">
-                              Returned
-                            </span>
-                          )}
+                        <td className="px-4 py-3.5">
+                          <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[10px] font-extrabold uppercase tracking-wider ${rental.status === 'RETURNED'
+                            ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                            : isLate
+                              ? 'bg-rose-50 text-rose-700 border border-rose-200'
+                              : 'bg-indigo-50 text-indigo-700 border border-indigo-200'
+                            }`}>
+                            <span className={`w-1.5 h-1.5 rounded-full ${rental.status === 'RETURNED' ? 'bg-emerald-500' : isLate ? 'bg-rose-500' : 'bg-indigo-500'}`}></span>
+                            {rental.status === 'RETURNED' ? 'Returned' : isLate ? 'Overdue' : 'Active'}
+                          </span>
                         </td>
-                        <td className="px-4 py-3 text-right">
+                        <td className="px-5 py-3.5 text-right">
                           <div className="flex items-center justify-end gap-1.5">
-                            {/* Edit Option */}
                             <button
                               onClick={() => openEdit(rental)}
-                              className="p-1.5 text-slate-400 hover:text-[#8B5CF6] hover:bg-[#8B5CF6]/10 rounded-lg transition-colors"
-                              title="Edit Rental"
+                              className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-md transition-colors"
+                              title="Edit Booking"
                             >
-                              <Pencil size={14} strokeWidth={2.5} />
+                              <Pencil size={15} strokeWidth={2.2} />
                             </button>
 
-                            {/* Delete Option */}
                             {(settings?.enableDeleteRentals || settings?.enableDeleteTransactions) && (
                               <button
                                 onClick={() => {
@@ -509,10 +596,10 @@ const Rentals: React.FC = () => {
                                     deleteRental(rental.id);
                                   }
                                 }}
-                                className="p-1.5 text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-colors"
-                                title="Delete Rental Booking"
+                                className="p-1.5 text-slate-300 hover:text-rose-600 hover:bg-rose-50 rounded-md transition-colors"
+                                title="Delete Booking"
                               >
-                                <Trash2 size={14} strokeWidth={2.5} />
+                                <Trash2 size={15} strokeWidth={2.2} />
                               </button>
                             )}
 
@@ -520,14 +607,14 @@ const Rentals: React.FC = () => {
                               <>
                                 <button
                                   onClick={() => openExtend(rental)}
-                                  className="p-1.5 text-slate-400 hover:text-[#8B5CF6] hover:bg-[#8B5CF6]/10 rounded-lg transition-colors"
+                                  className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-md transition-colors"
                                   title="Extend Duration"
                                 >
-                                  <CalendarDays size={14} strokeWidth={2.5} />
+                                  <CalendarDays size={15} strokeWidth={2.2} />
                                 </button>
                                 <button
                                   onClick={() => { setSelectedRental(rental); setIsCheckInModalOpen(true); }}
-                                  className="px-3 py-1.5 bg-slate-900 text-white rounded-lg text-[9px] font-bold uppercase tracking-wider hover:bg-[#8B5CF6] transition-all shadow-sm"
+                                  className="px-3 py-1.5 bg-slate-900 hover:bg-indigo-600 text-white rounded-md text-[10px] font-extrabold transition-all"
                                 >
                                   Check In
                                 </button>
@@ -541,58 +628,68 @@ const Rentals: React.FC = () => {
                 </tbody>
               </table>
             </div>
-          </Card>
+          </div>
         )}
 
+        {/* Empty State */}
         {filteredRentals.length === 0 && (
-          <div className="py-12 text-center bg-white rounded-2xl border border-slate-100">
-            <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-slate-300 mx-auto mb-2">
-              <Calendar size={20} strokeWidth={2} />
+          <div className="py-14 text-center bg-white rounded-lg border border-slate-200/80 shadow-xs">
+            <div className="w-12 h-12 bg-slate-50 border border-slate-200 rounded-lg flex items-center justify-center text-slate-400 mx-auto mb-3">
+              <Calendar size={22} strokeWidth={2} />
             </div>
-            <p className="text-slate-400 text-[10px] font-bold uppercase tracking-wider">No {activeTab.toLowerCase()} rentals found</p>
+            <p className="text-slate-700 text-sm font-extrabold">No {activeTab.toLowerCase()} rentals found</p>
+            <p className="text-slate-400 text-xs mt-0.5">Try clearing filters or create a new rental booking</p>
           </div>
         )}
       </div>
 
-      {/* New Rental Modal */}
+      {/* ── Modals ── */}
       <NewRentalModal isOpen={isNewRentalModalOpen} onClose={() => setIsNewRentalModalOpen(false)} />
-
-      {/* Return / Check-In Modal */}
       <ReturnRentalModal isOpen={isCheckInModalOpen} onClose={() => { setIsCheckInModalOpen(false); setSelectedRental(null); }} rental={selectedRental} />
-
-      {/* Edit Rental Modal */}
       <EditRentalModal isOpen={isEditModalOpen} onClose={() => { setIsEditModalOpen(false); setEditingRental(null); }} rental={editingRental} />
 
       {/* Extend Rental Modal */}
-      <Modal isOpen={isExtendModalOpen} onClose={() => setIsExtendModalOpen(false)} title="Extend Rental">
+      <Modal isOpen={isExtendModalOpen} onClose={() => setIsExtendModalOpen(false)} title="Extend Rental Booking">
         {selectedRental && (
           <div className="space-y-4">
-            <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 space-y-1">
-              <p className="text-[8.5px] font-bold text-slate-400 uppercase tracking-wider">Current Expected Return</p>
-              <p className="text-sm font-black text-slate-900 font-mono">{format(parseISO(selectedRental.expectedReturnDate), 'MMM dd, yyyy')}</p>
+            <div className="p-3.5 bg-slate-50 rounded-md border border-slate-200 space-y-1">
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Current Expected Return</p>
+              <p className="text-sm font-extrabold text-slate-900 font-mono">{format(parseISO(selectedRental.expectedReturnDate), 'dd MMMM yyyy')}</p>
             </div>
 
             <div className="space-y-1">
-              <label className="text-[8.5px] font-black uppercase text-slate-400 tracking-wider">Extend By (Days)</label>
+              <label className="text-[10px] font-bold uppercase text-slate-500 tracking-wider">Extend By (Days)</label>
               <input
                 type="number"
                 min="1"
                 value={extendDays}
                 onChange={e => setExtendDays(Math.max(1, Number(e.target.value)))}
-                className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#8B5CF6] rounded-xl outline-none font-bold text-xs text-slate-900"
+                className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 focus:bg-white focus:border-indigo-500 rounded-md outline-none font-extrabold text-xs text-slate-900"
               />
             </div>
 
-            <div className="p-3 bg-[#8B5CF6]/5 border border-[#8B5CF6]/20 rounded-xl flex justify-between items-center text-xs">
-              <span className="font-bold text-slate-600 uppercase text-[9px]">Additional Rental Cost</span>
-              <span className="font-black text-[#8B5CF6] font-mono text-sm">
-                +{formatCurrency(extendDays * selectedRental.dailyRate * selectedRental.quantity)}
+            <div className="p-3.5 bg-indigo-50/70 border border-indigo-200 rounded-md flex justify-between items-center text-xs">
+              <span className="font-extrabold text-indigo-950 uppercase text-[10px]">Additional Rental Cost</span>
+              <span className="font-extrabold text-indigo-700 font-mono text-base">
+                +{formatCurrency(extendDays * (selectedRental.dailyRate || 0) * (selectedRental.quantity || 1))}
               </span>
             </div>
 
             <div className="flex gap-2 pt-2">
-              <button type="button" onClick={() => setIsExtendModalOpen(false)} className="flex-1 py-2.5 rounded-xl font-bold uppercase tracking-wider text-[9.5px] text-slate-500 border border-slate-200">Cancel</button>
-              <button type="button" onClick={handleConfirmExtend} className="flex-1 py-2.5 rounded-xl font-black uppercase tracking-wider text-[9.5px] bg-[#8B5CF6] text-white">Confirm Extension</button>
+              <button
+                type="button"
+                onClick={() => setIsExtendModalOpen(false)}
+                className="flex-1 py-2.5 rounded-md font-extrabold uppercase tracking-wider text-xs text-slate-600 hover:bg-slate-100 border border-slate-200 transition-all"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmExtend}
+                className="flex-1 py-2.5 rounded-md font-extrabold uppercase tracking-wider text-xs bg-indigo-600 hover:bg-indigo-700 text-white shadow-xs transition-all"
+              >
+                Confirm Extension
+              </button>
             </div>
           </div>
         )}

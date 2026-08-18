@@ -87,27 +87,27 @@ export const RecordExpenseModal: React.FC<RecordExpenseModalProps> = ({ isOpen, 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title="Record Expense / Cash Out">
       {successMessage && (
-        <div className="absolute inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-6 rounded-[2rem]">
-          <div className="bg-white rounded-3xl p-8 text-center shadow-2xl animate-nano max-w-[280px] w-full">
-            <div className="w-12 h-12 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-3">
+        <div className="absolute inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-6 rounded-lg">
+          <div className="bg-white rounded-md p-8 text-center shadow-lg animate-nano max-w-[280px] w-full">
+            <div className="w-12 h-12 bg-emerald-50 text-emerald-500 rounded-md flex items-center justify-center mx-auto mb-3">
               <CheckCircle2 size={24} strokeWidth={2.5} />
             </div>
-            <h3 className="text-sm font-black text-slate-900 mb-1 uppercase tracking-tight">Logged!</h3>
-            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{successMessage}</p>
+            <h3 className="text-sm font-bold text-gray-900 mb-1 uppercase tracking-tight">Logged!</h3>
+            <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">{successMessage}</p>
           </div>
         </div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-5">
         {/* Type Selector Toggle */}
-        <div className="grid grid-cols-2 gap-3 p-1 bg-slate-50 border border-slate-100 rounded-2xl">
+        <div className="grid grid-cols-2 gap-3 p-1 bg-gray-50 border border-gray-200/60 rounded-xl">
           <button
             type="button"
             onClick={() => setType('CASH_OUT')}
-            className={`py-3 px-4 rounded-xl text-[9px] font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-all ${
+            className={`py-3 px-4 rounded-xl text-[9px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 transition-all ${
               type === 'CASH_OUT' 
-                ? 'bg-white text-slate-900 shadow-md shadow-slate-100' 
-                : 'text-slate-400 hover:text-slate-600'
+                ? 'bg-white text-gray-900 shadow-md shadow-slate-100' 
+                : 'text-gray-400 hover:text-gray-600'
             }`}
           >
             <Wallet size={12} />
@@ -116,10 +116,10 @@ export const RecordExpenseModal: React.FC<RecordExpenseModalProps> = ({ isOpen, 
           <button
             type="button"
             onClick={() => setType('GOODS_CONSUMPTION')}
-            className={`py-3 px-4 rounded-xl text-[9px] font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-all ${
+            className={`py-3 px-4 rounded-xl text-[9px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 transition-all ${
               type === 'GOODS_CONSUMPTION' 
-                ? 'bg-white text-slate-900 shadow-md shadow-slate-100' 
-                : 'text-slate-400 hover:text-slate-600'
+                ? 'bg-white text-gray-900 shadow-md shadow-slate-100' 
+                : 'text-gray-400 hover:text-gray-600'
             }`}
           >
             <ShoppingBag size={12} />
@@ -131,13 +131,13 @@ export const RecordExpenseModal: React.FC<RecordExpenseModalProps> = ({ isOpen, 
         {type === 'GOODS_CONSUMPTION' && (
           <>
             <div className="space-y-1.5">
-              <label className="text-[9px] font-black uppercase text-slate-400 tracking-widest ml-1">Select Product</label>
+              <label className="text-[9px] font-bold uppercase text-gray-400 tracking-widest ml-1">Select Product</label>
               <div className="relative">
                 <select
                   required
                   value={selectedProductId}
                   onChange={(e) => setSelectedProductId(e.target.value)}
-                  className="w-full pl-4 pr-10 py-3.5 bg-slate-50 border border-transparent focus:bg-white focus:border-highlight/30 rounded-2xl outline-none transition-all font-black uppercase tracking-widest text-[9px] text-slate-900 appearance-none"
+                  className="w-full pl-4 pr-10 py-3.5 bg-gray-50 border border-transparent focus:bg-white focus:border-highlight/30 rounded-xl outline-none transition-all font-bold uppercase tracking-widest text-[9px] text-gray-900 appearance-none"
                 >
                   <option value="" disabled>-- Choose Item --</option>
                   {products.map(p => (
@@ -146,31 +146,31 @@ export const RecordExpenseModal: React.FC<RecordExpenseModalProps> = ({ isOpen, 
                     </option>
                   ))}
                 </select>
-                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={14} strokeWidth={3} />
+                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={14} strokeWidth={3} />
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <label className="text-[9px] font-black uppercase text-slate-400 tracking-widest ml-1">Quantity</label>
+                <label className="text-[9px] font-bold uppercase text-gray-400 tracking-widest ml-1">Quantity</label>
                 <input
                   type="number"
                   min="1"
                   required
                   value={quantity}
                   onChange={(e) => setQuantity(Math.max(1, Number(e.target.value)))}
-                  className="w-full px-4 py-3 bg-slate-50 border border-transparent focus:bg-white focus:border-highlight/30 rounded-2xl outline-none transition-all font-black text-slate-900 text-[11px]"
+                  className="w-full px-4 py-3 bg-gray-50 border border-transparent focus:bg-white focus:border-highlight/30 rounded-xl outline-none transition-all font-bold text-gray-900 text-[11px]"
                 />
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[9px] font-black uppercase text-slate-400 tracking-widest ml-1">Custom Value (Optional)</label>
+                <label className="text-[9px] font-bold uppercase text-gray-400 tracking-widest ml-1">Custom Value (Optional)</label>
                 <input
                   type="number"
                   placeholder={selectedProduct ? `Auto: ${formatCurrency(calculatedAmount)}` : '₹ Amount'}
                   value={customAmount}
                   onChange={(e) => setCustomAmount(e.target.value)}
-                  className="w-full px-4 py-3 bg-slate-50 border border-transparent focus:bg-white focus:border-highlight/30 rounded-2xl outline-none transition-all font-black text-slate-900 text-[11px]"
+                  className="w-full px-4 py-3 bg-gray-50 border border-transparent focus:bg-white focus:border-highlight/30 rounded-xl outline-none transition-all font-bold text-gray-900 text-[11px]"
                 />
               </div>
             </div>
@@ -180,49 +180,49 @@ export const RecordExpenseModal: React.FC<RecordExpenseModalProps> = ({ isOpen, 
         {/* CASH_OUT Fields */}
         {type === 'CASH_OUT' && (
           <div className="space-y-1.5">
-            <label className="text-[9px] font-black uppercase text-slate-400 tracking-widest ml-1">Amount (₹)</label>
+            <label className="text-[9px] font-bold uppercase text-gray-400 tracking-widest ml-1">Amount (₹)</label>
             <input
               name="amount"
               type="number"
               min="1"
               required
               placeholder="e.g. 500"
-              className="w-full px-4 py-3.5 bg-slate-50 border border-transparent focus:bg-white focus:border-highlight/30 rounded-2xl outline-none transition-all font-black text-slate-900 text-[11px]"
+              className="w-full px-4 py-3.5 bg-gray-50 border border-transparent focus:bg-white focus:border-highlight/30 rounded-xl outline-none transition-all font-bold text-gray-900 text-[11px]"
             />
           </div>
         )}
 
         {/* Paid To / Given To */}
         <div className="space-y-1.5">
-          <label className="text-[9px] font-black uppercase text-slate-400 tracking-widest ml-1">Given To / Paid To (Optional)</label>
+          <label className="text-[9px] font-bold uppercase text-gray-400 tracking-widest ml-1">Given To / Paid To (Optional)</label>
           <input
             name="paidTo"
             type="text"
             placeholder="e.g. John Doe, Delivery Guy"
-            className="w-full px-4 py-3.5 bg-slate-50 border border-transparent focus:bg-white focus:border-highlight/30 rounded-2xl outline-none transition-all font-black text-slate-900 text-[10px]"
+            className="w-full px-4 py-3.5 bg-gray-50 border border-transparent focus:bg-white focus:border-highlight/30 rounded-xl outline-none transition-all font-bold text-gray-900 text-[10px]"
           />
         </div>
 
         {/* Reason / Notes */}
         <div className="space-y-1.5">
-          <label className="text-[9px] font-black uppercase text-slate-400 tracking-widest ml-1">Reason / Description</label>
+          <label className="text-[9px] font-bold uppercase text-gray-400 tracking-widest ml-1">Reason / Description</label>
           <input
             name="reason"
             type="text"
             required
             placeholder={type === 'CASH_OUT' ? 'e.g. Bought tea/stationary, paid rent' : 'e.g. Taken by brother, family gift'}
-            className="w-full px-4 py-3.5 bg-slate-50 border border-transparent focus:bg-white focus:border-highlight/30 rounded-2xl outline-none transition-all font-black text-slate-900 text-[10px]"
+            className="w-full px-4 py-3.5 bg-gray-50 border border-transparent focus:bg-white focus:border-highlight/30 rounded-xl outline-none transition-all font-bold text-gray-900 text-[10px]"
           />
         </div>
 
         {/* Date Selector */}
         <div className="space-y-1.5">
-          <label className="text-[9px] font-black uppercase text-slate-400 tracking-widest ml-1">Transaction Date</label>
+          <label className="text-[9px] font-bold uppercase text-gray-400 tracking-widest ml-1">Transaction Date</label>
           <input
             name="date"
             type="date"
             defaultValue={new Date().toISOString().split('T')[0]}
-            className="w-full px-4 py-3.5 bg-slate-50 border border-transparent focus:bg-white focus:border-highlight/30 rounded-2xl outline-none transition-all font-black text-slate-900 text-[10px]"
+            className="w-full px-4 py-3.5 bg-gray-50 border border-transparent focus:bg-white focus:border-highlight/30 rounded-xl outline-none transition-all font-bold text-gray-900 text-[10px]"
           />
         </div>
 
@@ -231,7 +231,7 @@ export const RecordExpenseModal: React.FC<RecordExpenseModalProps> = ({ isOpen, 
           <button
             type="button"
             onClick={handleClose}
-            className="flex-1 h-14 rounded-2xl font-black uppercase tracking-widest text-[9px] border border-slate-100 text-slate-400"
+            className="flex-1 h-14 rounded-xl font-bold uppercase tracking-widest text-[9px] border border-gray-200/60 text-gray-400"
           >
             Cancel
           </button>

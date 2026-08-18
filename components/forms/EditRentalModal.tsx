@@ -106,31 +106,31 @@ export const EditRentalModal: React.FC<EditRentalModalProps> = ({ isOpen, onClos
       <form onSubmit={handleSubmit} className="space-y-2.5">
         {/* Customer */}
         <div className="space-y-1">
-          <label className="text-[8px] font-black uppercase text-slate-400 tracking-wider px-0.5">Customer *</label>
+          <label className="text-[8px] font-bold uppercase text-gray-400 tracking-wider px-0.5">Customer *</label>
           <div className="relative group">
-            <User className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#8B5CF6]" size={13} strokeWidth={2.5} />
+            <User className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#8B5CF6]" size={13} strokeWidth={2.5} />
             <select
               value={selectedCustomerId}
               onChange={(e) => setSelectedCustomerId(e.target.value)}
               required
-              className="w-full pl-7 pr-6 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#8B5CF6] rounded-xl outline-none font-bold text-[11px] text-slate-900 appearance-none cursor-pointer"
+              className="w-full pl-7 pr-6 py-2 bg-gray-50 border border-slate-200 focus:bg-white focus:border-[#8B5CF6] rounded-xl outline-none font-bold text-[11px] text-gray-900 appearance-none cursor-pointer"
             >
               {customers.map(c => <option key={c.id} value={c.id}>{c.name} ({c.phone || 'No phone'})</option>)}
             </select>
-            <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={13} strokeWidth={2.5} />
+            <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={13} strokeWidth={2.5} />
           </div>
         </div>
 
         {/* Product */}
         <div className="space-y-1">
-          <label className="text-[8px] font-black uppercase text-slate-400 tracking-wider px-0.5">Product *</label>
+          <label className="text-[8px] font-bold uppercase text-gray-400 tracking-wider px-0.5">Product *</label>
           <div className="relative group">
-            <Package className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#8B5CF6]" size={13} strokeWidth={2.5} />
+            <Package className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#8B5CF6]" size={13} strokeWidth={2.5} />
             <select
               value={selectedProductId}
               onChange={(e) => setSelectedProductId(e.target.value)}
               required
-              className="w-full pl-7 pr-6 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#8B5CF6] rounded-xl outline-none font-bold text-[11px] text-slate-900 appearance-none cursor-pointer"
+              className="w-full pl-7 pr-6 py-2 bg-gray-50 border border-slate-200 focus:bg-white focus:border-[#8B5CF6] rounded-xl outline-none font-bold text-[11px] text-gray-900 appearance-none cursor-pointer"
             >
               {products.map(p => (
                 <option key={p.id} value={p.id}>
@@ -138,31 +138,31 @@ export const EditRentalModal: React.FC<EditRentalModalProps> = ({ isOpen, onClos
                 </option>
               ))}
             </select>
-            <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={13} strokeWidth={2.5} />
+            <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={13} strokeWidth={2.5} />
           </div>
         </div>
 
         {/* Start Date & Expected Return Date in 1 Row */}
         <div className="grid grid-cols-2 gap-2">
           <div className="space-y-1">
-            <label className="text-[8px] font-black uppercase text-slate-400 tracking-wider px-0.5">Start Date *</label>
+            <label className="text-[8px] font-bold uppercase text-gray-400 tracking-wider px-0.5">Start Date *</label>
             <input
               type="date"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
               required
-              className="w-full px-2 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#8B5CF6] rounded-xl outline-none font-bold text-[10px] text-slate-900 uppercase"
+              className="w-full px-2 py-2 bg-gray-50 border border-slate-200 focus:bg-white focus:border-[#8B5CF6] rounded-xl outline-none font-bold text-[10px] text-gray-900 uppercase"
             />
           </div>
 
           <div className="space-y-1">
-            <label className="text-[8px] font-black uppercase text-slate-400 tracking-wider px-0.5">Expected Return *</label>
+            <label className="text-[8px] font-bold uppercase text-gray-400 tracking-wider px-0.5">Expected Return *</label>
             <input
               type="date"
               value={expectedReturnDate}
               onChange={(e) => setExpectedReturnDate(e.target.value)}
               required
-              className="w-full px-2 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#8B5CF6] rounded-xl outline-none font-bold text-[10px] text-slate-900 uppercase"
+              className="w-full px-2 py-2 bg-gray-50 border border-slate-200 focus:bg-white focus:border-[#8B5CF6] rounded-xl outline-none font-bold text-[10px] text-gray-900 uppercase"
             />
           </div>
         </div>
@@ -170,27 +170,27 @@ export const EditRentalModal: React.FC<EditRentalModalProps> = ({ isOpen, onClos
         {/* Quantity & Start Time in Next Row (Together in 1 Line) */}
         <div className="grid grid-cols-2 gap-2">
           <div className="space-y-1">
-            <label className="text-[8px] font-black uppercase text-slate-400 tracking-wider px-0.5">Quantity *</label>
+            <label className="text-[8px] font-bold uppercase text-gray-400 tracking-wider px-0.5">Quantity *</label>
             <input
               type="number"
               value={quantity}
               onChange={(e) => setQuantity(Math.max(1, Number(e.target.value)))}
               min="1"
               required
-              className="w-full px-2 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#8B5CF6] rounded-xl outline-none font-bold text-[11px] text-slate-900"
+              className="w-full px-2 py-2 bg-gray-50 border border-slate-200 focus:bg-white focus:border-[#8B5CF6] rounded-xl outline-none font-bold text-[11px] text-gray-900"
             />
           </div>
 
           <div className="space-y-1">
-            <label className="text-[8px] font-black uppercase text-slate-400 tracking-wider px-0.5">Start Time *</label>
+            <label className="text-[8px] font-bold uppercase text-gray-400 tracking-wider px-0.5">Start Time *</label>
             <div className="relative group">
-              <Clock className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#8B5CF6]" size={13} strokeWidth={2.5} />
+              <Clock className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#8B5CF6]" size={13} strokeWidth={2.5} />
               <input
                 type="time"
                 value={startTime}
                 onChange={(e) => setStartTime(e.target.value)}
                 required
-                className="w-full pl-7 pr-2 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#8B5CF6] rounded-xl outline-none font-bold text-[10px] text-slate-900"
+                className="w-full pl-7 pr-2 py-2 bg-gray-50 border border-slate-200 focus:bg-white focus:border-[#8B5CF6] rounded-xl outline-none font-bold text-[10px] text-gray-900"
               />
             </div>
           </div>
@@ -199,22 +199,22 @@ export const EditRentalModal: React.FC<EditRentalModalProps> = ({ isOpen, onClos
         {/* Security Deposit & Rent row */}
         <div className="grid grid-cols-2 gap-2">
           <div className="space-y-1">
-            <label className="text-[8px] font-black uppercase text-slate-400 tracking-wider px-0.5">Deposit *</label>
+            <label className="text-[8px] font-bold uppercase text-gray-400 tracking-wider px-0.5">Deposit *</label>
             <div className="relative group">
-              <IndianRupee className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#8B5CF6]" size={13} strokeWidth={2.5} />
+              <IndianRupee className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#8B5CF6]" size={13} strokeWidth={2.5} />
               <input
                 type="number"
                 value={securityDeposit}
                 onChange={(e) => setSecurityDeposit(e.target.value)}
                 required
-                className="w-full pl-7 pr-2 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#8B5CF6] rounded-xl outline-none font-bold text-[11px] text-slate-900"
+                className="w-full pl-7 pr-2 py-2 bg-gray-50 border border-slate-200 focus:bg-white focus:border-[#8B5CF6] rounded-xl outline-none font-bold text-[11px] text-gray-900"
               />
             </div>
           </div>
 
           <div className="space-y-1">
             <div className="flex justify-between items-center px-0.5">
-              <label className="text-[8px] font-black uppercase text-slate-400 tracking-wider">Rent Amount *</label>
+              <label className="text-[8px] font-bold uppercase text-gray-400 tracking-wider">Rent Amount *</label>
               {isDiscounted && (
                 <button
                   type="button"
@@ -226,27 +226,27 @@ export const EditRentalModal: React.FC<EditRentalModalProps> = ({ isOpen, onClos
               )}
             </div>
             <div className="relative group">
-              <Tag className={`absolute left-2.5 top-1/2 -translate-y-1/2 ${isDiscounted ? 'text-amber-500' : 'text-slate-400 group-focus-within:text-[#8B5CF6]'}`} size={13} strokeWidth={2.5} />
+              <Tag className={`absolute left-2.5 top-1/2 -translate-y-1/2 ${isDiscounted ? 'text-amber-500' : 'text-gray-400 group-focus-within:text-[#8B5CF6]'}`} size={13} strokeWidth={2.5} />
               <input
                 type="number"
                 value={customRentalAmount !== '' ? customRentalAmount : (autoRentalAmount > 0 ? autoRentalAmount : '')}
                 onChange={(e) => setCustomRentalAmount(e.target.value)}
                 required
-                className={`w-full pl-7 pr-2 py-2 border rounded-xl outline-none font-bold text-[11px] ${isDiscounted ? 'bg-amber-50/60 border-amber-300 text-amber-950' : 'bg-slate-50 border-slate-200 focus:bg-white focus:border-[#8B5CF6] text-slate-900'}`}
+                className={`w-full pl-7 pr-2 py-2 border rounded-xl outline-none font-bold text-[11px] ${isDiscounted ? 'bg-amber-50/60 border-amber-300 text-amber-950' : 'bg-gray-50 border-slate-200 focus:bg-white focus:border-[#8B5CF6] text-gray-900'}`}
               />
             </div>
           </div>
         </div>
 
         {/* Summary Card */}
-        <div className="p-2.5 bg-slate-50 border border-slate-200/80 rounded-xl space-y-1 text-left">
+        <div className="p-2.5 bg-gray-50 border border-slate-200/80 rounded-xl space-y-1 text-left">
           <div className="flex justify-between items-center text-[10px]">
-            <span className="font-bold text-slate-500 uppercase tracking-wider text-[8px]">Duration & Rate</span>
-            <span className="font-bold text-slate-700 font-mono text-[9px]">{rentalDays} day(s) @ {formatCurrency(dailyRate)}/day</span>
+            <span className="font-bold text-gray-500 uppercase tracking-wider text-[8px]">Duration & Rate</span>
+            <span className="font-bold text-gray-700 font-mono text-[9px]">{rentalDays} day(s) @ {formatCurrency(dailyRate)}/day</span>
           </div>
           <div className="pt-1 border-t border-slate-200/80 flex justify-between items-center">
-            <span className="font-black text-emerald-600 uppercase tracking-wider text-[9px]">Net Refundable</span>
-            <span className="font-black text-emerald-600 font-mono text-xs">{formatCurrency(netRefundable)}</span>
+            <span className="font-bold text-emerald-600 uppercase tracking-wider text-[9px]">Net Refundable</span>
+            <span className="font-bold text-emerald-600 font-mono text-xs">{formatCurrency(netRefundable)}</span>
           </div>
         </div>
 
@@ -255,13 +255,13 @@ export const EditRentalModal: React.FC<EditRentalModalProps> = ({ isOpen, onClos
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 py-2 rounded-xl font-bold uppercase tracking-wider text-[9.5px] text-slate-500 border border-slate-200 hover:border-slate-300"
+            className="flex-1 py-2 rounded-xl font-bold uppercase tracking-wider text-[9.5px] text-gray-500 border border-slate-200 hover:border-slate-300"
           >
             Cancel
           </button>
           <button
             type="submit"
-            className="flex-1 py-2 rounded-xl font-black uppercase tracking-wider text-[9.5px] bg-[#8B5CF6] hover:bg-[#7C3AED] text-white shadow-md shadow-[#8B5CF6]/20"
+            className="flex-1 py-2 rounded-xl font-bold uppercase tracking-wider text-[9.5px] bg-[#8B5CF6] hover:bg-[#7C3AED] text-white shadow-md shadow-[#8B5CF6]/20"
           >
             Save Changes
           </button>

@@ -2,15 +2,23 @@ import React, { useState, useMemo } from 'react';
 import { useApp } from '../store/AppContext';
 import { Card, Button } from '../components/Shared';
 import { formatCurrency } from '../utils/helpers';
-import { 
-  BarChart3, 
-  TrendingUp, 
-  CreditCard, 
+import {
+  BarChart3,
+  TrendingUp,
+  CreditCard,
   Calendar,
-  Download
+  Download,
+  PieChart as PieChartIcon,
+  Package,
+  ArrowUpRight,
+  Sparkles,
+  ShoppingBag,
+  Coins,
+  IndianRupee,
+  Layers
 } from 'lucide-react';
-import { 
-  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
+import {
+  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   Cell, PieChart, Pie, Legend
 } from 'recharts';
 import { subDays, isAfter, format, parseISO } from 'date-fns';
@@ -23,14 +31,14 @@ const Reports: React.FC = () => {
   // Filter Data based on Time Range
   const filteredData = useMemo(() => {
     const now = new Date();
-    let startDate = new Date(0); // Beginning of time
+    let startDate = new Date(0);
 
     if (timeRange === '7D') startDate = subDays(now, 7);
     if (timeRange === '30D') startDate = subDays(now, 30);
 
-    const filteredSales = sales.filter(s => 
-      s.orderStatus !== OrderStatus.RETURNED && 
-      s.orderStatus !== OrderStatus.CANCELLED && 
+    const filteredSales = sales.filter(s =>
+      s.orderStatus !== OrderStatus.RETURNED &&
+      s.orderStatus !== OrderStatus.CANCELLED &&
       isAfter(parseISO(s.date), startDate)
     );
     const filteredRentals = rentals.filter(r => isAfter(parseISO(r.date), startDate));
@@ -41,38 +49,37 @@ const Reports: React.FC = () => {
 
   // Calculations for Summary Cards
   const summary = useMemo(() => {
-    const salesRevenue = filteredData.sales.reduce((acc, s) => acc + s.totalAmount, 0);
-    const rentalRevenue = filteredData.rentals.reduce((acc, r) => acc + r.totalRentAmount, 0);
+    const salesRevenue = filteredData.sales.reduce((acc, s) => acc + (s.totalAmount || 0), 0);
+    const rentalRevenue = filteredData.rentals.reduce((acc, r) => acc + (r.totalRentAmount || 0), 0);
     const totalRevenue = salesRevenue + rentalRevenue;
-    
-    // Net Payout minus Expenses
-    const totalExpenses = filteredData.expenses.reduce((acc, e) => acc + e.amount, 0);
-    const netPayout = (filteredData.sales.reduce((acc, s) => acc + s.netPayout, 0) + rentalRevenue) - totalExpenses;
-    
+
+    const totalExpenses = filteredData.expenses.reduce((acc, e) => acc + (e.amount || 0), 0);
+    const netPayout = (filteredData.sales.reduce((acc, s) => acc + (s.netPayout || s.totalAmount || 0), 0) + rentalRevenue) - totalExpenses;
+
     const totalOrders = filteredData.sales.length + filteredData.rentals.length;
     const avgOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
 
-    return { totalRevenue, netPayout, totalOrders, avgOrderValue, salesRevenue, rentalRevenue };
+    return { totalRevenue, netPayout, totalOrders, avgOrderValue, salesRevenue, rentalRevenue, totalExpenses };
   }, [filteredData]);
 
   // Chart Data: Revenue Trend (Daily)
   const trendData = useMemo(() => {
     const map = new Map<string, { date: string, sales: number, rentals: number, timestamp: number }>();
-    
+
     [...filteredData.sales, ...filteredData.rentals].forEach(item => {
-        const d = parseISO(item.date);
-        const key = format(d, 'yyyy-MM-dd');
-        const displayDate = format(d, 'MMM dd');
-        
-        if (!map.has(key)) {
-            map.set(key, { date: displayDate, sales: 0, rentals: 0, timestamp: d.getTime() });
-        }
-        const entry = map.get(key)!;
-        if ('totalAmount' in item) {
-             entry.sales += (item as any).totalAmount;
-        } else {
-             entry.rentals += (item as any).totalRentAmount;
-        }
+      const d = parseISO(item.date);
+      const key = format(d, 'yyyy-MM-dd');
+      const displayDate = format(d, 'dd MMM');
+
+      if (!map.has(key)) {
+        map.set(key, { date: displayDate, sales: 0, rentals: 0, timestamp: d.getTime() });
+      }
+      const entry = map.get(key)!;
+      if ('totalAmount' in item) {
+        entry.sales += (item as any).totalAmount || 0;
+      } else {
+        entry.rentals += (item as any).totalRentAmount || 0;
+      }
     });
 
     return Array.from(map.values()).sort((a, b) => a.timestamp - b.timestamp);
@@ -82,298 +89,377 @@ const Reports: React.FC = () => {
   const channelData = useMemo(() => {
     const counts: Record<string, number> = {};
     filteredData.sales.forEach(s => {
-      counts[s.channel] = (counts[s.channel] || 0) + s.totalAmount;
+      const ch = s.channel || 'IN_STORE';
+      counts[ch] = (counts[ch] || 0) + (s.totalAmount || 0);
     });
-    
-    return Object.entries(counts).map(([name, value]) => ({ name, value }));
-  }, [filteredData]);
+
+    const arr = Object.entries(counts).map(([name, value]) => ({ name, value }));
+    return arr.length > 0 ? arr : [{ name: 'Direct Store', value: summary.salesRevenue || 1 }];
+  }, [filteredData, summary.salesRevenue]);
 
   // Top Products
   const topProducts = useMemo(() => {
-      const productSales: Record<string, { name: string, quantity: number, revenue: number }> = {};
-      
-      filteredData.sales.forEach(s => {
-          s.items.forEach(item => {
-              if (!productSales[item.productId]) {
-                  productSales[item.productId] = { name: item.name, quantity: 0, revenue: 0 };
-              }
-              productSales[item.productId].quantity += item.quantity;
-              productSales[item.productId].revenue += item.total;
-          });
-      });
+    const productSales: Record<string, { name: string, quantity: number, revenue: number }> = {};
 
-      return Object.values(productSales).sort((a, b) => b.revenue - a.revenue).slice(0, 5);
+    filteredData.sales.forEach(s => {
+      (s.items || []).forEach(item => {
+        if (!productSales[item.productId]) {
+          productSales[item.productId] = { name: item.name, quantity: 0, revenue: 0 };
+        }
+        productSales[item.productId].quantity += item.quantity || 1;
+        productSales[item.productId].revenue += item.total || 0;
+      });
+    });
+
+    return Object.values(productSales).sort((a, b) => b.revenue - a.revenue).slice(0, 6);
   }, [filteredData]);
 
-  const COLORS = ['#0F172A', '#FACC15', '#94A3B8', '#E2E8F0', '#F1F5F9'];
+  const COLORS = ['#01a9fb', '#fe569f', '#FACC15', '#6366F1', '#10B981'];
+
+  const handleExportCSV = () => {
+    let csv = `Type,Date,Reference,Description,Amount\n`;
+    filteredData.sales.forEach(s => {
+      csv += `SALE,"${s.date}","${s.invoiceNumber}","${(s.items || []).map(i => i.name).join('; ')}",${s.netPayout || s.totalAmount}\n`;
+    });
+    filteredData.rentals.forEach(r => {
+      csv += `RENTAL,"${r.date}","${r.invoiceNumber}","Rental Booking",${r.totalRentAmount}\n`;
+    });
+    filteredData.expenses.forEach(e => {
+      csv += `EXPENSE,"${e.date}","${e.type}","${e.reason}",-${e.amount}\n`;
+    });
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `Financial_Report_${timeRange}_${format(new Date(), 'yyyy-MM-dd')}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
 
   return (
-    <div className="space-y-6 animate-nano pb-10">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-4">
-        <div>
-          <h1 className="text-3xl font-black text-slate-900 font-display tracking-tighter">Reports</h1>
-          <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.4em] mt-1">Business Intelligence</p>
+    <div className="space-y-5 animate-nano pb-20 max-w-[1600px] mx-auto">
+      {/* ── Executive Header ── */}
+      <div className="bg-white border border-slate-200/80 rounded-md p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-md bg-[#01a9fb] text-white flex items-center justify-center shadow-xs shrink-0">
+            <BarChart3 size={20} strokeWidth={2.2} />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <h1 className="text-lg sm:text-xl font-extrabold text-slate-900 tracking-tight">Business Intelligence & Reports</h1>
+              <span className="text-[10px] font-extrabold text-[#01a9fb] bg-[#01a9fb]/10 border border-[#01a9fb]/30 px-2 py-0.5 rounded-md">
+                Financial Health
+              </span>
+            </div>
+            <p className="text-xs text-slate-500 font-medium mt-0.5">Comprehensive sales performance, net margin analytics, and ledger tracking</p>
+          </div>
         </div>
-        <div className="flex bg-white rounded-2xl border border-slate-100 p-1 shadow-nano">
-           {['7D', '30D', 'ALL'].map((range) => (
-             <button
+
+        <div className="flex items-center gap-2">
+          {/* Time Range Pill Switcher */}
+          <div className="inline-flex bg-slate-100 p-1 rounded-md border border-slate-200/70 shrink-0">
+            {(['7D', '30D', 'ALL'] as const).map(range => (
+              <button
                 key={range}
-                onClick={() => setTimeRange(range as any)}
-                className={`px-6 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${timeRange === range ? 'bg-highlight text-slate-900 shadow-banana' : 'text-slate-400 hover:text-slate-600'}`}
-             >
-                {range === 'ALL' ? 'All Time' : `Last ${range.replace('D', ' Days')}`}
-             </button>
-           ))}
+                onClick={() => setTimeRange(range)}
+                className={`px-3.5 py-1 text-xs font-extrabold rounded transition-all ${timeRange === range
+                  ? 'bg-[#01a9fb] text-white shadow-xs'
+                  : 'text-slate-500 hover:text-slate-900'
+                  }`}
+              >
+                {range === 'ALL' ? 'All Time' : `Last ${range.replace('D', 'D')}`}
+              </button>
+            ))}
+          </div>
+
+          <button
+            onClick={handleExportCSV}
+            className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 bg-[#01a9fb] hover:bg-[#0098e6] text-white text-xs font-extrabold uppercase tracking-wider rounded-md shadow-xs transition-all active:scale-95"
+          >
+            <Download size={14} strokeWidth={2.5} />
+            <span>Export CSV</span>
+          </button>
         </div>
       </div>
 
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="nano-card p-6 group hover:bg-slate-900 transition-all duration-500">
-            <div className="flex justify-between items-start">
-                <div>
-                    <p className="text-slate-400 text-[9px] font-black uppercase tracking-widest group-hover:text-slate-500 transition-colors">Total Revenue</p>
-                    <h3 className="text-2xl font-display font-black text-slate-900 mt-1 group-hover:text-white transition-colors">{formatCurrency(summary.totalRevenue)}</h3>
-                </div>
-                <div className="p-2.5 bg-slate-50 text-slate-900 rounded-xl group-hover:bg-white/10 group-hover:text-white transition-all shadow-nano">
-                    <TrendingUp size={18} strokeWidth={3} />
-                </div>
+      {/* ── Summary KPI Cards (4 Cards) ── */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
+        <div className="bg-white hover:bg-slate-50/60 p-4 sm:p-5 rounded-md border border-slate-200/80 hover:border-[#01a9fb]/50 shadow-xs transition-all">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Gross Turnover</span>
+            <div className="w-7 h-7 rounded-md bg-[#01a9fb]/10 text-[#01a9fb] flex items-center justify-center font-bold text-xs">
+              <TrendingUp size={14} />
             </div>
-            <div className="mt-6 pt-4 border-t border-slate-50 group-hover:border-white/10 flex flex-wrap gap-4 text-[8px] font-black uppercase tracking-widest text-slate-400 transition-colors">
-                <span className="flex items-center gap-1.5"><div className="w-1.5 h-1.5 rounded-full bg-slate-900 group-hover:bg-highlight"></div> Sales: {formatCurrency(summary.salesRevenue)}</span>
-                <span className="flex items-center gap-1.5"><div className="w-1.5 h-1.5 rounded-full bg-slate-300 group-hover:bg-slate-500"></div> Rentals: {formatCurrency(summary.rentalRevenue)}</span>
-            </div>
+          </div>
+          <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight leading-none font-mono">
+            {formatCurrency(summary.totalRevenue)}
+          </h3>
+          <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400 mt-2.5 pt-2 border-t border-slate-100">
+            <span className="text-[#01a9fb]">Sale: {formatCurrency(summary.salesRevenue)}</span>
+            <span>•</span>
+            <span className="text-[#fe569f]">Rent: {formatCurrency(summary.rentalRevenue)}</span>
+          </div>
         </div>
 
-        <div className="nano-card p-6 group hover:bg-slate-900 transition-all duration-500">
-            <div className="flex justify-between items-start">
-                <div>
-                    <p className="text-slate-400 text-[9px] font-black uppercase tracking-widest group-hover:text-slate-500 transition-colors">Net Profit</p>
-                    <h3 className="text-2xl font-display font-black text-slate-900 mt-1 group-hover:text-white transition-colors">{formatCurrency(summary.netPayout)}</h3>
-                </div>
-                <div className="p-2.5 bg-slate-50 text-slate-900 rounded-xl group-hover:bg-white/10 group-hover:text-white transition-all shadow-nano">
-                    <CreditCard size={18} strokeWidth={3} />
-                </div>
+        <div className="bg-white hover:bg-slate-50/60 p-4 sm:p-5 rounded-md border border-slate-200/80 hover:border-emerald-300 shadow-xs transition-all">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Net Operating Profit</span>
+            <div className="w-7 h-7 rounded-md bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-xs">
+              <IndianRupee size={14} />
             </div>
-            <p className="text-[8px] font-black text-slate-400 mt-6 group-hover:text-slate-500 uppercase tracking-widest transition-colors">After Deductions</p>
+          </div>
+          <h3 className={`text-2xl sm:text-3xl font-extrabold tracking-tight leading-none font-mono ${summary.netPayout >= 0 ? 'text-emerald-700' : 'text-rose-600'}`}>
+            {formatCurrency(summary.netPayout)}
+          </h3>
+          <p className="text-[11px] font-semibold text-slate-400 mt-2">After expenses (-{formatCurrency(summary.totalExpenses)})</p>
         </div>
 
-        <div className="nano-card p-6 group hover:bg-slate-900 transition-all duration-500">
-            <div className="flex justify-between items-start">
-                <div>
-                    <p className="text-slate-400 text-[9px] font-black uppercase tracking-widest group-hover:text-slate-500 transition-colors">Total Orders</p>
-                    <h3 className="text-2xl font-display font-black text-slate-900 mt-1 group-hover:text-white transition-colors">{summary.totalOrders}</h3>
-                </div>
-                <div className="p-2.5 bg-slate-50 text-slate-900 rounded-xl group-hover:bg-white/10 group-hover:text-white transition-all shadow-nano">
-                    <BarChart3 size={18} strokeWidth={3} />
-                </div>
+        <div className="bg-white hover:bg-slate-50/60 p-4 sm:p-5 rounded-md border border-slate-200/80 hover:border-[#fe569f]/50 shadow-xs transition-all">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Total Transactions</span>
+            <div className="w-7 h-7 rounded-md bg-[#fe569f]/10 text-[#fe569f] flex items-center justify-center font-bold text-xs">
+              <ShoppingBag size={14} />
             </div>
-             <p className="text-[8px] font-black text-slate-400 mt-6 group-hover:text-slate-500 uppercase tracking-widest transition-colors">Omnichannel</p>
+          </div>
+          <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight leading-none">
+            {summary.totalOrders}
+          </h3>
+          <p className="text-[11px] font-bold text-[#fe569f] mt-2">Sales & rental bookings fulfilled</p>
         </div>
 
-        <div className="nano-card p-6 group hover:bg-slate-900 transition-all duration-500">
-            <div className="flex justify-between items-start">
-                <div>
-                    <p className="text-slate-400 text-[9px] font-black uppercase tracking-widest group-hover:text-slate-500 transition-colors">Avg. Order</p>
-                    <h3 className="text-2xl font-display font-black text-slate-900 mt-1 group-hover:text-white transition-colors">{formatCurrency(summary.avgOrderValue)}</h3>
-                </div>
-                <div className="p-2.5 bg-slate-50 text-slate-900 rounded-xl group-hover:bg-white/10 group-hover:text-white transition-all shadow-nano">
-                    <Calendar size={18} strokeWidth={3} />
-                </div>
+        <div className="bg-white hover:bg-slate-50/60 p-4 sm:p-5 rounded-md border border-slate-200/80 hover:border-yellow-300 shadow-xs transition-all">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Average Order Value</span>
+            <div className="w-7 h-7 rounded-md bg-yellow-100 text-yellow-800 flex items-center justify-center font-bold text-xs">
+              <Coins size={14} />
             </div>
-             <p className="text-[8px] font-black text-slate-400 mt-6 group-hover:text-slate-500 uppercase tracking-widest transition-colors">Per Transaction</p>
+          </div>
+          <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight leading-none font-mono">
+            {formatCurrency(summary.avgOrderValue)}
+          </h3>
+          <p className="text-[11px] font-bold text-yellow-700 mt-2">Average gross checkout</p>
         </div>
       </div>
 
+      {/* ── Charts Grid: Revenue Trend + Channel Distribution ── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Revenue Trend Chart */}
-        <div className="lg:col-span-2 p-8 nano-card">
-            <div className="flex items-center justify-between mb-8">
-                <h3 className="text-[11px] font-black text-slate-900 uppercase tracking-[0.2em]">Revenue Trend</h3>
-                <div className="flex items-center gap-4 text-[8px] font-black uppercase tracking-widest text-slate-300">
-                    <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-slate-900"></div> Sales</div>
-                    <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-highlight"></div> Rentals</div>
-                </div>
+        <div className="lg:col-span-2 bg-white rounded-md border border-slate-200/80 p-5 sm:p-6 shadow-xs">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-900">Revenue Progression Trend</h3>
+              <p className="text-[11px] text-slate-400 font-medium mt-0.5">Daily turnover split by sales vs rental bookings</p>
             </div>
-            <div className="h-[280px] w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={trendData}>
-                        <defs>
-                            <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="5%" stopColor="#0F172A" stopOpacity={0.05}/>
-                                <stop offset="95%" stopColor="#0F172A" stopOpacity={0}/>
-                            </linearGradient>
-                            <linearGradient id="colorRentals" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="5%" stopColor="#FACC15" stopOpacity={0.05}/>
-                                <stop offset="95%" stopColor="#FACC15" stopOpacity={0}/>
-                            </linearGradient>
-                        </defs>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f8fafc" />
-                        <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{fill: '#cbd5e1', fontSize: 8, fontWeight: 900}} dy={10} />
-                        <YAxis axisLine={false} tickLine={false} tick={{fill: '#cbd5e1', fontSize: 8, fontWeight: 900}} dx={-10} />
-                        <Tooltip 
-                            contentStyle={{borderRadius: '16px', border: '1px solid #f1f5f9', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', padding: '12px'}}
-                            itemStyle={{fontSize: '9px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em'}}
-                        />
-                        <Area type="monotone" dataKey="sales" name="Sales" stroke="#0F172A" fillOpacity={1} fill="url(#colorSales)" strokeWidth={4} />
-                        <Area type="monotone" dataKey="rentals" name="Rentals" stroke="#FACC15" fillOpacity={1} fill="url(#colorRentals)" strokeWidth={4} />
-                    </AreaChart>
-                </ResponsiveContainer>
+            <div className="flex items-center gap-3 text-xs font-bold">
+              <div className="flex items-center gap-1.5 text-slate-700">
+                <span className="w-2.5 h-2.5 rounded-full bg-[#01a9fb]"></span>
+                <span>Sales</span>
+              </div>
+              <div className="flex items-center gap-1.5 text-slate-700">
+                <span className="w-2.5 h-2.5 rounded-full bg-[#fe569f]"></span>
+                <span>Rentals</span>
+              </div>
             </div>
+          </div>
+
+          <div className="h-[280px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={trendData}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F5F9" />
+                <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: '#94A3B8', fontSize: 10, fontWeight: 700 }} dy={8} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94A3B8', fontSize: 10, fontWeight: 700 }} dx={-8} tickFormatter={val => `₹${val}`} />
+                <Tooltip
+                  contentStyle={{ borderRadius: '6px', border: '1px solid #E2E8F0', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)', padding: '12px' }}
+                  itemStyle={{ fontSize: '11px', fontWeight: 800 }}
+                  formatter={(val: any) => [`₹${Number(val).toLocaleString()}`, '']}
+                />
+                <Area type="monotone" dataKey="sales" name="Sales Turnover" stroke="#01a9fb" fill="#01a9fb" fillOpacity={0.08} strokeWidth={2.5} />
+                <Area type="monotone" dataKey="rentals" name="Rental Bookings" stroke="#fe569f" fill="#fe569f" fillOpacity={0.08} strokeWidth={2.5} />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
         </div>
 
-        {/* Channel Distribution */}
-        <div className="p-8 nano-card">
-            <h3 className="text-[11px] font-black text-slate-900 uppercase tracking-[0.2em] mb-8">Channel Mix</h3>
-            <div className="h-[280px] w-full relative">
-                <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                        <Pie
-                            data={channelData}
-                            cx="50%"
-                            cy="50%"
-                            innerRadius={70}
-                            outerRadius={100}
-                            fill="#8884d8"
-                            paddingAngle={4}
-                            dataKey="value"
-                            stroke="none"
-                        >
-                            {channelData.map((entry, index) => (
-                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                            ))}
-                        </Pie>
-                        <Tooltip 
-                            contentStyle={{borderRadius: '16px', border: '1px solid #f1f5f9', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)'}}
-                        />
-                        <Legend 
-                            verticalAlign="bottom" 
-                            align="center" 
-                            iconType="circle"
-                            formatter={(value) => <span className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-1">{value}</span>}
-                        />
-                    </PieChart>
-                </ResponsiveContainer>
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none -mt-4">
-                    <p className="text-[8px] font-black uppercase tracking-widest text-slate-300">Total</p>
-                    <p className="text-xl font-display font-black text-slate-900">{formatCurrency(summary.salesRevenue)}</p>
-                </div>
+        {/* Channel Mix Chart */}
+        <div className="bg-white rounded-md border border-slate-200/80 p-5 sm:p-6 shadow-xs flex flex-col justify-between">
+          <div>
+            <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-900">Sales Channel Distribution</h3>
+            <p className="text-[11px] text-slate-400 font-medium mt-0.5">Turnover share by POS and online channels</p>
+          </div>
+
+          <div className="h-[220px] w-full relative my-2">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={channelData}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={65}
+                  outerRadius={95}
+                  paddingAngle={4}
+                  dataKey="value"
+                  stroke="none"
+                >
+                  {channelData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip
+                  contentStyle={{ borderRadius: '8px', border: '1px solid #E2E8F0', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)' }}
+                  formatter={(val: any) => [`₹${Number(val).toLocaleString()}`, '']}
+                />
+                <Legend
+                  verticalAlign="bottom"
+                  align="center"
+                  iconType="circle"
+                  formatter={(value) => <span className="text-[10px] font-bold text-slate-600 ml-1">{value}</span>}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none -mt-4">
+              <p className="text-[9px] font-bold uppercase tracking-wider text-slate-400">Total</p>
+              <p className="text-sm font-extrabold text-slate-900 font-mono">{formatCurrency(summary.salesRevenue)}</p>
             </div>
+          </div>
+
+          <p className="text-[10px] text-slate-400 text-center pt-2 border-t border-slate-100">Omnichannel revenue split</p>
         </div>
       </div>
 
+      {/* ── Top Performing Products & Stock Valuation ── */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {/* Top Products */}
-          <div className="p-8 nano-card">
-              <h3 className="text-[11px] font-black text-slate-900 uppercase tracking-[0.2em] mb-6">Top Performing Products</h3>
-              <div className="overflow-x-auto">
-                  <table className="w-full text-left text-xs">
-                      <thead>
-                          <tr className="text-slate-300 border-b border-slate-50">
-                              <th className="pb-4 font-black uppercase text-[9px] tracking-widest">Product</th>
-                              <th className="pb-4 font-black uppercase text-[9px] tracking-widest text-right">Qty</th>
-                              <th className="pb-4 font-black uppercase text-[9px] tracking-widest text-right">Revenue</th>
-                          </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-50">
-                          {topProducts.map((p, i) => (
-                              <tr key={i} className="hover:bg-slate-50/50 transition-colors group">
-                                  <td className="py-4 font-black text-slate-900 text-[11px] uppercase tracking-tight">{p.name}</td>
-                                  <td className="py-4 text-right font-black text-slate-400 uppercase tracking-widest text-[10px]">{p.quantity}</td>
-                                  <td className="py-4 text-right font-mono font-black text-slate-900">{formatCurrency(p.revenue)}</td>
-                              </tr>
-                          ))}
-                          {topProducts.length === 0 && (
-                              <tr>
-                                  <td colSpan={3} className="py-12 text-center text-slate-300 font-black uppercase tracking-widest text-[9px]">No data available</td>
-                              </tr>
-                          )}
-                      </tbody>
-                  </table>
-              </div>
+        {/* Top Products */}
+        <div className="bg-white rounded-lg border border-slate-200/80 p-5 sm:p-6 shadow-xs">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-900">Top Performing SKUs</h3>
+              <p className="text-[11px] text-slate-400 font-medium mt-0.5">Top revenue generating items</p>
+            </div>
+            <Package size={16} className="text-slate-400" />
           </div>
 
-          {/* Inventory Value */}
-          <div className="p-8 nano-card flex flex-col justify-center">
-              <div className="text-center mb-8">
-                  <h3 className="text-[11px] font-black text-slate-900 uppercase tracking-[0.2em] mb-1">Inventory Valuation</h3>
-                  <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">Current stock value</p>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="text-center p-6 bg-slate-50 rounded-[2rem] border border-transparent group hover:bg-slate-900 transition-all duration-500">
-                      <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1 group-hover:text-slate-500 transition-colors">Cost Value</p>
-                      <h3 className="text-xl font-display font-black text-slate-900 group-hover:text-white transition-colors">
-                          {formatCurrency(products.reduce((acc, p) => acc + (p.purchasePrice * (p.saleStock + p.rentalStock)), 0))}
-                      </h3>
-                  </div>
-                  <div className="text-center p-6 bg-slate-50 rounded-[2rem] border border-transparent group hover:bg-slate-900 transition-all duration-500">
-                      <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1 group-hover:text-slate-500 transition-colors">Retail Value</p>
-                      <h3 className="text-xl font-display font-black text-slate-900 group-hover:text-white transition-colors">
-                          {formatCurrency(products.reduce((acc, p) => acc + (p.sellingPrice * (p.saleStock + p.rentalStock)), 0))}
-                      </h3>
-                  </div>
-              </div>
-              <div className="mt-8">
-                  <button className="w-full flex items-center justify-center gap-3 h-14 bg-white border border-slate-100 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-900 hover:border-slate-200 transition-all rounded-2xl shadow-nano" onClick={() => {}}>
-                      <Download size={18} strokeWidth={3} /> Download Report
-                  </button>
-              </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs">
+              <thead>
+                <tr className="border-b border-slate-100 text-[10px] font-extrabold uppercase text-slate-400 tracking-wider">
+                  <th className="pb-3">Product Name</th>
+                  <th className="pb-3 text-center">Units Sold</th>
+                  <th className="pb-3 text-right">Revenue Generated</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 font-bold">
+                {topProducts.map((p, i) => (
+                  <tr key={i} className="hover:bg-slate-50/60 transition-colors">
+                    <td className="py-3 text-slate-900 font-extrabold">{p.name}</td>
+                    <td className="py-3 text-center text-slate-500">{p.quantity} pcs</td>
+                    <td className="py-3 text-right font-mono font-extrabold text-slate-900">{formatCurrency(p.revenue)}</td>
+                  </tr>
+                ))}
+                {topProducts.length === 0 && (
+                  <tr>
+                    <td colSpan={3} className="py-8 text-center text-slate-400 font-bold">No sales data recorded</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
           </div>
+        </div>
+
+        {/* Inventory Valuation Breakdown */}
+        <div className="bg-white rounded-lg border border-slate-200/80 p-5 sm:p-6 shadow-xs flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-900">Inventory Stock Valuation</h3>
+                <p className="text-[11px] text-slate-400 font-medium mt-0.5">Purchase cost basis vs estimated retail market value</p>
+              </div>
+              <Layers size={16} className="text-slate-400" />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 my-4">
+              <div className="p-4 bg-slate-50 rounded-lg border border-slate-200/80">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Cost Basis Valuation</span>
+                <h4 className="text-xl font-extrabold text-slate-900 font-mono">
+                  {formatCurrency(products.reduce((acc, p) => acc + ((p.purchasePrice || 0) * ((p.saleStock || 0) + (p.rentalStock || 0))), 0))}
+                </h4>
+                <p className="text-[10px] text-slate-500 mt-1">Capital invested in inventory</p>
+              </div>
+
+              <div className="p-4 bg-emerald-50/60 rounded-lg border border-emerald-200/80">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 block mb-1">Retail Value</span>
+                <h4 className="text-xl font-extrabold text-emerald-800 font-mono">
+                  {formatCurrency(products.reduce((acc, p) => acc + ((p.sellingPrice || 0) * ((p.saleStock || 0) + (p.rentalStock || 0))), 0))}
+                </h4>
+                <p className="text-[10px] text-emerald-600 mt-1">Gross catalogue retail potential</p>
+              </div>
+            </div>
+          </div>
+
+          <button
+            onClick={handleExportCSV}
+            className="w-full flex items-center justify-center gap-2 py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-md text-xs font-extrabold uppercase tracking-wider transition-all shadow-xs"
+          >
+            <Download size={14} />
+            <span>Download Detailed Audit Report</span>
+          </button>
+        </div>
       </div>
 
-      {/* Expense & Cash Out Ledger Section */}
-      <div className="p-8 nano-card">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-              <div>
-                  <h3 className="text-[11px] font-black text-slate-900 uppercase tracking-[0.2em]">Expense & Cash Out Ledger</h3>
-                  <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mt-1">Audit log of cash withdrawals and personal/family goods taken</p>
-              </div>
+      {/* ── Expense & Cash Out Ledger Section ── */}
+      <div className="bg-white rounded-lg border border-slate-200/80 shadow-xs p-5 sm:p-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+          <div>
+            <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-900">Expense & Cash Out Audit Ledger</h3>
+            <p className="text-[11px] text-slate-400 font-medium mt-0.5">Audit trail of store expenses, cash payouts, and personal/family item withdrawals</p>
           </div>
-          <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
-                  <thead>
-                      <tr className="text-slate-300 border-b border-slate-50">
-                          <th className="pb-4 font-black uppercase text-[9px] tracking-widest">Date</th>
-                          <th className="pb-4 font-black uppercase text-[9px] tracking-widest">Type</th>
-                          <th className="pb-4 font-black uppercase text-[9px] tracking-widest">Item details</th>
-                          <th className="pb-4 font-black uppercase text-[9px] tracking-widest">Paid To</th>
-                          <th className="pb-4 font-black uppercase text-[9px] tracking-widest">Reason</th>
-                          <th className="pb-4 font-black uppercase text-[9px] tracking-widest text-right">Amount</th>
-                      </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-50">
-                      {filteredData.expenses.map((exp) => {
-                          const product = products.find(p => p.id === exp.productId);
-                          return (
-                              <tr key={exp.id} className="hover:bg-slate-50/50 transition-colors">
-                                  <td className="py-4 font-black text-slate-900 text-[11px]">{format(new Date(exp.date), 'dd MMM yyyy')}</td>
-                                  <td className="py-4">
-                                      <span className={`inline-block px-2.5 py-1 rounded-lg text-[8px] font-black uppercase tracking-wider ${
-                                          exp.type === 'CASH_OUT' ? 'bg-amber-100 text-amber-700' : 'bg-indigo-100 text-indigo-700'
-                                      }`}>
-                                          {exp.type === 'CASH_OUT' ? 'Cash Out' : 'Goods Taken'}
-                                      </span>
-                                  </td>
-                                  <td className="py-4 font-black text-slate-500 text-[10px] uppercase tracking-wider">
-                                      {exp.type === 'GOODS_CONSUMPTION' && product 
-                                          ? `${product.name} (Qty: ${exp.quantity})`
-                                          : '-'
-                                      }
-                                  </td>
-                                  <td className="py-4 font-black text-slate-700 text-[10px] uppercase">{exp.paidTo || '-'}</td>
-                                  <td className="py-4 font-black text-slate-600 text-[10px]">{exp.reason}</td>
-                                  <td className="py-4 text-right font-mono font-black text-rose-500">{formatCurrency(exp.amount)}</td>
-                              </tr>
-                          );
-                      })}
-                      {filteredData.expenses.length === 0 && (
-                          <tr>
-                              <td colSpan={6} className="py-12 text-center text-slate-300 font-black uppercase tracking-widest text-[9px]">No expenses recorded in this period</td>
-                          </tr>
-                      )}
-                  </tbody>
-              </table>
-          </div>
+          <span className="text-xs font-bold text-rose-600 font-mono">Total Expenses: {formatCurrency(summary.totalExpenses)}</span>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-xs">
+            <thead>
+              <tr className="border-b border-slate-100 bg-slate-50 text-[10px] font-extrabold uppercase text-slate-400 tracking-wider">
+                <th className="px-4 py-3">Date</th>
+                <th className="px-4 py-3">Type</th>
+                <th className="px-4 py-3">Item Details</th>
+                <th className="px-4 py-3">Paid To / Recipient</th>
+                <th className="px-4 py-3">Reason / Description</th>
+                <th className="px-4 py-3 text-right">Amount</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
+              {filteredData.expenses.map((exp) => {
+                const product = products.find(p => p.id === exp.productId);
+                return (
+                  <tr key={exp.id} className="hover:bg-slate-50/60 transition-colors">
+                    <td className="px-4 py-3 font-extrabold text-slate-900">{format(new Date(exp.date), 'dd MMM yyyy')}</td>
+                    <td className="px-4 py-3">
+                      <span className={`inline-block px-2.5 py-0.5 rounded text-[10px] font-extrabold uppercase tracking-wider ${exp.type === 'CASH_OUT' ? 'bg-amber-50 text-amber-700 border border-amber-200' : 'bg-indigo-50 text-indigo-700 border border-indigo-200'
+                        }`}>
+                        {exp.type === 'CASH_OUT' ? 'Cash Out' : 'Goods Taken'}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 font-semibold text-slate-600">
+                      {exp.type === 'GOODS_CONSUMPTION' && product
+                        ? `${product.name} (Qty: ${exp.quantity || 1})`
+                        : '-'
+                      }
+                    </td>
+                    <td className="px-4 py-3 font-bold text-slate-800">{exp.paidTo || '-'}</td>
+                    <td className="px-4 py-3 text-slate-600">{exp.reason}</td>
+                    <td className="px-4 py-3 text-right font-mono font-extrabold text-rose-600">-{formatCurrency(exp.amount)}</td>
+                  </tr>
+                );
+              })}
+              {filteredData.expenses.length === 0 && (
+                <tr>
+                  <td colSpan={6} className="py-8 text-center text-slate-400 font-bold">No expense records logged in this timeframe</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

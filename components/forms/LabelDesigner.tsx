@@ -45,7 +45,7 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
         <div className="fixed inset-0 z-[200] bg-white flex flex-col items-center justify-center p-10 text-red-500 font-mono text-sm">
           <h1 className="text-2xl font-bold mb-4">React Crash</h1>
           <p>{this.state.error?.toString()}</p>
-          <pre className="mt-4 p-4 bg-slate-100 text-slate-800 rounded max-w-4xl overflow-auto">{this.state.error?.stack}</pre>
+          <pre className="mt-4 p-4 bg-gray-100 text-gray-800 rounded max-w-4xl overflow-auto">{this.state.error?.stack}</pre>
           <button onClick={() => window.location.reload()} className="mt-8 px-4 py-2 bg-blue-500 text-white rounded">Reload Page</button>
         </div>
       );
@@ -824,16 +824,16 @@ function LabelDesigner({ labelData, initialTemplate, allProductSizes, onClose, o
     >
       {isIconGalleryOpen && (
         <div className="fixed inset-0 z-[210] bg-black/50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl">
+          <div className="bg-white rounded-xl w-full max-w-lg overflow-hidden shadow-2xl">
             <div className="p-4 border-b flex justify-between items-center">
-              <h3 className="font-bold text-slate-800">Choose Icon</h3>
+              <h3 className="font-bold text-gray-800">Choose Icon</h3>
               <button onClick={() => setIsIconGalleryOpen(false)}><X size={20} /></button>
             </div>
             <div className="p-4 grid grid-cols-4 gap-3 max-h-[60vh] overflow-y-auto">
               {ICON_LIBRARY.map(item => (
-                <button key={item.id} onClick={() => handleAddIcon(item.id)} className="flex flex-col items-center gap-2 p-3 rounded-lg hover:bg-slate-50 border border-transparent hover:border-slate-200">
-                  <div id={`gallery-icon-${item.id}`}><item.icon size={24} className="text-slate-600" /></div>
-                  <span className="text-[10px] uppercase font-bold text-slate-500">{item.name}</span>
+                <button key={item.id} onClick={() => handleAddIcon(item.id)} className="flex flex-col items-center gap-2 p-3 rounded-lg hover:bg-gray-50 border border-transparent hover:border-slate-200">
+                  <div id={`gallery-icon-${item.id}`}><item.icon size={24} className="text-gray-600" /></div>
+                  <span className="text-[10px] uppercase font-bold text-gray-500">{item.name}</span>
                 </button>
               ))}
             </div>
@@ -841,36 +841,36 @@ function LabelDesigner({ labelData, initialTemplate, allProductSizes, onClose, o
         </div>
       )}
 
-      <div className={`bg-white transition-all duration-300 flex flex-col overflow-hidden shadow-2xl ring-1 ring-black/5 ${isFullscreen ? 'w-full h-[100dvh] rounded-none' : 'w-full max-w-[1000px] h-[100dvh] md:h-[80vh] min-h-[400px] md:min-h-[500px] rounded-none md:rounded-2xl'}`}>
+      <div className={`bg-white transition-all duration-300 flex flex-col overflow-hidden shadow-2xl ring-1 ring-black/5 ${isFullscreen ? 'w-full h-[100dvh] rounded-none' : 'w-full max-w-[1000px] h-[100dvh] md:h-[80vh] min-h-[400px] md:min-h-[500px] rounded-none md:rounded-xl'}`}>
 
-        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between p-3 border-b border-slate-100 bg-white z-10 gap-3">
+        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between p-3 border-b border-gray-200/60 bg-white z-10 gap-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3 shrink-0">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#8B5CF6] to-[#6D28D9] flex items-center justify-center text-white shadow-lg shadow-[#8B5CF6]/30">
+              <div className="w-8 h-8 rounded-lg bg-[#7C3AED] flex items-center justify-center text-white shadow-xs">
                 <Layers size={16} />
               </div>
               <div>
-                <h2 className="text-sm font-black uppercase tracking-widest text-slate-800">Label Designer</h2>
+                <h2 className="text-sm font-bold uppercase tracking-widest text-gray-800">Label Designer</h2>
                 <p className="text-[9px] font-bold text-[#8B5CF6] uppercase tracking-widest mt-0.5 truncate max-w-[200px] md:max-w-none">
                   {currentPresetName ? `Editing Preset: ${currentPresetName}` : 'Free Transform & Multi-select'}
                 </p>
               </div>
             </div>
-            <button onClick={onClose} className="md:hidden p-2 bg-slate-50 hover:bg-rose-50 text-slate-400 hover:text-rose-500 rounded-lg transition-colors shrink-0"><X size={18} strokeWidth={2.5} /></button>
+            <button onClick={onClose} className="md:hidden p-2 bg-gray-50 hover:bg-rose-50 text-gray-400 hover:text-rose-500 rounded-lg transition-colors shrink-0"><X size={18} strokeWidth={2.5} /></button>
           </div>
 
           <div className="flex items-center gap-1.5 w-full md:w-auto overflow-x-auto hide-scrollbar pb-1 md:pb-0 shrink-0">
-            <button onClick={handleUndo} disabled={historyPast.length === 0} className={`p-1.5 rounded-lg transition-colors shrink-0 ${historyPast.length === 0 ? 'text-slate-300' : 'text-slate-600 hover:bg-slate-100 hover:text-[#8B5CF6]'}`} title="Undo"><Undo size={14} /></button>
-            <button onClick={handleRedo} disabled={historyFuture.length === 0} className={`p-1.5 rounded-lg transition-colors shrink-0 ${historyFuture.length === 0 ? 'text-slate-300' : 'text-slate-600 hover:bg-slate-100 hover:text-[#8B5CF6]'}`} title="Redo"><Redo size={14} /></button>
+            <button onClick={handleUndo} disabled={historyPast.length === 0} className={`p-1.5 rounded-lg transition-colors shrink-0 ${historyPast.length === 0 ? 'text-gray-300' : 'text-gray-600 hover:bg-gray-100 hover:text-[#8B5CF6]'}`} title="Undo"><Undo size={14} /></button>
+            <button onClick={handleRedo} disabled={historyFuture.length === 0} className={`p-1.5 rounded-lg transition-colors shrink-0 ${historyFuture.length === 0 ? 'text-gray-300' : 'text-gray-600 hover:bg-gray-100 hover:text-[#8B5CF6]'}`} title="Redo"><Redo size={14} /></button>
             <div className="w-px h-4 bg-slate-200 mx-1 shrink-0"></div>
             <button onClick={() => setIsTemplatesModalOpen(true)} className="px-2 md:px-3 py-1.5 bg-[#8B5CF6]/10 text-[#8B5CF6] hover:bg-[#8B5CF6]/20 rounded-lg font-bold uppercase tracking-widest text-[9px] flex items-center gap-1.5 transition-colors shrink-0">
               <LayoutGrid size={12} /> <span className="hidden xs:inline">Templates</span>
             </button>
             <div className="w-px h-4 bg-slate-200 mx-1 shrink-0"></div>
-            <button onClick={handleRotateSelected} disabled={selectedElementIds.length === 0} className={`p-1.5 rounded-lg transition-colors shrink-0 ${selectedElementIds.length === 0 ? 'text-slate-300' : 'text-slate-600 hover:bg-slate-100 hover:text-[#8B5CF6]'}`} title="Rotate Selected (90°)"><RotateCw size={14} /></button>
+            <button onClick={handleRotateSelected} disabled={selectedElementIds.length === 0} className={`p-1.5 rounded-lg transition-colors shrink-0 ${selectedElementIds.length === 0 ? 'text-gray-300' : 'text-gray-600 hover:bg-gray-100 hover:text-[#8B5CF6]'}`} title="Rotate Selected (90°)"><RotateCw size={14} /></button>
             <div className="w-px h-4 bg-slate-200 mx-1 shrink-0"></div>
-            <button onClick={() => setSelectedElementIds(template.elements.map(e => e.id))} className="px-2 md:px-3 py-1.5 bg-slate-50 text-slate-600 rounded-lg font-bold uppercase tracking-widest text-[9px] hover:bg-slate-100 flex items-center gap-1 transition-colors shrink-0"><CheckSquare size={12} /> <span className="hidden sm:inline">Select All</span></button>
-            <button onClick={handleResetTemplate} className="px-2 md:px-3 py-1.5 bg-slate-50 text-slate-600 rounded-lg font-bold uppercase tracking-widest text-[9px] hover:bg-slate-100 transition-colors shrink-0">Reset</button>
+            <button onClick={() => setSelectedElementIds(template.elements.map(e => e.id))} className="px-2 md:px-3 py-1.5 bg-gray-50 text-gray-600 rounded-lg font-bold uppercase tracking-widest text-[9px] hover:bg-gray-100 flex items-center gap-1 transition-colors shrink-0"><CheckSquare size={12} /> <span className="hidden sm:inline">Select All</span></button>
+            <button onClick={handleResetTemplate} className="px-2 md:px-3 py-1.5 bg-gray-50 text-gray-600 rounded-lg font-bold uppercase tracking-widest text-[9px] hover:bg-gray-100 transition-colors shrink-0">Reset</button>
             <button onClick={handleCreateNewTemplate} className="px-2 md:px-3 py-1.5 bg-[#8B5CF6]/10 text-[#8B5CF6] hover:bg-[#8B5CF6]/20 rounded-lg font-bold uppercase tracking-widest text-[9px] flex items-center gap-1 transition-colors shrink-0"><Plus size={12} /> <span className="hidden xs:inline">Create New</span></button>
 
             {currentPresetName && (
@@ -902,18 +902,18 @@ function LabelDesigner({ labelData, initialTemplate, allProductSizes, onClose, o
 
             <div className="hidden md:flex items-center">
               <div className="w-px h-6 bg-slate-200 mx-1 shrink-0"></div>
-              <button onClick={() => setIsFullscreen(!isFullscreen)} className="p-2 bg-slate-50 hover:bg-slate-100 text-slate-400 hover:text-slate-600 rounded-lg transition-colors shrink-0 mr-1" title="Toggle Fullscreen">
+              <button onClick={() => setIsFullscreen(!isFullscreen)} className="p-2 bg-gray-50 hover:bg-gray-100 text-gray-400 hover:text-gray-600 rounded-lg transition-colors shrink-0 mr-1" title="Toggle Fullscreen">
                 {isFullscreen ? <Minimize2 size={18} strokeWidth={2.5} /> : <Maximize2 size={18} strokeWidth={2.5} />}
               </button>
-              <button onClick={onClose} className="p-2 bg-slate-50 hover:bg-rose-50 text-slate-400 hover:text-rose-500 rounded-lg transition-colors shrink-0" title="Close"><X size={18} strokeWidth={2.5} /></button>
+              <button onClick={onClose} className="p-2 bg-gray-50 hover:bg-rose-50 text-gray-400 hover:text-rose-500 rounded-lg transition-colors shrink-0" title="Close"><X size={18} strokeWidth={2.5} /></button>
             </div>
           </div>
         </div>
 
-        <div className="flex flex-col md:flex-row flex-1 overflow-hidden bg-slate-50">
-          <div className="w-full md:w-56 max-h-[35vh] md:max-h-none shrink-0 bg-white border-b md:border-b-0 md:border-r border-slate-100 overflow-y-auto p-2 md:p-3 flex flex-col gap-2 md:gap-4 shadow-[4px_0_24px_rgba(0,0,0,0.02)] z-10">
+        <div className="flex flex-col md:flex-row flex-1 overflow-hidden bg-gray-50">
+          <div className="w-full md:w-56 max-h-[35vh] md:max-h-none shrink-0 bg-white border-b md:border-b-0 md:border-r border-gray-200/60 overflow-y-auto p-2 md:p-3 flex flex-col gap-2 md:gap-4 shadow-[4px_0_24px_rgba(0,0,0,0.02)] z-10">
             <div className="space-y-1 md:space-y-2">
-              <p className="text-[8px] md:text-[9px] font-black uppercase tracking-widest text-slate-400">Sizes to Print</p>
+              <p className="text-[8px] md:text-[9px] font-bold uppercase tracking-widest text-gray-400">Sizes to Print</p>
               <div className="flex flex-wrap gap-1.5 mt-1">
                 {allProductSizes.length > 0 ? allProductSizes.map(size => {
                   const isSelected = printSizes.includes(size);
@@ -922,39 +922,39 @@ function LabelDesigner({ labelData, initialTemplate, allProductSizes, onClose, o
                       key={size}
                       type="button"
                       onClick={() => setPrintSizes(prev => isSelected ? prev.filter(s => s !== size) : [...prev, size])}
-                      className={`flex items-center justify-center min-w-[36px] h-7 px-2.5 rounded-lg text-[9px] font-black uppercase tracking-wider transition-all border select-none ${
+                      className={`flex items-center justify-center min-w-[36px] h-7 px-2.5 rounded-lg text-[9px] font-bold uppercase tracking-wider transition-all border select-none ${
                         isSelected 
-                          ? 'bg-gradient-to-br from-[#8B5CF6] to-[#7C3AED] text-white border-transparent shadow-sm shadow-[#8B5CF6]/20' 
-                          : 'bg-white text-slate-600 border-slate-200 hover:border-[#8B5CF6]/30 hover:bg-[#8B5CF6]/5'
+                          ? 'bg-[#7C3AED] text-white border-transparent shadow-xs' 
+                          : 'bg-white text-gray-600 border-slate-200 hover:border-[#8B5CF6]/30 hover:bg-[#8B5CF6]/5'
                       }`}
                     >
                       {size}
                     </button>
                   );
-                }) : <p className="text-[9px] md:text-[10px] text-slate-400 italic">No sizes selected.</p>}
+                }) : <p className="text-[9px] md:text-[10px] text-gray-400 italic">No sizes selected.</p>}
               </div>
             </div>
 
             <div className="space-y-1 md:space-y-2">
-              <p className="text-[8px] md:text-[9px] font-black uppercase tracking-widest text-slate-400">Add Tools</p>
+              <p className="text-[8px] md:text-[9px] font-bold uppercase tracking-widest text-gray-400">Add Tools</p>
               <div className="grid grid-cols-5 gap-1 md:gap-1.5">
-                <button onClick={() => handleAddElement('text')} className="flex flex-col items-center justify-center gap-0.5 md:gap-1 bg-slate-50 p-1.5 md:p-2 rounded-lg border border-transparent hover:border-[#8B5CF6]/30 hover:bg-white hover:shadow-sm text-slate-600 hover:text-[#8B5CF6] transition-all group">
+                <button onClick={() => handleAddElement('text')} className="flex flex-col items-center justify-center gap-0.5 md:gap-1 bg-gray-50 p-1.5 md:p-2 rounded-lg border border-transparent hover:border-[#8B5CF6]/30 hover:bg-white hover:shadow-sm text-gray-600 hover:text-[#8B5CF6] transition-all group">
                   <Type size={12} className="md:w-3.5 md:h-3.5 group-hover:scale-110 transition-transform" />
                   <span className="text-[7px] md:text-[8px] font-bold uppercase tracking-widest">Text</span>
                 </button>
-                <button onClick={() => handleAddElement('rect')} className="flex flex-col items-center justify-center gap-0.5 md:gap-1 bg-slate-50 p-1.5 md:p-2 rounded-lg border border-transparent hover:border-[#8B5CF6]/30 hover:bg-white hover:shadow-sm text-slate-600 hover:text-[#8B5CF6] transition-all group">
+                <button onClick={() => handleAddElement('rect')} className="flex flex-col items-center justify-center gap-0.5 md:gap-1 bg-gray-50 p-1.5 md:p-2 rounded-lg border border-transparent hover:border-[#8B5CF6]/30 hover:bg-white hover:shadow-sm text-gray-600 hover:text-[#8B5CF6] transition-all group">
                   <Square size={12} className="md:w-3.5 md:h-3.5 group-hover:scale-110 transition-transform" />
                   <span className="text-[7px] md:text-[8px] font-bold uppercase tracking-widest">Border</span>
                 </button>
-                <button onClick={() => handleAddElement('line')} className="flex flex-col items-center justify-center gap-0.5 md:gap-1 bg-slate-50 p-1.5 md:p-2 rounded-lg border border-transparent hover:border-[#8B5CF6]/30 hover:bg-white hover:shadow-sm text-slate-600 hover:text-[#8B5CF6] transition-all group">
+                <button onClick={() => handleAddElement('line')} className="flex flex-col items-center justify-center gap-0.5 md:gap-1 bg-gray-50 p-1.5 md:p-2 rounded-lg border border-transparent hover:border-[#8B5CF6]/30 hover:bg-white hover:shadow-sm text-gray-600 hover:text-[#8B5CF6] transition-all group">
                   <Minus size={12} className="md:w-3.5 md:h-3.5 group-hover:scale-110 transition-transform" />
                   <span className="text-[7px] md:text-[8px] font-bold uppercase tracking-widest">Line</span>
                 </button>
-                <button onClick={() => setIsIconGalleryOpen(true)} className="flex flex-col items-center justify-center gap-0.5 md:gap-1 bg-slate-50 p-1.5 md:p-2 rounded-lg border border-transparent hover:border-[#8B5CF6]/30 hover:bg-white hover:shadow-sm text-slate-600 hover:text-[#8B5CF6] transition-all group">
+                <button onClick={() => setIsIconGalleryOpen(true)} className="flex flex-col items-center justify-center gap-0.5 md:gap-1 bg-gray-50 p-1.5 md:p-2 rounded-lg border border-transparent hover:border-[#8B5CF6]/30 hover:bg-white hover:shadow-sm text-gray-600 hover:text-[#8B5CF6] transition-all group">
                   <Sticker size={12} className="md:w-3.5 md:h-3.5 group-hover:scale-110 transition-transform" />
                   <span className="text-[7px] md:text-[8px] font-bold uppercase tracking-widest">Icons</span>
                 </button>
-                <button onClick={() => fileInputRef.current?.click()} className="flex flex-col items-center justify-center gap-0.5 md:gap-1 bg-slate-50 p-1.5 md:p-2 rounded-lg border border-transparent hover:border-[#8B5CF6]/30 hover:bg-white hover:shadow-sm text-slate-600 hover:text-[#8B5CF6] transition-all group">
+                <button onClick={() => fileInputRef.current?.click()} className="flex flex-col items-center justify-center gap-0.5 md:gap-1 bg-gray-50 p-1.5 md:p-2 rounded-lg border border-transparent hover:border-[#8B5CF6]/30 hover:bg-white hover:shadow-sm text-gray-600 hover:text-[#8B5CF6] transition-all group">
                   <ImagePlus size={12} className="md:w-3.5 md:h-3.5 group-hover:scale-110 transition-transform" />
                   <span className="text-[7px] md:text-[8px] font-bold uppercase tracking-widest">Image</span>
                   <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleImageUpload} />
@@ -962,39 +962,39 @@ function LabelDesigner({ labelData, initialTemplate, allProductSizes, onClose, o
               </div>
             </div>
 
-            <div className="h-px bg-slate-100 my-1"></div>
+            <div className="h-px bg-gray-100 my-1"></div>
 
             {selectedElementIds.length > 1 ? (
               <div className="text-center py-6 bg-[#8B5CF6]/5 rounded-xl border border-[#8B5CF6]/20">
                 <Move size={20} className="mx-auto mb-2 text-[#8B5CF6]" />
-                <p className="text-[10px] font-black uppercase tracking-widest text-slate-800">{selectedElementIds.length} Elements Selected</p>
-                <p className="text-[8px] text-slate-500 font-medium px-4 mt-1">Drag or use arrow keys to move them together.</p>
-                <button onClick={handleDeleteSelected} className="mt-4 px-3 py-1.5 bg-rose-100 text-rose-600 rounded-lg text-[8px] font-black uppercase tracking-widest hover:bg-rose-200 transition-colors">Delete Group</button>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-gray-800">{selectedElementIds.length} Elements Selected</p>
+                <p className="text-[8px] text-gray-500 font-medium px-4 mt-1">Drag or use arrow keys to move them together.</p>
+                <button onClick={handleDeleteSelected} className="mt-4 px-3 py-1.5 bg-rose-100 text-rose-600 rounded-lg text-[8px] font-bold uppercase tracking-widest hover:bg-rose-200 transition-colors">Delete Group</button>
               </div>
             ) : singleElement ? (
               <div className="space-y-4 animate-nano">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-[10px] font-black uppercase tracking-widest text-[#8B5CF6]">{singleElement.type.toUpperCase()} Properties</p>
-                    <p className="text-[8px] font-bold uppercase tracking-widest text-slate-400 mt-0.5">{singleElement.id.replace('custom_', '')}</p>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#8B5CF6]">{singleElement.type.toUpperCase()} Properties</p>
+                    <p className="text-[8px] font-bold uppercase tracking-widest text-gray-400 mt-0.5">{singleElement.id.replace('custom_', '')}</p>
                   </div>
-                  <button onClick={handleDeleteSelected} className="text-slate-400 hover:text-rose-500 hover:bg-rose-50 p-1.5 rounded-lg transition-colors"><Trash2 size={14} /></button>
+                  <button onClick={handleDeleteSelected} className="text-gray-400 hover:text-rose-500 hover:bg-rose-50 p-1.5 rounded-lg transition-colors"><Trash2 size={14} /></button>
                 </div>
 
                 <div className="space-y-3">
-                  <label className="flex items-center gap-2 cursor-pointer p-2 bg-slate-50 rounded-lg border border-slate-100 hover:border-[#8B5CF6]/30 transition-colors">
+                  <label className="flex items-center gap-2 cursor-pointer p-2 bg-gray-50 rounded-lg border border-gray-200/60 hover:border-[#8B5CF6]/30 transition-colors">
                     <input type="checkbox" checked={singleElement.visible} onChange={e => updateSingleElement({ visible: e.target.checked })} className="rounded w-3 h-3 text-[#8B5CF6] border-slate-300 focus:ring-[#8B5CF6]" />
-                    <span className="text-[9px] font-bold uppercase text-slate-700 tracking-widest">Visible on Label</span>
+                    <span className="text-[9px] font-bold uppercase text-gray-700 tracking-widest">Visible on Label</span>
                   </label>
 
                   {/* Position X and Y */}
                   <div className="grid grid-cols-2 gap-2">
                     <div className="space-y-1">
-                      <label className="text-[8px] font-black uppercase text-slate-400 tracking-widest ml-1">X Position (mm)</label>
+                      <label className="text-[8px] font-bold uppercase text-gray-400 tracking-widest ml-1">X Position (mm)</label>
                       <input type="number" step="0.5" value={singleElement.x} onChange={e => updateSingleElement({ x: Number(e.target.value) })} className="w-full bg-white border border-slate-200 focus:border-[#8B5CF6]/50 rounded-lg p-2 text-[10px] outline-none transition-all shadow-sm font-bold" />
                     </div>
                     <div className="space-y-1">
-                      <label className="text-[8px] font-black uppercase text-slate-400 tracking-widest ml-1">Y Position (mm)</label>
+                      <label className="text-[8px] font-bold uppercase text-gray-400 tracking-widest ml-1">Y Position (mm)</label>
                       <input type="number" step="0.5" value={singleElement.y} onChange={e => updateSingleElement({ y: Number(e.target.value) })} className="w-full bg-white border border-slate-200 focus:border-[#8B5CF6]/50 rounded-lg p-2 text-[10px] outline-none transition-all shadow-sm font-bold" />
                     </div>
                   </div>
@@ -1002,11 +1002,11 @@ function LabelDesigner({ labelData, initialTemplate, allProductSizes, onClose, o
                   {singleElement.type === 'text' && (
                     <div className="space-y-3">
                       <div className="space-y-1">
-                        <label className="text-[8px] font-black uppercase text-slate-400 tracking-widest ml-1">Prefix / Static Text (e.g. Rs., SKU:)</label>
+                        <label className="text-[8px] font-bold uppercase text-gray-400 tracking-widest ml-1">Prefix / Static Text (e.g. Rs., SKU:)</label>
                         <input type="text" value={singleElement.staticText || ''} onChange={e => updateSingleElement({ staticText: e.target.value })} placeholder="Prefix (e.g. SKU :, CODE :, Rs.)" className="w-full bg-white border border-slate-200 focus:border-[#8B5CF6]/50 rounded-lg p-2 text-[10px] outline-none transition-all shadow-sm font-bold" />
                       </div>
                       <div className="space-y-1">
-                        <label className="text-[8px] font-black uppercase text-slate-400 tracking-widest ml-1">Value / Number Override</label>
+                        <label className="text-[8px] font-bold uppercase text-gray-400 tracking-widest ml-1">Value / Number Override</label>
                         <input
                           type="text"
                           value={singleElement.customValue !== undefined ? singleElement.customValue : ''}
@@ -1022,7 +1022,7 @@ function LabelDesigner({ labelData, initialTemplate, allProductSizes, onClose, o
                       </div>
                       <div className="grid grid-cols-2 gap-2">
                         <div className="space-y-1">
-                          <label className="text-[8px] font-black uppercase text-slate-400 tracking-widest ml-1">Alignment</label>
+                          <label className="text-[8px] font-bold uppercase text-gray-400 tracking-widest ml-1">Alignment</label>
                           <select value={singleElement.align || 'center'} onChange={e => updateSingleElement({ align: e.target.value as any })} className="w-full bg-white border border-slate-200 focus:border-[#8B5CF6]/50 rounded-lg p-2 text-[10px] outline-none transition-all shadow-sm">
                             <option value="center">Center</option>
                             <option value="left">Left</option>
@@ -1030,7 +1030,7 @@ function LabelDesigner({ labelData, initialTemplate, allProductSizes, onClose, o
                           </select>
                         </div>
                         <div className="space-y-1">
-                          <label className="text-[8px] font-black uppercase text-slate-400 tracking-widest ml-1">Font Family</label>
+                          <label className="text-[8px] font-bold uppercase text-gray-400 tracking-widest ml-1">Font Family</label>
                           <select value={singleElement.fontFamily || 'helvetica'} onChange={e => updateSingleElement({ fontFamily: e.target.value as any })} className="w-full bg-white border border-slate-200 focus:border-[#8B5CF6]/50 rounded-lg p-2 text-[10px] outline-none transition-all shadow-sm">
                             <option value="helvetica">Helvetica</option>
                             <option value="times">Times</option>
@@ -1040,13 +1040,13 @@ function LabelDesigner({ labelData, initialTemplate, allProductSizes, onClose, o
                       </div>
                       <div className="grid grid-cols-2 gap-2">
                         <div className="space-y-1">
-                          <label className="text-[8px] font-black uppercase text-slate-400 tracking-widest ml-1">Font Size (pt)</label>
+                          <label className="text-[8px] font-bold uppercase text-gray-400 tracking-widest ml-1">Font Size (pt)</label>
                           <input type="number" step="0.5" value={singleElement.fontSize || 6} onChange={e => updateSingleElement({ fontSize: Number(e.target.value) })} className="w-full bg-white border border-slate-200 focus:border-[#8B5CF6]/50 rounded-lg p-2 text-[10px] outline-none transition-all shadow-sm font-bold" />
                         </div>
                         <div className="flex items-end">
-                          <label className="flex items-center gap-1.5 cursor-pointer p-2 bg-slate-50 rounded-lg border border-slate-100 hover:border-[#8B5CF6]/30 transition-colors w-full h-[32px]">
+                          <label className="flex items-center gap-1.5 cursor-pointer p-2 bg-gray-50 rounded-lg border border-gray-200/60 hover:border-[#8B5CF6]/30 transition-colors w-full h-[32px]">
                             <input type="checkbox" checked={singleElement.isBold} onChange={e => updateSingleElement({ isBold: e.target.checked })} className="rounded text-[#8B5CF6] w-3 h-3" />
-                            <span className="text-[8px] font-black uppercase text-slate-700 tracking-widest">Bold Font</span>
+                            <span className="text-[8px] font-bold uppercase text-gray-700 tracking-widest">Bold Font</span>
                           </label>
                         </div>
                       </div>
@@ -1056,7 +1056,7 @@ function LabelDesigner({ labelData, initialTemplate, allProductSizes, onClose, o
                   {(singleElement.type === 'line' || singleElement.type === 'rect') && (
                     <div className="space-y-3">
                       <div className="space-y-1">
-                        <label className="text-[8px] font-black uppercase text-slate-400 tracking-widest ml-1">Border Style</label>
+                        <label className="text-[8px] font-bold uppercase text-gray-400 tracking-widest ml-1">Border Style</label>
                         <select value={singleElement.borderStyle || 'solid'} onChange={e => updateSingleElement({ borderStyle: e.target.value as any })} className="w-full bg-white border border-slate-200 focus:border-[#8B5CF6]/50 rounded-lg p-2 text-[10px] outline-none transition-all shadow-sm">
                           <option value="solid">Solid Line</option>
                           <option value="dashed">Dashed Line</option>
@@ -1065,17 +1065,17 @@ function LabelDesigner({ labelData, initialTemplate, allProductSizes, onClose, o
                       </div>
                       <div className="grid grid-cols-2 gap-2">
                         <div className="space-y-1">
-                          <label className="text-[8px] font-black uppercase text-slate-400 tracking-widest ml-1">Width (mm)</label>
+                          <label className="text-[8px] font-bold uppercase text-gray-400 tracking-widest ml-1">Width (mm)</label>
                           <input type="number" step="0.5" value={singleElement.width || 10} onChange={e => updateSingleElement({ width: Number(e.target.value) })} className="w-full bg-white border border-slate-200 focus:border-[#8B5CF6]/50 rounded-lg p-2 text-[10px] outline-none transition-all shadow-sm font-bold" />
                         </div>
                         <div className="space-y-1">
-                          <label className="text-[8px] font-black uppercase text-slate-400 tracking-widest ml-1">{singleElement.type === 'line' ? 'Thickness' : 'Height (mm)'}</label>
+                          <label className="text-[8px] font-bold uppercase text-gray-400 tracking-widest ml-1">{singleElement.type === 'line' ? 'Thickness' : 'Height (mm)'}</label>
                           <input type="number" step="0.5" value={singleElement.height || (singleElement.type === 'line' ? 0.5 : 10)} onChange={e => updateSingleElement({ height: Number(e.target.value) })} className="w-full bg-white border border-slate-200 focus:border-[#8B5CF6]/50 rounded-lg p-2 text-[10px] outline-none transition-all shadow-sm font-bold" />
                         </div>
                       </div>
                       {singleElement.type === 'rect' && (
                         <div className="space-y-1">
-                          <label className="text-[8px] font-black uppercase text-slate-400 tracking-widest ml-1">Border Radius (mm)</label>
+                          <label className="text-[8px] font-bold uppercase text-gray-400 tracking-widest ml-1">Border Radius (mm)</label>
                           <input type="number" step="0.5" value={singleElement.borderRadius || 0} onChange={e => updateSingleElement({ borderRadius: Number(e.target.value) })} className="w-full bg-white border border-slate-200 focus:border-[#8B5CF6]/50 rounded-lg p-2 text-[10px] outline-none transition-all shadow-sm font-bold" />
                         </div>
                       )}
@@ -1086,11 +1086,11 @@ function LabelDesigner({ labelData, initialTemplate, allProductSizes, onClose, o
                     <div className="space-y-3">
                       <div className="grid grid-cols-2 gap-2">
                         <div className="space-y-1">
-                          <label className="text-[8px] font-black uppercase text-slate-400 tracking-widest ml-1">Width (mm)</label>
+                          <label className="text-[8px] font-bold uppercase text-gray-400 tracking-widest ml-1">Width (mm)</label>
                           <input type="number" step="0.5" value={singleElement.width || 10} onChange={e => updateSingleElement({ width: Number(e.target.value) })} className="w-full bg-white border border-slate-200 focus:border-[#8B5CF6]/50 rounded-lg p-2 text-[10px] outline-none transition-all shadow-sm font-bold" />
                         </div>
                         <div className="space-y-1">
-                          <label className="text-[8px] font-black uppercase text-slate-400 tracking-widest ml-1">Height (mm)</label>
+                          <label className="text-[8px] font-bold uppercase text-gray-400 tracking-widest ml-1">Height (mm)</label>
                           <input type="number" step="0.5" value={singleElement.height || (singleElement.type === 'barcode' ? 7 : 10)} onChange={e => updateSingleElement({ height: Number(e.target.value) })} className="w-full bg-white border border-slate-200 focus:border-[#8B5CF6]/50 rounded-lg p-2 text-[10px] outline-none transition-all shadow-sm font-bold" />
                         </div>
                       </div>
@@ -1100,8 +1100,8 @@ function LabelDesigner({ labelData, initialTemplate, allProductSizes, onClose, o
               </div>
             ) : (
               <div className="text-center py-10 px-3 border-2 border-dashed border-slate-200 rounded-xl opacity-70">
-                <Move size={24} strokeWidth={1.5} className="mx-auto mb-2 text-slate-300" />
-                <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400 leading-relaxed">Select an element on the canvas to customize its properties</p>
+                <Move size={24} strokeWidth={1.5} className="mx-auto mb-2 text-gray-300" />
+                <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400 leading-relaxed">Select an element on the canvas to customize its properties</p>
               </div>
             )}
           </div>
@@ -1134,20 +1134,20 @@ function LabelDesigner({ labelData, initialTemplate, allProductSizes, onClose, o
 
               <div className="absolute bottom-6 flex flex-col items-center gap-2">
                 <div className="flex items-center gap-1 bg-white/90 backdrop-blur-md px-2 py-1 rounded-full border border-slate-200 shadow-sm z-10">
-                  <button onClick={() => setZoomLevel(prev => Math.max(0.25, prev - 0.25))} className="p-1 hover:bg-slate-100 rounded-full text-slate-500 hover:text-[#8B5CF6] transition-colors"><ZoomOut size={14} /></button>
-                  <span className="text-[10px] font-black w-9 text-center text-slate-700">{Math.round(zoomLevel * 100)}%</span>
-                  <button onClick={() => setZoomLevel(prev => Math.min(3, prev + 0.25))} className="p-1 hover:bg-slate-100 rounded-full text-slate-500 hover:text-[#8B5CF6] transition-colors"><ZoomIn size={14} /></button>
+                  <button onClick={() => setZoomLevel(prev => Math.max(0.25, prev - 0.25))} className="p-1 hover:bg-gray-100 rounded-full text-gray-500 hover:text-[#8B5CF6] transition-colors"><ZoomOut size={14} /></button>
+                  <span className="text-[10px] font-bold w-9 text-center text-gray-700">{Math.round(zoomLevel * 100)}%</span>
+                  <button onClick={() => setZoomLevel(prev => Math.min(3, prev + 0.25))} className="p-1 hover:bg-gray-100 rounded-full text-gray-500 hover:text-[#8B5CF6] transition-colors"><ZoomIn size={14} /></button>
                 </div>
                 <div className="flex items-center gap-1 bg-white/80 backdrop-blur-md px-3 py-1.5 rounded-full border border-slate-200/50 shadow-sm pointer-events-none">
-                  <p className="text-[8px] font-black uppercase tracking-widest text-slate-500">Workspace Size: <span className="text-slate-800">{template.labelWidth}mm × {template.labelHeight}mm</span></p>
+                  <p className="text-[8px] font-bold uppercase tracking-widest text-gray-500">Workspace Size: <span className="text-gray-800">{template.labelWidth}mm × {template.labelHeight}mm</span></p>
                 </div>
               </div>
             </div>
 
             {/* Right Panel: Layers */}
-            <div className="w-28 md:w-48 shrink-0 bg-white border-l border-slate-100 overflow-y-auto flex flex-col shadow-[-4px_0_24px_rgba(0,0,0,0.02)] z-10">
-              <div className="p-3 border-b border-slate-100 sticky top-0 bg-white/90 backdrop-blur-md z-10">
-                <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-800 flex items-center gap-1.5">
+            <div className="w-28 md:w-48 shrink-0 bg-white border-l border-gray-200/60 overflow-y-auto flex flex-col shadow-[-4px_0_24px_rgba(0,0,0,0.02)] z-10">
+              <div className="p-3 border-b border-gray-200/60 sticky top-0 bg-white/90 backdrop-blur-md z-10">
+                <h3 className="text-[10px] font-bold uppercase tracking-widest text-gray-800 flex items-center gap-1.5">
                   <Layers size={14} className="text-[#8B5CF6]" /> Layers
                 </h3>
               </div>
@@ -1162,32 +1162,32 @@ function LabelDesigner({ labelData, initialTemplate, allProductSizes, onClose, o
                           setSelectedElementIds([el.id]);
                         }
                       }}
-                      className={`group flex flex-col md:flex-row items-start md:items-center justify-between p-2 rounded-lg border transition-all cursor-pointer ${isSelected ? 'bg-[#8B5CF6]/10 border-[#8B5CF6]/30 shadow-sm' : 'bg-transparent border-transparent hover:bg-slate-50 hover:border-slate-200'}`}
+                      className={`group flex flex-col md:flex-row items-start md:items-center justify-between p-2 rounded-lg border transition-all cursor-pointer ${isSelected ? 'bg-[#8B5CF6]/10 border-[#8B5CF6]/30 shadow-sm' : 'bg-transparent border-transparent hover:bg-gray-50 hover:border-slate-200'}`}
                     >
                       <div className="flex items-center gap-1.5 min-w-0 w-full mb-1.5 md:mb-0">
-                        {el.type === 'text' ? <Type size={12} className={isSelected ? 'text-[#8B5CF6]' : 'text-slate-400'} /> : el.type === 'rect' ? <Square size={12} className={isSelected ? 'text-[#8B5CF6]' : 'text-slate-400'} /> : el.type === 'barcode' ? <span className={`text-[7px] font-black tracking-widest ${isSelected ? 'text-[#8B5CF6]' : 'text-slate-400'}`}>|||</span> : <Minus size={12} className={isSelected ? 'text-[#8B5CF6]' : 'text-slate-400'} />}
-                        <span className={`text-[9px] font-black uppercase tracking-wider truncate ${isSelected ? 'text-[#8B5CF6]' : 'text-slate-600'}`}>
+                        {el.type === 'text' ? <Type size={12} className={isSelected ? 'text-[#8B5CF6]' : 'text-gray-400'} /> : el.type === 'rect' ? <Square size={12} className={isSelected ? 'text-[#8B5CF6]' : 'text-gray-400'} /> : el.type === 'barcode' ? <span className={`text-[7px] font-bold tracking-widest ${isSelected ? 'text-[#8B5CF6]' : 'text-gray-400'}`}>|||</span> : <Minus size={12} className={isSelected ? 'text-[#8B5CF6]' : 'text-gray-400'} />}
+                        <span className={`text-[9px] font-bold uppercase tracking-wider truncate ${isSelected ? 'text-[#8B5CF6]' : 'text-gray-600'}`}>
                           {getElementLayerLabel(el)}
                         </span>
                       </div>
                       <div className={`flex items-center gap-0.5 justify-between w-full md:w-auto md:justify-end transition-opacity ${isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
-                        <button onPointerDown={(e) => { e.stopPropagation(); bringForward(el.id); }} className="p-0.5 hover:bg-white rounded hover:text-[#8B5CF6] text-slate-400 hover:shadow-sm transition-all" title="Bring Forward">
+                        <button onPointerDown={(e) => { e.stopPropagation(); bringForward(el.id); }} className="p-0.5 hover:bg-white rounded hover:text-[#8B5CF6] text-gray-400 hover:shadow-sm transition-all" title="Bring Forward">
                           <ChevronUp size={12} />
                         </button>
-                        <button onPointerDown={(e) => { e.stopPropagation(); sendBackward(el.id); }} className="p-0.5 hover:bg-white rounded hover:text-[#8B5CF6] text-slate-400 hover:shadow-sm transition-all" title="Send Backward">
+                        <button onPointerDown={(e) => { e.stopPropagation(); sendBackward(el.id); }} className="p-0.5 hover:bg-white rounded hover:text-[#8B5CF6] text-gray-400 hover:shadow-sm transition-all" title="Send Backward">
                           <ChevronDown size={12} />
                         </button>
                         <button onPointerDown={(e) => {
                           e.stopPropagation();
                           setTemplate(prev => ({ ...prev, elements: prev.elements.map(x => x.id === el.id ? { ...x, visible: !x.visible } : x) }));
-                        }} className="p-0.5 hover:bg-white rounded hover:text-[#8B5CF6] text-slate-400 hover:shadow-sm transition-all ml-0.5" title="Toggle Visibility">
+                        }} className="p-0.5 hover:bg-white rounded hover:text-[#8B5CF6] text-gray-400 hover:shadow-sm transition-all ml-0.5" title="Toggle Visibility">
                           {el.visible ? <Eye size={12} /> : <EyeOff size={12} className="opacity-50" />}
                         </button>
                         <button onPointerDown={(e) => {
                           e.stopPropagation();
                           setTemplate(prev => ({ ...prev, elements: prev.elements.filter(x => x.id !== el.id) }));
                           setSelectedElementIds(prev => prev.filter(id => id !== el.id));
-                        }} className="p-0.5 hover:bg-rose-50 rounded hover:text-rose-500 text-slate-400 hover:shadow-sm transition-all ml-0.5" title="Delete Element">
+                        }} className="p-0.5 hover:bg-rose-50 rounded hover:text-rose-500 text-gray-400 hover:shadow-sm transition-all ml-0.5" title="Delete Element">
                           <Trash2 size={12} />
                         </button>
                       </div>
@@ -1200,14 +1200,14 @@ function LabelDesigner({ labelData, initialTemplate, allProductSizes, onClose, o
         </div>
 
         {/* Footer */}
-        <div className="p-2 md:p-3 border-t border-slate-100 flex flex-wrap justify-between items-center bg-white z-10 gap-2">
+        <div className="p-2 md:p-3 border-t border-gray-200/60 flex flex-wrap justify-between items-center bg-white z-10 gap-2">
           <div>
-            <button onClick={handleRotateCanvas} className="px-2 md:px-4 py-2 bg-slate-50 border border-slate-200 text-slate-600 rounded-lg font-bold uppercase tracking-widest text-[8px] md:text-[9px] hover:bg-slate-100 transition-colors flex items-center gap-1.5 shadow-sm"><RotateCw size={12} /> <span className="hidden sm:inline">Rotate</span></button>
+            <button onClick={handleRotateCanvas} className="px-2 md:px-4 py-2 bg-gray-50 border border-slate-200 text-gray-600 rounded-lg font-bold uppercase tracking-widest text-[8px] md:text-[9px] hover:bg-gray-100 transition-colors flex items-center gap-1.5 shadow-sm"><RotateCw size={12} /> <span className="hidden sm:inline">Rotate</span></button>
           </div>
           <div className="flex gap-1.5 md:gap-2 shrink-0">
-            <button onClick={onClose} className="px-3 md:px-5 py-2 bg-slate-50 border border-slate-200 text-slate-600 rounded-lg font-bold uppercase tracking-widest text-[8px] md:text-[9px] hover:bg-slate-100 transition-colors">Cancel</button>
+            <button onClick={onClose} className="px-3 md:px-5 py-2 bg-gray-50 border border-slate-200 text-gray-600 rounded-lg font-bold uppercase tracking-widest text-[8px] md:text-[9px] hover:bg-gray-100 transition-colors">Cancel</button>
             <button onClick={handleDownloadImage} className="flex px-3 md:px-5 py-2 bg-[#8B5CF6]/10 text-[#8B5CF6] border border-[#8B5CF6]/20 rounded-lg font-bold uppercase tracking-widest text-[8px] md:text-[9px] hover:bg-[#8B5CF6]/20 transition-colors items-center gap-1.5"><Download size={12} /> Image</button>
-            <button onClick={() => { const sizes = printSizes.length > 0 ? printSizes : ['']; const productsToPrint = sizes.map(s => ({ ...labelData, size: s })); onPrint(template, productsToPrint); }} className="px-3 md:px-5 py-2 bg-[#8B5CF6] text-white rounded-lg font-black uppercase tracking-widest text-[8px] md:text-[9px] shadow-[0_4px_10px_rgba(139,92,246,0.2)] hover:shadow-[0_6px_12px_rgba(139,92,246,0.3)] hover:-translate-y-0.5 active:translate-y-0 transition-all flex items-center gap-1.5"><FileDown size={12} /> PDF</button>
+            <button onClick={() => { const sizes = printSizes.length > 0 ? printSizes : ['']; const productsToPrint = sizes.map(s => ({ ...labelData, size: s })); onPrint(template, productsToPrint); }} className="px-3 md:px-5 py-2 bg-[#8B5CF6] text-white rounded-lg font-bold uppercase tracking-widest text-[8px] md:text-[9px] shadow-[0_4px_10px_rgba(139,92,246,0.2)] hover:shadow-[0_6px_12px_rgba(139,92,246,0.3)] hover:-translate-y-0.5 active:translate-y-0 transition-all flex items-center gap-1.5"><FileDown size={12} /> PDF</button>
           </div>
         </div>
       </div>
@@ -1223,11 +1223,11 @@ function LabelDesigner({ labelData, initialTemplate, allProductSizes, onClose, o
       {/* Custom Confirm Dialog */}
       {confirmDialog && (
         <div className="absolute inset-0 z-[400] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl w-full max-w-sm p-6 shadow-2xl animate-in zoom-in-95 duration-200">
-            <h3 className="text-sm font-black text-slate-800 uppercase tracking-widest mb-3">Please Confirm</h3>
-            <p className="text-xs text-slate-500 font-medium leading-relaxed mb-6">{confirmDialog.message}</p>
+          <div className="bg-white rounded-xl w-full max-w-sm p-6 shadow-2xl animate-in zoom-in-95 duration-200">
+            <h3 className="text-sm font-bold text-gray-800 uppercase tracking-widest mb-3">Please Confirm</h3>
+            <p className="text-xs text-gray-500 font-medium leading-relaxed mb-6">{confirmDialog.message}</p>
             <div className="flex justify-end gap-2">
-              <button onClick={() => setConfirmDialog(null)} className="px-4 py-2 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-colors">Cancel</button>
+              <button onClick={() => setConfirmDialog(null)} className="px-4 py-2 bg-gray-50 hover:bg-gray-100 text-gray-600 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-colors">Cancel</button>
               <button onClick={confirmDialog.onConfirm} className="px-4 py-2 bg-[#8B5CF6] hover:bg-[#7C3AED] text-white rounded-lg text-[10px] font-bold uppercase tracking-widest transition-colors shadow-lg shadow-[#8B5CF6]/30">Confirm</button>
             </div>
           </div>
@@ -1237,14 +1237,14 @@ function LabelDesigner({ labelData, initialTemplate, allProductSizes, onClose, o
       {/* Custom Prompt Dialog */}
       {promptDialog && (
         <div className="absolute inset-0 z-[400] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl w-full max-w-sm p-6 shadow-2xl animate-in zoom-in-95 duration-200">
-            <h3 className="text-sm font-black text-slate-800 uppercase tracking-widest mb-3">Save Preset</h3>
-            <p className="text-xs text-slate-500 font-medium leading-relaxed mb-4">{promptDialog.message}</p>
+          <div className="bg-white rounded-xl w-full max-w-sm p-6 shadow-2xl animate-in zoom-in-95 duration-200">
+            <h3 className="text-sm font-bold text-gray-800 uppercase tracking-widest mb-3">Save Preset</h3>
+            <p className="text-xs text-gray-500 font-medium leading-relaxed mb-4">{promptDialog.message}</p>
             <input
               autoFocus
               type="text"
               defaultValue={promptDialog.defaultValue}
-              className="w-full bg-slate-50 border border-slate-200 focus:border-[#8B5CF6] rounded-xl p-3 text-sm font-bold text-slate-800 outline-none transition-all mb-6"
+              className="w-full bg-gray-50 border border-slate-200 focus:border-[#8B5CF6] rounded-xl p-3 text-sm font-bold text-gray-800 outline-none transition-all mb-6"
               onKeyDown={(e) => {
                 if (e.key === 'Enter') promptDialog.onConfirm(e.currentTarget.value);
                 if (e.key === 'Escape') setPromptDialog(null);
@@ -1252,7 +1252,7 @@ function LabelDesigner({ labelData, initialTemplate, allProductSizes, onClose, o
               id="prompt-input"
             />
             <div className="flex justify-end gap-2">
-              <button onClick={() => setPromptDialog(null)} className="px-4 py-2 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-colors">Cancel</button>
+              <button onClick={() => setPromptDialog(null)} className="px-4 py-2 bg-gray-50 hover:bg-gray-100 text-gray-600 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-colors">Cancel</button>
               <button onClick={() => promptDialog.onConfirm((document.getElementById('prompt-input') as HTMLInputElement).value)} className="px-4 py-2 bg-[#8B5CF6] hover:bg-[#7C3AED] text-white rounded-lg text-[10px] font-bold uppercase tracking-widest transition-colors shadow-lg shadow-[#8B5CF6]/30">Save</button>
             </div>
           </div>
@@ -1262,35 +1262,35 @@ function LabelDesigner({ labelData, initialTemplate, allProductSizes, onClose, o
       {/* Templates Modal */}
       {isTemplatesModalOpen && (
         <div className="absolute inset-0 z-[300] flex items-center justify-center bg-slate-900/60 backdrop-blur-md p-4 animate-in fade-in duration-200">
-          <div className="bg-white rounded-3xl w-full max-w-5xl max-h-[90vh] flex flex-col overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200">
-            <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between bg-white relative z-10">
+          <div className="bg-white rounded-xl w-full max-w-5xl max-h-[90vh] flex flex-col overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200">
+            <div className="px-6 py-5 border-b border-gray-200/60 flex items-center justify-between bg-white relative z-10">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400">
+                <div className="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center text-gray-400">
                   <LayoutGrid size={20} />
                 </div>
                 <div>
-                  <h2 className="text-lg font-black text-slate-800 tracking-tight">Label Templates</h2>
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">{savedLayouts.length} saved designs</p>
+                  <h2 className="text-lg font-bold text-gray-800 tracking-tight">Label Templates</h2>
+                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">{savedLayouts.length} saved designs</p>
                 </div>
               </div>
-              <button onClick={() => setIsTemplatesModalOpen(false)} className="p-2 hover:bg-slate-100 rounded-xl text-slate-400 hover:text-slate-600 transition-colors">
+              <button onClick={() => setIsTemplatesModalOpen(false)} className="p-2 hover:bg-gray-100 rounded-xl text-gray-400 hover:text-gray-600 transition-colors">
                 <X size={20} />
               </button>
             </div>
 
-            <div className="p-6 overflow-y-auto flex-1 bg-slate-50/50">
+            <div className="p-6 overflow-y-auto flex-1 bg-gray-50/50">
               {savedLayouts.length === 0 ? (
                 <div className="py-20 flex flex-col items-center justify-center text-center">
-                  <div className="w-16 h-16 bg-white shadow-sm border border-slate-100 rounded-2xl flex items-center justify-center mb-4">
-                    <LayoutGrid size={28} className="text-slate-300" />
+                  <div className="w-16 h-16 bg-white shadow-sm border border-gray-200/60 rounded-xl flex items-center justify-center mb-4">
+                    <LayoutGrid size={28} className="text-gray-300" />
                   </div>
-                  <p className="text-sm font-black text-slate-600 uppercase tracking-widest">No Templates Saved</p>
-                  <p className="text-xs text-slate-400 mt-2 font-medium max-w-xs">Save your current design as a preset to see it here.</p>
+                  <p className="text-sm font-bold text-gray-600 uppercase tracking-widest">No Templates Saved</p>
+                  <p className="text-xs text-gray-400 mt-2 font-medium max-w-xs">Save your current design as a preset to see it here.</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
                   {savedLayouts.map(l => (
-                    <div key={l.name} className="bg-white border border-slate-200 rounded-2xl overflow-hidden hover:border-[#8B5CF6]/40 hover:shadow-xl hover:-translate-y-1 transition-all group flex flex-col relative">
+                    <div key={l.name} className="bg-white border border-slate-200 rounded-xl overflow-hidden hover:border-[#8B5CF6]/40 hover:shadow-xl hover:-translate-y-1 transition-all group flex flex-col relative">
                       {/* Default Layout Star Toggle Button */}
                       <button
                         onClick={(e) => {
@@ -1300,14 +1300,14 @@ function LabelDesigner({ labelData, initialTemplate, allProductSizes, onClose, o
                         className={`absolute top-2.5 right-2.5 z-20 p-2 rounded-full border transition-all ${
                           checkIsTemplateDefault(l.template, l.name)
                             ? 'bg-emerald-50 text-emerald-500 border-emerald-200 shadow-sm'
-                            : 'bg-white/90 backdrop-blur-sm text-slate-400 border-slate-200/50 hover:bg-[#8B5CF6] hover:text-white hover:border-transparent hover:shadow-md'
+                            : 'bg-white/90 backdrop-blur-sm text-gray-400 border-slate-200/50 hover:bg-[#8B5CF6] hover:text-white hover:border-transparent hover:shadow-md'
                         }`}
                         title={checkIsTemplateDefault(l.template, l.name) ? "Current Default Layout" : "Set as Default Layout"}
                       >
                         <Star size={12} className={checkIsTemplateDefault(l.template, l.name) ? 'fill-emerald-500 text-emerald-500 animate-pulse' : ''} />
                       </button>
                       <div
-                        className="h-44 bg-slate-100/50 border-b border-slate-100 flex items-center justify-center relative p-4 overflow-hidden cursor-zoom-in"
+                        className="h-44 bg-gray-100/50 border-b border-gray-200/60 flex items-center justify-center relative p-4 overflow-hidden cursor-zoom-in"
                         onClick={() => setZoomedTemplate(l.template)}
                         title="Click to zoom"
                       >
@@ -1324,14 +1324,14 @@ function LabelDesigner({ labelData, initialTemplate, allProductSizes, onClose, o
                       </div>
 
                       <div className="p-4 flex flex-col flex-1">
-                        <h3 className="font-bold text-slate-800 text-sm mb-1 truncate group-hover:text-[#8B5CF6] transition-colors">{l.name}</h3>
+                        <h3 className="font-bold text-gray-800 text-sm mb-1 truncate group-hover:text-[#8B5CF6] transition-colors">{l.name}</h3>
                         <div className="flex flex-wrap items-center gap-1.5 mb-5">
-                          <span className="text-[9px] font-black tracking-wider text-slate-500 bg-slate-50 border border-slate-100 px-1.5 py-0.5 rounded uppercase">{l.template.labelWidth}x{l.template.labelHeight} mm</span>
-                          <span className="text-[9px] font-semibold text-slate-400">{l.template.elements.length} items</span>
+                          <span className="text-[9px] font-bold tracking-wider text-gray-500 bg-gray-50 border border-gray-200/60 px-1.5 py-0.5 rounded uppercase">{l.template.labelWidth}x{l.template.labelHeight} mm</span>
+                          <span className="text-[9px] font-semibold text-gray-400">{l.template.elements.length} items</span>
                         </div>
                         <div className="mt-auto flex gap-2 relative z-10">
                           <button
-                            className="flex-1 bg-slate-50 hover:bg-[#8B5CF6] text-slate-600 hover:text-white border border-slate-200 hover:border-transparent py-2 rounded-xl text-xs font-bold transition-all shadow-sm group-hover:bg-[#8B5CF6] group-hover:text-white"
+                            className="flex-1 bg-gray-50 hover:bg-[#8B5CF6] text-gray-600 hover:text-white border border-slate-200 hover:border-transparent py-2 rounded-xl text-xs font-bold transition-all shadow-sm group-hover:bg-[#8B5CF6] group-hover:text-white"
                             onClick={() => {
                               setConfirmDialog({
                                 message: `Load template "${l.name}"? Any unsaved changes will be lost.`,
@@ -1350,7 +1350,7 @@ function LabelDesigner({ labelData, initialTemplate, allProductSizes, onClose, o
                             Load Template
                           </button>
                           <button
-                            className="p-2 bg-slate-50 hover:bg-rose-500 text-slate-400 hover:text-white border border-slate-200 hover:border-transparent rounded-xl transition-all shadow-sm"
+                            className="p-2 bg-gray-50 hover:bg-rose-500 text-gray-400 hover:text-white border border-slate-200 hover:border-transparent rounded-xl transition-all shadow-sm"
                             onClick={(e) => {
                               e.stopPropagation();
                               setConfirmDialog({
@@ -1414,17 +1414,17 @@ function LabelDesigner({ labelData, initialTemplate, allProductSizes, onClose, o
       {/* Icon Gallery Modal */}
       {isIconGalleryOpen && (
         <div className="fixed inset-0 z-[300] bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden flex flex-col">
-            <div className="flex items-center justify-between p-4 border-b border-slate-100">
-              <h3 className="font-black text-slate-800 uppercase tracking-widest text-sm flex items-center gap-2"><Sticker size={16} className="text-[#8B5CF6]" /> Icon Library</h3>
-              <button onClick={() => setIsIconGalleryOpen(false)} className="text-slate-400 hover:text-slate-600"><X size={20} /></button>
+          <div className="bg-white rounded-xl w-full max-w-md shadow-2xl overflow-hidden flex flex-col">
+            <div className="flex items-center justify-between p-4 border-b border-gray-200/60">
+              <h3 className="font-bold text-gray-800 uppercase tracking-widest text-sm flex items-center gap-2"><Sticker size={16} className="text-[#8B5CF6]" /> Icon Library</h3>
+              <button onClick={() => setIsIconGalleryOpen(false)} className="text-gray-400 hover:text-gray-600"><X size={20} /></button>
             </div>
             <div className="p-4 overflow-y-auto max-h-[60vh]">
               <div className="grid grid-cols-4 gap-3">
                 {ICON_LIBRARY.map(ic => (
-                  <button key={ic.id} onClick={() => handleAddIcon(ic.id)} className="flex flex-col items-center gap-2 p-3 rounded-xl border border-slate-100 hover:border-[#8B5CF6] hover:bg-[#8B5CF6]/5 transition-all group">
-                    <ic.icon size={28} id={`gallery-icon-${ic.id}`} className="text-slate-700 group-hover:text-[#8B5CF6]" strokeWidth={1.5} />
-                    <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest group-hover:text-[#8B5CF6]">{ic.name}</span>
+                  <button key={ic.id} onClick={() => handleAddIcon(ic.id)} className="flex flex-col items-center gap-2 p-3 rounded-xl border border-gray-200/60 hover:border-[#8B5CF6] hover:bg-[#8B5CF6]/5 transition-all group">
+                    <ic.icon size={28} id={`gallery-icon-${ic.id}`} className="text-gray-700 group-hover:text-[#8B5CF6]" strokeWidth={1.5} />
+                    <span className="text-[9px] font-bold text-gray-500 uppercase tracking-widest group-hover:text-[#8B5CF6]">{ic.name}</span>
                   </button>
                 ))}
               </div>

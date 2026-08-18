@@ -58,7 +58,7 @@ const Logo: React.FC<{ size?: 'sm' | 'md' | 'lg', onClick?: () => void }> = ({ s
   const sizeClasses = {
     sm: 'h-5',
     md: 'h-6',
-    lg: 'h-7.5'
+    lg: 'h-8'
   };
 
   return (
@@ -66,7 +66,7 @@ const Logo: React.FC<{ size?: 'sm' | 'md' | 'lg', onClick?: () => void }> = ({ s
       <img
         src="/logo.png"
         alt="Kiddies Logo"
-        className={`${sizeClasses[size]} w-auto object-contain drop-shadow-[0_2px_4px_rgba(0,0,0,0.08)] transition-transform active:scale-95 shrink-0`}
+        className={`${sizeClasses[size]} w-auto object-contain transition-transform active:scale-95 shrink-0`}
       />
     </div>
   );
@@ -76,71 +76,49 @@ const Sidebar: React.FC<{ activeTab: string; onTabChange: (id: string) => void }
   const { currentUser } = useApp();
 
   return (
-    <aside className="hidden md:flex flex-col w-64 bg-white h-screen border-r border-slate-100 shrink-0 relative">
+    <aside className="hidden md:flex flex-col w-60 bg-white h-screen border-r border-gray-200/60 shrink-0">
       {/* Branding Area */}
-      <div className="p-8 pb-6">
+      <div className="px-6 py-5">
         <Logo size="lg" onClick={() => onTabChange('dashboard')} />
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 px-4 space-y-1 overflow-y-auto hide-scrollbar mt-2 mb-4">
-        {NAVIGATION_ITEMS.filter(item => {
-          if (item.id === 'settings') return false;
-          return canAccess(currentUser, item.id);
-        }).map((item) => {
+      <nav className="flex-1 px-3 space-y-1 overflow-y-auto hide-scrollbar">
+        {NAVIGATION_ITEMS.map((item) => {
+          if (!canAccess(currentUser, item.id)) return null;
           const isActive = activeTab === item.id;
           return (
             <button
               key={item.id}
               onClick={() => onTabChange(item.id)}
               className={`
-                relative w-full flex items-center gap-3 px-4 py-3 rounded-xl text-[12px] font-bold transition-all duration-300 group
+                relative w-full flex items-center gap-3 px-3.5 py-2.5 rounded-md text-[13px] font-bold transition-all
                 ${isActive
-                  ? 'bg-[#8B5CF6]/10 text-[#8B5CF6]'
-                  : 'text-slate-400 hover:text-slate-900 hover:bg-slate-50'
+                  ? 'bg-[#01a9fb] text-white shadow-xs'
+                  : 'text-slate-600 hover:text-[#01a9fb] hover:bg-[#01a9fb]/5'
                 }
               `}
             >
-              <span className={`
-                ${isActive ? 'text-[#8B5CF6]' : 'text-slate-300 group-hover:text-slate-900'} 
-                transition-colors duration-200
-              `}>
+              <span className={`${isActive ? 'text-white' : 'text-slate-400'} transition-colors`}>
                 {React.isValidElement(item.icon)
                   ? React.cloneElement(item.icon as React.ReactElement<any>, {
-                    size: 16,
-                    strokeWidth: isActive ? 2.5 : 2
+                    size: 18,
+                    strokeWidth: isActive ? 2.2 : 1.8
                   })
                   : item.icon
                 }
               </span>
-
-              <span className="tracking-widest uppercase text-[10px] font-bold">{item.label}</span>
-              {isActive && (
-                <div className="absolute right-2 w-1.5 h-1.5 bg-[#8B5CF6] rounded-full"></div>
-              )}
+              <span>{item.label}</span>
             </button>
           );
         })}
       </nav>
 
-      {/* Sidebar Banner */}
-      <div className="px-4 mb-6">
-        <div className="bg-[#F3E8FF] rounded-[2rem] p-6 relative overflow-hidden group">
-          <div className="absolute top-2 right-2 text-[#A084E8] opacity-20 group-hover:rotate-12 transition-transform">
-            <Heart size={20} fill="currentColor" />
-          </div>
-          <div className="relative z-10">
-            <p className="text-[10px] font-bold text-[#8B5CF6] uppercase tracking-widest mb-1">Make every day</p>
-            <p className="text-sm font-black text-[#2D3648] leading-tight">a little stylish!</p>
-            <div className="mt-4 flex justify-center">
-              <div className="text-[#FFD93D] animate-bounce">
-                <Star size={32} fill="currentColor" />
-              </div>
-            </div>
-          </div>
-          <div className="absolute -bottom-2 -left-2 text-[#6AD4DD] opacity-20">
-            <Cloud size={40} fill="currentColor" />
-          </div>
+      {/* Sidebar Footer */}
+      <div className="px-4 pb-4 pt-2">
+        <div className="bg-[#fe569f]/10 rounded-md p-3.5 border border-[#fe569f]/20">
+          <p className="text-[11px] font-extrabold text-[#fe569f] uppercase tracking-wider mb-0.5">Kiddies Store</p>
+          <p className="text-xs font-bold text-slate-900 leading-snug">Retail & Rental Terminal ✨</p>
         </div>
       </div>
     </aside>
@@ -204,123 +182,159 @@ const TopBar: React.FC<{ activeTab: string; onTabChange: (id: string) => void }>
   }, []);
 
   return (
-    <header className="h-16 bg-white border-b border-slate-100 flex items-center justify-between px-4 md:px-6 sticky top-0 z-30">
-      <div className="flex items-center gap-4 flex-1">
+    <header className="h-14 bg-white border-b border-slate-200/80 flex items-center justify-between px-3.5 sm:px-5 sticky top-0 z-30">
+      <div className="flex items-center gap-2.5 sm:gap-3 flex-1 min-w-0">
         {!isSearchOpen && (
-          <div className="md:hidden flex items-center pr-1">
+          <div className="md:hidden flex items-center shrink-0">
             <Logo size="md" onClick={() => onTabChange('dashboard')} />
           </div>
         )}
 
         <div className={`
-          ${isSearchOpen ? 'flex absolute inset-0 bg-white px-4' : 'hidden sm:flex'} 
-          items-center bg-slate-50 sm:bg-slate-50 rounded-none sm:rounded-xl px-4 py-2 w-full max-w-md focus-within:bg-white transition-all border-b sm:border border-slate-100 sm:border-transparent focus-within:border-[#8B5CF6]/20 group z-50
+          ${isSearchOpen ? 'flex absolute inset-0 bg-white px-3.5 z-50' : 'hidden sm:flex'} 
+          items-center bg-slate-50 border border-slate-200 rounded-md px-3 py-1.5 w-full max-w-sm focus-within:bg-white focus-within:border-[#01a9fb] transition-all group
         `}>
-          <Search size={16} className="text-slate-400 mr-3 group-focus-within:text-[#8B5CF6]" />
+          <Search size={14} className="text-slate-400 group-focus-within:text-[#01a9fb] mr-2 shrink-0 transition-colors" strokeWidth={2.2} />
           <input
             ref={searchInputRef}
             type="text"
-            placeholder="Search anything..."
-            className="bg-transparent text-xs outline-none flex-1 placeholder:text-slate-400 text-slate-700 font-medium"
+            placeholder="Search items, bills, customers..."
+            className="bg-transparent text-xs font-bold outline-none flex-1 placeholder:text-slate-400 text-slate-900"
           />
           {isSearchOpen && (
             <button
+              type="button"
               onClick={(e) => { e.stopPropagation(); setIsSearchOpen(false); }}
-              className="text-[10px] font-black text-[#8B5CF6] ml-4 uppercase tracking-widest"
+              className="text-xs font-black text-[#01a9fb] ml-2 shrink-0"
             >
               Cancel
             </button>
           )}
         </div>
 
-        {/* Small search trigger for mobile */}
         {!isSearchOpen && (
           <button
+            type="button"
             onClick={() => setIsSearchOpen(true)}
-            className="sm:hidden p-2 text-slate-400 hover:bg-slate-50 rounded-xl transition-all"
+            className="sm:hidden p-1.5 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-md transition-colors"
+            title="Search"
           >
-            <Search size={18} />
+            <Search size={18} strokeWidth={2.2} />
           </button>
         )}
       </div>
 
-      <div className="flex items-center gap-2 md:gap-4" ref={dropdownRef}>
+      <div className="flex items-center gap-1.5 sm:gap-2 shrink-0" ref={dropdownRef}>
+        {/* Quick App Install Button if available */}
+        {!isStandalone && deferredPrompt && (
+          <button
+            type="button"
+            onClick={handleInstallClick}
+            className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 bg-yellow-100 hover:bg-yellow-200 text-yellow-900 border border-yellow-300 rounded-md text-[10px] font-extrabold uppercase tracking-wider transition-all shadow-xs"
+            title="Install PWA Terminal"
+          >
+            <Download size={12} strokeWidth={2.5} />
+            <span>Install</span>
+          </button>
+        )}
+
+        {/* Notifications Popover */}
         <div className="relative">
           <button
+            type="button"
             onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
-            className={`p-2 rounded-xl transition-all relative ${isNotificationsOpen ? 'bg-[#8B5CF6]/10 text-[#8B5CF6]' : 'text-slate-400 hover:bg-slate-50'}`}
+            className={`p-1.5 sm:p-2 rounded-md transition-colors relative border ${isNotificationsOpen ? 'bg-[#01a9fb]/10 text-[#01a9fb] border-[#01a9fb]/40' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900 border-transparent'}`}
+            title="Notifications"
           >
-            <Bell size={20} />
+            <Bell size={18} strokeWidth={2.2} />
             {unreadCount > 0 && (
-              <span className="absolute top-1 right-1 w-4 h-4 bg-[#FF7B7B] text-white text-[8px] font-bold flex items-center justify-center rounded-full border-2 border-white">
-                {unreadCount}
-              </span>
+              <span className="absolute top-1 right-1 w-2 h-2 bg-[#fe569f] rounded-full ring-2 ring-white" />
             )}
           </button>
 
           {isNotificationsOpen && (
-            <div className="fixed md:absolute left-4 md:left-auto right-4 md:right-0 top-16 md:top-full mt-2 w-auto md:w-80 bg-white shadow-2xl rounded-2xl border border-slate-100 overflow-hidden animate-in fade-in slide-in-from-top-2 origin-top-right z-50">
-              <div className="p-4 border-b border-slate-50 flex items-center justify-between bg-slate-50/50">
-                <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-900">Notifications</h4>
+            <div className="fixed md:absolute left-3 md:left-auto right-3 md:right-0 top-14 md:top-full mt-1.5 w-auto md:w-80 bg-white rounded-md border border-slate-200/90 shadow-md overflow-hidden z-50 animate-nano">
+              <div className="px-4 py-2.5 border-b border-slate-100 flex items-center justify-between bg-slate-50/80">
+                <div className="flex items-center gap-1.5">
+                  <h4 className="text-xs font-black text-slate-900 uppercase tracking-wider">Notifications</h4>
+                  {unreadCount > 0 && (
+                    <span className="bg-[#fe569f] text-white text-[9px] font-black px-1.5 py-0.2 rounded-full">
+                      {unreadCount}
+                    </span>
+                  )}
+                </div>
                 {unreadCount > 0 && (
-                  <button onClick={markNotificationsAsRead} className="text-[9px] font-bold text-[#8B5CF6] hover:underline">Mark all as read</button>
+                  <button type="button" onClick={markNotificationsAsRead} className="text-[10px] font-bold text-[#01a9fb] hover:underline uppercase">Mark read</button>
                 )}
               </div>
-              <div className="max-h-[300px] overflow-y-auto">
+              <div className="max-h-[300px] overflow-y-auto divide-y divide-slate-50">
                 {notifications.length > 0 ? (
                   notifications.map((note) => (
-                    <div key={note.id} className={`p-4 border-b border-slate-50 hover:bg-slate-50 transition-colors cursor-pointer ${!note.isRead ? 'bg-[#8B5CF6]/5' : ''}`}>
-                      <h5 className="text-[11px] font-bold text-slate-900">{note.title}</h5>
-                      <p className="text-[10px] text-slate-500 mt-1 leading-relaxed">{note.message}</p>
-                      <p className="text-[8px] text-slate-400 mt-2 font-bold uppercase tracking-widest">
+                    <div key={note.id} className={`p-3 hover:bg-slate-50 transition-colors cursor-pointer ${!note.isRead ? 'bg-[#01a9fb]/5' : ''}`}>
+                      <h5 className="text-xs font-bold text-slate-900">{note.title}</h5>
+                      <p className="text-[11px] text-slate-600 mt-0.5 leading-relaxed">{note.message}</p>
+                      <p className="text-[9px] font-bold text-slate-400 mt-1">
                         {formatDistanceToNow(parseISO(note.timestamp), { addSuffix: true })}
                       </p>
                     </div>
                   ))
                 ) : (
-                  <div className="p-8 text-center">
-                    <Bell size={32} className="mx-auto text-slate-200 mb-2" />
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">No notifications</p>
+                  <div className="py-8 text-center">
+                    <Bell size={20} className="mx-auto text-slate-300 mb-1.5" />
+                    <p className="text-xs font-bold text-slate-400">No new notifications</p>
                   </div>
                 )}
               </div>
               {notifications.length > 0 && (
-                <div className="p-3 bg-slate-50 text-center border-t border-slate-50">
-                  <button onClick={clearNotifications} className="text-[9px] font-bold text-slate-400 hover:text-rose-500 transition-colors uppercase tracking-widest">Clear All</button>
+                <div className="px-3 py-2 bg-slate-50 text-center border-t border-slate-100">
+                  <button type="button" onClick={clearNotifications} className="text-[10px] font-bold text-slate-400 hover:text-rose-500 transition-colors uppercase">Clear all</button>
                 </div>
               )}
             </div>
           )}
         </div>
 
-        <div className="h-8 w-[1px] bg-slate-100 mx-2"></div>
-
+        {/* User Profile Dropdown */}
         <div className="relative">
           <button
+            type="button"
             onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-            className="flex items-center gap-3 hover:bg-slate-50 p-1 rounded-xl transition-all"
+            className="flex items-center gap-2 hover:bg-slate-100/80 p-1 sm:p-1.5 rounded-md transition-colors border border-slate-200/70"
           >
-            <div className="text-right hidden sm:block">
-              <p className="text-[10px] font-bold text-slate-900">Hi, {currentUser?.name.split(' ')[0]}</p>
-              <p className="text-[8px] text-slate-400 font-bold uppercase tracking-widest">{currentUser?.role}</p>
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-md bg-[#01a9fb] text-white flex items-center justify-center font-black text-xs sm:text-sm shrink-0">
+              {(currentUser?.name || 'U').charAt(0).toUpperCase()}
             </div>
-            <div className="w-8 h-8 rounded-full bg-[#8B5CF6] text-white flex items-center justify-center font-black text-xs shadow-sm">
-              {currentUser?.name.charAt(0)}
+            <div className="text-left hidden sm:block">
+              <p className="text-xs font-black text-slate-900 leading-tight truncate max-w-[100px]">{currentUser?.name.split(' ')[0]}</p>
+              <span className="text-[9px] font-extrabold uppercase text-[#01a9fb] leading-none block">{currentUser?.role}</span>
             </div>
-            <ChevronDown size={14} className="text-slate-400" />
+            <ChevronDown size={13} className="text-slate-400 hidden sm:block" />
           </button>
 
           {isUserMenuOpen && (
-            <div className="absolute right-0 top-full mt-2 w-48 bg-white shadow-xl rounded-2xl border border-slate-100 py-2 animate-in fade-in slide-in-from-top-2 origin-top-right">
-              <div className="px-4 py-2 border-b border-slate-50 mb-1">
-                <p className="text-[10px] font-black text-slate-900 uppercase tracking-tight">{currentUser?.name}</p>
-                <p className="text-[8px] text-slate-400 font-bold uppercase tracking-widest">{currentUser?.email}</p>
+            <div className="absolute right-0 top-full mt-1.5 w-52 bg-white rounded-md border border-slate-200 shadow-md py-1 z-50 animate-nano">
+              <div className="px-3.5 py-2.5 border-b border-slate-100 mb-1 bg-slate-50/60">
+                <p className="text-xs font-black text-slate-900">{currentUser?.name}</p>
+                <p className="text-[10px] text-slate-500 font-medium truncate mt-0.5">{currentUser?.email}</p>
+                <span className="inline-block mt-1 bg-[#01a9fb]/10 text-[#01a9fb] border border-[#01a9fb]/30 text-[8px] font-extrabold uppercase px-1.5 py-0.2 rounded">
+                  {currentUser?.role}
+                </span>
               </div>
-              <button onClick={() => { onTabChange('settings'); setIsUserMenuOpen(false); }} className="w-full text-left px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-50 transition-colors">
-                Settings
+              <button
+                type="button"
+                onClick={() => { onTabChange('settings'); setIsUserMenuOpen(false); }}
+                className="w-full text-left px-3.5 py-1.5 text-xs font-bold text-slate-700 hover:bg-slate-50 hover:text-[#01a9fb] transition-colors flex items-center gap-2"
+              >
+                <SettingsIcon size={13} />
+                <span>Settings</span>
               </button>
-              <button onClick={() => logout()} className="w-full text-left px-4 py-2 text-xs font-bold text-rose-500 hover:bg-rose-50 transition-colors">
-                Logout
+              <button
+                type="button"
+                onClick={() => logout()}
+                className="w-full text-left px-3.5 py-1.5 text-xs font-extrabold text-rose-600 hover:bg-rose-50 transition-colors flex items-center gap-2 border-t border-slate-100 mt-1 pt-2"
+              >
+                <LogOut size={13} />
+                <span>Log out</span>
               </button>
             </div>
           )}
@@ -342,20 +356,23 @@ const BottomNav: React.FC<{ activeTab: string; onTabChange: (id: string) => void
     { id: 'more', label: 'More', icon: <Menu size={20} /> },
   ];
 
+  const secondaryTabs = ['customers', 'suppliers', 'reports', 'users', 'settings', 'more'];
+
   return (
-    <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-100 flex justify-around items-center h-16 z-40 pb-safe shadow-sm">
+    <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200/60 flex justify-around items-center h-[56px] z-40 pb-safe shadow-[0_-1px_3px_rgba(0,0,0,0.04)]">
       {bottomNavItems.map(item => {
-        const isActive = activeTab === item.id;
+        const isActive = item.id === 'more' 
+          ? secondaryTabs.includes(activeTab)
+          : activeTab === item.id;
         return (
           <button
             key={item.id}
             onClick={() => onTabChange(item.id)}
-            className={`flex flex-col items-center justify-center w-full h-full space-y-1 transition-all ${isActive ? 'text-slate-900' : 'text-slate-400 hover:text-slate-600'}`}
+            className={`flex flex-col items-center justify-center w-full h-full gap-0.5 transition-all active:scale-95 ${isActive ? 'text-[#01a9fb]' : 'text-gray-400'}`}
           >
-            <div className={`p-1 rounded-xl transition-all ${isActive ? 'bg-highlight' : ''}`}>
-              {React.cloneElement(item.icon as React.ReactElement<any>, { size: 18, className: isActive ? 'stroke-[3px]' : '' })}
-            </div>
-            <span className={`text-[8px] uppercase tracking-[0.2em] ${isActive ? 'font-black' : 'font-bold'}`}>{item.label}</span>
+            {React.cloneElement(item.icon as React.ReactElement<any>, { size: 20, strokeWidth: isActive ? 2.5 : 1.5 })}
+            <span className={`text-[10px] ${isActive ? 'font-extrabold text-[#01a9fb]' : 'font-normal'}`}>{item.label}</span>
+            {isActive && <div className="w-4 h-0.5 rounded-full bg-[#01a9fb] mt-0.5" />}
           </button>
         );
       })}
@@ -409,10 +426,10 @@ const ResetPasswordScreen: React.FC = () => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-[440px] bg-white rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.05)] p-10 relative z-10 border border-white/50"
+        className="w-full max-w-[440px] bg-white rounded-lg shadow-sm p-10 relative z-10 border border-slate-200"
       >
         <div className="flex flex-col items-center mb-8">
-          <div className="flex text-5xl font-black tracking-tight mb-1">
+          <div className="flex text-5xl font-bold tracking-tight mb-1">
             <span className="text-[#FF7B7B]">k</span>
             <span className="text-[#FFD93D]">i</span>
             <span className="text-[#FF8AAE]">d</span>
@@ -429,7 +446,7 @@ const ResetPasswordScreen: React.FC = () => {
         </div>
 
         {error && (
-          <div className="mb-6 bg-red-50 text-red-500 p-4 rounded-2xl text-xs font-bold text-center border border-red-100 animate-nano">
+          <div className="mb-6 bg-red-50 text-red-500 p-4 rounded-md text-xs font-bold text-center border border-red-100 animate-nano">
             {error}
           </div>
         )}
@@ -442,7 +459,7 @@ const ResetPasswordScreen: React.FC = () => {
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full pl-12 pr-12 py-4 bg-white border border-[#E2E8F0] rounded-2xl outline-none focus:border-[#A084E8] transition-all text-[#2D3648] placeholder-[#A0AEC0]"
+              className="w-full pl-12 pr-12 py-3.5 bg-white border border-[#E2E8F0] rounded-md outline-none focus:border-slate-900 transition-all text-[#2D3648] placeholder-[#A0AEC0]"
               placeholder="New Password"
             />
             <button
@@ -461,7 +478,7 @@ const ResetPasswordScreen: React.FC = () => {
               required
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full pl-12 pr-12 py-4 bg-white border border-[#E2E8F0] rounded-2xl outline-none focus:border-[#A084E8] transition-all text-[#2D3648] placeholder-[#A0AEC0]"
+              className="w-full pl-12 pr-12 py-3.5 bg-white border border-[#E2E8F0] rounded-md outline-none focus:border-slate-900 transition-all text-[#2D3648] placeholder-[#A0AEC0]"
               placeholder="Confirm New Password"
             />
           </div>
@@ -469,7 +486,7 @@ const ResetPasswordScreen: React.FC = () => {
           <button
             type="submit"
             disabled={isUpdating}
-            className="w-full py-4 bg-[#8B5CF6] text-white font-bold rounded-2xl shadow-[0_10px_20px_rgba(139,92,246,0.3)] hover:bg-[#7C3AED] transition-all active:scale-[0.98] disabled:opacity-50"
+            className="w-full py-3.5 bg-slate-900 text-white font-bold rounded-md shadow-xs hover:bg-slate-800 transition-all active:scale-[0.98] disabled:opacity-50"
           >
             {isUpdating ? 'Updating...' : 'Update Password'}
           </button>
@@ -483,11 +500,15 @@ const AppContent: React.FC = () => {
   const { currentUser, isAuthReady, isPasswordRecovery } = useApp();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [showSplash, setShowSplash] = useState(true);
-
   useEffect(() => {
-    const timer = setTimeout(() => setShowSplash(false), 3000);
-    return () => clearTimeout(timer);
-  }, []);
+    if (isAuthReady) {
+      const timer = setTimeout(() => setShowSplash(false), 200);
+      return () => clearTimeout(timer);
+    } else {
+      const fallback = setTimeout(() => setShowSplash(false), 600);
+      return () => clearTimeout(fallback);
+    }
+  }, [isAuthReady]);
 
   useEffect(() => {
     const handleHashChange = () => {

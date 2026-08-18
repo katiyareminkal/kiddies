@@ -179,7 +179,7 @@ export const ReturnRentalModal: React.FC<ReturnRentalModalProps> = ({ isOpen, on
         {/* Dropdown if no rental pre-selected */}
         {!rental && (
           <div className="space-y-1">
-            <label className="text-[8px] font-black uppercase text-slate-400 tracking-wider ml-0.5">Select Active Rental *</label>
+            <label className="text-[8px] font-bold uppercase text-gray-400 tracking-wider ml-0.5">Select Active Rental *</label>
             <div className="relative group">
               <select
                 value={selectedRental?.id || ''}
@@ -187,7 +187,7 @@ export const ReturnRentalModal: React.FC<ReturnRentalModalProps> = ({ isOpen, on
                   const r = activeRentals.find(item => item.id === e.target.value);
                   setSelectedRental(r || null);
                 }}
-                className="w-full pl-3 pr-8 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#8B5CF6] rounded-xl outline-none font-bold text-xs text-slate-900 appearance-none cursor-pointer"
+                className="w-full pl-3 pr-8 py-2 bg-gray-50 border border-slate-200 focus:bg-white focus:border-[#8B5CF6] rounded-xl outline-none font-bold text-xs text-gray-900 appearance-none cursor-pointer"
               >
                 <option value="" disabled>-- Choose Active Rental --</option>
                 {activeRentals.map(r => {
@@ -200,7 +200,7 @@ export const ReturnRentalModal: React.FC<ReturnRentalModalProps> = ({ isOpen, on
                   );
                 })}
               </select>
-              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={13} strokeWidth={2.5} />
+              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={13} strokeWidth={2.5} />
             </div>
           </div>
         )}
@@ -208,17 +208,17 @@ export const ReturnRentalModal: React.FC<ReturnRentalModalProps> = ({ isOpen, on
         {selectedRental ? (
           <>
             {/* Customer Details Header */}
-            <div className="p-3 bg-slate-50 border border-slate-200/80 rounded-xl space-y-1 text-left">
+            <div className="p-3 bg-gray-50 border border-slate-200/80 rounded-xl space-y-1 text-left">
               <div className="flex justify-between items-start">
                 <div>
-                  <span className="text-[8px] font-black uppercase text-slate-400 tracking-wider">Customer Details</span>
-                  <h4 className="font-black text-slate-900 text-xs">{customerObj?.name || 'Customer'}</h4>
-                  <p className="text-[9.5px] text-slate-500 font-medium">{customerObj?.phone || 'No phone'} • {customerObj?.address || 'No address'}</p>
+                  <span className="text-[8px] font-bold uppercase text-gray-400 tracking-wider">Customer Details</span>
+                  <h4 className="font-bold text-gray-900 text-xs">{customerObj?.name || 'Customer'}</h4>
+                  <p className="text-[9.5px] text-gray-500 font-medium">{customerObj?.phone || 'No phone'} • {customerObj?.address || 'No address'}</p>
                 </div>
                 <div className="text-right">
-                  <span className="text-[8px] font-black uppercase text-slate-400 tracking-wider">Product & Qty</span>
-                  <h4 className="font-bold text-slate-900 text-xs">{productObj?.name || 'Product'}</h4>
-                  <p className="text-[9.5px] text-slate-500 font-bold">Qty: {selectedRental.quantity}</p>
+                  <span className="text-[8px] font-bold uppercase text-gray-400 tracking-wider">Product & Qty</span>
+                  <h4 className="font-bold text-gray-900 text-xs">{productObj?.name || 'Product'}</h4>
+                  <p className="text-[9.5px] text-gray-500 font-bold">Qty: {selectedRental.quantity}</p>
                 </div>
               </div>
             </div>
@@ -228,9 +228,9 @@ export const ReturnRentalModal: React.FC<ReturnRentalModalProps> = ({ isOpen, on
               <div className="p-2.5 bg-rose-50 border border-rose-200 rounded-xl flex items-center gap-2.5">
                 <Clock size={15} className="text-rose-600 shrink-0 animate-pulse" strokeWidth={2.5} />
                 <div>
-                  <span className="text-[8px] font-black uppercase tracking-wider text-rose-700">Late Return Warning</span>
+                  <span className="text-[8px] font-bold uppercase tracking-wider text-rose-700">Late Return Warning</span>
                   <p className="text-[10px] font-bold text-rose-950 leading-tight mt-0.5">
-                    Late by <span className="font-mono font-black text-rose-700 underline">{overdueInfo.formatted}</span>.
+                    Late by <span className="font-mono font-bold text-rose-700 underline">{overdueInfo.formatted}</span>.
                   </p>
                 </div>
               </div>
@@ -239,7 +239,7 @@ export const ReturnRentalModal: React.FC<ReturnRentalModalProps> = ({ isOpen, on
             {/* Condition Photos At Rent */}
             {selectedRental.images && selectedRental.images.length > 0 && (
               <div className="space-y-1">
-                <p className="text-[8px] font-black text-slate-400 uppercase tracking-wider">Condition Photos (At Rent)</p>
+                <p className="text-[8px] font-bold text-gray-400 uppercase tracking-wider">Condition Photos (At Rent)</p>
                 <div className="flex gap-1.5 overflow-x-auto pb-1 hide-scrollbar">
                   {selectedRental.images.map((img, i) => (
                     <img key={i} src={img} alt="proof" className="w-14 h-14 rounded-xl object-cover border border-slate-200 shrink-0" />
@@ -249,22 +249,22 @@ export const ReturnRentalModal: React.FC<ReturnRentalModalProps> = ({ isOpen, on
             )}
 
             {/* Grid: Start Date (with Time), Expected Return, Security Deposit & Rent */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 p-3 bg-slate-50 rounded-xl border border-slate-200/80 text-left">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 p-3 bg-gray-50 rounded-xl border border-slate-200/80 text-left">
               <div>
-                <p className="text-slate-400 text-[8px] uppercase font-black tracking-wider">Start Date & Time</p>
-                <p className="font-black text-slate-900 text-[9.5px] font-mono leading-tight">{formatDateTime(selectedRental.startDate)}</p>
+                <p className="text-gray-400 text-[8px] uppercase font-bold tracking-wider">Start Date & Time</p>
+                <p className="font-bold text-gray-900 text-[9.5px] font-mono leading-tight">{formatDateTime(selectedRental.startDate)}</p>
               </div>
               <div>
-                <p className="text-slate-400 text-[8px] uppercase font-black tracking-wider">Expected Return</p>
-                <p className="font-black text-slate-900 text-[9.5px] font-mono leading-tight">{formatDateTime(selectedRental.expectedReturnDate)}</p>
+                <p className="text-gray-400 text-[8px] uppercase font-bold tracking-wider">Expected Return</p>
+                <p className="font-bold text-gray-900 text-[9.5px] font-mono leading-tight">{formatDateTime(selectedRental.expectedReturnDate)}</p>
               </div>
               <div>
-                <p className="text-slate-400 text-[8px] uppercase font-black tracking-wider">Security Deposit</p>
-                <p className="font-black text-[#8B5CF6] text-[11px] font-mono">{formatCurrency(selectedRental.securityDeposit)}</p>
+                <p className="text-gray-400 text-[8px] uppercase font-bold tracking-wider">Security Deposit</p>
+                <p className="font-bold text-[#8B5CF6] text-[11px] font-mono">{formatCurrency(selectedRental.securityDeposit)}</p>
               </div>
               <div>
-                <p className="text-slate-400 text-[8px] uppercase font-black tracking-wider">Total Rent Amount</p>
-                <p className="font-black text-slate-900 text-[11px] font-mono">{formatCurrency(selectedRental.totalRentAmount)}</p>
+                <p className="text-gray-400 text-[8px] uppercase font-bold tracking-wider">Total Rent Amount</p>
+                <p className="font-bold text-gray-900 text-[11px] font-mono">{formatCurrency(selectedRental.totalRentAmount)}</p>
               </div>
             </div>
 
@@ -273,7 +273,7 @@ export const ReturnRentalModal: React.FC<ReturnRentalModalProps> = ({ isOpen, on
               {/* Editable Late Fee */}
               <div className="space-y-1">
                 <div className="flex justify-between items-center px-0.5">
-                  <label className="text-[8px] font-black uppercase text-slate-400 tracking-wider">Late Fee *</label>
+                  <label className="text-[8px] font-bold uppercase text-gray-400 tracking-wider">Late Fee *</label>
                   {isLateFeeModified && (
                     <button
                       type="button"
@@ -285,12 +285,12 @@ export const ReturnRentalModal: React.FC<ReturnRentalModalProps> = ({ isOpen, on
                   )}
                 </div>
                 <div className="relative group">
-                  <IndianRupee className={`absolute left-2.5 top-1/2 -translate-y-1/2 ${isLateFeeModified ? 'text-rose-500' : 'text-slate-400 group-focus-within:text-[#8B5CF6]'}`} size={13} strokeWidth={2.5} />
+                  <IndianRupee className={`absolute left-2.5 top-1/2 -translate-y-1/2 ${isLateFeeModified ? 'text-rose-500' : 'text-gray-400 group-focus-within:text-[#8B5CF6]'}`} size={13} strokeWidth={2.5} />
                   <input
                     type="number"
                     value={customLateFee !== '' ? customLateFee : (autoLateFee > 0 ? autoLateFee : '0')}
                     onChange={e => setCustomLateFee(e.target.value)}
-                    className={`w-full pl-7 pr-2 py-2 border rounded-xl outline-none font-bold text-xs ${isLateFeeModified ? 'bg-rose-50/60 border-rose-300 text-rose-950' : 'bg-slate-50 border-slate-200 focus:bg-white focus:border-[#8B5CF6] text-slate-900'}`}
+                    className={`w-full pl-7 pr-2 py-2 border rounded-xl outline-none font-bold text-xs ${isLateFeeModified ? 'bg-rose-50/60 border-rose-300 text-rose-950' : 'bg-gray-50 border-slate-200 focus:bg-white focus:border-[#8B5CF6] text-gray-900'}`}
                     placeholder={String(autoLateFee)}
                   />
                 </div>
@@ -298,14 +298,14 @@ export const ReturnRentalModal: React.FC<ReturnRentalModalProps> = ({ isOpen, on
 
               {/* Editable Damage Fee */}
               <div className="space-y-1">
-                <label className="text-[8px] font-black uppercase text-slate-400 tracking-wider px-0.5">Damage / Cleaning Fee *</label>
+                <label className="text-[8px] font-bold uppercase text-gray-400 tracking-wider px-0.5">Damage / Cleaning Fee *</label>
                 <div className="relative group">
-                  <IndianRupee className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#8B5CF6]" size={13} strokeWidth={2.5} />
+                  <IndianRupee className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#8B5CF6]" size={13} strokeWidth={2.5} />
                   <input
                     type="number"
                     value={damageFee}
                     onChange={e => setDamageFee(Number(e.target.value))}
-                    className="w-full pl-7 pr-2 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#8B5CF6] rounded-xl outline-none font-bold text-slate-900 text-xs"
+                    className="w-full pl-7 pr-2 py-2 bg-gray-50 border border-slate-200 focus:bg-white focus:border-[#8B5CF6] rounded-xl outline-none font-bold text-gray-900 text-xs"
                     placeholder="0"
                   />
                 </div>
@@ -316,8 +316,8 @@ export const ReturnRentalModal: React.FC<ReturnRentalModalProps> = ({ isOpen, on
             <div className={`p-3 rounded-xl border space-y-2 ${effectiveRefundAmount >= 0 ? 'bg-emerald-50/80 border-emerald-200' : 'bg-rose-50/80 border-rose-200'}`}>
               <div className="flex justify-between items-center">
                 <div>
-                  <p className="text-[8px] font-black uppercase tracking-wider opacity-70">Refundable Settlement Amount</p>
-                  <p className="text-[7.5px] font-medium text-slate-500 mt-0.5">
+                  <p className="text-[8px] font-bold uppercase tracking-wider opacity-70">Refundable Settlement Amount</p>
+                  <p className="text-[7.5px] font-medium text-gray-500 mt-0.5">
                     Deposit ({formatCurrency(selectedRental.securityDeposit)}) - Rent ({formatCurrency(selectedRental.totalRentAmount)}) - Late ({formatCurrency(effectiveLateFee)}) - Damage ({formatCurrency(damageFee)})
                   </p>
                 </div>
@@ -325,7 +325,7 @@ export const ReturnRentalModal: React.FC<ReturnRentalModalProps> = ({ isOpen, on
                   <button
                     type="button"
                     onClick={() => setCustomRefundAmount('')}
-                    className="text-[7.5px] font-bold text-slate-600 hover:underline uppercase flex items-center gap-0.5 bg-white px-2 py-0.5 rounded-lg border border-slate-200"
+                    className="text-[7.5px] font-bold text-gray-600 hover:underline uppercase flex items-center gap-0.5 bg-white px-2 py-0.5 rounded-lg border border-slate-200"
                   >
                     <RotateCcw size={8} /> Auto Formula (₹{autoRefundAmount})
                   </button>
@@ -334,12 +334,12 @@ export const ReturnRentalModal: React.FC<ReturnRentalModalProps> = ({ isOpen, on
 
               <div className="flex items-center gap-2">
                 <div className="relative flex-1 group">
-                  <Tag className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-emerald-600" size={13} strokeWidth={2.5} />
+                  <Tag className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-emerald-600" size={13} strokeWidth={2.5} />
                   <input
                     type="number"
                     value={customRefundAmount !== '' ? customRefundAmount : (autoRefundAmount !== 0 ? autoRefundAmount : '0')}
                     onChange={e => setCustomRefundAmount(e.target.value)}
-                    className={`w-full pl-7 pr-3 py-2 border rounded-xl outline-none font-mono font-black text-sm ${effectiveRefundAmount >= 0 ? 'bg-white border-emerald-300 text-emerald-950' : 'bg-white border-rose-300 text-rose-950'}`}
+                    className={`w-full pl-7 pr-3 py-2 border rounded-xl outline-none font-mono font-bold text-sm ${effectiveRefundAmount >= 0 ? 'bg-white border-emerald-300 text-emerald-950' : 'bg-white border-rose-300 text-rose-950'}`}
                     placeholder={String(autoRefundAmount)}
                   />
                 </div>
@@ -352,9 +352,9 @@ export const ReturnRentalModal: React.FC<ReturnRentalModalProps> = ({ isOpen, on
             {/* Return Condition Photos Upload */}
             <div className="space-y-1">
               <div className="flex items-center gap-2">
-                <div className="h-px flex-1 bg-slate-100"></div>
-                <h4 className="text-[8px] font-black uppercase text-slate-400 tracking-wider">Return Condition Photos</h4>
-                <div className="h-px flex-1 bg-slate-100"></div>
+                <div className="h-px flex-1 bg-gray-100"></div>
+                <h4 className="text-[8px] font-bold uppercase text-gray-400 tracking-wider">Return Condition Photos</h4>
+                <div className="h-px flex-1 bg-gray-100"></div>
               </div>
               <div className="flex gap-1.5 flex-wrap">
                 {returnImages.map((img, i) => (
@@ -367,11 +367,11 @@ export const ReturnRentalModal: React.FC<ReturnRentalModalProps> = ({ isOpen, on
                 ))}
                 <button
                   type="button"
-                  className="w-12 h-12 rounded-xl border border-dashed border-slate-300 flex flex-col items-center justify-center gap-0.5 text-slate-400 hover:border-[#8B5CF6] hover:text-[#8B5CF6] hover:bg-[#8B5CF6]/5 transition-all group"
+                  className="w-12 h-12 rounded-xl border border-dashed border-slate-300 flex flex-col items-center justify-center gap-0.5 text-gray-400 hover:border-[#8B5CF6] hover:text-[#8B5CF6] hover:bg-[#8B5CF6]/5 transition-all group"
                   onClick={() => returnFileInputRef.current?.click()}
                 >
                   <Upload size={12} strokeWidth={2.5} className="group-hover:scale-110 transition-transform" />
-                  <span className="text-[7px] font-black uppercase tracking-wider">Add</span>
+                  <span className="text-[7px] font-bold uppercase tracking-wider">Add</span>
                 </button>
               </div>
               <input type="file" ref={returnFileInputRef} onChange={handleReturnImageChange} accept="image/*" multiple className="hidden" />
@@ -379,14 +379,14 @@ export const ReturnRentalModal: React.FC<ReturnRentalModalProps> = ({ isOpen, on
 
             {/* Action Buttons */}
             <div className="flex gap-2 pt-1">
-              <button type="button" onClick={handleClose} className="flex-1 py-2 rounded-xl font-bold uppercase tracking-wider text-[9.5px] text-slate-500 border border-slate-200 hover:border-slate-300">Cancel</button>
-              <button type="button" onClick={handleConfirmReturn} className="flex-1 py-2 rounded-xl font-black uppercase tracking-wider text-[9.5px] bg-[#8B5CF6] text-white hover:bg-[#7C3AED] shadow-md shadow-[#8B5CF6]/20">Confirm Return</button>
+              <button type="button" onClick={handleClose} className="flex-1 py-2 rounded-xl font-bold uppercase tracking-wider text-[9.5px] text-gray-500 border border-slate-200 hover:border-slate-300">Cancel</button>
+              <button type="button" onClick={handleConfirmReturn} className="flex-1 py-2 rounded-xl font-bold uppercase tracking-wider text-[9.5px] bg-[#8B5CF6] text-white hover:bg-[#7C3AED] shadow-md shadow-[#8B5CF6]/20">Confirm Return</button>
             </div>
           </>
         ) : (
-          <div className="text-center py-8 text-slate-400">
+          <div className="text-center py-8 text-gray-400">
             <AlertCircle size={24} className="mx-auto mb-2 opacity-50" />
-            <p className="text-[10px] font-black uppercase tracking-wider">No active rentals available or select one from the list above</p>
+            <p className="text-[10px] font-bold uppercase tracking-wider">No active rentals available or select one from the list above</p>
           </div>
         )}
       </div>

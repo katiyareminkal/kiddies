@@ -377,27 +377,27 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
         {/* LEFT / MAIN COLUMN: Preview & Actions */}
         <div className="flex-1 space-y-4">
           {/* Header Summary */}
-          <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+          <div className="flex items-center justify-between border-b border-gray-200/60 pb-3">
             <div>
-              <h4 className="text-sm font-black text-slate-900 uppercase tracking-tight">{product.name}</h4>
-              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">
+              <h4 className="text-sm font-bold text-gray-900 uppercase tracking-tight">{product.name}</h4>
+              <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">
                 SKU: {product.sku} • {product.category}
               </p>
             </div>
-            <span className="bg-[#8B5CF6]/10 text-[#8B5CF6] text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg">
+            <span className="bg-[#8B5CF6]/10 text-[#8B5CF6] text-[9px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-lg">
               {selectedSizes.length} / {allAvailableSizes.length} Sizes Selected
             </span>
           </div>
 
           {/* Custom Paper Size */}
-          <div className="bg-slate-50 p-3 rounded-2xl border border-slate-200/80 space-y-2.5">
-            <label className="text-[9px] font-black uppercase tracking-widest text-slate-800 flex items-center gap-1.5">
+          <div className="bg-gray-50 p-3 rounded-xl border border-slate-200/80 space-y-2.5">
+            <label className="text-[9px] font-bold uppercase tracking-widest text-gray-800 flex items-center gap-1.5">
               <Settings2 size={12} className="text-[#8B5CF6]" /> Custom Paper Size
             </label>
 
             <div className="flex items-center gap-2">
               <div className="flex items-center gap-1.5 flex-1">
-                <span className="text-[8px] font-bold text-slate-500 uppercase">W:</span>
+                <span className="text-[8px] font-bold text-gray-500 uppercase">W:</span>
                 <input
                   type="number"
                   value={inputWidth}
@@ -405,7 +405,7 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
                   placeholder="Width mm"
                   className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-[9px] font-bold outline-none focus:border-[#8B5CF6]"
                 />
-                <span className="text-[8px] font-bold text-slate-500 uppercase">mm × H:</span>
+                <span className="text-[8px] font-bold text-gray-500 uppercase">mm × H:</span>
                 <input
                   type="number"
                   value={inputHeight}
@@ -413,12 +413,12 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
                   placeholder="Height mm"
                   className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-[9px] font-bold outline-none focus:border-[#8B5CF6]"
                 />
-                <span className="text-[8px] font-bold text-slate-500 uppercase">mm</span>
+                <span className="text-[8px] font-bold text-gray-500 uppercase">mm</span>
               </div>
               <button
                 type="button"
                 onClick={handleApplyCustomDimensions}
-                className="px-3 py-1.5 bg-slate-900 text-white rounded-lg text-[8.5px] font-black uppercase tracking-widest hover:bg-slate-800"
+                className="px-3 py-1.5 bg-slate-900 text-white rounded-lg text-[8.5px] font-bold uppercase tracking-widest hover:bg-slate-800"
               >
                 Set Size
               </button>
@@ -427,8 +427,8 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
             {/* Current Paper Size & Actions */}
             <div className="pt-2 border-t border-slate-200/80 space-y-1.5">
               <div className="flex items-center justify-between">
-                <span className="text-[8.5px] font-black uppercase tracking-widest text-slate-500">
-                  Paper Size: <strong className="text-slate-900 font-extrabold">{selectedPaperDim.width}mm × {selectedPaperDim.height}mm</strong>
+                <span className="text-[8.5px] font-bold uppercase tracking-widest text-gray-500">
+                  Paper Size: <strong className="text-gray-900 font-extrabold">{selectedPaperDim.width}mm × {selectedPaperDim.height}mm</strong>
                 </span>
               </div>
 
@@ -436,7 +436,7 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
                 <button
                   type="button"
                   onClick={handleApplyCurrentDesign}
-                  className="py-1.5 px-2.5 rounded-xl text-[8.5px] font-black uppercase tracking-widest transition-all border flex items-center justify-center gap-1.5 bg-white hover:bg-slate-100 text-slate-700 border-slate-200"
+                  className="py-1.5 px-2.5 rounded-xl text-[8.5px] font-bold uppercase tracking-widest transition-all border flex items-center justify-center gap-1.5 bg-white hover:bg-gray-100 text-gray-700 border-slate-200"
                 >
                   <Check size={12} className="text-emerald-500" /> Apply Current
                 </button>
@@ -444,7 +444,7 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
                 <button
                   type="button"
                   onClick={handleCreateNewLayout}
-                  className="py-1.5 px-2.5 bg-white hover:bg-slate-100 text-slate-700 rounded-xl text-[8.5px] font-black uppercase tracking-widest border border-slate-200 transition-all flex items-center justify-center gap-1.5"
+                  className="py-1.5 px-2.5 bg-white hover:bg-gray-100 text-gray-700 rounded-xl text-[8.5px] font-bold uppercase tracking-widest border border-slate-200 transition-all flex items-center justify-center gap-1.5"
                 >
                   <Plus size={12} className="text-[#8B5CF6]" /> Create New
                 </button>
@@ -452,7 +452,7 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
                 <button
                   type="button"
                   onClick={handleSelectFromPresets}
-                  className="py-1.5 px-2.5 bg-white hover:bg-slate-100 text-slate-700 rounded-xl text-[8.5px] font-black uppercase tracking-widest border border-slate-200 transition-all flex items-center justify-center gap-1.5"
+                  className="py-1.5 px-2.5 bg-white hover:bg-gray-100 text-gray-700 rounded-xl text-[8.5px] font-bold uppercase tracking-widest border border-slate-200 transition-all flex items-center justify-center gap-1.5"
                 >
                   <LayoutGrid size={12} className="text-amber-500" /> From Presets
                 </button>
@@ -461,9 +461,9 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
           </div>
 
           {/* Size Selection Bar (Single & All Selection Options) */}
-          <div className="bg-slate-50 p-3 rounded-2xl border border-slate-200/80 space-y-2">
+          <div className="bg-gray-50 p-3 rounded-xl border border-slate-200/80 space-y-2">
             <div className="flex items-center justify-between">
-              <label className="text-[9px] font-black uppercase tracking-widest text-slate-700 flex items-center gap-1.5">
+              <label className="text-[9px] font-bold uppercase tracking-widest text-gray-700 flex items-center gap-1.5">
                 Select Sizes to Print ({selectedSizes.length} of {allAvailableSizes.length} selected)
               </label>
               <button
@@ -483,10 +483,10 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
                     key={size}
                     type="button"
                     onClick={() => toggleSize(size)}
-                    className={`px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all border ${
+                    className={`px-3 py-1.5 rounded-xl text-[9px] font-bold uppercase tracking-widest transition-all border ${
                       isSelected
                         ? 'bg-[#8B5CF6] text-white border-[#8B5CF6] shadow-xs'
-                        : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-100'
+                        : 'bg-white text-gray-600 border-slate-200 hover:bg-gray-100'
                     }`}
                   >
                     {isSelected ? `✓ ${size}` : size}
@@ -502,12 +502,12 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
                   onChange={(e) => setCustomSizeInput(e.target.value)}
                   onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddCustomSize(); } }}
                   placeholder="Custom size (e.g. 40, 2Y)"
-                  className="w-36 px-2.5 py-1 bg-white border border-slate-200 focus:border-[#8B5CF6] rounded-lg outline-none text-[8.5px] font-bold uppercase tracking-widest text-slate-700"
+                  className="w-36 px-2.5 py-1 bg-white border border-slate-200 focus:border-[#8B5CF6] rounded-lg outline-none text-[8.5px] font-bold uppercase tracking-widest text-gray-700"
                 />
                 <button
                   type="button"
                   onClick={handleAddCustomSize}
-                  className="px-2.5 py-1 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-lg text-[8.5px] font-black uppercase tracking-widest flex items-center gap-1"
+                  className="px-2.5 py-1 bg-slate-200 hover:bg-slate-300 text-gray-800 rounded-lg text-[8.5px] font-bold uppercase tracking-widest flex items-center gap-1"
                 >
                   <Plus size={10} /> Add
                 </button>
@@ -518,12 +518,12 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
           {/* Live Visual Preview Container for All Sizes */}
           <div className="space-y-2">
             <div className="flex justify-between items-center ml-1">
-              <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-1.5">
+              <label className="text-[9px] font-bold uppercase tracking-widest text-gray-400 flex items-center gap-1.5">
                 <Layers size={12} /> Live Preview ({activeTemplate.labelWidth}mm × {activeTemplate.labelHeight}mm)
               </label>
 
               <div className="flex items-center gap-3">
-                <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">
+                <span className="text-[8px] font-bold text-gray-400 uppercase tracking-widest">
                   Showing {selectedSizes.length} {selectedSizes.length === 1 ? 'size' : 'sizes'}
                 </span>
                 <button
@@ -536,13 +536,13 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
               </div>
             </div>
 
-            <div className="bg-slate-150/60 p-4 rounded-2xl border border-slate-200/80 overflow-x-auto shadow-inner hide-scrollbar">
+            <div className="bg-slate-150/60 p-4 rounded-xl border border-slate-200/80 overflow-x-auto shadow-inner hide-scrollbar">
               <div className="flex items-start gap-6 py-4 px-2 min-w-max">
                 {selectedSizes.map((sz, idx) => {
                   const sizeData = getVariantProductData(sz);
                   return (
                     <div key={sz} className="flex flex-col items-center gap-2.5 shrink-0">
-                      <span className="bg-slate-900 text-white text-[8.5px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full shadow-xs">
+                      <span className="bg-slate-900 text-white text-[8.5px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full shadow-xs">
                         Size: {sz}
                       </span>
 
@@ -571,11 +571,11 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
           </div>
 
           {/* Action Buttons */}
-          <div className="pt-3 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-3 gap-2">
+          <div className="pt-3 border-t border-gray-200/60 grid grid-cols-1 sm:grid-cols-3 gap-2">
             <button
               type="button"
               onClick={handleDownloadPDF}
-              className="py-3 px-3 bg-[#8B5CF6] hover:bg-[#7C3AED] text-white rounded-2xl text-[9px] font-black uppercase tracking-widest shadow-md shadow-[#8B5CF6]/20 transition-all flex items-center justify-center gap-1.5"
+              className="py-3 px-3 bg-[#8B5CF6] hover:bg-[#7C3AED] text-white rounded-xl text-[9px] font-bold uppercase tracking-widest shadow-md shadow-[#8B5CF6]/20 transition-all flex items-center justify-center gap-1.5"
             >
               <Download size={13} /> PDF ({selectedSizes.length} {selectedSizes.length === 1 ? 'Tag' : 'Tags'})
             </button>
@@ -584,7 +584,7 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
               type="button"
               onClick={handleDownloadPNG}
               disabled={isDownloadingImage}
-              className="py-3 px-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl text-[9px] font-black uppercase tracking-widest shadow-md shadow-emerald-600/20 transition-all flex items-center justify-center gap-1.5"
+              className="py-3 px-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-[9px] font-bold uppercase tracking-widest shadow-md shadow-emerald-600/20 transition-all flex items-center justify-center gap-1.5"
             >
               <ImageIcon size={13} /> {isDownloadingImage ? 'Generating...' : 'Image (PNG)'}
             </button>
@@ -594,7 +594,7 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
               onClick={() => {
                 onOpenDesigner(activeTemplate, selectedSizes);
               }}
-              className="py-3 px-3 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-1.5"
+              className="py-3 px-3 bg-white hover:bg-gray-50 border border-slate-200 text-gray-700 rounded-xl text-[9px] font-bold uppercase tracking-widest transition-all flex items-center justify-center gap-1.5"
             >
               <Edit2 size={13} /> Customize
             </button>
@@ -602,12 +602,12 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
         </div>
 
         {/* RIGHT COLUMN: Presets List */}
-        <div ref={presetsContainerRef} className="w-full lg:w-72 bg-slate-50 p-4 rounded-2xl border border-slate-150 space-y-4 shrink-0 flex flex-col">
+        <div ref={presetsContainerRef} className="w-full lg:w-72 bg-gray-50 p-4 rounded-xl border border-slate-150 space-y-4 shrink-0 flex flex-col">
           <div className="flex items-center justify-between border-b border-slate-200/80 pb-2.5">
-            <h3 className="text-[11px] font-black uppercase tracking-widest text-slate-800 flex items-center gap-1.5">
+            <h3 className="text-[11px] font-bold uppercase tracking-widest text-gray-800 flex items-center gap-1.5">
               <LayoutGrid size={13} className="text-[#8B5CF6]" /> Design Presets
             </h3>
-            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">
+            <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">
               {allPresets.length} Total
             </span>
           </div>
@@ -615,7 +615,7 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
           <div className="space-y-4 flex-1 overflow-y-auto max-h-[350px] lg:max-h-none pr-1">
             {/* Built-in Layouts */}
             <div className="space-y-2">
-              <span className="text-[8px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-1 ml-1">
+              <span className="text-[8px] font-bold uppercase tracking-widest text-gray-400 flex items-center gap-1 ml-1">
                 <Sparkles size={10} className="text-amber-500" /> Default
               </span>
 
@@ -638,11 +638,11 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
                       className={`w-full p-2.5 rounded-xl text-left transition-all border flex items-center gap-3 ${
                         isSelected
                           ? 'bg-slate-900 text-white border-slate-900 shadow-md scale-[1.01]'
-                          : 'bg-white text-slate-700 border-slate-200 hover:border-slate-300 hover:bg-slate-100/80'
+                          : 'bg-white text-gray-700 border-slate-200 hover:border-slate-300 hover:bg-gray-100/80'
                       }`}
                     >
                       {/* Mini Live Preview Box */}
-                      <div className={`w-11 h-11 rounded-lg shrink-0 overflow-hidden relative border ${isSelected ? 'bg-slate-800 border-slate-700' : 'bg-slate-100 border-slate-200/80'}`}>
+                      <div className={`w-11 h-11 rounded-lg shrink-0 overflow-hidden relative border ${isSelected ? 'bg-slate-800 border-slate-700' : 'bg-gray-100 border-slate-200/80'}`}>
                         <div
                           style={{
                             width: `${tpl.labelWidth * MM_TO_PX}px`,
@@ -662,9 +662,9 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
                       </div>
 
                       <div className="space-y-1 flex-1 min-w-0">
-                        <p className="text-[9.5px] font-black uppercase tracking-wider leading-tight truncate">{preset.name}</p>
-                        <span className={`inline-block px-1.5 py-0.5 rounded text-[7.5px] font-black uppercase tracking-widest ${
-                          isSelected ? 'bg-slate-800 text-amber-400 border border-slate-700' : 'bg-slate-100 text-slate-600 border border-slate-200'
+                        <p className="text-[9.5px] font-bold uppercase tracking-wider leading-tight truncate">{preset.name}</p>
+                        <span className={`inline-block px-1.5 py-0.5 rounded text-[7.5px] font-bold uppercase tracking-widest ${
+                          isSelected ? 'bg-slate-800 text-amber-400 border border-slate-700' : 'bg-gray-100 text-gray-600 border border-slate-200'
                         }`}>
                           {tpl.labelWidth}mm × {tpl.labelHeight}mm
                         </span>
@@ -675,7 +675,7 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
                           <Check size={11} strokeWidth={3} />
                         </div>
                       ) : (
-                        <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest shrink-0">Select</span>
+                        <span className="text-[8px] font-bold text-gray-400 uppercase tracking-widest shrink-0">Select</span>
                       )}
                     </button>
                   );
@@ -685,7 +685,7 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
 
             {/* Custom Saved Presets */}
             <div className="space-y-2 pt-2 border-t border-slate-200/80">
-              <span className="text-[8px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-1 ml-1">
+              <span className="text-[8px] font-bold uppercase tracking-widest text-gray-400 flex items-center gap-1 ml-1">
                 <Tag size={10} className="text-[#8B5CF6]" /> Custom Presets
               </span>
 
@@ -709,11 +709,11 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
                         className={`w-full p-2.5 rounded-xl text-left transition-all border flex items-center gap-3 ${
                           isSelected
                             ? 'bg-slate-900 text-white border-slate-900 shadow-md scale-[1.01]'
-                            : 'bg-white text-slate-700 border-slate-200 hover:border-slate-300 hover:bg-slate-100/80'
+                            : 'bg-white text-gray-700 border-slate-200 hover:border-slate-300 hover:bg-gray-100/80'
                         }`}
                       >
                         {/* Mini Live Preview Box */}
-                        <div className={`w-11 h-11 rounded-lg shrink-0 overflow-hidden relative border ${isSelected ? 'bg-slate-800 border-slate-700' : 'bg-slate-100 border-slate-200/80'}`}>
+                        <div className={`w-11 h-11 rounded-lg shrink-0 overflow-hidden relative border ${isSelected ? 'bg-slate-800 border-slate-700' : 'bg-gray-100 border-slate-200/80'}`}>
                           <div
                             style={{
                               width: `${tpl.labelWidth * MM_TO_PX}px`,
@@ -733,8 +733,8 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
                         </div>
 
                         <div className="space-y-1 flex-1 min-w-0">
-                          <p className="text-[9.5px] font-black uppercase tracking-wider leading-tight truncate">{preset.name}</p>
-                          <span className={`inline-block px-1.5 py-0.5 rounded text-[7.5px] font-black uppercase tracking-widest ${
+                          <p className="text-[9.5px] font-bold uppercase tracking-wider leading-tight truncate">{preset.name}</p>
+                          <span className={`inline-block px-1.5 py-0.5 rounded text-[7.5px] font-bold uppercase tracking-widest ${
                             isSelected ? 'bg-[#8B5CF6]/30 text-purple-300 border border-[#8B5CF6]/50' : 'bg-purple-50 text-[#8B5CF6] border border-purple-200/60'
                           }`}>
                             {tpl.labelWidth}mm × {tpl.labelHeight}mm
@@ -746,7 +746,7 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
                             <Check size={11} strokeWidth={3} />
                           </div>
                         ) : (
-                          <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest shrink-0">Select</span>
+                          <span className="text-[8px] font-bold text-gray-400 uppercase tracking-widest shrink-0">Select</span>
                         )}
                       </button>
                     );
@@ -754,11 +754,11 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
                 </div>
               ) : (
                 <div className="p-3.5 bg-white rounded-xl border border-dashed border-slate-200 text-center space-y-1.5">
-                  <div className="w-7 h-7 rounded-lg bg-slate-50 text-slate-300 flex items-center justify-center mx-auto">
+                  <div className="w-7 h-7 rounded-lg bg-gray-50 text-gray-300 flex items-center justify-center mx-auto">
                     <FolderX size={14} />
                   </div>
-                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">No Custom Presets Found</p>
-                  <p className="text-[7.5px] text-slate-400 font-semibold leading-normal">
+                  <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">No Custom Presets Found</p>
+                  <p className="text-[7.5px] text-gray-400 font-semibold leading-normal">
                     Save custom designs in the Label Designer to list them here!
                   </p>
                 </div>

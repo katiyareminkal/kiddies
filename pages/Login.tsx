@@ -1,7 +1,6 @@
-
 import React, { useState } from 'react';
 import { useApp } from '../store/AppContext';
-import { Lock, Mail, Eye, EyeOff, User as UserIcon, ArrowRight } from 'lucide-react';
+import { Lock, Mail, Eye, EyeOff, User as UserIcon, ArrowRight, ShieldCheck, CheckCircle2, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { supabase } from '../supabase';
 
@@ -24,7 +23,7 @@ const Login: React.FC = () => {
     setIsLoading(true);
     const success = await login(email, password);
     if (!success) {
-      setError('Invalid email or password');
+      setError('Invalid email or password. Please try again.');
     }
     setIsLoading(false);
   };
@@ -41,7 +40,7 @@ const Login: React.FC = () => {
 
     setIsLoading(true);
     try {
-      const { data, error } = await supabase.auth.signUp({
+      const { error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -82,49 +81,58 @@ const Login: React.FC = () => {
     }
   };
 
-  return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-5 relative overflow-hidden font-sans">
-      {/* Subtle background accent */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-[500px] h-[500px] rounded-full bg-gradient-to-br from-violet-100/60 to-sky-100/40 blur-3xl" />
-        <div className="absolute -bottom-40 -left-40 w-[400px] h-[400px] rounded-full bg-gradient-to-tr from-rose-100/40 to-amber-100/30 blur-3xl" />
-      </div>
+  const fillDemo = (demoEmail: string, demoPass: string) => {
+    setEmail(demoEmail);
+    setPassword(demoPass);
+    setError('');
+    setSuccessMessage('');
+  };
 
+  return (
+    <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4 sm:p-6 relative font-sans select-none">
       <motion.div
-        initial={{ opacity: 0, y: 16 }}
+        initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
+        transition={{ duration: 0.25 }}
         className="w-full max-w-[400px] relative z-10"
       >
-        {/* Logo & Branding */}
-        <div className="flex flex-col items-center mb-10">
-          <img src="/kiddies-wordmark.png" alt="Kiddies" className="h-14 w-auto object-contain mb-2 drop-shadow-[0_6px_12px_rgba(0,0,0,0.08)]" />
-          <span className="text-[9px] font-semibold text-slate-400 uppercase tracking-[0.25em]">Stock Manager</span>
+        {/* Branding Header */}
+        <div className="flex flex-col items-center mb-5 text-center">
+          <div className="p-2.5 bg-slate-800 rounded-lg border border-slate-700 shadow-sm mb-2.5">
+            <img src="/logo.png" alt="Kiddies" className="h-9 w-auto object-contain" />
+          </div>
+          <h1 className="text-lg font-bold text-white tracking-tight flex items-center gap-2">
+            <span>Kiddies</span>
+            <span className="text-[10px] font-bold uppercase tracking-wider bg-[#fe569f]/20 text-[#fe569f] px-2 py-0.5 rounded-md border border-[#fe569f]/40">
+              Enterprise
+            </span>
+          </h1>
+          <p className="text-slate-400 text-xs font-normal mt-0.5">Kids Wear & Garment Rental POS</p>
         </div>
 
-        {/* Card */}
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-7">
-          {/* Header */}
-          <div className="mb-7">
-            <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">
-              {isSignUp ? 'Create Account' : 'Welcome back'}
+        {/* Main Card */}
+        <div className="bg-white rounded-lg shadow-elevated border border-slate-200 p-6 sm:p-7">
+          <div className="mb-5">
+            <h2 className="text-lg font-bold text-slate-900 tracking-tight">
+              {isSignUp ? 'Create Staff Account' : 'Welcome Back'}
             </h2>
-            <p className="text-slate-400 text-xs mt-1 font-medium">
-              {isSignUp ? 'Sign up for a new account' : 'Sign in to your account'}
+            <p className="text-slate-500 text-xs font-normal mt-0.5">
+              {isSignUp ? 'Register to manage inventory & sales' : 'Sign in to access your store terminal'}
             </p>
           </div>
 
-          {/* Error / Success */}
+          {/* Feedback Messages */}
           <AnimatePresence>
             {error && (
               <motion.div
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
                 exit={{ opacity: 0, height: 0 }}
-                className="mb-5 overflow-hidden"
+                className="mb-3.5 overflow-hidden"
               >
-                <div className="bg-red-50 text-red-600 px-4 py-3 rounded-xl text-xs font-semibold border border-red-100">
-                  {error}
+                <div className="bg-rose-50 text-rose-700 px-3 py-2 rounded-md text-xs font-semibold border border-rose-200 flex items-center gap-2">
+                  <AlertCircle size={14} className="shrink-0 text-rose-600" />
+                  <span>{error}</span>
                 </div>
               </motion.div>
             )}
@@ -133,17 +141,18 @@ const Login: React.FC = () => {
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
                 exit={{ opacity: 0, height: 0 }}
-                className="mb-5 overflow-hidden"
+                className="mb-3.5 overflow-hidden"
               >
-                <div className="bg-emerald-50 text-emerald-600 px-4 py-3 rounded-xl text-xs font-semibold border border-emerald-100">
-                  {successMessage}
+                <div className="bg-emerald-50 text-emerald-700 px-3 py-2 rounded-md text-xs font-semibold border border-emerald-200 flex items-center gap-2">
+                  <CheckCircle2 size={14} className="shrink-0 text-emerald-600" />
+                  <span>{successMessage}</span>
                 </div>
               </motion.div>
             )}
           </AnimatePresence>
 
           {/* Form */}
-          <form onSubmit={isSignUp ? handleSignUp : handleLogin} className="space-y-4">
+          <form onSubmit={isSignUp ? handleSignUp : handleLogin} className="space-y-3">
             <AnimatePresence>
               {isSignUp && (
                 <motion.div
@@ -153,14 +162,14 @@ const Login: React.FC = () => {
                   className="overflow-hidden"
                 >
                   <div className="relative">
-                    <UserIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-300" size={17} />
+                    <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
                     <input
                       type="text"
                       required
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
-                      className="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-violet-400 focus:bg-white transition-all text-sm text-slate-800 placeholder-slate-400 font-medium"
-                      placeholder="Full name"
+                      className="w-full pl-9 pr-3.5 py-2 bg-slate-50 border border-slate-200 rounded-md outline-none focus:border-[#01a9fb] focus:bg-white text-xs font-medium text-slate-900 placeholder:text-slate-400"
+                      placeholder="Full Name"
                     />
                   </div>
                 </motion.div>
@@ -168,58 +177,51 @@ const Login: React.FC = () => {
             </AnimatePresence>
 
             <div className="relative">
-              <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-300" size={17} />
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
               <input
                 type="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-violet-400 focus:bg-white transition-all text-sm text-slate-800 placeholder-slate-400 font-medium"
-                placeholder="Email address"
+                className="w-full pl-9 pr-3.5 py-2 bg-slate-50 border border-slate-200 rounded-md outline-none focus:border-[#01a9fb] focus:bg-white text-xs font-medium text-slate-900 placeholder:text-slate-400"
+                placeholder="Email Address"
               />
             </div>
 
             <div className="relative">
-              <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-300" size={17} />
+              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
               <input
                 type={showPassword ? "text" : "password"}
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full pl-11 pr-11 py-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-violet-400 focus:bg-white transition-all text-sm text-slate-800 placeholder-slate-400 font-medium"
+                className="w-full pl-9 pr-9 py-2 bg-slate-50 border border-slate-200 rounded-md outline-none focus:border-[#01a9fb] focus:bg-white text-xs font-medium text-slate-900 placeholder:text-slate-400"
                 placeholder="Password"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500 transition-colors"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
               >
-                {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
+                {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
               </button>
             </div>
 
             {!isSignUp && (
-              <div className="flex items-center justify-between">
-                <label className="flex items-center gap-2 cursor-pointer group">
-                  <div className={`w-4 h-4 rounded-md border-2 flex items-center justify-center transition-all ${rememberMe ? 'bg-violet-500 border-violet-500' : 'border-slate-300 group-hover:border-violet-400'}`}>
-                    <input
-                      type="checkbox"
-                      className="hidden"
-                      checked={rememberMe}
-                      onChange={() => setRememberMe(!rememberMe)}
-                    />
-                    {rememberMe && (
-                      <svg className="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                      </svg>
-                    )}
-                  </div>
-                  <span className="text-xs text-slate-500 font-medium">Remember me</span>
+              <div className="flex items-center justify-between pt-0.5 text-xs">
+                <label className="flex items-center gap-2 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={rememberMe}
+                    onChange={() => setRememberMe(!rememberMe)}
+                    className="rounded border-slate-300 text-[#01a9fb] focus:ring-[#01a9fb] w-3.5 h-3.5"
+                  />
+                  <span className="text-slate-600 font-medium text-xs">Remember me</span>
                 </label>
                 <button
                   type="button"
                   onClick={handleForgotPassword}
-                  className="text-xs text-violet-500 font-semibold hover:text-violet-600 transition-colors"
+                  className="text-xs text-[#01a9fb] font-semibold hover:underline"
                 >
                   Forgot password?
                 </button>
@@ -229,33 +231,56 @@ const Login: React.FC = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-3.5 bg-slate-900 text-white text-sm font-bold rounded-xl hover:bg-slate-800 transition-all active:scale-[0.98] disabled:opacity-60 flex items-center justify-center gap-2 mt-2"
+              className="w-full py-2.5 bg-[#01a9fb] hover:bg-[#0098e6] text-white text-xs font-bold uppercase tracking-wider rounded-md transition-all active:scale-[0.99] disabled:opacity-60 flex items-center justify-center gap-1.5 !mt-4 shadow-xs"
             >
               {isLoading ? (
-                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
               ) : (
                 <>
-                  {isSignUp ? 'Create Account' : 'Sign In'}
-                  <ArrowRight size={16} />
+                  <span>{isSignUp ? 'Register Staff Account' : 'Sign In To Terminal'}</span>
+                  <ArrowRight size={14} />
                 </>
               )}
             </button>
           </form>
+
+          {/* Quick Demo Access */}
+          <div className="mt-4 pt-3.5 border-t border-slate-100">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 text-center mb-2">
+              Quick Demo Access
+            </p>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => fillDemo('admin@kiddies.store', 'admin')}
+                className="px-2.5 py-1.5 bg-slate-50 hover:bg-[#01a9fb]/10 text-slate-700 hover:text-[#01a9fb] border border-slate-200 hover:border-[#01a9fb]/40 rounded-md text-[11px] font-bold transition-all"
+              >
+                👑 Store Admin
+              </button>
+              <button
+                type="button"
+                onClick={() => fillDemo('staff@kiddies.store', 'staff')}
+                className="px-2.5 py-1.5 bg-slate-50 hover:bg-[#fe569f]/10 text-slate-700 hover:text-[#fe569f] border border-slate-200 hover:border-[#fe569f]/40 rounded-md text-[11px] font-bold transition-all"
+              >
+                💼 Store Staff
+              </button>
+            </div>
+          </div>
         </div>
 
         {/* Toggle Sign Up / Login */}
-        <div className="mt-6 text-center">
+        <div className="mt-4 text-center">
           <p className="text-xs text-slate-400 font-medium">
-            {isSignUp ? 'Already have an account?' : "Don't have an account?"}{' '}
+            {isSignUp ? 'Already have an account?' : "Need a new staff account?"}{' '}
             <button
               onClick={() => {
                 setIsSignUp(!isSignUp);
                 setError('');
                 setSuccessMessage('');
               }}
-              className="text-violet-500 font-bold hover:text-violet-600 transition-colors"
+              className="text-[#01a9fb] font-bold hover:text-[#fe569f] underline ml-1 transition-colors"
             >
-              {isSignUp ? 'Sign In' : 'Sign Up'}
+              {isSignUp ? 'Sign In' : 'Register Here'}
             </button>
           </p>
         </div>

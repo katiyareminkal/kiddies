@@ -74,14 +74,14 @@ export const StockEntryModal: React.FC<StockEntryModalProps> = ({ isOpen, onClos
         {/* If no product is pre-selected, show dropdown */}
         {!product && (
           <div className="space-y-1.5">
-            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Select Product</label>
+            <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 ml-1">Select Product</label>
             <div className="relative group">
               <select 
                 name="productId" 
                 required 
                 value={selectedProductId}
                 onChange={(e) => setSelectedProductId(e.target.value)}
-                className="w-full pl-4 pr-10 py-3 bg-slate-50 border border-transparent focus:bg-white focus:border-highlight/30 rounded-2xl outline-none transition-all font-black uppercase tracking-widest text-[10px] text-slate-900 appearance-none"
+                className="w-full pl-4 pr-10 py-3 bg-gray-50 border border-transparent focus:bg-white focus:border-highlight/30 rounded-xl outline-none transition-all font-bold uppercase tracking-widest text-[10px] text-gray-900 appearance-none"
               >
                 <option value="" disabled>-- Select Product --</option>
                 {products.map(p => {
@@ -93,7 +93,7 @@ export const StockEntryModal: React.FC<StockEntryModalProps> = ({ isOpen, onClos
                   );
                 })}
               </select>
-              <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={16} strokeWidth={3} />
+              <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={16} strokeWidth={3} />
             </div>
           </div>
         )}
@@ -113,17 +113,17 @@ export const StockEntryModal: React.FC<StockEntryModalProps> = ({ isOpen, onClos
           const total = activeProduct.saleStock + activeProduct.rentalStock;
 
           return (
-            <div className="bg-slate-50 rounded-2xl p-3 flex items-center justify-between">
+            <div className="bg-gray-50 rounded-xl p-3 flex items-center justify-between">
               <div>
-                <p className="text-[10px] font-black uppercase tracking-widest text-slate-900">{activeProduct.name}</p>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-gray-900">{activeProduct.name}</p>
                 <div className="flex items-center gap-2 mt-1">
-                  <span className="text-[9px] font-black text-slate-900 bg-slate-200/80 px-2 py-0.5 rounded-md">Total: {total} Pcs</span>
-                  <span className="text-[8px] font-bold text-slate-500">
-                    (Sale: <span className="text-slate-800 font-extrabold">{activeProduct.saleStock}</span> | Rental: <span className="text-slate-800 font-extrabold">{activeProduct.rentalStock}</span>)
+                  <span className="text-[9px] font-bold text-gray-900 bg-slate-200/80 px-2 py-0.5 rounded-md">Total: {total} Pcs</span>
+                  <span className="text-[8px] font-bold text-gray-500">
+                    (Sale: <span className="text-gray-800 font-extrabold">{activeProduct.saleStock}</span> | Rental: <span className="text-gray-800 font-extrabold">{activeProduct.rentalStock}</span>)
                   </span>
                 </div>
               </div>
-              <span className={`text-[8px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full ${purposeColors[activeProduct.purpose] || 'bg-slate-200 text-slate-600'}`}>
+              <span className={`text-[8px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full ${purposeColors[activeProduct.purpose] || 'bg-slate-200 text-gray-600'}`}>
                 {purposeLabels[activeProduct.purpose] || activeProduct.purpose}
               </span>
             </div>
@@ -141,33 +141,33 @@ export const StockEntryModal: React.FC<StockEntryModalProps> = ({ isOpen, onClos
         {/* If no product selected yet, allow picking pool */}
         {!activeProduct && (
           <>
-            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Stock Type</label>
+            <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 ml-1">Stock Type</label>
             <div className="grid grid-cols-2 gap-3">
-              <label className="relative border-2 border-slate-50 rounded-[2rem] p-4 flex flex-col items-center justify-center gap-2 cursor-pointer has-[:checked]:bg-primary/5 has-[:checked]:border-primary has-[:checked]:text-primary transition-all group">
+              <label className="relative border border-gray-200 rounded-md p-4 flex flex-col items-center justify-center gap-2 cursor-pointer has-[:checked]:bg-primary/5 has-[:checked]:border-primary has-[:checked]:text-primary transition-all group">
                 <input type="radio" name="pool" value="SALE" defaultChecked className="hidden" />
-                <ShoppingBag size={20} className="text-slate-400 group-has-[:checked]:text-primary transition-colors" strokeWidth={3} />
-                <span className="text-[9px] font-black uppercase tracking-widest">Sale Stock</span>
+                <ShoppingBag size={20} className="text-gray-400 group-has-[:checked]:text-primary transition-colors" strokeWidth={3} />
+                <span className="text-[9px] font-bold uppercase tracking-widest">Sale Stock</span>
               </label>
-              <label className="relative border-2 border-slate-50 rounded-[2rem] p-4 flex flex-col items-center justify-center gap-2 cursor-pointer has-[:checked]:bg-primary/5 has-[:checked]:border-primary has-[:checked]:text-primary transition-all group">
+              <label className="relative border border-gray-200 rounded-md p-4 flex flex-col items-center justify-center gap-2 cursor-pointer has-[:checked]:bg-primary/5 has-[:checked]:border-primary has-[:checked]:text-primary transition-all group">
                 <input type="radio" name="pool" value="RENTAL" className="hidden" />
-                <RefreshCcw size={20} className="text-slate-400 group-has-[:checked]:text-primary transition-colors" strokeWidth={3} />
-                <span className="text-[9px] font-black uppercase tracking-widest">Rental Stock</span>
+                <RefreshCcw size={20} className="text-gray-400 group-has-[:checked]:text-primary transition-colors" strokeWidth={3} />
+                <span className="text-[9px] font-bold uppercase tracking-widest">Rental Stock</span>
               </label>
             </div>
           </>
         )}
 
-        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Action</label>
+        <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 ml-1">Action</label>
         <div className="grid grid-cols-2 gap-3">
-          <label className="relative border-2 border-slate-50 rounded-[2rem] p-4 flex flex-col items-center justify-center gap-2 cursor-pointer has-[:checked]:bg-emerald-50 has-[:checked]:border-emerald-600 has-[:checked]:text-emerald-700 transition-all group">
+          <label className="relative border border-gray-200 rounded-md p-4 flex flex-col items-center justify-center gap-2 cursor-pointer has-[:checked]:bg-emerald-50 has-[:checked]:border-emerald-600 has-[:checked]:text-emerald-700 transition-all group">
             <input type="radio" name="type" value="IN" defaultChecked className="hidden" />
-            <ArrowDownLeft size={20} className="text-slate-400 group-has-[:checked]:text-emerald-600 transition-colors" strokeWidth={3} />
-            <span className="text-[9px] font-black uppercase tracking-widest">Stock In</span>
+            <ArrowDownLeft size={20} className="text-gray-400 group-has-[:checked]:text-emerald-600 transition-colors" strokeWidth={3} />
+            <span className="text-[9px] font-bold uppercase tracking-widest">Stock In</span>
           </label>
-          <label className="relative border-2 border-slate-50 rounded-[2rem] p-4 flex flex-col items-center justify-center gap-2 cursor-pointer has-[:checked]:bg-secondary/5 has-[:checked]:border-secondary has-[:checked]:text-secondary transition-all group">
+          <label className="relative border border-gray-200 rounded-md p-4 flex flex-col items-center justify-center gap-2 cursor-pointer has-[:checked]:bg-secondary/5 has-[:checked]:border-secondary has-[:checked]:text-secondary transition-all group">
             <input type="radio" name="type" value="OUT" className="hidden" />
-            <ArrowUpRight size={20} className="text-slate-400 group-has-[:checked]:text-secondary transition-colors" strokeWidth={3} />
-            <span className="text-[9px] font-black uppercase tracking-widest">Stock Out</span>
+            <ArrowUpRight size={20} className="text-gray-400 group-has-[:checked]:text-secondary transition-colors" strokeWidth={3} />
+            <span className="text-[9px] font-bold uppercase tracking-widest">Stock Out</span>
           </label>
         </div>
 
@@ -175,29 +175,29 @@ export const StockEntryModal: React.FC<StockEntryModalProps> = ({ isOpen, onClos
         {isHybrid ? (
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <label className="text-[10px] font-black uppercase tracking-widest text-blue-600 ml-1">Sale Stock Qty</label>
-              <input name="saleQuantity" type="number" min="0" className="w-full px-4 py-3 bg-slate-50 border-slate-50 border-2 focus:bg-white focus:border-primary rounded-2xl outline-none transition-all font-bold text-slate-700 text-sm" placeholder="0" />
+              <label className="text-[10px] font-bold uppercase tracking-widest text-blue-600 ml-1">Sale Stock Qty</label>
+              <input name="saleQuantity" type="number" min="0" className="w-full px-4 py-3 bg-gray-50 border-gray-100 border-2 focus:bg-white focus:border-primary rounded-md outline-none transition-all font-bold text-gray-700 text-sm" placeholder="0" />
             </div>
             <div className="space-y-1.5">
-              <label className="text-[10px] font-black uppercase tracking-widest text-purple-600 ml-1">Rental Stock Qty</label>
-              <input name="rentalQuantity" type="number" min="0" className="w-full px-4 py-3 bg-slate-50 border-slate-50 border-2 focus:bg-white focus:border-primary rounded-2xl outline-none transition-all font-bold text-slate-700 text-sm" placeholder="0" />
+              <label className="text-[10px] font-bold uppercase tracking-widest text-purple-600 ml-1">Rental Stock Qty</label>
+              <input name="rentalQuantity" type="number" min="0" className="w-full px-4 py-3 bg-gray-50 border-gray-100 border-2 focus:bg-white focus:border-primary rounded-md outline-none transition-all font-bold text-gray-700 text-sm" placeholder="0" />
             </div>
           </div>
         ) : (
           <div className="space-y-1.5">
-            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Quantity</label>
-            <input name="quantity" type="number" required className="w-full px-4 py-3 bg-slate-50 border-slate-50 border-2 focus:bg-white focus:border-primary rounded-2xl outline-none transition-all font-bold text-slate-700 text-sm" placeholder="0" min="1" />
+            <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 ml-1">Quantity</label>
+            <input name="quantity" type="number" required className="w-full px-4 py-3 bg-gray-50 border-gray-100 border-2 focus:bg-white focus:border-primary rounded-md outline-none transition-all font-bold text-gray-700 text-sm" placeholder="0" min="1" />
           </div>
         )}
 
         <div className="space-y-1.5">
-          <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Reason / Notes (Optional)</label>
-          <input name="reason" type="text" className="w-full px-4 py-3 bg-slate-50 border-slate-50 border-2 focus:bg-white focus:border-primary rounded-2xl outline-none transition-all font-bold text-slate-700 text-sm" placeholder="e.g. Initial stock, audit, damage" />
+          <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 ml-1">Reason / Notes (Optional)</label>
+          <input name="reason" type="text" className="w-full px-4 py-3 bg-gray-50 border-gray-100 border-2 focus:bg-white focus:border-primary rounded-md outline-none transition-all font-bold text-gray-700 text-sm" placeholder="e.g. Initial stock, audit, damage" />
         </div>
 
         <div className="flex gap-3 pt-4">
-          <button type="button" onClick={handleClose} className="flex-1 h-14 rounded-2xl font-black uppercase tracking-widest text-[9px] text-slate-400 border border-slate-100">Cancel</button>
-          <button type="submit" className="flex-1 bg-primary text-white rounded-2xl font-black uppercase tracking-widest text-[9px] shadow-lg shadow-primary/20">Update Stock</button>
+          <button type="button" onClick={handleClose} className="flex-1 h-14 rounded-md font-bold uppercase tracking-widest text-[9px] text-gray-400 border border-gray-200/60">Cancel</button>
+          <button type="submit" className="flex-1 bg-primary text-white rounded-md font-bold uppercase tracking-widest text-[9px] shadow-sm">Update Stock</button>
         </div>
       </form>
     </Modal>
