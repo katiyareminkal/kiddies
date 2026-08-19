@@ -82,6 +82,7 @@ export interface Product {
   supplierId: string;
   description: string;
   imageUrl?: string;
+  images?: string[]; // Multiple product photos
   createdAt: string;
 }
 

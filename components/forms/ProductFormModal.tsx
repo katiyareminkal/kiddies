@@ -1,20 +1,22 @@
 import React, { useState, useRef, useMemo } from 'react';
 import { createPortal } from 'react-dom';
-import { Plus, X, Upload, ScanLine, Edit2, Image as ImageIcon, Palette, CheckCircle2, RefreshCcw } from 'lucide-react';
+import { Plus, X, Upload, ScanLine, Edit2, Image as ImageIcon, Palette, CheckCircle2, Check, RefreshCcw, Trash2 } from 'lucide-react';
 import { Modal } from '../Shared';
 import { useApp } from '../../store/AppContext';
 import { Product } from '../../types';
 import BarcodeScanner from '../BarcodeScanner';
 import { CATEGORIES, SUB_CATEGORIES_BY_GENDER_AND_CATEGORY, GENDERS, CLOTHING_TYPES, CATEGORIES_BY_GENDER } from '../../constants';
 import { generateDynamicLabelPDF } from '../../utils/pdfLabel';
+import { extractBaseSku } from '../../utils/helpers';
 import LabelDesigner from './LabelDesigner';
 interface ProductFormModalProps {
   isOpen: boolean;
   onClose: () => void;
   productToEdit?: Product | null;
+  onSaveSuccess?: (title: string, message: string) => void;
 }
 
-export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onClose, productToEdit }) => {
+export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onClose, productToEdit, onSaveSuccess }) => {
   const { products, suppliers, addProduct, updateProduct, deleteProduct } = useApp();
   
   const [productPurpose, setProductPurpose] = useState<'SALE' | 'RENTAL' | 'HYBRID'>(productToEdit ? productToEdit.purpose : 'SALE');
@@ -36,9 +38,15 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
   
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  // Image Upload State
-  const [previewImage, setPreviewImage] = useState<string | null>(productToEdit?.imageUrl || null);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  // Image Upload State (Multi-Image Support)
+  const [previewImages, setPreviewImages] = useState<string[]>(
+    productToEdit?.images && productToEdit.images.length > 0 
+      ? productToEdit.images 
+      : productToEdit?.imageUrl 
+        ? [productToEdit.imageUrl] 
+        : []
+  );
+  const [selectedImagesIndex, setSelectedImagesIndex] = useState<number>(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Category, Gender, SubCategory, ClothingType, and Supplier State
@@ -144,11 +152,15 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
 
   // Initialize state when modal opens or productToEdit changes
   React.useEffect(() => {
-    if (isOpen) {
+    if (isOpen && !isSaving) {
       setProductPurpose(productToEdit ? productToEdit.purpose : 'SALE');
-      setPreviewImage(productToEdit?.imageUrl || null);
-      setSelectedFile(null);
-      setIsSaving(false);
+      const initialImgs = productToEdit?.images && productToEdit.images.length > 0 
+        ? productToEdit.images 
+        : productToEdit?.imageUrl 
+          ? [productToEdit.imageUrl] 
+          : [];
+      setPreviewImages(initialImgs);
+      setSelectedImagesIndex(0);
       setSavingStatus('');
       const resetGender = productToEdit?.gender || GENDERS[0] || '';
       setSelectedGender(resetGender);
@@ -158,51 +170,49 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
       setSelectedSupplierId(productToEdit?.supplierId || '');
 
       // Initialize variant stocks and selected sizes from all siblings
-      const initialStocks: Record<string, { saleStock: number; rentalStock: number }> = {};
+      const initialStocks: Record<string, { saleStock: number; rentalStock: number; color?: string }> = {};
       if (productToEdit) {
-        // Strip size suffix from SKU to get base SKU
-        let baseSku = productToEdit.sku;
-        const matchingSize = productToEdit.sizes[0];
-        if (matchingSize && productToEdit.sku.endsWith(`-${matchingSize}`)) {
-          baseSku = productToEdit.sku.substring(0, productToEdit.sku.length - matchingSize.length - 1);
-        } else {
-          const lastDash = productToEdit.sku.lastIndexOf('-');
-          if (lastDash > 0) {
-            baseSku = productToEdit.sku.substring(0, lastDash);
-          }
-        }
-        setSkuValue(baseSku); // Display the base SKU in the SKU input field
+        const baseSku = extractBaseSku(productToEdit.sku, productToEdit.sizes);
+        setSkuValue(baseSku);
         setBarcodeValue(productToEdit.barcode || '');
 
         // Find sibling variants
         const siblings = products.filter(p => {
-          let pBase = p.sku;
-          const pSize = p.sizes[0];
-          if (pSize && p.sku.endsWith(`-${pSize}`)) {
-            pBase = p.sku.substring(0, p.sku.length - pSize.length - 1);
-          } else {
-            const pDash = p.sku.lastIndexOf('-');
-            if (pDash > 0) {
-              pBase = p.sku.substring(0, pDash);
-            }
-          }
-          return pBase.toLowerCase() === baseSku.toLowerCase() || p.name.toLowerCase() === productToEdit.name.toLowerCase();
+          if (p.id === productToEdit.id) return true;
+          const pBase = extractBaseSku(p.sku, p.sizes);
+          return (pBase && pBase.toLowerCase() === baseSku.toLowerCase()) || 
+                 (p.name && p.name.toLowerCase() === productToEdit.name.toLowerCase());
         });
 
         const allSizes: string[] = [];
         siblings.forEach(sib => {
-          sib.sizes.forEach(size => {
+          (sib.sizes || []).forEach(size => {
             if (!allSizes.includes(size)) {
               allSizes.push(size);
             }
             initialStocks[size] = {
-              saleStock: sib.saleStock,
-              rentalStock: sib.rentalStock,
+              saleStock: sib.saleStock || 0,
+              rentalStock: sib.rentalStock || 0,
               color: sib.color || ''
             };
           });
         });
-        setSelectedSizes(allSizes);
+
+        // Ensure productToEdit sizes are included
+        (productToEdit.sizes || []).forEach(size => {
+          if (!allSizes.includes(size)) {
+            allSizes.push(size);
+          }
+          if (!initialStocks[size]) {
+            initialStocks[size] = {
+              saleStock: productToEdit.saleStock || 0,
+              rentalStock: productToEdit.rentalStock || 0,
+              color: productToEdit.color || ''
+            };
+          }
+        });
+
+        setSelectedSizes(allSizes.length > 0 ? allSizes : (productToEdit.sizes || []));
       } else {
         setSelectedSizes([]);
         setSkuValue('');
@@ -210,7 +220,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
       }
       setVariantStocks(initialStocks);
     }
-  }, [isOpen, productToEdit, products]);
+  }, [isOpen, productToEdit]);
 
   const generateAutoSKU = () => {
     const formElement = formRef.current;
@@ -282,27 +292,65 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
     });
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      if (file.size > 5 * 1024 * 1024) {
-        alert(`File too large: ${(file.size / (1024 * 1024)).toFixed(2)}MB. Please select a file smaller than 5MB.`);
-        if (fileInputRef.current) fileInputRef.current.value = '';
-        return;
-      }
-      setSelectedFile(file);
+  const compressImage = (file: File): Promise<string> => {
+    return new Promise((resolve) => {
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreviewImage(reader.result as string);
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          const maxDim = 800;
+
+          if (width > height && width > maxDim) {
+            height = Math.round((height * maxDim) / width);
+            width = maxDim;
+          } else if (height > maxDim) {
+            width = Math.round((width * maxDim) / height);
+            height = maxDim;
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, width, height);
+            resolve(canvas.toDataURL('image/jpeg', 0.8));
+          } else {
+            resolve(e.target?.result as string);
+          }
+        };
+        img.onerror = () => resolve(e.target?.result as string);
+        img.src = e.target?.result as string;
       };
       reader.readAsDataURL(file);
+    });
+  };
+
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const files = Array.from(e.target.files);
+      const validFiles = files.filter(f => f.size <= 10 * 1024 * 1024);
+
+      for (const file of validFiles) {
+        try {
+          const compressed = await compressImage(file);
+          setPreviewImages(prev => [...prev, compressed]);
+        } catch (err) {
+          console.error("Image processing error:", err);
+        }
+      }
+
+      if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
 
-  const handleRemoveImage = () => {
-    setPreviewImage(null);
-    setSelectedFile(null);
-    if (fileInputRef.current) fileInputRef.current.value = '';
+  const handleRemoveImage = (indexToRemove: number) => {
+    setPreviewImages(prev => prev.filter((_, idx) => idx !== indexToRemove));
+    if (selectedImagesIndex >= indexToRemove && selectedImagesIndex > 0) {
+      setSelectedImagesIndex(prev => prev - 1);
+    }
   };
 
   const handleSaveProduct = async (e?: React.FormEvent) => {
@@ -313,143 +361,117 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
 
     const formData = new FormData(formRef.current);
     const name = (formData.get('name') as string || '').trim();
-    const sku = (formData.get('sku') as string || '').trim();
+    const sku = (skuValue || (formData.get('sku') as string) || '').trim();
 
     if (!name || !sku) {
       alert('Please fill in both Product Name and SKU.');
       return;
     }
 
-    if (sku.length < 3) {
-      alert('SKU must be at least 3 characters long.');
+    if (sku.length < 2) {
+      alert('SKU must be at least 2 characters long.');
       return;
     }
 
+    const effectiveSizes = selectedSizes.length > 0 ? selectedSizes : ['Standard'];
+    const currentBaseSku = productToEdit ? extractBaseSku(productToEdit.sku, productToEdit.sizes) : '';
+
     // SKU Duplication check
     if (!productToEdit) {
-      for (const size of selectedSizes) {
-        const variantSku = `${sku}-${size}`;
-        const isDuplicate = products.some(p => p.sku.toUpperCase() === variantSku.toUpperCase());
+      for (const size of effectiveSizes) {
+        const variantSku = effectiveSizes.length > 1 || size !== 'Standard' ? `${sku}-${size}` : sku;
+        const isDuplicate = products.some(p => p.sku.toUpperCase() === variantSku.toUpperCase() || p.sku.toUpperCase() === sku.toUpperCase());
         if (isDuplicate) {
           alert(`The variant SKU "${variantSku}" is already in use by another product. SKU must be unique.`);
           return;
         }
       }
     } else {
-      const isDuplicate = products.some(p => p.sku.toUpperCase() === sku.toUpperCase() && p.id !== productToEdit.id);
-      if (isDuplicate) {
-        alert(`The SKU "${sku}" is already in use by another product. SKU must be unique.`);
+      for (const size of effectiveSizes) {
+        const variantSku = effectiveSizes.length > 1 || size !== 'Standard' ? `${sku}-${size}` : sku;
+        const isDuplicate = products.some(p => {
+          if (p.sku.toUpperCase() !== variantSku.toUpperCase() && p.sku.toUpperCase() !== sku.toUpperCase()) return false;
+          if (p.id === productToEdit.id) return false;
+          const pBase = extractBaseSku(p.sku, p.sizes);
+          const isSameSibling = (pBase && pBase.toLowerCase() === currentBaseSku.toLowerCase()) || 
+                                (p.name && p.name.toLowerCase() === productToEdit.name.toLowerCase());
+          return !isSameSibling;
+        });
+
+        if (isDuplicate) {
+          alert(`The SKU "${variantSku}" is already in use by another product. SKU must be unique.`);
+          return;
+        }
+      }
+    }
+
+    const purchasePrice = Number(formData.get('purchasePrice')) || 0;
+
+    // Validate prices
+    if (productPurpose === 'SALE' || productPurpose === 'HYBRID') {
+      const sellingPrice = Number(formData.get('sellingPrice')) || 0;
+      if (isNaN(sellingPrice) || sellingPrice <= 0) {
+        alert('Selling Price is mandatory and must be greater than 0.');
         return;
       }
     }
 
-    // New mandatory fields validations
-    if (selectedSizes.length === 0) {
-      alert('Please add at least one size.');
-      return;
-    }
-
-    const purchasePrice = Number(formData.get('purchasePrice'));
-    if (isNaN(purchasePrice) || purchasePrice <= 0) {
-      alert('Purchase Price is mandatory and must be greater than 0.');
-      return;
-    }
-
-    // Validate per-size variant stocks
-    for (const size of selectedSizes) {
-      const stocks = variantStocks[size];
-      if (productPurpose === 'SALE' || productPurpose === 'HYBRID') {
-        const sellingPrice = Number(formData.get('sellingPrice'));
-        if (isNaN(sellingPrice) || sellingPrice <= 0) {
-          alert('Selling Price is mandatory and must be greater than 0.');
-          return;
-        }
-        if (!stocks || stocks.saleStock === undefined || stocks.saleStock < 0) {
-          alert(`Sale Stock for size ${size} is mandatory and must be 0 or more.`);
-          return;
-        }
-      }
-
-      if (productPurpose === 'RENTAL' || productPurpose === 'HYBRID') {
-        const rentalPrice = Number(formData.get('rentalPrice'));
-        if (isNaN(rentalPrice) || rentalPrice <= 0) {
-          alert('Rental Price (Daily) is mandatory and must be greater than 0.');
-          return;
-        }
-        if (!stocks || stocks.rentalStock === undefined || stocks.rentalStock < 0) {
-          alert(`Rental Stock for size ${size} is mandatory and must be 0 or more.`);
-          return;
-        }
+    if (productPurpose === 'RENTAL' || productPurpose === 'HYBRID') {
+      const rentalPrice = Number(formData.get('rentalPrice')) || 0;
+      if (isNaN(rentalPrice) || rentalPrice <= 0) {
+        alert('Rental Price (Daily) is mandatory and must be greater than 0.');
+        return;
       }
     }
 
     setIsSaving(true);
     
     try {
-      if (selectedFile && selectedFile.size > 5 * 1024 * 1024) {
-        throw new Error('Image size exceeds 5MB. Please choose a smaller photo.');
-      }
-
       const baseProductData = {
         name,
-        barcode: formData.get('barcode') as string || '',
+        barcode: barcodeValue || (formData.get('barcode') as string) || '',
         gender: selectedGender || (formData.get('gender') as string) || '',
-        category: formData.get('category') as string || '',
-        subCategory: formData.get('subCategory') as string || '',
-        clothingType: formData.get('clothingType') as string || '',
-        brand: formData.get('brand') as string || '',
-        color: formData.get('color') as string || '',
-        material: formData.get('material') as string || '',
+        category: selectedCategory || (formData.get('category') as string) || '',
+        subCategory: selectedSubCategory || (formData.get('subCategory') as string) || '',
+        clothingType: selectedClothingType || (formData.get('clothingType') as string) || '',
+        brand: (formData.get('brand') as string) || '',
+        color: (formData.get('color') as string) || '',
+        material: (formData.get('material') as string) || '',
         purpose: productPurpose,
-        purchasePrice: Number(formData.get('purchasePrice')) || 0,
-        sellingPrice: (productPurpose === 'SALE' || productPurpose === 'HYBRID') ? Number(formData.get('sellingPrice')) : 0,
-        rentalPrice: (productPurpose === 'RENTAL' || productPurpose === 'HYBRID') ? Number(formData.get('rentalPrice')) : 0,
+        purchasePrice: purchasePrice,
+        sellingPrice: (productPurpose === 'SALE' || productPurpose === 'HYBRID') ? Number(formData.get('sellingPrice')) || 0 : 0,
+        rentalPrice: (productPurpose === 'RENTAL' || productPurpose === 'HYBRID') ? Number(formData.get('rentalPrice')) || 0 : 0,
         taxPercent: Number(formData.get('taxPercent')) || 0,
         minStockAlert: Number(formData.get('minStockAlert')) || 0,
-        supplierId: formData.get('supplierId') as string || '',
-        description: formData.get('description') as string || '',
-        imageUrl: previewImage || '',
+        supplierId: selectedSupplierId || (formData.get('supplierId') as string) || '',
+        description: (formData.get('description') as string) || '',
+        imageUrl: previewImages[0] || '',
+        images: previewImages,
       };
 
       let siblings: Product[] = [];
       if (productToEdit) {
-        let originalBaseSku = productToEdit.sku;
-        const matchingSize = productToEdit.sizes[0];
-        if (matchingSize && productToEdit.sku.endsWith(`-${matchingSize}`)) {
-          originalBaseSku = productToEdit.sku.substring(0, productToEdit.sku.length - matchingSize.length - 1);
-        } else {
-          const lastDash = productToEdit.sku.lastIndexOf('-');
-          if (lastDash > 0) {
-            originalBaseSku = productToEdit.sku.substring(0, lastDash);
-          }
-        }
-
+        const originalBaseSku = extractBaseSku(productToEdit.sku, productToEdit.sizes);
         siblings = products.filter(p => {
-          let pBase = p.sku;
-          const pSize = p.sizes[0];
-          if (pSize && p.sku.endsWith(`-${pSize}`)) {
-            pBase = p.sku.substring(0, p.sku.length - pSize.length - 1);
-          } else {
-            const pDash = p.sku.lastIndexOf('-');
-            if (pDash > 0) {
-              pBase = p.sku.substring(0, pDash);
-            }
-          }
-          return pBase.toLowerCase() === originalBaseSku.toLowerCase() || p.name.toLowerCase() === productToEdit.name.toLowerCase();
+          if (p.id === productToEdit.id) return true;
+          const pBase = extractBaseSku(p.sku, p.sizes);
+          return (pBase && pBase.toLowerCase() === originalBaseSku.toLowerCase()) || 
+                 (p.name && p.name.toLowerCase() === productToEdit.name.toLowerCase());
         });
       }
 
       // 1. Save new or update existing size variants
-      for (const size of selectedSizes) {
-        const variantSku = `${sku}-${size}`;
+      for (const size of effectiveSizes) {
+        const variantSku = effectiveSizes.length > 1 || size !== 'Standard' ? `${sku}-${size}` : sku;
         const existing = siblings.find(sib => {
-          const sibSize = sib.sizes[0];
+          if (sib.id === productToEdit?.id && (effectiveSizes.length === 1 || sib.sizes?.[0] === size)) return true;
+          const sibSize = sib.sizes?.[0];
           return sibSize?.toUpperCase() === size.toUpperCase();
         });
 
         const formColor = (formData.get('color') as string || '').trim();
         let variantColor = formColor;
-        if (variantStocks[size]?.color && variantStocks[size].color.trim() !== '' && variantStocks[size].color.trim() !== (productToEdit?.color || '')) {
+        if (variantStocks[size]?.color && variantStocks[size].color.trim() !== '') {
           variantColor = variantStocks[size].color.trim();
         }
 
@@ -458,63 +480,49 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
           color: variantColor,
           sku: variantSku,
           sizes: [size],
-          saleStock: variantStocks[size]?.saleStock ?? 0,
-          rentalStock: variantStocks[size]?.rentalStock ?? 0
+          saleStock: variantStocks[size]?.saleStock ?? (productToEdit?.saleStock ?? 0),
+          rentalStock: variantStocks[size]?.rentalStock ?? (productToEdit?.rentalStock ?? 0)
         };
 
         if (existing) {
-          setSavingStatus(`Updating variant for size ${size}...`);
-          await updateProduct(existing.id, variantData, selectedFile || undefined, setSavingStatus);
+          await updateProduct(existing.id, variantData, undefined);
         } else {
-          setSavingStatus(`Adding variant for size ${size}...`);
-          await addProduct(variantData, selectedFile || undefined, setSavingStatus);
+          await addProduct(variantData, undefined);
         }
       }
 
       // 2. Delete variants that were removed
       const removedVariants = siblings.filter(sib => {
-        const sibSize = sib.sizes[0];
-        return !selectedSizes.some(s => s.toUpperCase() === sibSize?.toUpperCase());
+        const sibSize = sib.sizes?.[0];
+        return sibSize && !effectiveSizes.some(s => s.toUpperCase() === sibSize.toUpperCase());
       });
 
       for (const removed of removedVariants) {
         try {
-          setSavingStatus(`Removing variant for size ${removed.sizes[0]}...`);
           await deleteProduct(removed.id);
         } catch (err) {
-          console.warn(`Failed to hard delete variant ${removed.id}. Setting stock to 0 and hiding instead.`, err);
-          const softDeleteData = {
-            sku: removed.sku,
-            name: removed.name,
-            barcode: removed.barcode,
-            category: removed.category,
-            brand: removed.brand,
-            color: removed.color,
-            material: removed.material,
-            purpose: removed.purpose,
-            purchasePrice: removed.purchasePrice,
-            sellingPrice: removed.sellingPrice,
-            rentalPrice: removed.rentalPrice,
-            taxPercent: removed.taxPercent,
-            minStockAlert: removed.minStockAlert,
-            supplierId: removed.supplierId,
-            description: removed.description,
-            imageUrl: removed.imageUrl,
-            sizes: [], // Clear sizes so it disappears from grouped display
-            saleStock: 0,
-            rentalStock: 0
-          };
-          await updateProduct(removed.id, softDeleteData);
+          console.warn(`Failed to delete variant ${removed.id}`, err);
         }
       }
 
+      // Small brief delay to ensure the user clearly sees 'Saving...' state before auto-closing
+      await new Promise(r => setTimeout(r, 400));
+
+      const successTitle = productToEdit ? 'Product Updated' : 'Product Added';
+      const successMsg = productToEdit ? `${name} updated successfully!` : `${name} added to inventory!`;
+
+      if (onSaveSuccess) {
+        onSaveSuccess(successTitle, successMsg);
+      } else {
+        setSuccessMessage(successMsg);
+        setTimeout(() => {
+          setSuccessMessage(null);
+        }, 1000);
+      }
+      
       onClose();
-      setPreviewImage(null);
-      setSelectedFile(null);
-      setSuccessMessage(productToEdit ? 'Product updated successfully!' : 'Product added successfully!');
-      setTimeout(() => {
-        setSuccessMessage(null);
-      }, 1800);
+      setPreviewImages([]);
+      setSelectedImagesIndex(0);
     } catch (error: any) {
       console.error('Save error:', error);
       let msg = error?.message || error?.details || (typeof error === 'object' ? JSON.stringify(error) : String(error));
@@ -595,12 +603,11 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
   return (
     <>
       {successMessage && createPortal(
-        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[9999] pointer-events-none animate-in slide-in-from-top-4 fade-in duration-300">
-          <div className="bg-slate-900/90 backdrop-blur-xl border border-slate-700/50 text-white rounded-md px-5 py-2.5 shadow-2xl shadow-slate-950/50 flex items-center gap-3">
-            <div className="w-6 h-6 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center shrink-0">
-              <CheckCircle2 size={14} strokeWidth={2.5} />
+        <div className="fixed inset-0 z-[99999] pointer-events-none flex items-center justify-center p-4">
+          <div className="bg-slate-900/95 backdrop-blur-2xl border border-slate-700/80 rounded-full p-5 shadow-2xl shadow-black/80 flex items-center justify-center animate-in zoom-in-90 fade-in duration-200">
+            <div className="w-20 h-20 rounded-full border-2 border-emerald-400 bg-emerald-500/20 flex items-center justify-center text-emerald-400 shadow-xl shadow-emerald-500/30">
+              <Check size={44} strokeWidth={4} className="text-emerald-400" />
             </div>
-            <span className="text-[11px] font-bold tracking-wider text-slate-100 uppercase">{successMessage}</span>
           </div>
         </div>,
         document.body
@@ -613,43 +620,102 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
         headerActions={headerActions}
       >
         <form ref={formRef} onSubmit={handleSaveProduct} className="space-y-3.5 max-h-[70vh] overflow-y-auto px-1 scrollbar-hide">
-          {/* Image Upload Section */}
-          <div className="space-y-1.5">
-            <label className="text-[9px] font-extrabold uppercase tracking-wider text-slate-400 ml-1">Product Image</label>
-            <div className="flex items-center gap-3">
-              <div className="w-20 h-20 bg-slate-50 rounded-md border border-slate-200/80 overflow-hidden shrink-0 flex items-center justify-center relative group">
-                {previewImage ? (
-                  <>
-                    <img src={previewImage} alt="Preview" className="w-full h-full object-cover" />
-                    <button 
-                      type="button" 
-                      onClick={handleRemoveImage}
-                      className="absolute top-1 right-1 bg-rose-500 text-white p-1 rounded shadow-md opacity-0 group-hover:opacity-100 transition-all"
-                    >
-                      <X size={11} strokeWidth={3} />
-                    </button>
-                  </>
-                ) : (
-                  <ImageIcon size={20} className="text-slate-300" />
-                )}
-              </div>
-              <div className="flex-1">
-                <button 
-                  type="button" 
-                  onClick={() => fileInputRef.current?.click()}
-                  className="w-full border border-dashed border-slate-200 rounded-md py-4 flex flex-col items-center gap-1 text-slate-400 hover:border-[#01a9fb] hover:text-[#01a9fb] hover:bg-[#01a9fb]/5 transition-all outline-none"
+          {/* Product Images Upload Section (Matching Reference Design) */}
+          <div className="space-y-3">
+            <label className="text-[10px] font-extrabold uppercase tracking-wider text-slate-500 ml-0.5">
+              Product Images
+            </label>
+
+            {/* Main Dropzone / Preview Display */}
+            <div 
+              onClick={() => fileInputRef.current?.click()}
+              className="w-full h-44 sm:h-48 bg-[#f8fbff] hover:bg-[#f0f7ff] border-2 border-dashed border-[#bfdbfe] hover:border-[#01a9fb] rounded-2xl flex flex-col items-center justify-center p-4 text-center cursor-pointer transition-all duration-200 relative group overflow-hidden"
+            >
+              {previewImages.length > 0 ? (
+                <>
+                  <img 
+                    src={previewImages[selectedImagesIndex] || previewImages[0]} 
+                    alt="Active Product Preview" 
+                    className="w-full h-full object-contain"
+                  />
+
+                  {/* Main Delete / Remove active image button */}
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleRemoveImage(selectedImagesIndex);
+                    }}
+                    className="absolute top-2 right-2 bg-rose-600 hover:bg-rose-700 text-white p-1.5 rounded-full shadow-lg z-30 transition-all hover:scale-110"
+                    title="Remove this photo"
+                  >
+                    <Trash2 size={13} strokeWidth={2.5} />
+                  </button>
+
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white backdrop-blur-xs">
+                    <Upload size={22} className="mb-1" strokeWidth={2.5} />
+                    <span className="text-xs font-black uppercase tracking-wider">Click to Add More Photos</span>
+                    <span className="text-[9px] font-medium text-slate-200 mt-0.5">JPG, PNG up to 5MB</span>
+                  </div>
+                </>
+              ) : (
+                <div className="flex flex-col items-center justify-center pointer-events-none">
+                  <div className="w-12 h-12 rounded-full bg-blue-50 text-[#01a9fb] flex items-center justify-center mb-2">
+                    <Upload size={24} strokeWidth={2.2} className="text-[#01a9fb]" />
+                  </div>
+                  <h4 className="text-xs sm:text-sm font-black text-[#01a9fb] tracking-tight">Upload Image</h4>
+                  <p className="text-[10px] sm:text-[11px] font-semibold text-slate-400 mt-0.5">JPG, PNG up to 5MB</p>
+                </div>
+              )}
+            </div>
+
+            {/* Thumbnails Strip & Add Button Row */}
+            <div className="flex items-center gap-2.5 overflow-x-auto pb-1 px-0.5 scrollbar-none">
+              {previewImages.map((img, idx) => (
+                <div 
+                  key={idx} 
+                  onClick={() => setSelectedImagesIndex(idx)}
+                  className={`w-14 h-14 sm:w-16 sm:h-16 rounded-xl bg-white border-2 overflow-hidden relative group shrink-0 cursor-pointer transition-all p-1 flex items-center justify-center ${
+                    selectedImagesIndex === idx 
+                      ? 'border-[#01a9fb] ring-2 ring-[#01a9fb]/30 shadow-xs' 
+                      : 'border-slate-200/90 hover:border-slate-300'
+                  }`}
                 >
-                  <Upload size={16} strokeWidth={2.5} />
-                  <span className="text-[8px] font-extrabold uppercase tracking-wider text-center">Upload Photo <span className="text-slate-300 lowercase font-normal">(Max 5MB)</span></span>
-                </button>
-                <input 
-                  type="file" 
-                  ref={fileInputRef} 
-                  onChange={handleImageChange} 
-                  accept="image/*" 
-                  className="hidden" 
-                />
-              </div>
+                  <img src={img} alt={`Thumb ${idx + 1}`} className="w-full h-full object-contain" />
+                  
+                  {/* Remove Button on thumbnail */}
+                  <button 
+                    type="button" 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleRemoveImage(idx);
+                    }}
+                    className="absolute top-0.5 right-0.5 bg-rose-600 hover:bg-rose-700 text-white w-4 h-4 rounded-full shadow flex items-center justify-center opacity-80 group-hover:opacity-100 transition-all hover:scale-110 z-10"
+                    title="Remove Photo"
+                  >
+                    <X size={10} strokeWidth={3} />
+                  </button>
+                </div>
+              ))}
+
+              {/* Plus Add Button */}
+              <button 
+                type="button" 
+                onClick={() => fileInputRef.current?.click()}
+                className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl border border-slate-200 hover:border-[#01a9fb] bg-white hover:bg-slate-50 flex items-center justify-center text-slate-400 hover:text-[#01a9fb] transition-all shrink-0 cursor-pointer shadow-xs"
+                title="Add More Photos"
+              >
+                <Plus size={20} strokeWidth={2.2} />
+              </button>
+
+              <input 
+                type="file" 
+                ref={fileInputRef} 
+                onChange={handleImageChange} 
+                accept="image/*" 
+                multiple
+                className="hidden" 
+              />
             </div>
           </div>
 
@@ -1042,12 +1108,12 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
             <button 
               type="submit" 
               disabled={isSaving}
-              className={`flex-1 ${isSaving ? 'bg-slate-100 text-slate-400' : 'bg-[#01a9fb] hover:bg-[#0098e6] text-white'} rounded-md font-extrabold uppercase tracking-wider text-[10px] shadow-xs py-2.5 transition-all active:scale-[0.98] flex items-center justify-center gap-2`}
+              className={`flex-1 ${isSaving ? 'bg-[#01a9fb]/80 text-white cursor-wait' : 'bg-[#01a9fb] hover:bg-[#0098e6] text-white'} rounded-md font-extrabold uppercase tracking-wider text-[10px] shadow-xs py-2.5 transition-all active:scale-[0.98] flex items-center justify-center gap-2`}
             >
               {isSaving ? (
                 <>
-                  <RefreshCcw size={14} className="animate-spin" />
-                  <span>{savingStatus || 'Saving...'}</span>
+                  <RefreshCcw size={14} className="animate-spin text-white" />
+                  <span>Saving..</span>
                 </>
               ) : (
                 <>

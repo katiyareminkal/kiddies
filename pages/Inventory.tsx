@@ -10,7 +10,6 @@ import {
   Trash2,
   Package,
   Filter,
-  ChevronRight,
   MoreVertical,
   ShoppingBag,
   RefreshCcw,
@@ -31,9 +30,12 @@ import {
   Sparkles,
   AlertTriangle,
   CheckCircle2,
-  Layers
+  Check,
+  Layers,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
-import { formatCurrency } from '../utils/helpers';
+import { formatCurrency, extractBaseSku } from '../utils/helpers';
 import { CATEGORIES } from '../constants';
 import { Product } from '../types';
 import { auth } from '../firebase';
@@ -60,6 +62,9 @@ const Inventory: React.FC = () => {
   const [downloadingProduct, setDownloadingProduct] = useState<{ product: Product; sizes: string[] } | null>(null);
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
   const [viewProductDetails, setViewProductDetails] = useState<Product | null>(null);
+  const [activeImageIndices, setActiveImageIndices] = useState<Record<string, number>>({});
+  const [detailsActiveImgIndex, setDetailsActiveImgIndex] = useState<number>(0);
+  const [inventorySuccessToast, setInventorySuccessToast] = useState<{ title: string; message: string } | null>(null);
 
   // Filters State
   const [searchTerm, setSearchTerm] = useState('');
@@ -174,17 +179,7 @@ const Inventory: React.FC = () => {
     const groups: Record<string, Product & { variants: Product[] }> = {};
 
     filteredProducts.forEach(p => {
-      let baseSku = p.sku;
-      const matchingSize = p.sizes[0];
-      if (matchingSize && p.sku.endsWith(`-${matchingSize}`)) {
-        baseSku = p.sku.substring(0, p.sku.length - matchingSize.length - 1);
-      } else {
-        const lastDash = p.sku.lastIndexOf('-');
-        if (lastDash > 0) {
-          baseSku = p.sku.substring(0, lastDash);
-        }
-      }
-
+      const baseSku = extractBaseSku(p.sku, p.sizes);
       const key = `${(p.name || '').toLowerCase()}_${(baseSku || '').toLowerCase()}`;
 
       if (!groups[key]) {
@@ -192,6 +187,7 @@ const Inventory: React.FC = () => {
           ...p,
           sku: baseSku,
           sizes: [...(p.sizes || [])],
+          images: p.images !== undefined ? [...p.images] : (p.imageUrl ? [p.imageUrl] : []),
           variants: [p]
         };
       } else {
@@ -455,31 +451,139 @@ const Inventory: React.FC = () => {
             const isLow = totalStock <= (product.minStockAlert || 3) && totalStock > 0;
             const isOut = totalStock === 0;
 
+            const productImages = (product.images && product.images.length > 0)
+              ? product.images
+              : product.imageUrl
+                ? [product.imageUrl]
+                : [];
+
+            const currentImgIdx = activeImageIndices[product.id] || 0;
+            const activeImage = productImages[currentImgIdx] || product.imageUrl;
+
+            const handlePrevImg = (e: React.MouseEvent) => {
+              e.stopPropagation();
+              setActiveImageIndices(prev => ({
+                ...prev,
+                [product.id]: (currentImgIdx - 1 + productImages.length) % productImages.length
+              }));
+            };
+
+            const handleNextImg = (e: React.MouseEvent) => {
+              e.stopPropagation();
+              setActiveImageIndices(prev => ({
+                ...prev,
+                [product.id]: (currentImgIdx + 1) % productImages.length
+              }));
+            };
+
             return (
               <div
                 key={product.id}
-                onClick={() => setViewProductDetails(product)}
-                className="bg-white rounded-md border border-slate-200/90 p-2.5 sm:p-3 transition-all duration-200 flex flex-col justify-between group cursor-pointer hover:border-[#01a9fb]/60"
+                onClick={() => {
+                  setDetailsActiveImgIndex(0);
+                  setViewProductDetails(product);
+                }}
+                className="bg-white rounded-xl border border-slate-200/90 p-2.5 sm:p-3 transition-all duration-200 flex flex-col justify-between group cursor-pointer hover:border-[#01a9fb]/60 hover:shadow-md"
               >
                 <div>
-                  {/* Image Container */}
-                  <div className="h-28 sm:h-32 bg-slate-50 rounded-md relative overflow-hidden flex items-center justify-center border border-slate-100 mb-2">
-                    {product.imageUrl ? (
-                      <img
-                        src={product.imageUrl}
-                        alt={product.name}
-                        className="w-full h-full object-contain p-1.5 group-hover:scale-105 transition-transform duration-300"
-                        referrerPolicy="no-referrer"
-                      />
+                  {/* Direct Swipeable / Sliding Image Carousel Container */}
+                  <div 
+                    className="h-32 sm:h-36 bg-slate-50 rounded-xl relative overflow-hidden flex items-center justify-center border border-slate-100 mb-2 group/img select-none"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {productImages.length > 0 ? (
+                      <div 
+                        className="w-full h-full flex overflow-x-auto snap-x snap-mandatory scrollbar-none scroll-smooth"
+                        onScroll={(e) => {
+                          const target = e.currentTarget;
+                          const index = Math.round(target.scrollLeft / target.clientWidth);
+                          if (index !== currentImgIdx && index >= 0 && index < productImages.length) {
+                            setActiveImageIndices(prev => ({ ...prev, [product.id]: index }));
+                          }
+                        }}
+                      >
+                        {productImages.map((img, idx) => (
+                          <div 
+                            key={idx} 
+                            className="w-full h-full shrink-0 snap-center flex items-center justify-center p-1.5 cursor-pointer"
+                            onClick={() => {
+                              setDetailsActiveImgIndex(idx);
+                              setViewProductDetails(product);
+                            }}
+                          >
+                            <img
+                              src={img}
+                              alt={`${product.name} - ${idx + 1}`}
+                              className="w-full h-full object-contain pointer-events-none transition-transform duration-300 group-hover/img:scale-105"
+                              referrerPolicy="no-referrer"
+                            />
+                          </div>
+                        ))}
+                      </div>
                     ) : (
-                      <div className="text-slate-300 group-hover:text-[#01a9fb] transition-colors">
-                        <Package size={28} strokeWidth={1.5} />
+                      <div 
+                        className="text-slate-300 group-hover:text-[#01a9fb] transition-colors cursor-pointer w-full h-full flex items-center justify-center"
+                        onClick={() => {
+                          setDetailsActiveImgIndex(0);
+                          setViewProductDetails(product);
+                        }}
+                      >
+                        <Package size={32} strokeWidth={1.5} />
                       </div>
                     )}
 
+                    {/* Navigation Prev/Next Arrows (visible on hover / multiple images) */}
+                    {productImages.length > 1 && (
+                      <>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handlePrevImg(e);
+                          }}
+                          className="absolute left-1.5 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-black/60 hover:bg-black/90 text-white flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity z-20 shadow-sm"
+                          title="Previous Image"
+                        >
+                          <ChevronLeft size={13} strokeWidth={3} />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleNextImg(e);
+                          }}
+                          className="absolute right-1.5 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-black/60 hover:bg-black/90 text-white flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity z-20 shadow-sm"
+                          title="Next Image"
+                        >
+                          <ChevronRight size={13} strokeWidth={3} />
+                        </button>
+
+                        {/* Interactive Slide Dots Indicator at Bottom */}
+                        <div className="absolute bottom-1.5 inset-x-0 flex items-center justify-center gap-1 z-20 pointer-events-auto">
+                          <div className="bg-black/50 backdrop-blur-xs px-2 py-0.5 rounded-full flex items-center gap-1">
+                            {productImages.map((_, idx) => (
+                              <button
+                                key={idx}
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setActiveImageIndices(prev => ({ ...prev, [product.id]: idx }));
+                                }}
+                                className={`rounded-full transition-all ${
+                                  currentImgIdx === idx 
+                                    ? 'w-3 h-1.5 bg-[#01a9fb]' 
+                                    : 'w-1.5 h-1.5 bg-white/60 hover:bg-white'
+                                }`}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      </>
+                    )}
+
                     {/* Purpose Badge */}
-                    <div className="absolute bottom-1 left-1">
-                      <span className={`text-[8px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded ${product.purpose === 'SALE'
+                    <div className="absolute top-1.5 left-1.5 z-20">
+                      <span className={`text-[8px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md shadow-xs ${product.purpose === 'SALE'
                         ? 'bg-emerald-600 text-white'
                         : product.purpose === 'RENTAL'
                           ? 'bg-[#fe569f] text-white'
@@ -491,12 +595,12 @@ const Inventory: React.FC = () => {
 
                     {/* Stock Alert Badge */}
                     {isOut && (
-                      <div className="absolute top-1 right-1 bg-rose-600 text-white text-[7.5px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded">
+                      <div className="absolute top-1.5 right-1.5 bg-rose-600 text-white text-[8px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md shadow-xs z-20">
                         Out
                       </div>
                     )}
                     {isLow && (
-                      <div className="absolute top-1 right-1 bg-yellow-400 text-yellow-950 text-[7.5px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded">
+                      <div className="absolute top-1.5 right-1.5 bg-amber-400 text-amber-950 text-[8px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md shadow-xs z-20">
                         Low
                       </div>
                     )}
@@ -505,23 +609,23 @@ const Inventory: React.FC = () => {
                   {/* Category & Sizes */}
                   <div className="flex items-center justify-between text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">
                     <span className="truncate">{product.category}</span>
-                    <span className="bg-slate-100 px-1 py-0.2 rounded text-slate-600 font-extrabold shrink-0">
-                      {product.sizes.length} {product.sizes.length === 1 ? 'Sz' : 'Szs'}
+                    <span className="bg-slate-100 px-1.5 py-0.2 rounded text-slate-600 font-extrabold shrink-0 text-[8px]">
+                      {product.sizes.length} {product.sizes.length === 1 ? 'Size' : 'Sizes'}
                     </span>
                   </div>
 
                   {/* Title */}
-                  <h4 className="text-xs font-black text-slate-900 truncate group-hover:text-[#01a9fb] transition-colors" title={product.name}>
+                  <h4 className="text-xs font-extrabold text-slate-900 truncate group-hover:text-[#01a9fb] transition-colors leading-tight" title={product.name}>
                     {product.name}
                   </h4>
                   <p className="text-[9px] text-slate-400 font-mono mt-0.5 truncate">{product.sku}</p>
 
-                  {/* Price and Stock */}
+                  {/* Price and Stock Strip */}
                   <div className="flex items-baseline justify-between mt-2 pt-1.5 border-t border-slate-100">
                     <span className="text-xs sm:text-sm font-black text-slate-900 font-mono">
                       {formatCurrency(product.sellingPrice)}
                     </span>
-                    <span className={`text-[10px] sm:text-[11px] font-extrabold font-mono ${isOut ? 'text-rose-600' : isLow ? 'text-yellow-700' : 'text-slate-700'}`}>
+                    <span className={`text-[10px] sm:text-[11px] font-extrabold font-mono ${isOut ? 'text-rose-600 font-black' : isLow ? 'text-amber-700 font-black' : 'text-slate-700'}`}>
                       {totalStock} pcs
                     </span>
                   </div>
@@ -533,12 +637,13 @@ const Inventory: React.FC = () => {
                     type="button"
                     onClick={(e) => {
                       e.stopPropagation();
+                      setDetailsActiveImgIndex(0);
                       setViewProductDetails(product);
                     }}
-                    className="flex-1 py-1 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded text-slate-600 flex items-center justify-center transition-all"
+                    className="flex-1 py-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-md text-slate-600 flex items-center justify-center transition-all hover:text-[#01a9fb]"
                     title="View Details"
                   >
-                    <Eye size={12} strokeWidth={2.2} />
+                    <Eye size={13} strokeWidth={2.2} />
                   </button>
                   <button
                     type="button"
@@ -547,10 +652,10 @@ const Inventory: React.FC = () => {
                       setProductToEdit(product);
                       setIsProductModalOpen(true);
                     }}
-                    className="flex-1 py-1 bg-slate-900 hover:bg-slate-800 text-white rounded flex items-center justify-center transition-all"
+                    className="flex-1 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-md flex items-center justify-center transition-all shadow-xs"
                     title="Edit SKU"
                   >
-                    <Edit2 size={12} strokeWidth={2.2} />
+                    <Edit2 size={13} strokeWidth={2.2} />
                   </button>
                   <button
                     type="button"
@@ -558,10 +663,10 @@ const Inventory: React.FC = () => {
                       e.stopPropagation();
                       handleTagClick(product);
                     }}
-                    className="flex-1 py-1 bg-[#fe569f]/10 hover:bg-[#fe569f]/20 text-[#fe569f] border border-[#fe569f]/30 rounded flex items-center justify-center transition-all"
+                    className="flex-1 py-1.5 bg-[#fe569f]/10 hover:bg-[#fe569f]/20 text-[#fe569f] border border-[#fe569f]/30 rounded-md flex items-center justify-center transition-all"
                     title="Print Price Tags"
                   >
-                    <Tag size={12} strokeWidth={2.2} />
+                    <Tag size={13} strokeWidth={2.2} />
                   </button>
                   {settings?.enableDeleteInventory && (
                     <button
@@ -572,10 +677,10 @@ const Inventory: React.FC = () => {
                           deleteProduct(product.id);
                         }
                       }}
-                      className="flex-1 py-1 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 rounded flex items-center justify-center transition-all"
+                      className="flex-1 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 rounded-md flex items-center justify-center transition-all"
                       title="Delete Product"
                     >
-                      <Trash2 size={12} strokeWidth={2.2} />
+                      <Trash2 size={13} strokeWidth={2.2} />
                     </button>
                   )}
                 </div>
@@ -721,7 +826,32 @@ const Inventory: React.FC = () => {
       )}
 
       {/* ── Modals & Drawers ── */}
-      <ProductFormModal isOpen={isProductModalOpen} onClose={() => setIsProductModalOpen(false)} productToEdit={productToEdit} />
+      <ProductFormModal 
+        isOpen={isProductModalOpen} 
+        onClose={() => {
+          setIsProductModalOpen(false);
+          setProductToEdit(null);
+        }} 
+        productToEdit={productToEdit} 
+        onSaveSuccess={(title, message) => {
+          setInventorySuccessToast({ title, message });
+          setTimeout(() => {
+            setInventorySuccessToast(null);
+          }, 1000);
+        }}
+      />
+
+      {/* Global Centered Success Toast (Tick Icon Only for 1 Sec) */}
+      {inventorySuccessToast && createPortal(
+        <div className="fixed inset-0 z-[99999] pointer-events-none flex items-center justify-center p-4">
+          <div className="bg-slate-900/95 backdrop-blur-2xl border border-slate-700/80 rounded-full p-5 shadow-2xl shadow-black/80 flex items-center justify-center animate-in zoom-in-90 fade-in duration-200">
+            <div className="w-20 h-20 rounded-full border-2 border-emerald-400 bg-emerald-500/20 flex items-center justify-center text-emerald-400 shadow-xl shadow-emerald-500/30">
+              <Check size={44} strokeWidth={4} className="text-emerald-400" />
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
 
       <StockEntryModal
         isOpen={isStockModalOpen}
@@ -773,14 +903,74 @@ const Inventory: React.FC = () => {
         >
           <div className="space-y-5 animate-nano max-h-[80vh] overflow-y-auto pr-1">
             <div className="flex flex-col sm:flex-row gap-5">
-              {/* Product Image */}
-              <div className="w-full sm:w-48 h-48 bg-slate-50 border border-slate-200 rounded-lg overflow-hidden shrink-0 flex items-center justify-center relative">
-                {viewProductDetails.imageUrl ? (
-                  <img src={viewProductDetails.imageUrl} alt={viewProductDetails.name} className="w-full h-full object-contain p-2" />
-                ) : (
-                  <Package size={48} className="text-slate-300" />
-                )}
-              </div>
+              {/* Product Multi-Image Gallery Viewer */}
+              {(() => {
+                const detailImages = (viewProductDetails.images && viewProductDetails.images.length > 0)
+                  ? viewProductDetails.images
+                  : viewProductDetails.imageUrl
+                    ? [viewProductDetails.imageUrl]
+                    : [];
+                const activeDetailImg = detailImages[detailsActiveImgIndex] || viewProductDetails.imageUrl;
+
+                return (
+                  <div className="w-full sm:w-56 shrink-0 space-y-2">
+                    <div className="w-full h-52 bg-slate-50 border border-slate-200 rounded-xl overflow-hidden flex items-center justify-center relative group">
+                      {activeDetailImg ? (
+                        <img 
+                          src={activeDetailImg} 
+                          alt={viewProductDetails.name} 
+                          className="w-full h-full object-contain p-2 cursor-zoom-in hover:scale-105 transition-transform" 
+                          onClick={() => setLightboxImage(activeDetailImg)}
+                        />
+                      ) : (
+                        <Package size={48} className="text-slate-300" />
+                      )}
+
+                      {detailImages.length > 1 && (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => setDetailsActiveImgIndex((detailsActiveImgIndex - 1 + detailImages.length) % detailImages.length)}
+                            className="absolute left-1.5 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-black/60 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <ChevronLeft size={14} strokeWidth={2.5} />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setDetailsActiveImgIndex((detailsActiveImgIndex + 1) % detailImages.length)}
+                            className="absolute right-1.5 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-black/60 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <ChevronRight size={14} strokeWidth={2.5} />
+                          </button>
+                          <div className="absolute bottom-2 right-2 bg-black/60 text-white text-[9px] font-black px-2 py-0.5 rounded-full">
+                            {detailsActiveImgIndex + 1} / {detailImages.length}
+                          </div>
+                        </>
+                      )}
+                    </div>
+
+                    {/* Thumbnails row */}
+                    {detailImages.length > 1 && (
+                      <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
+                        {detailImages.map((img, idx) => (
+                          <button
+                            key={idx}
+                            type="button"
+                            onClick={() => setDetailsActiveImgIndex(idx)}
+                            className={`w-10 h-10 rounded-lg border-2 overflow-hidden shrink-0 transition-all ${
+                              detailsActiveImgIndex === idx 
+                                ? 'border-[#01a9fb] ring-2 ring-[#01a9fb]/30 shadow-xs' 
+                                : 'border-slate-200 opacity-60 hover:opacity-100'
+                            }`}
+                          >
+                            <img src={img} alt="thumb" className="w-full h-full object-cover" />
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
 
               {/* Core Details */}
               <div className="flex-1 space-y-3">

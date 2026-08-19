@@ -61,7 +61,7 @@ const Rentals: React.FC = () => {
 
   // Filters
   const [searchTerm, setSearchTerm] = useState('');
-  const [activeTab, setActiveTab] = useState<'ACTIVE' | 'OVERDUE' | 'RETURNED'>('ACTIVE');
+  const [activeTab, setActiveTab] = useState<'ALL' | 'ACTIVE' | 'DUE_TODAY' | 'OVERDUE' | 'RETURNED'>('ALL');
   const [showFilters, setShowFilters] = useState(false);
   const [filterStartDate, setFilterStartDate] = useState('');
   const [filterEndDate, setFilterEndDate] = useState('');
@@ -115,13 +115,18 @@ const Rentals: React.FC = () => {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       const returnDate = parseISO(r.expectedReturnDate);
+      returnDate.setHours(0, 0, 0, 0);
       const startDate = parseISO(r.startDate);
+      
+      const isDueToday = isSameDay(returnDate, today) && r.status === RentalStatus.ACTIVE;
       const isOverdue = isBefore(returnDate, today) && r.status === RentalStatus.ACTIVE;
+      const isActive = isAfter(returnDate, today) && r.status === RentalStatus.ACTIVE;
 
       // Tab Filtering
       let matchesTab = true;
-      if (activeTab === 'ACTIVE') matchesTab = r.status === 'ACTIVE' && !isOverdue;
-      else if (activeTab === 'OVERDUE') matchesTab = r.status === 'ACTIVE' && isOverdue;
+      if (activeTab === 'ACTIVE') matchesTab = isActive;
+      else if (activeTab === 'DUE_TODAY') matchesTab = isDueToday;
+      else if (activeTab === 'OVERDUE') matchesTab = isOverdue;
       else if (activeTab === 'RETURNED') matchesTab = r.status === 'RETURNED';
 
       // Advanced Filtering
@@ -146,10 +151,31 @@ const Rentals: React.FC = () => {
     return percentage;
   };
 
-  // KPIs
-  const activeCount = rentals.filter(r => r.status === 'ACTIVE').length;
-  const overdueCount = rentals.filter(r => r.status === 'ACTIVE' && isBefore(parseISO(r.expectedReturnDate), new Date())).length;
-  const returnsDueToday = rentals.filter(r => r.status === 'ACTIVE' && isSameDay(parseISO(r.expectedReturnDate), new Date())).length;
+  // KPIs & Counts
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const allCount = rentals.length;
+  const activeCount = rentals.filter(r => {
+    const d = parseISO(r.expectedReturnDate);
+    d.setHours(0, 0, 0, 0);
+    return r.status === 'ACTIVE' && isAfter(d, today);
+  }).length;
+
+  const dueTodayCount = rentals.filter(r => {
+    const d = parseISO(r.expectedReturnDate);
+    d.setHours(0, 0, 0, 0);
+    return r.status === 'ACTIVE' && isSameDay(d, today);
+  }).length;
+
+  const overdueCount = rentals.filter(r => {
+    const d = parseISO(r.expectedReturnDate);
+    d.setHours(0, 0, 0, 0);
+    return r.status === 'ACTIVE' && isBefore(d, today);
+  }).length;
+
+  const returnedCount = rentals.filter(r => r.status === 'RETURNED').length;
+
   const activeDeposits = rentals
     .filter(r => r.status === 'ACTIVE')
     .reduce((acc, r) => acc + (r.securityDeposit || 0), 0);
@@ -166,7 +192,7 @@ const Rentals: React.FC = () => {
             <div className="flex items-center gap-2">
               <h1 className="text-lg sm:text-xl font-extrabold text-slate-900 tracking-tight">Rentals Desk</h1>
               <span className="text-[10px] font-extrabold text-[#fe569f] bg-[#fe569f]/10 border border-[#fe569f]/30 px-2 py-0.5 rounded-md">
-                {activeCount} Active Leases
+                {activeCount + dueTodayCount} Active Leases
               </span>
             </div>
             <p className="text-xs text-slate-500 font-medium mt-0.5">Manage garment rentals, return schedules, and security deposits</p>
@@ -192,13 +218,32 @@ const Rentals: React.FC = () => {
             }`}
         >
           <div className="flex items-center justify-between mb-1.5">
-            <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-500 whitespace-nowrap">Active Rentals</span>
+            <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-500 whitespace-nowrap">Active (Upcoming)</span>
             <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-md bg-[#fe569f]/10 text-[#fe569f] flex items-center justify-center font-bold text-xs shrink-0">
               <Calendar size={13} />
             </div>
           </div>
           <h3 className="text-lg sm:text-2xl font-black text-slate-900 tracking-tight leading-none whitespace-nowrap truncate">{activeCount}</h3>
-          <p className="text-[10px] sm:text-[11px] font-bold text-[#fe569f] mt-1.5 whitespace-nowrap truncate">Currently out on lease</p>
+          <p className="text-[10px] sm:text-[11px] font-bold text-[#fe569f] mt-1.5 whitespace-nowrap truncate">On schedule</p>
+        </div>
+
+        <div
+          onClick={() => setActiveTab('DUE_TODAY')}
+          className={`p-3 sm:p-4 rounded-md border transition-all duration-200 cursor-pointer ${activeTab === 'DUE_TODAY'
+            ? 'bg-amber-50 border-amber-300'
+            : dueTodayCount > 0
+              ? 'bg-amber-50/40 border-amber-200 hover:border-amber-300'
+              : 'bg-white hover:bg-slate-50/60 border-slate-200/80 hover:border-amber-200'
+            }`}
+        >
+          <div className="flex items-center justify-between mb-1.5">
+            <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-amber-700 whitespace-nowrap">Due Today</span>
+            <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-md bg-amber-100 text-amber-800 flex items-center justify-center font-bold text-xs shrink-0">
+              <Clock size={13} />
+            </div>
+          </div>
+          <h3 className="text-lg sm:text-2xl font-black text-slate-900 tracking-tight leading-none whitespace-nowrap truncate">{dueTodayCount}</h3>
+          <p className="text-[10px] sm:text-[11px] font-bold text-amber-700 mt-1.5 whitespace-nowrap truncate">Expected return today</p>
         </div>
 
         <div
@@ -218,19 +263,8 @@ const Rentals: React.FC = () => {
           </div>
           <h3 className={`text-lg sm:text-2xl font-black tracking-tight leading-none whitespace-nowrap truncate ${overdueCount > 0 ? 'text-rose-600' : 'text-slate-900'}`}>{overdueCount}</h3>
           <p className={`text-[10px] sm:text-[11px] font-bold mt-1.5 whitespace-nowrap truncate ${overdueCount > 0 ? 'text-rose-600' : 'text-slate-400'}`}>
-            {overdueCount > 0 ? 'Action required' : 'No overdue items'}
+            {overdueCount > 0 ? 'Late / Action required' : 'No overdue items'}
           </p>
-        </div>
-
-        <div className="bg-white hover:bg-slate-50/60 p-3 sm:p-4 rounded-md border border-slate-200/80 hover:border-yellow-300 transition-all">
-          <div className="flex items-center justify-between mb-1.5">
-            <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-500 whitespace-nowrap">Due Today</span>
-            <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-md bg-yellow-100 text-yellow-800 flex items-center justify-center font-bold text-xs shrink-0">
-              <Clock size={13} />
-            </div>
-          </div>
-          <h3 className="text-lg sm:text-2xl font-black text-slate-900 tracking-tight leading-none whitespace-nowrap truncate">{returnsDueToday}</h3>
-          <p className="text-[10px] sm:text-[11px] font-bold text-yellow-700 mt-1.5 whitespace-nowrap truncate">Expected return today</p>
         </div>
 
         <div className="bg-white hover:bg-slate-50/60 p-3 sm:p-4 rounded-md border border-slate-200/80 hover:border-[#01a9fb]/50 transition-all">
@@ -248,18 +282,34 @@ const Rentals: React.FC = () => {
       {/* ── Toolbar: Status Tabs + Search + Filters + View Toggle ── */}
       <div className="flex flex-col gap-3">
         <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
-          {/* Status Tabs */}
-          <div className="inline-flex bg-slate-100/90 p-1 rounded-md border border-slate-200/70 shrink-0">
-            {(['ACTIVE', 'OVERDUE', 'RETURNED'] as const).map(tab => (
+          {/* Status Tabs: ALL, ACTIVE, DUE TODAY, OVERDUE, RETURNED */}
+          <div className="grid grid-cols-5 sm:inline-flex bg-slate-100/90 p-1 rounded-lg border border-slate-200/70 shrink-0 gap-0.5 sm:gap-1">
+            {[
+              { id: 'ALL' as const, label: 'All', count: allCount },
+              { id: 'ACTIVE' as const, label: 'Active', count: activeCount },
+              { id: 'DUE_TODAY' as const, label: 'Due', count: dueTodayCount, fullLabel: 'Due Today' },
+              { id: 'OVERDUE' as const, label: 'Overdue', count: overdueCount },
+              { id: 'RETURNED' as const, label: 'Returned', count: returnedCount, shortLabel: 'Done' },
+            ].map(tab => (
               <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`px-4 py-1.5 rounded text-xs font-bold transition-all ${activeTab === tab
-                  ? 'bg-[#fe569f] text-white shadow-xs font-extrabold'
-                  : 'text-slate-500 hover:text-slate-900 hover:bg-slate-200/50'
-                  }`}
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`py-1.5 px-1 sm:px-3 rounded-md text-[11px] sm:text-xs font-extrabold transition-all flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1.5 text-center leading-none ${
+                  activeTab === tab.id
+                    ? 'bg-[#fe569f] text-white shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+                }`}
+                title={tab.fullLabel || tab.label}
               >
-                {tab === 'ACTIVE' ? 'Active' : tab === 'OVERDUE' ? 'Overdue' : 'Returned'}
+                <span className="truncate">
+                  <span className="sm:hidden">{tab.shortLabel || tab.label}</span>
+                  <span className="hidden sm:inline">{tab.fullLabel || tab.label}</span>
+                </span>
+                <span className={`px-1 py-0.5 rounded text-[9px] font-black leading-none ${
+                  activeTab === tab.id ? 'bg-white/25 text-white' : 'bg-slate-200/80 text-slate-700'
+                }`}>
+                  {tab.count}
+                </span>
               </button>
             ))}
           </div>
@@ -400,109 +450,135 @@ const Rentals: React.FC = () => {
               const customer = customers.find(c => c.id === rental.customerId);
               const product = products.find(p => p.id === rental.productId);
               const progress = getProgress(rental.startDate, rental.expectedReturnDate);
-              const isLate = activeTab === 'OVERDUE';
+              
+              const itemReturnDate = parseISO(rental.expectedReturnDate);
+              itemReturnDate.setHours(0, 0, 0, 0);
+              const isItemDueToday = isSameDay(itemReturnDate, today) && rental.status === RentalStatus.ACTIVE;
+              const isItemLate = isBefore(itemReturnDate, today) && rental.status === RentalStatus.ACTIVE;
               const netRefundable = Math.max(0, (rental.securityDeposit || 0) - (rental.totalRentAmount || 0));
 
               return (
                 <div
                   key={rental.id}
-                  className={`bg-white rounded-md border p-2.5 sm:p-3.5 transition-all duration-200 flex flex-col justify-between group ${isLate ? 'border-rose-300' : 'border-slate-200/90 hover:border-[#fe569f]/60'
-                    }`}
+                  className={`bg-white rounded-xl border p-3 sm:p-3.5 transition-all duration-200 flex flex-col justify-between group hover:border-[#fe569f]/50 hover:shadow-md ${
+                    isItemLate ? 'border-rose-300' : isItemDueToday ? 'border-amber-300' : 'border-slate-200/90'
+                  }`}
                 >
-                  <div>
-                    {/* Header: Initial & Amount */}
-                    <div className="flex items-start justify-between gap-1.5 mb-2">
+                  <div className="space-y-2.5">
+                    {/* Top Row: Customer Info + Micro Status Indicator */}
+                    <div className="flex items-center justify-between gap-1 pb-1.5 border-b border-slate-100">
                       <div className="flex items-center gap-1.5 min-w-0 flex-1">
-                        <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-md bg-[#fe569f]/10 text-[#fe569f] group-hover:bg-[#fe569f] group-hover:text-white transition-colors flex items-center justify-center font-extrabold text-xs shrink-0">
+                        <div className="w-6 h-6 rounded-md bg-[#fe569f]/10 text-[#fe569f] font-black text-[11px] flex items-center justify-center shrink-0">
                           {(customer?.name || 'C').charAt(0).toUpperCase()}
                         </div>
                         <div className="min-w-0 flex-1">
-                          <h4 className="font-black text-xs text-slate-900 truncate leading-tight group-hover:text-[#fe569f] transition-colors">
+                          <h4 className="font-extrabold text-xs text-slate-900 leading-tight truncate">
                             {customer?.name || 'Customer'}
                           </h4>
-                          <p className="text-[9px] sm:text-[10px] text-slate-400 font-mono truncate leading-none mt-0.5">{rental.invoiceNumber}</p>
+                          <p className="text-[9px] text-slate-400 font-mono leading-none mt-0.5">{rental.invoiceNumber}</p>
                         </div>
+                      </div>
+
+                      {/* Micro Status Indicator Badge */}
+                      <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[8px] font-extrabold uppercase tracking-tight whitespace-nowrap shrink-0 ${
+                        rental.status === 'RETURNED'
+                          ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/80'
+                          : isItemLate
+                            ? 'bg-rose-50 text-rose-700 border border-rose-200/80'
+                            : isItemDueToday
+                              ? 'bg-amber-50 text-amber-800 border border-amber-300/80'
+                              : 'bg-pink-50 text-[#fe569f] border border-[#fe569f]/20'
+                      }`}>
+                        <span className={`w-1 h-1 rounded-full ${
+                          rental.status === 'RETURNED' 
+                            ? 'bg-emerald-500' 
+                            : isItemLate 
+                              ? 'bg-rose-500 animate-pulse' 
+                              : isItemDueToday 
+                                ? 'bg-amber-500' 
+                                : 'bg-[#fe569f]'
+                        }`}></span>
+                        <span>
+                          {rental.status === 'RETURNED' 
+                            ? 'Returned' 
+                            : isItemLate 
+                              ? 'Overdue' 
+                              : isItemDueToday 
+                                ? 'Due' 
+                                : 'Active'}
+                        </span>
+                      </span>
+                    </div>
+
+                    {/* Product & Rent Amount */}
+                    <div className="bg-slate-50/90 px-2 py-1.5 rounded-lg border border-slate-100">
+                      <div className="flex items-center justify-between gap-1.5">
+                        <span className="text-[11px] font-bold text-slate-800 break-words flex-1 leading-snug">
+                          {product?.name || 'Garment Item'}
+                        </span>
+                        <span className="text-xs font-black text-slate-900 font-mono whitespace-nowrap shrink-0">
+                          {formatCurrency(rental.totalRentAmount)}
+                        </span>
                       </div>
                     </div>
 
-                    {/* Product Name Pill */}
-                    <div className="mb-2 bg-slate-50/80 px-2 py-1 rounded border border-slate-100 flex items-center justify-between gap-1">
-                      <span className="text-[10px] font-bold text-slate-800 truncate">
-                        {product?.name || 'Garment Item'}
-                      </span>
-                      <span className="text-xs sm:text-sm font-black text-slate-900 font-mono whitespace-nowrap">
-                        {formatCurrency(rental.totalRentAmount)}
-                      </span>
-                    </div>
-
-                    {/* Due Date & Deposit */}
-                    <div className="space-y-1 my-2 bg-slate-50/70 p-2 rounded-md border border-slate-100 text-[9px] sm:text-[10px]">
-                      <div className="flex justify-between items-center font-bold">
-                        <span className="text-slate-500 uppercase tracking-wider text-[8px] sm:text-[9px]">Due Date</span>
-                        <span className={`font-mono font-extrabold whitespace-nowrap ${isLate ? 'text-rose-600' : 'text-slate-800'}`}>
+                    {/* Due Date & Deposit Section */}
+                    <div className="space-y-1 bg-slate-50/70 p-2 rounded-lg border border-slate-100/90 text-[10px]">
+                      <div className="flex items-center justify-between gap-1 text-[9px] sm:text-[10px]">
+                        <span className="text-slate-400 uppercase tracking-wider text-[8px] sm:text-[9px] font-bold shrink-0">Due</span>
+                        <span className={`font-mono font-extrabold whitespace-nowrap ${isItemLate ? 'text-rose-600' : isItemDueToday ? 'text-amber-700' : 'text-slate-800'}`}>
                           {format(parseISO(rental.expectedReturnDate), 'dd MMM yyyy')}
                         </span>
                       </div>
-                      <div className="flex justify-between items-center font-bold">
-                        <span className="text-slate-400 uppercase tracking-wider text-[8px] sm:text-[9px]">Deposit</span>
-                        <span className="text-slate-700 font-mono">{formatCurrency(rental.securityDeposit)}</span>
+
+                      <div className="flex items-center justify-between gap-1 text-[9px] sm:text-[10px]">
+                        <span className="text-slate-400 uppercase tracking-wider text-[8px] sm:text-[9px] font-bold shrink-0">Deposit</span>
+                        <span className="font-mono font-extrabold text-slate-700 whitespace-nowrap">
+                          {formatCurrency(rental.securityDeposit)}
+                        </span>
                       </div>
-                      <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden mt-1">
-                        <div
-                          className={`h-full rounded-full transition-all duration-700 ${rental.status === 'RETURNED'
-                            ? 'bg-emerald-500'
-                            : isLate
-                              ? 'bg-rose-500 animate-pulse'
-                              : progress > 80
-                                ? 'bg-yellow-400'
-                                : 'bg-[#fe569f]'
+
+                      {/* Progress Bar */}
+                      <div className="pt-0.5">
+                        <div className="w-full h-1 bg-slate-200 rounded-full overflow-hidden">
+                          <div
+                            className={`h-full rounded-full transition-all duration-500 ${
+                              rental.status === 'RETURNED'
+                                ? 'bg-emerald-500'
+                                : isItemLate
+                                  ? 'bg-rose-500'
+                                  : progress > 80
+                                    ? 'bg-amber-400'
+                                    : 'bg-[#fe569f]'
                             }`}
-                          style={{ width: rental.status === 'RETURNED' ? '100%' : `${progress}%` }}
-                        />
+                            style={{ width: rental.status === 'RETURNED' ? '100%' : `${progress}%` }}
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>
 
                   {/* Card Footer Actions */}
-                  <div className="flex items-center justify-between pt-2 mt-1 border-t border-slate-100 gap-1">
-                    <span className={`inline-flex items-center gap-1 px-1.5 py-0.2 rounded text-[9px] font-black uppercase tracking-wider whitespace-nowrap ${rental.status === 'RETURNED'
-                      ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                      : isLate
-                        ? 'bg-rose-50 text-rose-700 border border-rose-200'
-                        : 'bg-[#fe569f]/10 text-[#fe569f] border border-[#fe569f]/30'
-                      }`}>
-                      <span className={`w-1 h-1 rounded-full ${rental.status === 'RETURNED' ? 'bg-emerald-500' : isLate ? 'bg-rose-500' : 'bg-[#fe569f]'}`}></span>
-                      {rental.status === 'RETURNED' ? 'Returned' : isLate ? 'Overdue' : 'Active'}
-                    </span>
-
+                  <div className="flex items-center justify-between pt-2.5 mt-2 border-t border-slate-100">
                     <div className="flex items-center gap-1">
                       {rental.status === 'ACTIVE' && (
-                        <>
-                          <button
-                            type="button"
-                            onClick={() => openExtend(rental)}
-                            className="p-1 text-slate-400 hover:text-[#01a9fb] hover:bg-[#01a9fb]/10 rounded transition-colors"
-                            title="Extend Lease"
-                          >
-                            <CalendarDays size={12} strokeWidth={2.2} />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => { setSelectedRental(rental); setIsCheckInModalOpen(true); }}
-                            className="px-2 py-0.5 bg-[#fe569f] hover:bg-[#eb4890] text-white rounded text-[9px] font-black uppercase tracking-wider transition-all shadow-xs"
-                          >
-                            Return
-                          </button>
-                        </>
+                        <button
+                          type="button"
+                          onClick={() => openExtend(rental)}
+                          className="p-1.5 text-slate-500 hover:text-[#01a9fb] hover:bg-[#01a9fb]/10 rounded-md transition-colors"
+                          title="Extend Lease"
+                        >
+                          <CalendarDays size={14} strokeWidth={2.2} />
+                        </button>
                       )}
 
                       <button
                         type="button"
                         onClick={() => openEdit(rental)}
-                        className="p-1 text-slate-400 hover:text-[#fe569f] hover:bg-[#fe569f]/10 rounded transition-colors"
+                        className="p-1.5 text-slate-500 hover:text-[#fe569f] hover:bg-[#fe569f]/10 rounded-md transition-colors"
                         title="Edit Booking"
                       >
-                        <Pencil size={12} strokeWidth={2.2} />
+                        <Pencil size={14} strokeWidth={2.2} />
                       </button>
 
                       {(settings?.enableDeleteRentals || settings?.enableDeleteTransactions) && (
@@ -513,13 +589,23 @@ const Rentals: React.FC = () => {
                               deleteRental(rental.id);
                             }
                           }}
-                          className="p-1 text-slate-300 hover:text-rose-600 hover:bg-rose-50 rounded transition-colors"
+                          className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-md transition-colors"
                           title="Delete Booking"
                         >
-                          <Trash2 size={12} />
+                          <Trash2 size={14} strokeWidth={2.2} />
                         </button>
                       )}
                     </div>
+
+                    {rental.status === 'ACTIVE' && (
+                      <button
+                        type="button"
+                        onClick={() => { setSelectedRental(rental); setIsCheckInModalOpen(true); }}
+                        className="px-3 py-1 bg-[#fe569f] hover:bg-[#eb4890] active:scale-95 text-white rounded-md text-[10px] font-black uppercase tracking-wider transition-all shadow-xs"
+                      >
+                        Return
+                      </button>
+                    )}
                   </div>
                 </div>
               );
@@ -544,7 +630,11 @@ const Rentals: React.FC = () => {
                   {filteredRentals.map(rental => {
                     const customer = customers.find(c => c.id === rental.customerId);
                     const product = products.find(p => p.id === rental.productId);
-                    const isLate = activeTab === 'OVERDUE';
+                    
+                    const itemReturnDate = parseISO(rental.expectedReturnDate);
+                    itemReturnDate.setHours(0, 0, 0, 0);
+                    const isItemDueToday = isSameDay(itemReturnDate, today) && rental.status === RentalStatus.ACTIVE;
+                    const isItemLate = isBefore(itemReturnDate, today) && rental.status === RentalStatus.ACTIVE;
                     const netRefundable = Math.max(0, (rental.securityDeposit || 0) - (rental.totalRentAmount || 0));
 
                     return (
@@ -559,7 +649,7 @@ const Rentals: React.FC = () => {
                         </td>
                         <td className="px-4 py-3.5">
                           <p className="font-bold text-slate-700">
-                            {format(parseISO(rental.startDate), 'dd MMM')} → <span className={isLate ? 'text-rose-600 font-extrabold' : 'text-slate-900 font-bold'}>{format(parseISO(rental.expectedReturnDate), 'dd MMM yyyy')}</span>
+                            {format(parseISO(rental.startDate), 'dd MMM')} → <span className={isItemLate ? 'text-rose-600 font-extrabold' : isItemDueToday ? 'text-amber-700 font-extrabold' : 'text-slate-900 font-bold'}>{format(parseISO(rental.expectedReturnDate), 'dd MMM yyyy')}</span>
                           </p>
                         </td>
                         <td className="px-4 py-3.5">
@@ -569,14 +659,31 @@ const Rentals: React.FC = () => {
                           </p>
                         </td>
                         <td className="px-4 py-3.5">
-                          <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[10px] font-extrabold uppercase tracking-wider ${rental.status === 'RETURNED'
-                            ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                            : isLate
-                              ? 'bg-rose-50 text-rose-700 border border-rose-200'
-                              : 'bg-indigo-50 text-indigo-700 border border-indigo-200'
-                            }`}>
-                            <span className={`w-1.5 h-1.5 rounded-full ${rental.status === 'RETURNED' ? 'bg-emerald-500' : isLate ? 'bg-rose-500' : 'bg-indigo-500'}`}></span>
-                            {rental.status === 'RETURNED' ? 'Returned' : isLate ? 'Overdue' : 'Active'}
+                          <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[10px] font-extrabold uppercase tracking-wider ${
+                            rental.status === 'RETURNED'
+                              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                              : isItemLate
+                                ? 'bg-rose-50 text-rose-700 border border-rose-200'
+                                : isItemDueToday
+                                  ? 'bg-amber-50 text-amber-700 border border-amber-300'
+                                  : 'bg-indigo-50 text-indigo-700 border border-indigo-200'
+                          }`}>
+                            <span className={`w-1.5 h-1.5 rounded-full ${
+                              rental.status === 'RETURNED' 
+                                ? 'bg-emerald-500' 
+                                : isItemLate 
+                                  ? 'bg-rose-500' 
+                                  : isItemDueToday 
+                                    ? 'bg-amber-500' 
+                                    : 'bg-indigo-500'
+                            }`}></span>
+                            {rental.status === 'RETURNED' 
+                              ? 'Returned' 
+                              : isItemLate 
+                                ? 'Overdue' 
+                                : isItemDueToday 
+                                  ? 'Due Today' 
+                                  : 'Active'}
                           </span>
                         </td>
                         <td className="px-5 py-3.5 text-right">

@@ -361,7 +361,7 @@ const BottomNav: React.FC<{ activeTab: string; onTabChange: (id: string) => void
   return (
     <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200/60 flex justify-around items-center h-[56px] z-40 pb-safe shadow-[0_-1px_3px_rgba(0,0,0,0.04)]">
       {bottomNavItems.map(item => {
-        const isActive = item.id === 'more' 
+        const isActive = item.id === 'more'
           ? secondaryTabs.includes(activeTab)
           : activeTab === item.id;
         return (
@@ -499,16 +499,6 @@ const ResetPasswordScreen: React.FC = () => {
 const AppContent: React.FC = () => {
   const { currentUser, isAuthReady, isPasswordRecovery } = useApp();
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [showSplash, setShowSplash] = useState(true);
-  useEffect(() => {
-    if (isAuthReady) {
-      const timer = setTimeout(() => setShowSplash(false), 200);
-      return () => clearTimeout(timer);
-    } else {
-      const fallback = setTimeout(() => setShowSplash(false), 600);
-      return () => clearTimeout(fallback);
-    }
-  }, [isAuthReady]);
 
   useEffect(() => {
     const handleHashChange = () => {
@@ -519,7 +509,6 @@ const AppContent: React.FC = () => {
     };
 
     window.addEventListener('hashchange', handleHashChange);
-    // Initial check
     handleHashChange();
 
     return () => window.removeEventListener('hashchange', handleHashChange);
@@ -532,28 +521,19 @@ const AppContent: React.FC = () => {
     }
   }, [activeTab]);
 
-  if (showSplash) {
+  // While Supabase auth is initialising, render the loading screen
+  // so React never blanks #root and causes a white flash
+  if (!isAuthReady) {
     return (
-      <div style={{ height: '100vh', width: '100vw', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', backgroundColor: '#ffffff' }}>
+      <div style={{ height: '100vh', width: '100vw', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#F9FAFB' }}>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px' }}>
-          <img
-            src="/logo.png"
-            alt="Kiddies Logo"
-            style={{ height: 'auto', width: '150px', maxWidth: '60vw', objectFit: 'contain', filter: 'drop-shadow(0 6px 12px rgba(0, 0, 0, 0.08))' }}
-          />
-          {/* Dotted loading animation */}
+          <img src="/logo.png" alt="Kiddies Logo" style={{ height: 'auto', width: '150px', maxWidth: '60vw', objectFit: 'contain', filter: 'drop-shadow(0 6px 12px rgba(0,0,0,0.08))' }} />
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '8px' }}>
-            <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#0EA5E9', animation: 'dotPulse 1.4s infinite ease-in-out both', animationDelay: '0s' }}></div>
-            <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#8B5CF6', animation: 'dotPulse 1.4s infinite ease-in-out both', animationDelay: '0.2s' }}></div>
-            <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#EC4899', animation: 'dotPulse 1.4s infinite ease-in-out both', animationDelay: '0.4s' }}></div>
+            <div className="dot-pulse" style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#01a9fb', animationDelay: '0s' }} />
+            <div className="dot-pulse" style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#fe569f', animationDelay: '0.2s' }} />
+            <div className="dot-pulse" style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#FACC15', animationDelay: '0.4s' }} />
           </div>
         </div>
-        <style>{`
-          @keyframes dotPulse {
-            0%, 80%, 100% { transform: scale(0.6); opacity: 0.3; }
-            40% { transform: scale(1.3); opacity: 1; }
-          }
-        `}</style>
       </div>
     );
   }

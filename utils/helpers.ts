@@ -45,11 +45,15 @@ export const getStatusColor = (status: string) => {
   }
 };
 
-export const withTimeout = <T>(promise: Promise<T>, ms: number, message: string): Promise<T> => {
-  return Promise.race([
-    promise,
-    new Promise<T>((_, reject) =>
-      setTimeout(() => reject(new Error(message)), ms)
-    )
-  ]);
+export const extractBaseSku = (sku: string, sizes?: string[]): string => {
+  if (!sku) return '';
+  const trimmed = sku.trim();
+  if (sizes && sizes.length > 0) {
+    for (const size of sizes) {
+      if (size && trimmed.toUpperCase().endsWith(`-${size.trim().toUpperCase()}`)) {
+        return trimmed.substring(0, trimmed.length - size.trim().length - 1);
+      }
+    }
+  }
+  return trimmed;
 };
