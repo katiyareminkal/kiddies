@@ -793,23 +793,28 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
   return (
     <div className="space-y-5 pb-24 animate-nano max-w-[1600px] mx-auto">
 
-      {/* ── Daily Backup Banner ── */}
+      {/* ── Daily Backup Banner (Exact Match to Reference Design) ── */}
       {showBackupAlert && (
-        <div className="bg-amber-50 border border-amber-200 rounded-md p-2.5 flex items-center justify-between gap-3 animate-nano">
-          <div className="flex items-center gap-2 text-amber-800">
-            <FileSpreadsheet size={16} />
-            <span className="text-[11px] font-bold">Daily backup recommended</span>
+        <div className="bg-[#FFFDF5] border border-[#FEEBC8] rounded-2xl p-3 sm:p-4 flex items-center justify-between gap-3 shadow-sm animate-in fade-in zoom-in-95 duration-200">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-[#FEF3C7] text-[#D97706] flex items-center justify-center shrink-0 border border-[#FDE68A]">
+              <FileSpreadsheet size={20} strokeWidth={2.2} />
+            </div>
+            <div>
+              <h4 className="text-xs sm:text-sm font-black text-[#78350F] leading-tight">Daily backup recommended</h4>
+              <p className="text-[11px] font-semibold text-[#92400E] mt-0.5">Keep your data safe and secure</p>
+            </div>
           </div>
           <div className="flex items-center gap-2 shrink-0">
             <button
               onClick={handleExcelBackup}
-              className="px-2.5 py-1 bg-amber-500 text-white font-bold rounded text-[10px] active:scale-95"
+              className="px-3.5 sm:px-4 py-2 bg-[#F59E0B] hover:bg-[#D97706] text-white font-extrabold rounded-xl text-xs shadow-md shadow-amber-500/20 active:scale-95 transition-all"
             >
-              Backup
+              Backup Now
             </button>
             <button
               onClick={() => setShowBackupAlert(false)}
-              className="text-amber-600 hover:text-amber-800 p-1"
+              className="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-black/5 transition-colors"
             >
               ✕
             </button>
@@ -817,33 +822,31 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
         </div>
       )}
 
-      {/* ── Executive Command Header & Range Filter ── */}
-      <div className="bg-white border border-slate-200/80 rounded-md p-3 sm:p-5 ">
+      {/* ── Executive Command Header & Range Filter (Matching Reference Design) ── */}
+      <div className="bg-white border border-slate-200/90 rounded-2xl p-3.5 sm:p-5 shadow-xs">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
           {/* Left Branding / Title */}
           <div className="flex items-center justify-between gap-2.5">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-md bg-[#01a9fb] text-white flex items-center justify-center shrink-0">
-                <BarChart3 size={16} className="sm:w-[18px] sm:h-[18px]" strokeWidth={2.2} />
+            <div className="flex items-center gap-3">
+              <div className="w-11 h-11 rounded-xl bg-[#01a9fb] text-white flex items-center justify-center shrink-0 shadow-md shadow-blue-500/20">
+                <Calendar size={22} strokeWidth={2.2} />
               </div>
               <div>
-                <div className="flex items-center gap-2">
-                  <h1 className="text-base sm:text-lg font-extrabold text-slate-900 tracking-tight">Dashboard</h1>
-                </div>
-                <p className="text-[11px] sm:text-xs text-slate-500 font-medium flex items-center gap-2 mt-0.5">
-                  <span>{format(new Date(), 'dd MMM yyyy')}</span>
+                <h1 className="text-base sm:text-lg font-black text-slate-900 tracking-tight leading-tight">Dashboard</h1>
+                <p className="text-xs font-semibold text-slate-500 mt-0.5">
+                  {format(new Date(), 'dd MMM yyyy, EEEE')}
                 </p>
               </div>
             </div>
 
-            {/* Mobile Controls (Modern Compact Date Selector Dropdown + Excel Icon Button) */}
-            <div className="flex md:hidden items-center gap-1.5">
+            {/* Mobile Controls (Date Selector Dropdown + Excel Icon Button) */}
+            <div className="flex md:hidden items-center gap-2">
               <div className="relative">
                 <button
                   onClick={() => setIsMobileDateMenuOpen(!isMobileDateMenuOpen)}
-                  className="flex items-center gap-1.5 bg-[#01a9fb]/10 hover:bg-[#01a9fb]/15 text-[#01a9fb] border border-[#01a9fb]/30 rounded-md px-2.5 py-1.5 text-xs font-bold transition-all active:scale-95"
+                  className="flex items-center gap-1.5 bg-[#f0f7ff] hover:bg-[#e0f0fe] text-[#01a9fb] border border-[#bfdbfe] rounded-xl px-3 py-2 text-xs font-bold transition-all active:scale-95 shadow-xs"
                 >
-                  <Calendar size={13} strokeWidth={2.2} className="text-[#01a9fb] shrink-0" />
+                  <Calendar size={14} strokeWidth={2.2} className="text-[#01a9fb] shrink-0" />
                   <span>
                     {filterPreset === 'TODAY' && 'Today'}
                     {filterPreset === 'YESTERDAY' && 'Yesterday'}
@@ -854,7 +857,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
                     {filterPreset === 'LIFETIME' && 'All Time'}
                     {filterPreset === 'CUSTOM' && 'Custom'}
                   </span>
-                  <ChevronDown size={12} strokeWidth={2.5} className={`transition-transform duration-200 text-[#01a9fb] ${isMobileDateMenuOpen ? 'rotate-180' : ''}`} />
+                  <ChevronDown size={13} strokeWidth={2.5} className={`transition-transform duration-200 text-[#01a9fb] ${isMobileDateMenuOpen ? 'rotate-180' : ''}`} />
                 </button>
 
                 {/* Popover Menu for Mobile */}
@@ -968,23 +971,23 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
         )}
       </div>
 
-      {/* ── High-Efficiency Quick Action Strip ── */}
-      <div className="flex overflow-x-auto gap-2 pb-1.5 hide-scrollbar snap-x sm:grid sm:grid-cols-4 lg:grid-cols-7 sm:overflow-visible sm:pb-0">
+      {/* ── High-Efficiency Quick Action Strip (Matching Reference Design) ── */}
+      <div className="flex overflow-x-auto gap-2.5 sm:gap-3 pb-1.5 hide-scrollbar snap-x sm:grid sm:grid-cols-4 lg:grid-cols-7 sm:overflow-visible sm:pb-0">
         {/* Action 1: New Bill / Sale */}
         <button
           onClick={() => setIsCreateBillModalOpen(true)}
-          className="min-w-[110px] shrink-0 snap-start sm:min-w-0 sm:shrink group relative flex flex-col justify-between p-3 bg-white hover:bg-[#01a9fb]/5 border border-slate-200/90 hover:border-[#01a9fb] rounded-md transition-all text-left active:scale-95"
+          className="min-w-[120px] shrink-0 snap-start sm:min-w-0 sm:shrink group relative flex flex-col justify-between p-3.5 bg-white hover:bg-[#01a9fb]/5 border border-slate-200/90 hover:border-[#01a9fb] rounded-2xl transition-all text-left shadow-xs active:scale-95"
         >
-          <div className="w-full flex items-center justify-between mb-2.5">
-            <div className="w-8 h-8 rounded-md bg-[#01a9fb] text-white flex items-center justify-center transition-transform group-hover:scale-105">
-              <ShoppingBag size={15} strokeWidth={2.2} />
+          <div className="w-full flex items-center justify-between mb-3">
+            <div className="w-9 h-9 rounded-xl bg-[#01a9fb] text-white flex items-center justify-center transition-transform group-hover:scale-105 shadow-sm shadow-blue-500/20">
+              <ShoppingBag size={17} strokeWidth={2.2} />
             </div>
-            <span className="text-[9px] font-black tracking-wider uppercase text-[#01a9fb] bg-[#01a9fb]/10 px-1.5 py-0.5 rounded">
+            <span className="text-[9.5px] font-black tracking-wider uppercase text-[#01a9fb] bg-[#eff6ff] border border-[#dbeafe] px-2 py-0.5 rounded-md">
               POS
             </span>
           </div>
           <div>
-            <span className="text-xs font-black text-slate-900 leading-tight block whitespace-nowrap">+ New Bill</span>
+            <span className="text-xs sm:text-sm font-black text-slate-900 leading-tight block whitespace-nowrap">+ New Bill</span>
             <span className="text-[10px] font-semibold text-slate-400 mt-0.5 block whitespace-nowrap">Instant Sale</span>
           </div>
         </button>
@@ -992,18 +995,18 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
         {/* Action 2: New Rental */}
         <button
           onClick={() => setIsNewRentalModalOpen(true)}
-          className="min-w-[110px] shrink-0 snap-start sm:min-w-0 sm:shrink group relative flex flex-col justify-between p-3 bg-white hover:bg-[#fe569f]/5 border border-slate-200/90 hover:border-[#fe569f] rounded-md transition-all text-left active:scale-95"
+          className="min-w-[120px] shrink-0 snap-start sm:min-w-0 sm:shrink group relative flex flex-col justify-between p-3.5 bg-white hover:bg-[#fe569f]/5 border border-slate-200/90 hover:border-[#fe569f] rounded-2xl transition-all text-left shadow-xs active:scale-95"
         >
-          <div className="w-full flex items-center justify-between mb-2.5">
-            <div className="w-8 h-8 rounded-md bg-[#fe569f] text-white flex items-center justify-center transition-transform group-hover:scale-105">
-              <Calendar size={15} strokeWidth={2.2} />
+          <div className="w-full flex items-center justify-between mb-3">
+            <div className="w-9 h-9 rounded-xl bg-[#fe569f] text-white flex items-center justify-center transition-transform group-hover:scale-105 shadow-sm shadow-pink-500/20">
+              <Calendar size={17} strokeWidth={2.2} />
             </div>
-            <span className="text-[9px] font-black tracking-wider uppercase text-[#fe569f] bg-[#fe569f]/10 px-1.5 py-0.5 rounded">
-              Rent
+            <span className="text-[9.5px] font-black tracking-wider uppercase text-[#fe569f] bg-[#fdf2f8] border border-[#fce7f3] px-2 py-0.5 rounded-md">
+              RENT
             </span>
           </div>
           <div>
-            <span className="text-xs font-black text-slate-900 leading-tight block whitespace-nowrap">+ Rental</span>
+            <span className="text-xs sm:text-sm font-black text-slate-900 leading-tight block whitespace-nowrap">+ Rental</span>
             <span className="text-[10px] font-semibold text-slate-400 mt-0.5 block whitespace-nowrap">Book Outfit</span>
           </div>
         </button>
@@ -1011,18 +1014,18 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
         {/* Action 3: Add Product */}
         <button
           onClick={() => setIsProductModalOpen(true)}
-          className="min-w-[110px] shrink-0 snap-start sm:min-w-0 sm:shrink group relative flex flex-col justify-between p-3 bg-white hover:bg-[#01a9fb]/5 border border-slate-200/90 hover:border-[#01a9fb] rounded-md transition-all text-left active:scale-95"
+          className="min-w-[120px] shrink-0 snap-start sm:min-w-0 sm:shrink group relative flex flex-col justify-between p-3.5 bg-white hover:bg-[#01a9fb]/5 border border-slate-200/90 hover:border-[#01a9fb] rounded-2xl transition-all text-left shadow-xs active:scale-95"
         >
-          <div className="w-full flex items-center justify-between mb-2.5">
-            <div className="w-8 h-8 rounded-md bg-slate-900 text-white group-hover:bg-[#01a9fb] flex items-center justify-center transition-colors">
-              <PlusCircle size={15} strokeWidth={2.2} />
+          <div className="w-full flex items-center justify-between mb-3">
+            <div className="w-9 h-9 rounded-xl bg-[#0f172a] text-white group-hover:bg-[#01a9fb] flex items-center justify-center transition-colors shadow-sm">
+              <PlusCircle size={17} strokeWidth={2.2} />
             </div>
-            <span className="text-[9px] font-black tracking-wider uppercase text-slate-700 bg-slate-100 px-1.5 py-0.5 rounded">
+            <span className="text-[9.5px] font-black tracking-wider uppercase text-slate-800 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-md">
               SKU
             </span>
           </div>
           <div>
-            <span className="text-xs font-black text-slate-900 leading-tight block whitespace-nowrap">+ Product</span>
+            <span className="text-xs sm:text-sm font-black text-slate-900 leading-tight block whitespace-nowrap">+ Product</span>
             <span className="text-[10px] font-semibold text-slate-400 mt-0.5 block whitespace-nowrap">Add Catalog</span>
           </div>
         </button>
@@ -1030,11 +1033,11 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
         {/* Action 4: Return Rental */}
         <button
           onClick={() => setIsReturnRentalModalOpen(true)}
-          className="min-w-[110px] shrink-0 snap-start sm:min-w-0 sm:shrink group relative flex flex-col justify-between p-3 bg-white hover:bg-yellow-50/60 border border-slate-200/90 hover:border-yellow-400 rounded-md transition-all text-left active:scale-95"
+          className="min-w-[120px] shrink-0 snap-start sm:min-w-0 sm:shrink group relative flex flex-col justify-between p-3.5 bg-white hover:bg-yellow-50/60 border border-slate-200/90 hover:border-yellow-400 rounded-2xl transition-all text-left shadow-xs active:scale-95"
         >
-          <div className="w-full flex items-center justify-between mb-2.5">
-            <div className="w-8 h-8 rounded-md bg-[#FACC15] text-slate-900 flex items-center justify-center font-bold transition-transform group-hover:scale-105">
-              <Undo2 size={15} strokeWidth={2.5} />
+          <div className="w-full flex items-center justify-between mb-3">
+            <div className="w-9 h-9 rounded-xl bg-[#FACC15] text-slate-900 flex items-center justify-center font-bold transition-transform group-hover:scale-105 shadow-sm shadow-yellow-500/20">
+              <Undo2 size={17} strokeWidth={2.5} />
             </div>
             <span className="text-[9px] font-black tracking-wider uppercase text-yellow-900 bg-yellow-100 px-1.5 py-0.5 rounded border border-yellow-300">
               Inward

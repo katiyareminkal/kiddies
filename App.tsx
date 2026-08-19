@@ -182,162 +182,156 @@ const TopBar: React.FC<{ activeTab: string; onTabChange: (id: string) => void }>
   }, []);
 
   return (
-    <header className="h-14 bg-white border-b border-slate-200/80 flex items-center justify-between px-3.5 sm:px-5 sticky top-0 z-30">
-      <div className="flex items-center gap-2.5 sm:gap-3 flex-1 min-w-0">
-        {!isSearchOpen && (
-          <div className="md:hidden flex items-center shrink-0">
-            <Logo size="md" onClick={() => onTabChange('dashboard')} />
-          </div>
-        )}
-
-        <div className={`
-          ${isSearchOpen ? 'flex absolute inset-0 bg-white px-3.5 z-50' : 'hidden sm:flex'} 
-          items-center bg-slate-50 border border-slate-200 rounded-md px-3 py-1.5 w-full max-w-sm focus-within:bg-white focus-within:border-[#01a9fb] transition-all group
-        `}>
-          <Search size={14} className="text-slate-400 group-focus-within:text-[#01a9fb] mr-2 shrink-0 transition-colors" strokeWidth={2.2} />
-          <input
-            ref={searchInputRef}
-            type="text"
-            placeholder="Search items, bills, customers..."
-            className="bg-transparent text-xs font-bold outline-none flex-1 placeholder:text-slate-400 text-slate-900"
-          />
-          {isSearchOpen && (
-            <button
-              type="button"
-              onClick={(e) => { e.stopPropagation(); setIsSearchOpen(false); }}
-              className="text-xs font-black text-[#01a9fb] ml-2 shrink-0"
-            >
-              Cancel
-            </button>
-          )}
-        </div>
-
-        {!isSearchOpen && (
-          <button
-            type="button"
-            onClick={() => setIsSearchOpen(true)}
-            className="sm:hidden p-1.5 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-md transition-colors"
-            title="Search"
-          >
-            <Search size={18} strokeWidth={2.2} />
-          </button>
-        )}
+    <header className="bg-gradient-to-r from-[#1746c9] via-[#1a56db] to-[#2563eb] text-white px-3 sm:px-5 pt-3 pb-4 sm:pb-5 shadow-lg relative z-30 rounded-b-[24px] sm:rounded-b-[28px]">
+      {/* Background glow accents */}
+      <div className="absolute inset-0 overflow-hidden rounded-b-[24px] sm:rounded-b-[28px] pointer-events-none">
+        <div className="absolute -top-10 -left-10 w-40 h-40 bg-blue-400/20 rounded-full blur-2xl" />
+        <div className="absolute -bottom-10 -right-10 w-48 h-48 bg-indigo-400/25 rounded-full blur-2xl" />
       </div>
 
-      <div className="flex items-center gap-1.5 sm:gap-2 shrink-0" ref={dropdownRef}>
-        {/* Quick App Install Button if available */}
-        {!isStandalone && deferredPrompt && (
+      <div className="flex items-center justify-between gap-2.5 sm:gap-4 relative z-10">
+        {/* Left side: Hamburger menu button + Colorful Logo & Subtitle */}
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           <button
             type="button"
-            onClick={handleInstallClick}
-            className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 bg-yellow-100 hover:bg-yellow-200 text-yellow-900 border border-yellow-300 rounded-md text-[10px] font-extrabold uppercase tracking-wider transition-all shadow-xs"
-            title="Install PWA Terminal"
+            onClick={() => onTabChange('more')}
+            className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white/15 hover:bg-white/25 active:scale-95 text-white flex items-center justify-center transition-all border border-white/10 shadow-inner shrink-0"
+            title="Menu"
           >
-            <Download size={12} strokeWidth={2.5} />
-            <span>Install</span>
-          </button>
-        )}
-
-        {/* Notifications Popover */}
-        <div className="relative">
-          <button
-            type="button"
-            onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
-            className={`p-1.5 sm:p-2 rounded-md transition-colors relative border ${isNotificationsOpen ? 'bg-[#01a9fb]/10 text-[#01a9fb] border-[#01a9fb]/40' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900 border-transparent'}`}
-            title="Notifications"
-          >
-            <Bell size={18} strokeWidth={2.2} />
-            {unreadCount > 0 && (
-              <span className="absolute top-1 right-1 w-2 h-2 bg-[#fe569f] rounded-full ring-2 ring-white" />
-            )}
+            <Menu size={20} strokeWidth={2.5} />
           </button>
 
-          {isNotificationsOpen && (
-            <div className="fixed md:absolute left-3 md:left-auto right-3 md:right-0 top-14 md:top-full mt-1.5 w-auto md:w-80 bg-white rounded-md border border-slate-200/90 shadow-md overflow-hidden z-50 animate-nano">
-              <div className="px-4 py-2.5 border-b border-slate-100 flex items-center justify-between bg-slate-50/80">
-                <div className="flex items-center gap-1.5">
-                  <h4 className="text-xs font-black text-slate-900 uppercase tracking-wider">Notifications</h4>
+          <div 
+            onClick={() => onTabChange('dashboard')} 
+            className="cursor-pointer flex flex-col items-start select-none group shrink-0"
+          >
+            <div className="flex items-center text-xl sm:text-2xl font-black tracking-tight leading-none drop-shadow-sm">
+              <span className="text-[#01a9fb]">K</span>
+              <span className="text-[#01a9fb]">i</span>
+              <span className="text-[#01a9fb]">d</span>
+              <span className="text-[#fe569f]">d</span>
+              <span className="text-[#fe569f]">i</span>
+              <span className="text-[#FACC15]">e</span>
+              <span className="text-[#fe569f]">s</span>
+            </div>
+            <span className="text-[7.5px] sm:text-[8.5px] font-black uppercase tracking-[0.18em] text-blue-200/90 leading-tight mt-0.5">
+              STORE MANAGEMENT
+            </span>
+          </div>
+        </div>
+
+        {/* Center: Translucent Search Bar */}
+        <div className="flex-1 max-w-md mx-1 sm:mx-2">
+          <div className="flex items-center bg-white/15 hover:bg-white/20 focus-within:bg-white/25 border border-white/20 rounded-xl sm:rounded-2xl px-3 py-1.5 sm:py-2 transition-all shadow-inner">
+            <Search size={15} className="text-blue-200 shrink-0 mr-2" strokeWidth={2.3} />
+            <input
+              ref={searchInputRef}
+              type="text"
+              placeholder="Search anything..."
+              className="bg-transparent text-xs sm:text-sm font-semibold outline-none flex-1 placeholder:text-blue-200/80 text-white w-full"
+            />
+          </div>
+        </div>
+
+        {/* Right side: Notifications bell with red counter + Circular User Avatar */}
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0" ref={dropdownRef}>
+          {/* Notifications Popover */}
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
+              className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white/15 hover:bg-white/25 active:scale-95 flex items-center justify-center text-white transition-all border border-white/10 relative shrink-0 shadow-inner"
+              title="Notifications"
+            >
+              <Bell size={18} strokeWidth={2.2} />
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 min-w-[17px] h-[17px] bg-[#fe569f] text-white text-[9.5px] font-black rounded-full flex items-center justify-center px-1 border-2 border-[#1a56db] shadow-sm">
+                  {unreadCount}
+                </span>
+              )}
+            </button>
+
+            {isNotificationsOpen && (
+              <div className="fixed md:absolute left-3 md:left-auto right-3 md:right-0 top-16 md:top-full mt-2 w-auto md:w-80 bg-white rounded-2xl border border-slate-200 shadow-2xl overflow-hidden z-50 text-slate-900 animate-in zoom-in-95 fade-in duration-200">
+                <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+                  <div className="flex items-center gap-1.5">
+                    <h4 className="text-xs font-black text-slate-900 uppercase tracking-wider">Notifications</h4>
+                    {unreadCount > 0 && (
+                      <span className="bg-[#fe569f] text-white text-[9px] font-black px-1.5 py-0.5 rounded-full">
+                        {unreadCount}
+                      </span>
+                    )}
+                  </div>
                   {unreadCount > 0 && (
-                    <span className="bg-[#fe569f] text-white text-[9px] font-black px-1.5 py-0.2 rounded-full">
-                      {unreadCount}
-                    </span>
+                    <button type="button" onClick={markNotificationsAsRead} className="text-[10px] font-bold text-[#01a9fb] hover:underline uppercase">Mark read</button>
                   )}
                 </div>
-                {unreadCount > 0 && (
-                  <button type="button" onClick={markNotificationsAsRead} className="text-[10px] font-bold text-[#01a9fb] hover:underline uppercase">Mark read</button>
-                )}
-              </div>
-              <div className="max-h-[300px] overflow-y-auto divide-y divide-slate-50">
-                {notifications.length > 0 ? (
-                  notifications.map((note) => (
-                    <div key={note.id} className={`p-3 hover:bg-slate-50 transition-colors cursor-pointer ${!note.isRead ? 'bg-[#01a9fb]/5' : ''}`}>
-                      <h5 className="text-xs font-bold text-slate-900">{note.title}</h5>
-                      <p className="text-[11px] text-slate-600 mt-0.5 leading-relaxed">{note.message}</p>
-                      <p className="text-[9px] font-bold text-slate-400 mt-1">
-                        {formatDistanceToNow(parseISO(note.timestamp), { addSuffix: true })}
-                      </p>
+                <div className="max-h-[300px] overflow-y-auto divide-y divide-slate-50">
+                  {notifications.length > 0 ? (
+                    notifications.map((note) => (
+                      <div key={note.id} className={`p-3 hover:bg-slate-50 transition-colors cursor-pointer ${!note.isRead ? 'bg-[#01a9fb]/5' : ''}`}>
+                        <h5 className="text-xs font-bold text-slate-900">{note.title}</h5>
+                        <p className="text-[11px] text-slate-600 mt-0.5 leading-relaxed">{note.message}</p>
+                        <p className="text-[9px] font-bold text-slate-400 mt-1">
+                          {formatDistanceToNow(parseISO(note.timestamp), { addSuffix: true })}
+                        </p>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="py-8 text-center">
+                      <Bell size={20} className="mx-auto text-slate-300 mb-1.5" />
+                      <p className="text-xs font-bold text-slate-400">No new notifications</p>
                     </div>
-                  ))
-                ) : (
-                  <div className="py-8 text-center">
-                    <Bell size={20} className="mx-auto text-slate-300 mb-1.5" />
-                    <p className="text-xs font-bold text-slate-400">No new notifications</p>
+                  )}
+                </div>
+                {notifications.length > 0 && (
+                  <div className="px-3 py-2 bg-slate-50 text-center border-t border-slate-100">
+                    <button type="button" onClick={clearNotifications} className="text-[10px] font-bold text-slate-400 hover:text-rose-500 transition-colors uppercase">Clear all</button>
                   </div>
                 )}
               </div>
-              {notifications.length > 0 && (
-                <div className="px-3 py-2 bg-slate-50 text-center border-t border-slate-100">
-                  <button type="button" onClick={clearNotifications} className="text-[10px] font-bold text-slate-400 hover:text-rose-500 transition-colors uppercase">Clear all</button>
+            )}
+          </div>
+
+          {/* User Profile Dropdown (Large Round Badge with Initial) */}
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+              className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#01a9fb] hover:bg-[#0098e6] active:scale-95 text-white flex items-center justify-center font-black text-sm sm:text-base transition-all border-2 border-white/40 shadow-md shrink-0"
+              title={currentUser?.name || 'Account'}
+            >
+              {(currentUser?.name || 'K').charAt(0).toUpperCase()}
+            </button>
+
+            {isUserMenuOpen && (
+              <div className="absolute right-0 top-full mt-2 w-56 bg-white rounded-2xl border border-slate-200 shadow-2xl py-2 z-50 text-slate-900 animate-in zoom-in-95 fade-in duration-200">
+                <div className="px-4 py-3 border-b border-slate-100 mb-1 bg-slate-50">
+                  <p className="text-xs font-black text-slate-900">{currentUser?.name}</p>
+                  <p className="text-[10px] text-slate-500 font-medium truncate mt-0.5">{currentUser?.email}</p>
+                  <span className="inline-block mt-1 bg-[#01a9fb]/10 text-[#01a9fb] border border-[#01a9fb]/30 text-[8px] font-extrabold uppercase px-1.5 py-0.5 rounded-full">
+                    {currentUser?.role}
+                  </span>
                 </div>
-              )}
-            </div>
-          )}
-        </div>
-
-        {/* User Profile Dropdown */}
-        <div className="relative">
-          <button
-            type="button"
-            onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-            className="flex items-center gap-2 hover:bg-slate-100/80 p-1 sm:p-1.5 rounded-md transition-colors border border-slate-200/70"
-          >
-            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-md bg-[#01a9fb] text-white flex items-center justify-center font-black text-xs sm:text-sm shrink-0">
-              {(currentUser?.name || 'U').charAt(0).toUpperCase()}
-            </div>
-            <div className="text-left hidden sm:block">
-              <p className="text-xs font-black text-slate-900 leading-tight truncate max-w-[100px]">{currentUser?.name.split(' ')[0]}</p>
-              <span className="text-[9px] font-extrabold uppercase text-[#01a9fb] leading-none block">{currentUser?.role}</span>
-            </div>
-            <ChevronDown size={13} className="text-slate-400 hidden sm:block" />
-          </button>
-
-          {isUserMenuOpen && (
-            <div className="absolute right-0 top-full mt-1.5 w-52 bg-white rounded-md border border-slate-200 shadow-md py-1 z-50 animate-nano">
-              <div className="px-3.5 py-2.5 border-b border-slate-100 mb-1 bg-slate-50/60">
-                <p className="text-xs font-black text-slate-900">{currentUser?.name}</p>
-                <p className="text-[10px] text-slate-500 font-medium truncate mt-0.5">{currentUser?.email}</p>
-                <span className="inline-block mt-1 bg-[#01a9fb]/10 text-[#01a9fb] border border-[#01a9fb]/30 text-[8px] font-extrabold uppercase px-1.5 py-0.2 rounded">
-                  {currentUser?.role}
-                </span>
+                <button
+                  type="button"
+                  onClick={() => { onTabChange('settings'); setIsUserMenuOpen(false); }}
+                  className="w-full text-left px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 hover:text-[#01a9fb] transition-colors flex items-center gap-2"
+                >
+                  <SettingsIcon size={14} />
+                  <span>Settings</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => logout()}
+                  className="w-full text-left px-4 py-2 text-xs font-extrabold text-rose-600 hover:bg-rose-50 transition-colors flex items-center gap-2 border-t border-slate-100 mt-1 pt-2"
+                >
+                  <LogOut size={14} />
+                  <span>Log out</span>
+                </button>
               </div>
-              <button
-                type="button"
-                onClick={() => { onTabChange('settings'); setIsUserMenuOpen(false); }}
-                className="w-full text-left px-3.5 py-1.5 text-xs font-bold text-slate-700 hover:bg-slate-50 hover:text-[#01a9fb] transition-colors flex items-center gap-2"
-              >
-                <SettingsIcon size={13} />
-                <span>Settings</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => logout()}
-                className="w-full text-left px-3.5 py-1.5 text-xs font-extrabold text-rose-600 hover:bg-rose-50 transition-colors flex items-center gap-2 border-t border-slate-100 mt-1 pt-2"
-              >
-                <LogOut size={13} />
-                <span>Log out</span>
-              </button>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
     </header>
@@ -584,7 +578,7 @@ const AppContent: React.FC = () => {
       <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
         <TopBar activeTab={activeTab} onTabChange={setActiveTab} />
-        <main className="flex-1 overflow-y-auto p-3 md:p-6 custom-scrollbar pb-24 md:pb-6 relative">
+        <main className="flex-1 overflow-y-auto px-3 sm:px-6 pt-3 sm:pt-4 pb-24 md:pb-6 custom-scrollbar relative">
           {renderContent()}
         </main>
       </div>
