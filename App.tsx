@@ -182,42 +182,31 @@ const TopBar: React.FC<{ activeTab: string; onTabChange: (id: string) => void }>
   }, []);
 
   return (
-    <header className="bg-gradient-to-r from-[#1746c9] via-[#1a56db] to-[#2563eb] text-white px-3 sm:px-5 pt-3 pb-4 sm:pb-5 shadow-lg relative z-30 rounded-b-[24px] sm:rounded-b-[28px]">
+    <header className="bg-gradient-to-r from-[#1746c9] via-[#1a56db] to-[#2563eb] text-white px-3 sm:px-5 py-3 sm:py-3.5 shadow-md relative z-30">
       {/* Background glow accents */}
-      <div className="absolute inset-0 overflow-hidden rounded-b-[24px] sm:rounded-b-[28px] pointer-events-none">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-10 -left-10 w-40 h-40 bg-blue-400/20 rounded-full blur-2xl" />
         <div className="absolute -bottom-10 -right-10 w-48 h-48 bg-indigo-400/25 rounded-full blur-2xl" />
       </div>
 
       <div className="flex items-center justify-between gap-2.5 sm:gap-4 relative z-10">
-        {/* Left side: Hamburger menu button + Colorful Logo & Subtitle */}
-        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-          <button
-            type="button"
-            onClick={() => onTabChange('more')}
-            className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white/15 hover:bg-white/25 active:scale-95 text-white flex items-center justify-center transition-all border border-white/10 shadow-inner shrink-0"
-            title="Menu"
-          >
-            <Menu size={20} strokeWidth={2.5} />
-          </button>
-
-          <div 
-            onClick={() => onTabChange('dashboard')} 
-            className="cursor-pointer flex flex-col items-start select-none group shrink-0"
-          >
-            <div className="flex items-center text-xl sm:text-2xl font-black tracking-tight leading-none drop-shadow-sm">
-              <span className="text-[#01a9fb]">K</span>
-              <span className="text-[#01a9fb]">i</span>
-              <span className="text-[#01a9fb]">d</span>
-              <span className="text-[#fe569f]">d</span>
-              <span className="text-[#fe569f]">i</span>
-              <span className="text-[#FACC15]">e</span>
-              <span className="text-[#fe569f]">s</span>
-            </div>
-            <span className="text-[7.5px] sm:text-[8.5px] font-black uppercase tracking-[0.18em] text-blue-200/90 leading-tight mt-0.5">
-              STORE MANAGEMENT
-            </span>
+        {/* Left side: Colorful Logo & Subtitle */}
+        <div 
+          onClick={() => onTabChange('dashboard')} 
+          className="cursor-pointer flex flex-col items-start select-none group shrink-0"
+        >
+          <div className="flex items-center text-xl sm:text-2xl font-black tracking-tight leading-none drop-shadow-sm">
+            <span className="text-[#01a9fb]">K</span>
+            <span className="text-[#01a9fb]">i</span>
+            <span className="text-[#01a9fb]">d</span>
+            <span className="text-[#fe569f]">d</span>
+            <span className="text-[#fe569f]">i</span>
+            <span className="text-[#FACC15]">e</span>
+            <span className="text-[#fe569f]">s</span>
           </div>
+          <span className="text-[7.5px] sm:text-[8.5px] font-black uppercase tracking-[0.18em] text-blue-200/90 leading-tight mt-0.5">
+            STORE MANAGEMENT
+          </span>
         </div>
 
         {/* Center: Translucent Search Bar */}
