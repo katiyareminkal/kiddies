@@ -514,49 +514,15 @@ const Sales: React.FC = () => {
                       </td>
                       <td className="px-4 py-3.5">
                         <div className="flex flex-wrap gap-1">
-                          {(sale.items || []).slice(0, 2).map((item, i) => {
-                            const matchedProd = products.find(p => p.id === item.productId || p.sku === item.sku || p.name.toLowerCase() === item.name.toLowerCase());
-                            const effectiveProduct = matchedProd || {
-                              id: item.productId || `item-${i}`,
-                              name: item.name || 'Sold Item',
-                              sku: item.sku || 'N/A',
-                              barcode: '',
-                              category: 'Sale Item',
-                              gender: 'Universal',
-                              subCategory: 'General',
-                              clothingType: 'Standard',
-                              brand: 'Store',
-                              purpose: 'SALE' as const,
-                              purchasePrice: 0,
-                              sellingPrice: item.unitPrice || 0,
-                              rentalPrice: 0,
-                              taxPercent: 0,
-                              stockQuantity: 0,
-                              saleStock: 0,
-                              rentalStock: 0,
-                              minStockAlert: 0,
-                              supplierId: '',
-                              description: '',
-                              sizes: item.size ? [item.size] : [],
-                              images: []
-                            };
-
-                            return (
-                              <button
-                                key={i}
-                                type="button"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setViewingProduct(effectiveProduct);
-                                }}
-                                className="text-[10px] font-bold px-2 py-0.5 rounded text-left transition-colors flex items-center gap-1 text-slate-800 bg-slate-100 hover:bg-[#01a9fb]/15 hover:text-[#01a9fb] cursor-pointer"
-                                title={`Click to view ${item.name}`}
-                              >
-                                <Package size={10} className="text-slate-400" />
-                                <span>{item.quantity}x {item.name}</span>
-                              </button>
-                            );
-                          })}
+                          {(sale.items || []).slice(0, 2).map((item, i) => (
+                            <span
+                              key={i}
+                              className="text-[10px] font-bold px-2 py-0.5 rounded text-left flex items-center gap-1 text-slate-700 bg-slate-100"
+                            >
+                              <Package size={10} className="text-slate-400" />
+                              <span>{item.quantity}x {item.name}</span>
+                            </span>
+                          ))}
                           {(sale.items || []).length > 2 && (
                             <span className="text-[10px] font-bold text-slate-400 bg-slate-50 px-1.5 py-0.5 rounded">
                               +{(sale.items || []).length - 2}
@@ -660,50 +626,17 @@ const Sales: React.FC = () => {
                     </span>
                   </div>
 
-                  {/* Items summary pills (Clickable to inspect product) */}
+                  {/* Items summary pills */}
                   <div className="flex flex-wrap gap-1 my-1.5">
-                    {(sale.items || []).slice(0, 1).map((item, i) => {
-                      const matchedProd = products.find(p => p.id === item.productId || p.sku === item.sku || p.name.toLowerCase() === item.name.toLowerCase());
-                      const effectiveProduct = matchedProd || {
-                        id: item.productId || `item-${i}`,
-                        name: item.name || 'Sold Item',
-                        sku: item.sku || 'N/A',
-                        barcode: '',
-                        category: 'Sale Item',
-                        gender: 'Universal',
-                        subCategory: 'General',
-                        clothingType: 'Standard',
-                        brand: 'Store',
-                        purpose: 'SALE' as const,
-                        purchasePrice: 0,
-                        sellingPrice: item.unitPrice || 0,
-                        rentalPrice: 0,
-                        taxPercent: 0,
-                        stockQuantity: 0,
-                        saleStock: 0,
-                        rentalStock: 0,
-                        minStockAlert: 0,
-                        supplierId: '',
-                        description: '',
-                        sizes: item.size ? [item.size] : [],
-                        images: []
-                      };
-
-                      return (
-                        <span
-                          key={i}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setViewingProduct(effectiveProduct);
-                          }}
-                          className="text-[9px] sm:text-[10px] font-bold px-1.5 py-0.5 rounded truncate max-w-full flex items-center gap-1 transition-colors text-slate-800 bg-slate-100 hover:bg-[#01a9fb]/15 hover:text-[#01a9fb] cursor-pointer"
-                          title={`Click to view product ${item.name}`}
-                        >
-                          <Package size={10} className="shrink-0 text-slate-400" />
-                          <span className="truncate">{item.quantity}x {item.name}</span>
-                        </span>
-                      );
-                    })}
+                    {(sale.items || []).slice(0, 1).map((item, i) => (
+                      <span
+                        key={i}
+                        className="text-[9px] sm:text-[10px] font-bold px-1.5 py-0.5 rounded truncate max-w-full flex items-center gap-1 text-slate-700 bg-slate-100"
+                      >
+                        <Package size={10} className="shrink-0 text-slate-400" />
+                        <span className="truncate">{item.quantity}x {item.name}</span>
+                      </span>
+                    ))}
                     {(sale.items || []).length > 1 && (
                       <span className="text-[9px] font-extrabold text-slate-400 bg-slate-100 px-1 py-0.5 rounded">
                         +{(sale.items || []).length - 1} more
@@ -714,10 +647,9 @@ const Sales: React.FC = () => {
 
                 {/* Card Footer */}
                 <div className="flex items-center justify-between pt-2 mt-1.5 border-t border-slate-100 gap-1">
-                  <div className="flex items-center gap-1 bg-slate-50 hover:bg-[#01a9fb]/10 hover:border-[#01a9fb]/30 border border-slate-200/70 px-1.5 py-0.5 rounded text-[9px] font-extrabold text-slate-700 hover:text-[#01a9fb] transition-colors truncate">
-                    <Eye size={11} strokeWidth={2.3} className="text-[#01a9fb]" />
-                    <span>Details</span>
-                  </div>
+                  <span className="text-[9px] font-bold text-slate-400 font-mono">
+                    {sale.invoiceNumber}
+                  </span>
 
                   <div className="flex items-center gap-1 shrink-0">
                     <span className={`text-[9px] font-black uppercase px-1.5 py-0.2 rounded border whitespace-nowrap ${sale.paymentStatus === PaymentStatus.PAID
