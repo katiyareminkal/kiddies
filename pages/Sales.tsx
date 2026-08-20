@@ -275,12 +275,12 @@ const Sales: React.FC = () => {
           <h3 className="text-lg sm:text-2xl font-black text-slate-900 tracking-tight leading-none font-mono whitespace-nowrap truncate">
             {formatCurrency(todaySales)}
           </h3>
-          <p className="text-[10px] sm:text-[11px] font-bold text-[#01a9fb] mt-1.5 whitespace-nowrap truncate">Gross revenue today</p>
+          <p className="text-[10px] sm:text-[11px] font-bold text-[#01a9fb] mt-1.5 whitespace-nowrap truncate">Total billed today</p>
         </div>
 
         <div className="bg-white hover:bg-slate-50/60 p-3 sm:p-4 rounded-md border border-slate-200/80 hover:border-[#fe569f]/50 transition-all">
           <div className="flex items-center justify-between mb-1.5">
-            <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-500 whitespace-nowrap">Total Invoices</span>
+            <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-500 whitespace-nowrap">Total Bills</span>
             <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-md bg-[#fe569f]/10 text-[#fe569f] flex items-center justify-center font-bold text-xs shrink-0">
               <Receipt size={13} />
             </div>
@@ -288,12 +288,12 @@ const Sales: React.FC = () => {
           <h3 className="text-lg sm:text-2xl font-black text-slate-900 tracking-tight leading-none font-mono whitespace-nowrap truncate">
             {sales.length}
           </h3>
-          <p className="text-[10px] sm:text-[11px] font-bold text-[#fe569f] mt-1.5 whitespace-nowrap truncate">Store checkout volume</p>
+          <p className="text-[10px] sm:text-[11px] font-bold text-[#fe569f] mt-1.5 whitespace-nowrap truncate">Total sales count</p>
         </div>
 
         <div className="bg-white hover:bg-slate-50/60 p-3 sm:p-4 rounded-md border border-slate-200/80 hover:border-yellow-300 transition-all">
           <div className="flex items-center justify-between mb-1.5">
-            <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-500 whitespace-nowrap">Processing</span>
+            <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-500 whitespace-nowrap">In Progress</span>
             <div className={`w-6 h-6 sm:w-7 sm:h-7 rounded-md flex items-center justify-center font-bold text-xs shrink-0 ${activeOrders > 0 ? 'bg-yellow-100 text-yellow-800' : 'bg-slate-50 text-slate-400'}`}>
               <Clock size={13} />
             </div>
@@ -301,12 +301,12 @@ const Sales: React.FC = () => {
           <h3 className={`text-lg sm:text-2xl font-black tracking-tight leading-none font-mono whitespace-nowrap truncate ${activeOrders > 0 ? 'text-yellow-700' : 'text-slate-900'}`}>
             {activeOrders}
           </h3>
-          <p className="text-[10px] sm:text-[11px] font-bold text-yellow-700 mt-1.5 whitespace-nowrap truncate">Fulfillments underway</p>
+          <p className="text-[10px] sm:text-[11px] font-bold text-yellow-700 mt-1.5 whitespace-nowrap truncate">Pending / Delivery</p>
         </div>
 
         <div className="bg-white hover:bg-slate-50/60 p-3 sm:p-4 rounded-md border border-slate-200/80 hover:border-rose-300 transition-all">
           <div className="flex items-center justify-between mb-1.5">
-            <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-500 whitespace-nowrap">Pending Dues</span>
+            <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-500 whitespace-nowrap">Due Amount</span>
             <div className={`w-6 h-6 sm:w-7 sm:h-7 rounded-md flex items-center justify-center font-bold text-xs shrink-0 ${totalPendingPayments > 0 ? 'bg-rose-50 text-rose-600' : 'bg-slate-50 text-slate-400'}`}>
               <CreditCard size={13} />
             </div>
@@ -314,7 +314,7 @@ const Sales: React.FC = () => {
           <h3 className={`text-lg sm:text-2xl font-black tracking-tight leading-none font-mono whitespace-nowrap truncate ${totalPendingPayments > 0 ? 'text-rose-600' : 'text-slate-900'}`}>
             {formatCurrency(totalPendingPayments)}
           </h3>
-          <p className="text-[10px] sm:text-[11px] font-bold text-rose-600 mt-1.5 whitespace-nowrap truncate">Uncollected receivables</p>
+          <p className="text-[10px] sm:text-[11px] font-bold text-rose-600 mt-1.5 whitespace-nowrap truncate">Remaining balance to collect</p>
         </div>
       </div>
 
