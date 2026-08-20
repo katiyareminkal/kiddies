@@ -39,7 +39,8 @@ import {
   CheckCircle2,
   Sparkles,
   Receipt,
-  Eye
+  Eye,
+  TrendingUp
 } from 'lucide-react';
 import { formatCurrency } from '../utils/helpers';
 import { format, parseISO, isAfter, isBefore, isSameDay, subDays, startOfMonth, startOfYear } from 'date-fns';
@@ -272,57 +273,103 @@ const Sales: React.FC = () => {
       </div>
 
       {/* ── KPI Metric Cards (4 Distinct Cards) ── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3.5">
-        <div className="bg-white hover:bg-slate-50/60 p-3 sm:p-4 rounded-md border border-slate-200/80 hover:border-[#01a9fb]/50 transition-all">
-          <div className="flex items-center justify-between mb-1.5">
-            <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-500 whitespace-nowrap">Today's Sales</span>
-            <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-md bg-[#01a9fb]/10 text-[#01a9fb] flex items-center justify-center font-bold text-xs shrink-0">
-              <IndianRupee size={13} />
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3.5">
+        {/* Card 1: Today's Sales */}
+        <div 
+          onClick={() => applyDatePreset('TODAY')}
+          className={`p-3 sm:p-4 rounded-xl border transition-all duration-200 cursor-pointer text-left ${
+            activeDatePreset === 'TODAY'
+              ? 'bg-[#01a9fb]/5 border-[#01a9fb] ring-2 ring-[#01a9fb]/20 shadow-xs'
+              : 'bg-white hover:bg-slate-50/70 border-slate-200/90 hover:border-[#01a9fb]/50'
+          }`}
+          title="Click to view today's transactions"
+        >
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider text-slate-500 truncate">Today's Sales</span>
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-[#01a9fb]/10 text-[#01a9fb] flex items-center justify-center font-black text-xs shrink-0 shadow-2xs">
+              <IndianRupee size={14} strokeWidth={2.5} />
             </div>
           </div>
-          <h3 className="text-lg sm:text-2xl font-black text-slate-900 tracking-tight leading-none font-mono whitespace-nowrap truncate">
+          <h3 className="text-lg sm:text-2xl font-black text-slate-900 tracking-tight leading-none font-mono truncate">
             {formatCurrency(todaySales)}
           </h3>
-          <p className="text-[10px] sm:text-[11px] font-bold text-[#01a9fb] mt-1.5 truncate">Earned today ({todayBillsCount} bills)</p>
+          <p className="text-[10px] sm:text-[11px] font-extrabold text-[#01a9fb] mt-2 truncate flex items-center gap-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#01a9fb]"></span>
+            <span>{todayBillsCount} bills today</span>
+          </p>
         </div>
 
-        <div className="bg-white hover:bg-slate-50/60 p-3 sm:p-4 rounded-md border border-slate-200/80 hover:border-emerald-300 transition-all">
-          <div className="flex items-center justify-between mb-1.5">
-            <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-500 whitespace-nowrap">Total Revenue</span>
-            <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-md bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-xs shrink-0">
-              <IndianRupee size={13} />
+        {/* Card 2: Total Revenue */}
+        <div 
+          onClick={() => applyDatePreset('ALL')}
+          className={`p-3 sm:p-4 rounded-xl border transition-all duration-200 cursor-pointer text-left ${
+            activeDatePreset === 'ALL'
+              ? 'bg-emerald-50/40 border-emerald-400 ring-2 ring-emerald-400/20 shadow-xs'
+              : 'bg-white hover:bg-slate-50/70 border-slate-200/90 hover:border-emerald-300'
+          }`}
+          title="Click to view all-time transactions"
+        >
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider text-slate-500 truncate">Total Revenue</span>
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center font-black text-xs shrink-0 shadow-2xs">
+              <TrendingUp size={14} strokeWidth={2.5} />
             </div>
           </div>
-          <h3 className="text-lg sm:text-2xl font-black text-slate-900 tracking-tight leading-none font-mono whitespace-nowrap truncate">
+          <h3 className="text-lg sm:text-2xl font-black text-slate-900 tracking-tight leading-none font-mono truncate">
             {formatCurrency(totalSalesRevenue)}
           </h3>
-          <p className="text-[10px] sm:text-[11px] font-bold text-emerald-600 mt-1.5 truncate">All-time sales</p>
+          <p className="text-[10px] sm:text-[11px] font-extrabold text-emerald-600 mt-2 truncate flex items-center gap-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+            <span>All-time earnings</span>
+          </p>
         </div>
 
-        <div className="bg-white hover:bg-slate-50/60 p-3 sm:p-4 rounded-md border border-slate-200/80 hover:border-[#fe569f]/50 transition-all">
-          <div className="flex items-center justify-between mb-1.5">
-            <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-500 whitespace-nowrap">Total Bills</span>
-            <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-md bg-[#fe569f]/10 text-[#fe569f] flex items-center justify-center font-bold text-xs shrink-0">
-              <Receipt size={13} />
+        {/* Card 3: Total Invoices Count */}
+        <div className="bg-white hover:bg-slate-50/70 p-3 sm:p-4 rounded-xl border border-slate-200/90 hover:border-[#fe569f]/50 transition-all text-left">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider text-slate-500 truncate">Total Bills</span>
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-[#fe569f]/10 text-[#fe569f] flex items-center justify-center font-black text-xs shrink-0 shadow-2xs">
+              <Receipt size={14} strokeWidth={2.5} />
             </div>
           </div>
-          <h3 className="text-lg sm:text-2xl font-black text-slate-900 tracking-tight leading-none font-mono whitespace-nowrap truncate">
+          <h3 className="text-lg sm:text-2xl font-black text-slate-900 tracking-tight leading-none font-mono truncate">
             {sales.length}
           </h3>
-          <p className="text-[10px] sm:text-[11px] font-bold text-[#fe569f] mt-1.5 truncate">All customer invoices</p>
+          <p className="text-[10px] sm:text-[11px] font-extrabold text-[#fe569f] mt-2 truncate flex items-center gap-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#fe569f]"></span>
+            <span>Invoices generated</span>
+          </p>
         </div>
 
-        <div className="bg-white hover:bg-slate-50/60 p-3 sm:p-4 rounded-md border border-slate-200/80 hover:border-rose-300 transition-all">
-          <div className="flex items-center justify-between mb-1.5">
-            <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-500 whitespace-nowrap">Due Amount</span>
-            <div className={`w-6 h-6 sm:w-7 sm:h-7 rounded-md flex items-center justify-center font-bold text-xs shrink-0 ${totalPendingPayments > 0 ? 'bg-rose-50 text-rose-600' : 'bg-slate-50 text-slate-400'}`}>
-              <CreditCard size={13} />
+        {/* Card 4: Due Amount */}
+        <div 
+          onClick={() => {
+            setFilterStatus(filterStatus === 'DUE' ? 'ALL' : 'DUE');
+          }}
+          className={`p-3 sm:p-4 rounded-xl border transition-all duration-200 cursor-pointer text-left ${
+            filterStatus === 'DUE'
+              ? 'bg-rose-50/60 border-rose-400 ring-2 ring-rose-400/20 shadow-xs'
+              : totalPendingPayments > 0
+              ? 'bg-rose-50/20 hover:bg-rose-50/40 border-rose-200/80 hover:border-rose-300'
+              : 'bg-white hover:bg-slate-50/70 border-slate-200/90 hover:border-slate-300'
+          }`}
+          title="Click to filter bills with pending balance"
+        >
+          <div className="flex items-center justify-between mb-2">
+            <span className={`text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider truncate ${totalPendingPayments > 0 ? 'text-rose-700' : 'text-slate-500'}`}>
+              Due Amount
+            </span>
+            <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center font-black text-xs shrink-0 shadow-2xs ${totalPendingPayments > 0 ? 'bg-rose-100 text-rose-600' : 'bg-slate-100 text-slate-400'}`}>
+              <CreditCard size={14} strokeWidth={2.5} />
             </div>
           </div>
-          <h3 className={`text-lg sm:text-2xl font-black tracking-tight leading-none font-mono whitespace-nowrap truncate ${totalPendingPayments > 0 ? 'text-rose-600' : 'text-slate-900'}`}>
+          <h3 className={`text-lg sm:text-2xl font-black tracking-tight leading-none font-mono truncate ${totalPendingPayments > 0 ? 'text-rose-600' : 'text-slate-900'}`}>
             {formatCurrency(totalPendingPayments)}
           </h3>
-          <p className="text-[10px] sm:text-[11px] font-bold text-rose-600 mt-1.5 truncate">Balance to collect</p>
+          <p className={`text-[10px] sm:text-[11px] font-extrabold mt-2 truncate flex items-center gap-1 ${totalPendingPayments > 0 ? 'text-rose-600' : 'text-slate-400'}`}>
+            <span className={`w-1.5 h-1.5 rounded-full ${totalPendingPayments > 0 ? 'bg-rose-500' : 'bg-slate-300'}`}></span>
+            <span>{totalPendingPayments > 0 ? 'Uncollected balance' : 'All bills paid'}</span>
+          </p>
         </div>
       </div>
 
