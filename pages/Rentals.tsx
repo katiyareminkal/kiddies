@@ -287,26 +287,26 @@ const Rentals: React.FC = () => {
             {[
               { id: 'ALL' as const, label: 'All', count: allCount },
               { id: 'ACTIVE' as const, label: 'Active', count: activeCount },
-              { id: 'DUE_TODAY' as const, label: 'Due', count: dueTodayCount, fullLabel: 'Due Today' },
+              { id: 'DUE_TODAY' as const, label: 'Due Today', shortLabel: 'Due', count: dueTodayCount },
               { id: 'OVERDUE' as const, label: 'Overdue', count: overdueCount },
-              { id: 'RETURNED' as const, label: 'Returned', count: returnedCount, shortLabel: 'Done' },
+              { id: 'RETURNED' as const, label: 'Returned', shortLabel: 'Done', count: returnedCount },
             ].map(tab => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`py-1.5 px-1 sm:px-3 rounded-md text-[11px] sm:text-xs font-extrabold transition-all flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1.5 text-center leading-none ${
+                className={`py-1.5 px-2.5 sm:px-3.5 rounded-lg text-xs font-black transition-all flex items-center justify-center gap-1.5 text-center shrink-0 ${
                   activeTab === tab.id
-                    ? 'bg-[#fe569f] text-white shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/60'
+                    ? 'bg-[#fe569f] text-white shadow-md shadow-pink-500/25 scale-[1.02]'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/70'
                 }`}
-                title={tab.fullLabel || tab.label}
+                title={tab.label}
               >
-                <span className="truncate">
+                <span>
                   <span className="sm:hidden">{tab.shortLabel || tab.label}</span>
-                  <span className="hidden sm:inline">{tab.fullLabel || tab.label}</span>
+                  <span className="hidden sm:inline">{tab.label}</span>
                 </span>
-                <span className={`px-1 py-0.5 rounded text-[9px] font-black leading-none ${
-                  activeTab === tab.id ? 'bg-white/25 text-white' : 'bg-slate-200/80 text-slate-700'
+                <span className={`px-1.5 py-0.5 rounded-full text-[9px] font-black leading-none ${
+                  activeTab === tab.id ? 'bg-white/30 text-white' : 'bg-slate-200 text-slate-700'
                 }`}>
                   {tab.count}
                 </span>
