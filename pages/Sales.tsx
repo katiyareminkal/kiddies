@@ -275,7 +275,7 @@ const Sales: React.FC = () => {
           <h3 className="text-lg sm:text-2xl font-black text-slate-900 tracking-tight leading-none font-mono whitespace-nowrap truncate">
             {formatCurrency(todaySales)}
           </h3>
-          <p className="text-[10px] sm:text-[11px] font-bold text-[#01a9fb] mt-1.5 whitespace-nowrap truncate">Total billed today</p>
+          <p className="text-[10px] sm:text-[11px] font-bold text-[#01a9fb] mt-1.5 truncate">Billed today</p>
         </div>
 
         <div className="bg-white hover:bg-slate-50/60 p-3 sm:p-4 rounded-md border border-slate-200/80 hover:border-[#fe569f]/50 transition-all">
@@ -288,7 +288,7 @@ const Sales: React.FC = () => {
           <h3 className="text-lg sm:text-2xl font-black text-slate-900 tracking-tight leading-none font-mono whitespace-nowrap truncate">
             {sales.length}
           </h3>
-          <p className="text-[10px] sm:text-[11px] font-bold text-[#fe569f] mt-1.5 whitespace-nowrap truncate">Total sales count</p>
+          <p className="text-[10px] sm:text-[11px] font-bold text-[#fe569f] mt-1.5 truncate">Total orders</p>
         </div>
 
         <div className="bg-white hover:bg-slate-50/60 p-3 sm:p-4 rounded-md border border-slate-200/80 hover:border-yellow-300 transition-all">
@@ -301,7 +301,7 @@ const Sales: React.FC = () => {
           <h3 className={`text-lg sm:text-2xl font-black tracking-tight leading-none font-mono whitespace-nowrap truncate ${activeOrders > 0 ? 'text-yellow-700' : 'text-slate-900'}`}>
             {activeOrders}
           </h3>
-          <p className="text-[10px] sm:text-[11px] font-bold text-yellow-700 mt-1.5 whitespace-nowrap truncate">Pending / Delivery</p>
+          <p className="text-[10px] sm:text-[11px] font-bold text-yellow-700 mt-1.5 truncate">Pending orders</p>
         </div>
 
         <div className="bg-white hover:bg-slate-50/60 p-3 sm:p-4 rounded-md border border-slate-200/80 hover:border-rose-300 transition-all">
@@ -314,7 +314,7 @@ const Sales: React.FC = () => {
           <h3 className={`text-lg sm:text-2xl font-black tracking-tight leading-none font-mono whitespace-nowrap truncate ${totalPendingPayments > 0 ? 'text-rose-600' : 'text-slate-900'}`}>
             {formatCurrency(totalPendingPayments)}
           </h3>
-          <p className="text-[10px] sm:text-[11px] font-bold text-rose-600 mt-1.5 whitespace-nowrap truncate">Remaining balance to collect</p>
+          <p className="text-[10px] sm:text-[11px] font-bold text-rose-600 mt-1.5 truncate">Balance to collect</p>
         </div>
       </div>
 
