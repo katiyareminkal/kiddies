@@ -581,83 +581,82 @@ const Sales: React.FC = () => {
         </div>
       ) : (
         /* Grid Cards View: 2 columns on mobile, 3 on tablet/laptop, 4 on desktop */
-        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-2.5 sm:gap-3.5">
+        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-3.5">
           {filteredSales.map(sale => {
             const customer = customers.find(c => c.id === sale.customerId);
             const dueAmount = Math.max(0, (sale.totalAmount || 0) - (sale.paidAmount || 0));
-            const channelIcon = (() => {
-              switch (sale.channel) {
-                case SalesChannel.AMAZON: return <Globe size={11} className="text-amber-500" />;
-                case SalesChannel.FLIPKART: return <Globe size={11} className="text-[#01a9fb]" />;
-                case SalesChannel.WEBSITE: return <Globe size={11} className="text-emerald-500" />;
-                default: return <Store size={11} className="text-[#01a9fb]" />;
-              }
-            })();
+            const isPaid = sale.paymentStatus === PaymentStatus.PAID;
+            const isPartial = sale.paymentStatus === PaymentStatus.PARTIAL;
+            const isRefunded = sale.paymentStatus === PaymentStatus.REFUNDED;
 
             return (
               <div
                 key={sale.id}
                 onClick={() => setSelectedSaleId(sale.id)}
-                className="bg-white rounded-md border border-slate-200/90 p-2.5 sm:p-3.5 hover:border-[#01a9fb]/60 transition-all duration-200 cursor-pointer flex flex-col justify-between group active:scale-[0.98]"
+                className="bg-white rounded-lg border border-slate-200/90 p-2 sm:p-3 hover:border-[#01a9fb]/60 hover:shadow-xs transition-all duration-200 cursor-pointer flex flex-col justify-between group active:scale-[0.98] relative overflow-hidden text-left"
               >
-                <div>
-                  {/* Top Header: Customer Initial & Total */}
-                  <div className="flex items-start justify-between gap-1.5 mb-2">
-                    <div className="flex items-center gap-1.5 min-w-0 flex-1">
-                      <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-md bg-[#01a9fb]/10 text-[#01a9fb] group-hover:bg-[#01a9fb] group-hover:text-white transition-colors flex items-center justify-center font-extrabold text-xs shrink-0">
-                        {(customer?.name || 'W').charAt(0).toUpperCase()}
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <h4 className="font-black text-xs text-slate-900 truncate leading-tight group-hover:text-[#01a9fb] transition-colors">
-                          {customer?.name || 'Walk-in'}
-                        </h4>
-                        <p className="text-[9px] sm:text-[10px] text-slate-400 font-mono truncate leading-none mt-0.5">{sale.invoiceNumber}</p>
-                      </div>
+                {/* Top-Right Floating Status Pill */}
+                <div className="absolute top-1.5 right-1.5 z-10">
+                  <span className={`inline-flex items-center gap-0.5 text-[8px] sm:text-[9px] font-black uppercase px-1.5 py-0.5 rounded-full shadow-2xs ${
+                    isPaid
+                      ? 'bg-emerald-600 text-white'
+                      : isPartial
+                      ? 'bg-amber-500 text-white'
+                      : isRefunded
+                      ? 'bg-slate-500 text-white'
+                      : 'bg-rose-600 text-white'
+                  }`}>
+                    <span className="w-1 h-1 rounded-full bg-white"></span>
+                    <span>{isPaid ? 'Paid' : (dueAmount > 0 ? `Due ₹${dueAmount}` : sale.paymentStatus)}</span>
+                  </span>
+                </div>
+
+                <div className="space-y-1.5">
+                  {/* Top Header: Customer Info with clearance for status pill */}
+                  <div className="flex items-center gap-1.5 pr-14 sm:pr-16 pb-1.5 border-b border-slate-100">
+                    <div className="w-5 h-5 sm:w-6 sm:h-6 rounded bg-[#01a9fb]/10 text-[#01a9fb] group-hover:bg-[#01a9fb] group-hover:text-white transition-colors flex items-center justify-center font-black text-[10px] sm:text-[11px] shrink-0">
+                      {(customer?.name || 'W').charAt(0).toUpperCase()}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <h4 className="font-extrabold text-[11px] sm:text-xs text-slate-900 truncate leading-tight group-hover:text-[#01a9fb] transition-colors">
+                        {customer?.name || 'Walk-in'}
+                      </h4>
+                      <p className="text-[8px] sm:text-[9px] text-slate-400 font-mono leading-none mt-0.5 truncate">{sale.invoiceNumber}</p>
                     </div>
                   </div>
 
                   {/* Price & Date Strip */}
-                  <div className="flex items-baseline justify-between gap-1 mb-2 bg-slate-50/80 px-2 py-1 rounded border border-slate-100">
-                    <span className="text-xs sm:text-sm font-black text-slate-900 font-mono">
+                  <div className="flex items-baseline justify-between gap-1 bg-slate-50/90 px-1.5 sm:px-2 py-1 rounded-md border border-slate-100">
+                    <span className="text-[11px] sm:text-xs font-black text-slate-900 font-mono">
                       {formatCurrency(sale.totalAmount)}
                     </span>
-                    <span className="text-[9px] font-semibold text-slate-400 whitespace-nowrap">
+                    <span className="text-[8px] sm:text-[9px] font-bold text-slate-400 whitespace-nowrap">
                       {format(parseISO(sale.date), 'dd MMM')}
                     </span>
                   </div>
 
-                  {/* Items summary pills */}
-                  <div className="flex flex-wrap gap-1 my-1.5">
+                  {/* Items summary */}
+                  <div className="flex flex-wrap gap-1 pt-0.5">
                     {(sale.items || []).slice(0, 1).map((item, i) => (
                       <span
                         key={i}
-                        className="text-[9px] sm:text-[10px] font-bold px-1.5 py-0.5 rounded truncate max-w-full flex items-center gap-1 text-slate-700 bg-slate-100"
+                        className="text-[8px] sm:text-[9px] font-bold px-1.5 py-0.5 rounded truncate max-w-full flex items-center gap-1 text-slate-700 bg-slate-100/90"
                       >
                         <Package size={10} className="shrink-0 text-slate-400" />
                         <span className="truncate">{item.quantity}x {item.name}</span>
                       </span>
                     ))}
                     {(sale.items || []).length > 1 && (
-                      <span className="text-[9px] font-extrabold text-slate-400 bg-slate-100 px-1 py-0.5 rounded">
+                      <span className="text-[8px] sm:text-[9px] font-extrabold text-slate-400 bg-slate-100 px-1 py-0.5 rounded">
                         +{(sale.items || []).length - 1} more
                       </span>
                     )}
                   </div>
                 </div>
 
-                {/* Card Footer */}
-                <div className="flex items-center justify-end pt-2 mt-1.5 border-t border-slate-100 gap-1.5">
-                  <span className={`text-[9px] font-black uppercase px-1.5 py-0.5 rounded border whitespace-nowrap ${sale.paymentStatus === PaymentStatus.PAID
-                    ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                    : sale.paymentStatus === PaymentStatus.PARTIAL
-                    ? 'bg-yellow-50 text-yellow-800 border-yellow-300'
-                    : sale.paymentStatus === PaymentStatus.REFUNDED
-                    ? 'bg-slate-50 text-slate-500 border-slate-200'
-                    : 'bg-rose-50 text-rose-700 border-rose-200'
-                  }`}>
-                    {sale.paymentStatus === PaymentStatus.PAID ? 'PAID' : (dueAmount > 0 ? `DUE ₹${dueAmount}` : sale.paymentStatus)}
-                  </span>
-
+                {/* Card Bottom: Timestamp & Delete */}
+                <div className="flex items-center justify-between pt-1.5 mt-1.5 border-t border-slate-100 text-[8px] sm:text-[9px] text-slate-400 font-medium">
+                  <span>{format(parseISO(sale.date), 'hh:mm a')}</span>
                   {settings?.enableDeleteTransactions && (
                     <button
                       type="button"
@@ -667,7 +666,7 @@ const Sales: React.FC = () => {
                           deleteSale(sale.id);
                         }
                       }}
-                      className="p-1 text-slate-300 hover:text-rose-600 hover:bg-rose-50 rounded transition-colors"
+                      className="p-0.5 text-slate-300 hover:text-rose-600 hover:bg-rose-50 rounded transition-colors"
                       title="Delete Invoice"
                     >
                       <Trash2 size={12} />
