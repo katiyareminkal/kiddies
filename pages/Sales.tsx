@@ -38,7 +38,8 @@ import {
   Phone,
   CheckCircle2,
   Sparkles,
-  Receipt
+  Receipt,
+  Eye
 } from 'lucide-react';
 import { formatCurrency } from '../utils/helpers';
 import { format, parseISO, isAfter, isBefore, isSameDay, subDays, startOfMonth, startOfYear } from 'date-fns';
@@ -713,9 +714,9 @@ const Sales: React.FC = () => {
 
                 {/* Card Footer */}
                 <div className="flex items-center justify-between pt-2 mt-1.5 border-t border-slate-100 gap-1">
-                  <div className="flex items-center gap-1 bg-slate-50 border border-slate-200/70 px-1.5 py-0.5 rounded text-[9px] font-bold text-slate-600 truncate">
-                    {channelIcon}
-                    <span className="truncate">{sale.channel === SalesChannel.IN_STORE ? 'Store' : (sale.channel || 'Store')}</span>
+                  <div className="flex items-center gap-1 bg-slate-50 hover:bg-[#01a9fb]/10 hover:border-[#01a9fb]/30 border border-slate-200/70 px-1.5 py-0.5 rounded text-[9px] font-extrabold text-slate-700 hover:text-[#01a9fb] transition-colors truncate">
+                    <Eye size={11} strokeWidth={2.3} className="text-[#01a9fb]" />
+                    <span>Details</span>
                   </div>
 
                   <div className="flex items-center gap-1 shrink-0">
