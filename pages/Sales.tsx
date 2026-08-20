@@ -647,9 +647,10 @@ const Sales: React.FC = () => {
 
                 {/* Card Footer */}
                 <div className="flex items-center justify-between pt-2 mt-1.5 border-t border-slate-100 gap-1">
-                  <span className="text-[9px] font-bold text-slate-400 font-mono">
-                    {sale.invoiceNumber}
-                  </span>
+                  <div className="flex items-center gap-1 bg-slate-50 border border-slate-200/70 px-1.5 py-0.5 rounded text-[9px] font-bold text-slate-500 truncate">
+                    {channelIcon}
+                    <span className="truncate">{sale.channel === SalesChannel.IN_STORE ? 'Store' : (sale.channel || 'Store')}</span>
+                  </div>
 
                   <div className="flex items-center gap-1 shrink-0">
                     <span className={`text-[9px] font-black uppercase px-1.5 py-0.2 rounded border whitespace-nowrap ${sale.paymentStatus === PaymentStatus.PAID
