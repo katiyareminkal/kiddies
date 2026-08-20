@@ -141,6 +141,10 @@ const Sales: React.FC = () => {
       .reduce((acc, s) => acc + (s.totalAmount || 0), 0);
   }, [sales]);
 
+  const totalSalesRevenue = useMemo(() => {
+    return sales.reduce((acc, s) => acc + (s.totalAmount || 0), 0);
+  }, [sales]);
+
   const todayBillsCount = useMemo(() => {
     const today = new Date().toISOString().split('T')[0];
     return sales.filter(s => s.date && s.date.split('T')[0] === today).length;
@@ -267,7 +271,7 @@ const Sales: React.FC = () => {
         </div>
       </div>
 
-      {/* ── KPI Metric Cards (4 Cards) ── */}
+      {/* ── KPI Metric Cards (4 Distinct Cards) ── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3.5">
         <div className="bg-white hover:bg-slate-50/60 p-3 sm:p-4 rounded-md border border-slate-200/80 hover:border-[#01a9fb]/50 transition-all">
           <div className="flex items-center justify-between mb-1.5">
@@ -279,7 +283,20 @@ const Sales: React.FC = () => {
           <h3 className="text-lg sm:text-2xl font-black text-slate-900 tracking-tight leading-none font-mono whitespace-nowrap truncate">
             {formatCurrency(todaySales)}
           </h3>
-          <p className="text-[10px] sm:text-[11px] font-bold text-[#01a9fb] mt-1.5 truncate">Billed today</p>
+          <p className="text-[10px] sm:text-[11px] font-bold text-[#01a9fb] mt-1.5 truncate">Earned today ({todayBillsCount} bills)</p>
+        </div>
+
+        <div className="bg-white hover:bg-slate-50/60 p-3 sm:p-4 rounded-md border border-slate-200/80 hover:border-emerald-300 transition-all">
+          <div className="flex items-center justify-between mb-1.5">
+            <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-500 whitespace-nowrap">Total Revenue</span>
+            <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-md bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-xs shrink-0">
+              <IndianRupee size={13} />
+            </div>
+          </div>
+          <h3 className="text-lg sm:text-2xl font-black text-slate-900 tracking-tight leading-none font-mono whitespace-nowrap truncate">
+            {formatCurrency(totalSalesRevenue)}
+          </h3>
+          <p className="text-[10px] sm:text-[11px] font-bold text-emerald-600 mt-1.5 truncate">All-time sales</p>
         </div>
 
         <div className="bg-white hover:bg-slate-50/60 p-3 sm:p-4 rounded-md border border-slate-200/80 hover:border-[#fe569f]/50 transition-all">
@@ -292,20 +309,7 @@ const Sales: React.FC = () => {
           <h3 className="text-lg sm:text-2xl font-black text-slate-900 tracking-tight leading-none font-mono whitespace-nowrap truncate">
             {sales.length}
           </h3>
-          <p className="text-[10px] sm:text-[11px] font-bold text-[#fe569f] mt-1.5 truncate">Total orders</p>
-        </div>
-
-        <div className="bg-white hover:bg-slate-50/60 p-3 sm:p-4 rounded-md border border-slate-200/80 hover:border-violet-300 transition-all">
-          <div className="flex items-center justify-between mb-1.5">
-            <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-500 whitespace-nowrap">Today's Bills</span>
-            <div className={`w-6 h-6 sm:w-7 sm:h-7 rounded-md flex items-center justify-center font-bold text-xs shrink-0 ${todayBillsCount > 0 ? 'bg-violet-100 text-violet-800' : 'bg-slate-50 text-slate-400'}`}>
-              <Clock size={13} />
-            </div>
-          </div>
-          <h3 className={`text-lg sm:text-2xl font-black tracking-tight leading-none font-mono whitespace-nowrap truncate ${todayBillsCount > 0 ? 'text-violet-700' : 'text-slate-900'}`}>
-            {todayBillsCount}
-          </h3>
-          <p className="text-[10px] sm:text-[11px] font-bold text-violet-700 mt-1.5 truncate">Bills created today</p>
+          <p className="text-[10px] sm:text-[11px] font-bold text-[#fe569f] mt-1.5 truncate">All customer invoices</p>
         </div>
 
         <div className="bg-white hover:bg-slate-50/60 p-3 sm:p-4 rounded-md border border-slate-200/80 hover:border-rose-300 transition-all">
