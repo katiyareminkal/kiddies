@@ -174,7 +174,7 @@ const Sales: React.FC = () => {
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-lg sm:text-xl font-extrabold text-slate-900 tracking-tight">Sales & Billing Terminal</h1>
+              <h1 className="text-lg sm:text-xl font-extrabold text-slate-900 tracking-tight">Sales & Billing</h1>
               <span className="text-[10px] font-extrabold text-[#01a9fb] bg-[#01a9fb]/10 border border-[#01a9fb]/30 px-2 py-0.5 rounded-md">
                 {sales.length} Invoices
               </span>
