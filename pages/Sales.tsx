@@ -469,7 +469,7 @@ const Sales: React.FC = () => {
                 <tr className="border-b border-slate-100 bg-slate-50/60 text-[10px] font-extrabold uppercase text-slate-400 tracking-wider">
                   <th className="px-5 py-3.5">Invoice #</th>
                   <th className="px-4 py-3.5">Customer</th>
-                  <th className="px-4 py-3.5">Date</th>
+                  <th className="px-4 py-3.5">Date & Time</th>
                   <th className="px-4 py-3.5">Items Summary</th>
                   <th className="px-4 py-3.5 text-center">Channel</th>
                   <th className="px-4 py-3.5 text-center">Payment Status</th>
@@ -509,8 +509,15 @@ const Sales: React.FC = () => {
                           </p>
                         )}
                       </td>
-                      <td className="px-4 py-3.5 font-semibold text-slate-400">
-                        {format(parseISO(sale.date), 'dd MMM yyyy, HH:mm')}
+                      <td className="px-4 py-3.5">
+                        <div className="flex flex-col">
+                          <span className="font-bold text-slate-800">
+                            {format(parseISO(sale.date), 'dd MMM yyyy')}
+                          </span>
+                          <span className="text-[10px] font-semibold text-slate-400 font-mono mt-0.5">
+                            {format(parseISO(sale.date), 'hh:mm a')}
+                          </span>
+                        </div>
                       </td>
                       <td className="px-4 py-3.5">
                         <div className="flex flex-wrap gap-1">
