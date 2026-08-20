@@ -646,40 +646,33 @@ const Sales: React.FC = () => {
                 </div>
 
                 {/* Card Footer */}
-                <div className="flex items-center justify-between pt-2 mt-1.5 border-t border-slate-100 gap-1">
-                  <div className="flex items-center gap-1 bg-slate-50 border border-slate-200/70 px-1.5 py-0.5 rounded text-[9px] font-bold text-slate-500 truncate">
-                    {channelIcon}
-                    <span className="truncate">{sale.channel === SalesChannel.IN_STORE ? 'Store' : (sale.channel || 'Store')}</span>
-                  </div>
+                <div className="flex items-center justify-end pt-2 mt-1.5 border-t border-slate-100 gap-1.5">
+                  <span className={`text-[9px] font-black uppercase px-1.5 py-0.5 rounded border whitespace-nowrap ${sale.paymentStatus === PaymentStatus.PAID
+                    ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                    : sale.paymentStatus === PaymentStatus.PARTIAL
+                    ? 'bg-yellow-50 text-yellow-800 border-yellow-300'
+                    : sale.paymentStatus === PaymentStatus.REFUNDED
+                    ? 'bg-slate-50 text-slate-500 border-slate-200'
+                    : 'bg-rose-50 text-rose-700 border-rose-200'
+                  }`}>
+                    {sale.paymentStatus === PaymentStatus.PAID ? 'PAID' : (dueAmount > 0 ? `DUE ₹${dueAmount}` : sale.paymentStatus)}
+                  </span>
 
-                  <div className="flex items-center gap-1 shrink-0">
-                    <span className={`text-[9px] font-black uppercase px-1.5 py-0.2 rounded border whitespace-nowrap ${sale.paymentStatus === PaymentStatus.PAID
-                      ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                      : sale.paymentStatus === PaymentStatus.PARTIAL
-                      ? 'bg-yellow-50 text-yellow-800 border-yellow-300'
-                      : sale.paymentStatus === PaymentStatus.REFUNDED
-                      ? 'bg-slate-50 text-slate-500 border-slate-200'
-                      : 'bg-rose-50 text-rose-700 border-rose-200'
-                    }`}>
-                      {sale.paymentStatus === PaymentStatus.PAID ? 'PAID' : (dueAmount > 0 ? `DUE ₹${dueAmount}` : sale.paymentStatus)}
-                    </span>
-
-                    {settings?.enableDeleteTransactions && (
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (window.confirm(`Delete sale invoice ${sale.invoiceNumber}?`)) {
-                            deleteSale(sale.id);
-                          }
-                        }}
-                        className="p-1 text-slate-300 hover:text-rose-600 hover:bg-rose-50 rounded transition-colors"
-                        title="Delete Invoice"
-                      >
-                        <Trash2 size={12} />
-                      </button>
-                    )}
-                  </div>
+                  {settings?.enableDeleteTransactions && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (window.confirm(`Delete sale invoice ${sale.invoiceNumber}?`)) {
+                          deleteSale(sale.id);
+                        }
+                      }}
+                      className="p-1 text-slate-300 hover:text-rose-600 hover:bg-rose-50 rounded transition-colors"
+                      title="Delete Invoice"
+                    >
+                      <Trash2 size={12} />
+                    </button>
+                  )}
                 </div>
               </div>
             );
