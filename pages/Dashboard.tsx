@@ -793,28 +793,26 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
   return (
     <div className="space-y-5 pb-24 animate-nano max-w-[1600px] mx-auto">
 
-      {/* ── Daily Backup Banner (Exact Match to Reference Design) ── */}
+      {/* ── Daily Backup Banner (Compact & Sleek) ── */}
       {showBackupAlert && (
-        <div className="bg-[#FFFDF5] border border-[#FEEBC8] rounded-2xl p-3 sm:p-4 flex items-center justify-between gap-3 shadow-sm animate-in fade-in zoom-in-95 duration-200">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#FEF3C7] text-[#D97706] flex items-center justify-center shrink-0 border border-[#FDE68A]">
-              <FileSpreadsheet size={20} strokeWidth={2.2} />
-            </div>
-            <div>
-              <h4 className="text-xs sm:text-sm font-black text-[#78350F] leading-tight">Daily backup recommended</h4>
-              <p className="text-[11px] font-semibold text-[#92400E] mt-0.5">Keep your data safe and secure</p>
-            </div>
+        <div className="bg-amber-50/80 border border-amber-200/90 rounded-lg px-3 py-1.5 flex items-center justify-between gap-2 shadow-2xs animate-in fade-in duration-200">
+          <div className="flex items-center gap-2 min-w-0">
+            <FileSpreadsheet size={15} className="text-amber-700 shrink-0" />
+            <p className="text-[11px] sm:text-xs font-bold text-amber-900 truncate">
+              Daily backup recommended <span className="hidden sm:inline font-normal text-amber-700 text-[10px]">• Download today's Excel snapshot</span>
+            </p>
           </div>
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-1.5 shrink-0">
             <button
               onClick={handleExcelBackup}
-              className="px-3.5 sm:px-4 py-2 bg-[#F59E0B] hover:bg-[#D97706] text-white font-extrabold rounded-xl text-xs shadow-md shadow-amber-500/20 active:scale-95 transition-all"
+              className="px-2.5 py-1 bg-amber-500 hover:bg-amber-600 active:scale-95 text-white font-extrabold rounded text-[10px] sm:text-[11px] transition-all flex items-center gap-1"
             >
               Backup Now
             </button>
             <button
               onClick={() => setShowBackupAlert(false)}
-              className="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-black/5 transition-colors"
+              className="text-amber-600 hover:text-amber-900 p-0.5 rounded hover:bg-amber-100/60 transition-colors text-xs font-bold leading-none"
+              title="Dismiss"
             >
               ✕
             </button>
