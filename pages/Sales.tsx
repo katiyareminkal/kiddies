@@ -50,7 +50,7 @@ import {
   DatePresetTimeframe
 } from '../utils/salesExport';
 
-import { ProductFormModal } from '../components/forms/ProductFormModal';
+import { ProductDetailsModal } from '../components/forms/ProductDetailsModal';
 
 const Sales: React.FC = () => {
   const { sales, products, customers, settings, updateOrderStatus, deleteSale } = useApp();
@@ -1279,11 +1279,11 @@ const SaleDetailsModal: React.FC<{ saleId: string; onClose: () => void }> = ({ s
         item={returnModalState.item}
       />
 
-      {/* Product View/Edit Modal Triggered from Sales Item */}
-      <ProductFormModal
+      {/* Product Read-Only Details Modal Triggered from Sales Item */}
+      <ProductDetailsModal
         isOpen={!!viewingProduct}
         onClose={() => setViewingProduct(null)}
-        productToEdit={viewingProduct}
+        product={viewingProduct}
       />
     </div>
   );

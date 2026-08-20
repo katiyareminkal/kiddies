@@ -39,7 +39,7 @@ import { differenceInDays, parseISO, isSameDay, isAfter, isBefore, addDays, form
 import { NewRentalModal } from '../components/forms/NewRentalModal';
 import { ReturnRentalModal } from '../components/forms/ReturnRentalModal';
 import { EditRentalModal } from '../components/forms/EditRentalModal';
-import { ProductFormModal } from '../components/forms/ProductFormModal';
+import { ProductDetailsModal } from '../components/forms/ProductDetailsModal';
 
 const Rentals: React.FC = () => {
   const { rentals, products, customers, updateRental, deleteRental, settings } = useApp();
@@ -814,11 +814,11 @@ const Rentals: React.FC = () => {
           </div>
         )}
       </Modal>
-      {/* Product View/Edit Modal Triggered from Rental Item */}
-      <ProductFormModal
+      {/* Product Read-Only Details Modal Triggered from Rental Item */}
+      <ProductDetailsModal
         isOpen={!!viewingProduct}
         onClose={() => setViewingProduct(null)}
-        productToEdit={viewingProduct}
+        product={viewingProduct}
       />
     </div>
   );
