@@ -460,54 +460,46 @@ const Rentals: React.FC = () => {
               return (
                 <div
                   key={rental.id}
-                  className={`bg-white rounded-xl border p-2 sm:p-3.5 transition-all duration-200 flex flex-col justify-between group hover:border-[#fe569f]/50 hover:shadow-md ${
+                  className={`bg-white rounded-xl border p-2.5 sm:p-3.5 transition-all duration-200 flex flex-col justify-between group hover:border-[#fe569f]/50 hover:shadow-md relative overflow-hidden ${
                     isItemLate ? 'border-rose-300' : isItemDueToday ? 'border-amber-300' : 'border-slate-200/90'
                   }`}
                 >
-                  <div className="space-y-2">
-                    {/* Top Row: Customer Info + Micro Status Indicator */}
-                    <div className="flex items-center justify-between gap-1 pb-1.5 border-b border-slate-100">
-                      <div className="flex items-center gap-1 min-w-0 flex-1">
-                        <div className="w-5 h-5 sm:w-6 sm:h-6 rounded bg-[#fe569f]/10 text-[#fe569f] font-black text-[10px] sm:text-[11px] flex items-center justify-center shrink-0">
-                          {(customer?.name || 'C').charAt(0).toUpperCase()}
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <h4 className="font-extrabold text-[11px] sm:text-xs text-slate-900 leading-tight truncate">
-                            {customer?.name || 'Customer'}
-                          </h4>
-                          <p className="text-[8px] sm:text-[9px] text-slate-400 font-mono leading-none mt-0.5">{rental.invoiceNumber}</p>
-                        </div>
-                      </div>
-
-                      {/* Micro Status Indicator Badge */}
-                      <span className={`inline-flex items-center gap-0.5 sm:gap-1 px-1 sm:px-1.5 py-0.5 rounded text-[7.5px] sm:text-[8px] font-extrabold uppercase tracking-tight whitespace-nowrap shrink-0 ${
-                        rental.status === 'RETURNED'
-                          ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/80'
-                          : isItemLate
-                            ? 'bg-rose-50 text-rose-700 border border-rose-200/80'
-                            : isItemDueToday
-                              ? 'bg-amber-50 text-amber-800 border border-amber-300/80'
-                              : 'bg-pink-50 text-[#fe569f] border border-[#fe569f]/20'
-                      }`}>
-                        <span className={`w-1 h-1 rounded-full ${
-                          rental.status === 'RETURNED' 
-                            ? 'bg-emerald-500' 
-                            : isItemLate 
-                              ? 'bg-rose-500 animate-pulse' 
-                              : isItemDueToday 
-                                ? 'bg-amber-500' 
-                                : 'bg-[#fe569f]'
-                        }`}></span>
-                        <span>
-                          {rental.status === 'RETURNED' 
-                            ? 'Ret' 
-                            : isItemLate 
-                              ? 'Late' 
-                              : isItemDueToday 
-                                ? 'Due' 
-                                : 'Act'}
-                        </span>
+                  {/* Floating Top-Right Status Badge */}
+                  <div className="absolute top-1.5 right-1.5 z-10">
+                    <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[7px] sm:text-[8px] font-black uppercase tracking-tight shadow-xs ${
+                      rental.status === 'RETURNED'
+                        ? 'bg-emerald-500 text-white shadow-emerald-500/20'
+                        : isItemLate
+                          ? 'bg-rose-500 text-white shadow-rose-500/20 animate-pulse'
+                          : isItemDueToday
+                            ? 'bg-amber-500 text-white shadow-amber-500/20'
+                            : 'bg-[#fe569f] text-white shadow-pink-500/20'
+                    }`}>
+                      <span className="w-1 h-1 rounded-full bg-white"></span>
+                      <span>
+                        {rental.status === 'RETURNED' 
+                          ? 'Returned' 
+                          : isItemLate 
+                            ? 'Overdue' 
+                            : isItemDueToday 
+                              ? 'Due Today' 
+                              : 'Active'}
                       </span>
+                    </span>
+                  </div>
+
+                  <div className="space-y-2">
+                    {/* Top Row: Customer Info with right clearance for badge */}
+                    <div className="flex items-center gap-1.5 pr-14 sm:pr-16 pb-1.5 border-b border-slate-100">
+                      <div className="w-5 h-5 sm:w-6 sm:h-6 rounded bg-[#fe569f]/10 text-[#fe569f] font-black text-[10px] sm:text-[11px] flex items-center justify-center shrink-0">
+                        {(customer?.name || 'C').charAt(0).toUpperCase()}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <h4 className="font-extrabold text-[11px] sm:text-xs text-slate-900 leading-tight truncate">
+                          {customer?.name || 'Customer'}
+                        </h4>
+                        <p className="text-[8px] sm:text-[9px] text-slate-400 font-mono leading-none mt-0.5">{rental.invoiceNumber}</p>
+                      </div>
                     </div>
 
                     {/* Product & Rent Amount */}
