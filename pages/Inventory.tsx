@@ -699,7 +699,7 @@ const Inventory: React.FC = () => {
                   <th className="px-4 py-3.5">SKU & Brand</th>
                   <th className="px-4 py-3.5">Sizes</th>
                   <th className="px-4 py-3.5">Stock (Sale/Rent)</th>
-                  <th className="px-4 py-3.5 text-right">Price</th>
+                  <th className="px-4 py-3.5 text-right">Tag Price / MRP</th>
                   <th className="px-5 py-3.5 text-right">Actions</th>
                 </tr>
               </thead>
@@ -1006,7 +1006,7 @@ const Inventory: React.FC = () => {
             {/* Financials Strip */}
             <div className="grid grid-cols-3 gap-2.5 bg-slate-50 p-3.5 rounded-lg border border-slate-200">
               <div>
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Selling Price</span>
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Tag Price / MRP</span>
                 <span className="text-base font-extrabold text-slate-900 font-mono">{formatCurrency(viewProductDetails.sellingPrice)}</span>
               </div>
               <div>

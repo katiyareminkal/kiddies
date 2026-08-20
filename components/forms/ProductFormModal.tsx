@@ -411,7 +411,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
     if (productPurpose === 'SALE' || productPurpose === 'HYBRID') {
       const sellingPrice = Number(formData.get('sellingPrice')) || 0;
       if (isNaN(sellingPrice) || sellingPrice <= 0) {
-        alert('Selling Price is mandatory and must be greater than 0.');
+        alert('Tag Price / MRP is mandatory and must be greater than 0.');
         return;
       }
     }
@@ -999,7 +999,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
             {(productPurpose === 'SALE' || productPurpose === 'HYBRID') && (
               <div className="space-y-1.5">
-                <label className="text-[9px] font-extrabold uppercase tracking-wider text-slate-400 ml-1">Selling Price <span className="text-red-500">*</span></label>
+                <label className="text-[9px] font-extrabold uppercase tracking-wider text-slate-400 ml-1">Tag Price / MRP <span className="text-red-500">*</span></label>
                 <input name="sellingPrice" type="number" step="0.01" defaultValue={productToEdit?.sellingPrice} required className="w-full px-3 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#01a9fb] rounded-md outline-none transition-all font-bold uppercase tracking-wider text-slate-800 text-xs" placeholder="0.00" />
               </div>
             )}
