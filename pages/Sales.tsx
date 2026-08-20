@@ -1203,25 +1203,43 @@ const SaleDetailsModal: React.FC<{ saleId: string; onClose: () => void }> = ({ s
                   images: []
                 };
 
+                const itemImg = (matchedProd?.images && matchedProd.images[0]) || matchedProd?.imageUrl;
+
                 return (
-                  <div key={idx} className="p-3 bg-white border border-slate-200/80 rounded-md hover:border-slate-300 transition-colors">
-                    <div className="flex justify-between items-start">
-                      <div>
+                  <div key={idx} className="p-2.5 sm:p-3 bg-white border border-slate-200/80 rounded-md hover:border-slate-300 transition-colors">
+                    <div className="flex justify-between items-center gap-2">
+                      <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                        {/* Item Thumbnail */}
                         <div
-                          onClick={() => {
-                            setViewingProduct(effectiveProduct);
-                          }}
-                          className="flex items-center gap-1.5 cursor-pointer group/modalItem"
-                          title={`Click to view product ${item.name}`}
+                          onClick={() => setViewingProduct(effectiveProduct)}
+                          className="w-11 h-11 sm:w-12 sm:h-12 rounded-md bg-slate-50 border border-slate-200 shrink-0 overflow-hidden flex items-center justify-center cursor-pointer hover:ring-2 hover:ring-[#01a9fb]/40 transition-all"
+                          title={`View ${item.name}`}
                         >
-                          <Package size={13} className="text-slate-400 group-hover/modalItem:text-[#01a9fb] shrink-0" />
-                          <p className="text-xs font-extrabold text-slate-900 group-hover/modalItem:text-[#01a9fb] group-hover/modalItem:underline">
+                          {itemImg ? (
+                            <img src={itemImg} alt={item.name} className="w-full h-full object-cover" />
+                          ) : (
+                            <Package size={18} className="text-slate-300" />
+                          )}
+                        </div>
+
+                        <div className="min-w-0 flex-1">
+                          <p
+                            onClick={() => setViewingProduct(effectiveProduct)}
+                            className="text-xs font-extrabold text-slate-900 group-hover:text-[#01a9fb] truncate cursor-pointer hover:text-[#01a9fb] hover:underline"
+                            title={`Click to view product ${item.name}`}
+                          >
                             {item.name}
                           </p>
+                          <p className="text-[10px] text-slate-400 font-semibold mt-0.5">
+                            {item.quantity} pcs × {formatCurrency(item.unitPrice)}
+                            {matchedProd?.sku && <span className="ml-1.5 font-mono text-[9px] text-slate-400">• SKU: {matchedProd.sku}</span>}
+                          </p>
                         </div>
-                        <p className="text-[10px] text-slate-400 font-semibold mt-0.5 ml-4.5">{item.quantity} pcs × {formatCurrency(item.unitPrice)}</p>
                       </div>
-                      <p className="text-xs font-extrabold text-slate-900 font-mono">{formatCurrency(item.total)}</p>
+
+                      <div className="text-right shrink-0">
+                        <p className="text-xs sm:text-sm font-extrabold text-slate-900 font-mono">{formatCurrency(item.total)}</p>
+                      </div>
                     </div>
 
                     {/* Return / Exchange Button */}
