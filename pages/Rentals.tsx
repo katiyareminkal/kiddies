@@ -39,6 +39,7 @@ import { differenceInDays, parseISO, isSameDay, isAfter, isBefore, addDays, form
 import { NewRentalModal } from '../components/forms/NewRentalModal';
 import { ReturnRentalModal } from '../components/forms/ReturnRentalModal';
 import { EditRentalModal } from '../components/forms/EditRentalModal';
+import { ProductFormModal } from '../components/forms/ProductFormModal';
 
 const Rentals: React.FC = () => {
   const { rentals, products, customers, updateRental, deleteRental, settings } = useApp();
@@ -51,6 +52,7 @@ const Rentals: React.FC = () => {
   const [isCheckInModalOpen, setIsCheckInModalOpen] = useState(false);
   const [isExtendModalOpen, setIsExtendModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [viewingProduct, setViewingProduct] = useState<any | null>(null);
 
   // Selection
   const [selectedRental, setSelectedRental] = useState<Rental | null>(null);
@@ -503,10 +505,19 @@ const Rentals: React.FC = () => {
                     </div>
 
                     {/* Product & Rent Amount */}
-                    <div className="bg-slate-50/90 px-1.5 sm:px-2.5 py-1 rounded-lg border border-slate-100">
+                    <div 
+                      onClick={() => {
+                        if (product) {
+                          setViewingProduct(product);
+                        }
+                      }}
+                      className={`bg-slate-50/90 px-1.5 sm:px-2.5 py-1 rounded-lg border border-slate-100 transition-all ${product ? 'hover:bg-[#01a9fb]/10 hover:border-[#01a9fb]/30 cursor-pointer group/item' : ''}`}
+                      title={product ? `Click to view product: ${product.name}` : ''}
+                    >
                       <div className="flex items-center justify-between gap-1">
-                        <span className="text-[10px] sm:text-[11px] font-bold text-slate-800 truncate flex-1 leading-tight">
-                          {product?.name || 'Garment Item'}
+                        <span className="text-[10px] sm:text-[11px] font-bold text-slate-800 truncate flex-1 leading-tight group-hover/item:text-[#01a9fb] flex items-center gap-1">
+                          <Package size={11} className="shrink-0 text-slate-400 group-hover/item:text-[#01a9fb]" />
+                          <span className="truncate">{product?.name || 'Garment Item'}</span>
                         </span>
                         <span className="text-[11px] sm:text-xs font-black text-slate-900 font-mono whitespace-nowrap shrink-0">
                           {formatCurrency(rental.totalRentAmount)}
@@ -636,8 +647,18 @@ const Rentals: React.FC = () => {
                           <p className="text-[11px] text-slate-500 font-semibold mt-0.5">{customer?.name || 'Customer'}</p>
                         </td>
                         <td className="px-4 py-3.5">
-                          <p className="font-bold text-slate-800">{product?.name || 'Item'}</p>
-                          <p className="text-[10px] text-slate-400 font-bold">Qty: {rental.quantity}</p>
+                          <button
+                            type="button"
+                            onClick={() => product && setViewingProduct(product)}
+                            className={`text-left ${product ? 'hover:text-[#01a9fb] group-hover:underline cursor-pointer' : ''}`}
+                            title={product ? 'Click to view product' : ''}
+                          >
+                            <p className="font-bold text-slate-800 flex items-center gap-1">
+                              <Package size={12} className="text-slate-400" />
+                              <span>{product?.name || 'Item'}</span>
+                            </p>
+                            <p className="text-[10px] text-slate-400 font-bold">Qty: {rental.quantity}</p>
+                          </button>
                         </td>
                         <td className="px-4 py-3.5">
                           <p className="font-bold text-slate-700">
@@ -793,6 +814,12 @@ const Rentals: React.FC = () => {
           </div>
         )}
       </Modal>
+      {/* Product View/Edit Modal Triggered from Rental Item */}
+      <ProductFormModal
+        isOpen={!!viewingProduct}
+        onClose={() => setViewingProduct(null)}
+        productToEdit={viewingProduct}
+      />
     </div>
   );
 };

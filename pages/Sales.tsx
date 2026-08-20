@@ -50,6 +50,8 @@ import {
   DatePresetTimeframe
 } from '../utils/salesExport';
 
+import { ProductFormModal } from '../components/forms/ProductFormModal';
+
 const Sales: React.FC = () => {
   const { sales, products, customers, settings, updateOrderStatus, deleteSale } = useApp();
   const [isAddingSale, setIsAddingSale] = useState(false);
@@ -58,6 +60,7 @@ const Sales: React.FC = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [showExportMenu, setShowExportMenu] = useState(false);
   const [exportFormat, setExportFormat] = useState<'excel' | 'csv'>('excel');
+  const [viewingProduct, setViewingProduct] = useState<any | null>(null);
   const exportMenuRef = useRef<HTMLDivElement>(null);
   const filterMenuRef = useRef<HTMLDivElement>(null);
 
@@ -510,11 +513,28 @@ const Sales: React.FC = () => {
                       </td>
                       <td className="px-4 py-3.5">
                         <div className="flex flex-wrap gap-1">
-                          {(sale.items || []).slice(0, 2).map((item, i) => (
-                            <span key={i} className="text-[10px] font-bold text-slate-700 bg-slate-100 px-2 py-0.5 rounded">
-                              {item.quantity}x {item.name}
-                            </span>
-                          ))}
+                          {(sale.items || []).slice(0, 2).map((item, i) => {
+                            const matchedProd = products.find(p => p.id === item.productId || p.sku === item.sku || p.name.toLowerCase() === item.name.toLowerCase());
+                            return (
+                              <button
+                                key={i}
+                                type="button"
+                                onClick={(e) => {
+                                  if (matchedProd) {
+                                    e.stopPropagation();
+                                    setViewingProduct(matchedProd);
+                                  }
+                                }}
+                                className={`text-[10px] font-bold px-2 py-0.5 rounded text-left transition-colors flex items-center gap-1 ${
+                                  matchedProd ? 'text-slate-800 bg-slate-100 hover:bg-[#01a9fb]/15 hover:text-[#01a9fb] cursor-pointer' : 'text-slate-700 bg-slate-100'
+                                }`}
+                                title={matchedProd ? `Click to view/edit ${matchedProd.name}` : ''}
+                              >
+                                <Package size={10} className="text-slate-400" />
+                                <span>{item.quantity}x {item.name}</span>
+                              </button>
+                            );
+                          })}
                           {(sale.items || []).length > 2 && (
                             <span className="text-[10px] font-bold text-slate-400 bg-slate-50 px-1.5 py-0.5 rounded">
                               +{(sale.items || []).length - 2}
@@ -618,13 +638,29 @@ const Sales: React.FC = () => {
                     </span>
                   </div>
 
-                  {/* Items summary pills */}
+                  {/* Items summary pills (Clickable to inspect/edit product) */}
                   <div className="flex flex-wrap gap-1 my-1.5">
-                    {(sale.items || []).slice(0, 1).map((item, i) => (
-                      <span key={i} className="text-[9px] sm:text-[10px] font-bold text-slate-700 bg-slate-100 px-1.5 py-0.5 rounded truncate max-w-full block">
-                        {item.quantity}x {item.name}
-                      </span>
-                    ))}
+                    {(sale.items || []).slice(0, 1).map((item, i) => {
+                      const matchedProd = products.find(p => p.id === item.productId || p.sku === item.sku || p.name.toLowerCase() === item.name.toLowerCase());
+                      return (
+                        <span
+                          key={i}
+                          onClick={(e) => {
+                            if (matchedProd) {
+                              e.stopPropagation();
+                              setViewingProduct(matchedProd);
+                            }
+                          }}
+                          className={`text-[9px] sm:text-[10px] font-bold px-1.5 py-0.5 rounded truncate max-w-full flex items-center gap-1 transition-colors ${
+                            matchedProd ? 'text-slate-800 bg-slate-100 hover:bg-[#01a9fb]/15 hover:text-[#01a9fb] cursor-pointer' : 'text-slate-700 bg-slate-100'
+                          }`}
+                          title={matchedProd ? `Click to inspect/edit ${matchedProd.name}` : ''}
+                        >
+                          <Package size={10} className="shrink-0 text-slate-400" />
+                          <span className="truncate">{item.quantity}x {item.name}</span>
+                        </span>
+                      );
+                    })}
                     {(sale.items || []).length > 1 && (
                       <span className="text-[9px] font-extrabold text-slate-400 bg-slate-100 px-1 py-0.5 rounded">
                         +{(sale.items || []).length - 1} more
@@ -1166,15 +1202,30 @@ const SaleDetailsModal: React.FC<{ saleId: string; onClose: () => void }> = ({ s
           <div>
             <h4 className="text-[10px] font-extrabold uppercase tracking-wider text-slate-500 mb-2">Purchased Items ({(sale.items || []).length})</h4>
             <div className="space-y-2">
-              {(sale.items || []).map((item, idx) => (
-                <div key={idx} className="p-3 bg-white border border-slate-200/80 rounded-md">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <p className="text-xs font-extrabold text-slate-900">{item.name}</p>
-                      <p className="text-[10px] text-slate-400 font-semibold mt-0.5">{item.quantity} pcs × {formatCurrency(item.unitPrice)}</p>
+              {(sale.items || []).map((item, idx) => {
+                const matchedProd = products.find(p => p.id === item.productId || p.sku === item.sku || p.name.toLowerCase() === item.name.toLowerCase());
+                return (
+                  <div key={idx} className="p-3 bg-white border border-slate-200/80 rounded-md hover:border-slate-300 transition-colors">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <div
+                          onClick={() => {
+                            if (matchedProd) {
+                              setViewingProduct(matchedProd);
+                            }
+                          }}
+                          className={`flex items-center gap-1.5 ${matchedProd ? 'cursor-pointer group/modalItem' : ''}`}
+                          title={matchedProd ? `Click to view product ${matchedProd.name}` : ''}
+                        >
+                          <Package size={13} className="text-slate-400 group-hover/modalItem:text-[#01a9fb] shrink-0" />
+                          <p className={`text-xs font-extrabold text-slate-900 ${matchedProd ? 'group-hover/modalItem:text-[#01a9fb] group-hover/modalItem:underline' : ''}`}>
+                            {item.name}
+                          </p>
+                        </div>
+                        <p className="text-[10px] text-slate-400 font-semibold mt-0.5 ml-4.5">{item.quantity} pcs × {formatCurrency(item.unitPrice)}</p>
+                      </div>
+                      <p className="text-xs font-extrabold text-slate-900 font-mono">{formatCurrency(item.total)}</p>
                     </div>
-                    <p className="text-xs font-extrabold text-slate-900 font-mono">{formatCurrency(item.total)}</p>
-                  </div>
 
                   {/* Return / Exchange Button */}
                   {(item.quantity || 1) - (item.returnedQuantity || 0) > 0 && !item.productId?.startsWith('CUSTOM_') && (
@@ -1225,6 +1276,13 @@ const SaleDetailsModal: React.FC<{ saleId: string; onClose: () => void }> = ({ s
         saleId={sale.id}
         itemIndex={returnModalState.itemIndex}
         item={returnModalState.item}
+      />
+
+      {/* Product View/Edit Modal Triggered from Sales Item */}
+      <ProductFormModal
+        isOpen={!!viewingProduct}
+        onClose={() => setViewingProduct(null)}
+        productToEdit={viewingProduct}
       />
     </div>
   );
