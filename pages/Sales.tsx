@@ -141,7 +141,11 @@ const Sales: React.FC = () => {
       .reduce((acc, s) => acc + (s.totalAmount || 0), 0);
   }, [sales]);
 
-  const activeOrders = sales.filter(s => s.orderStatus !== OrderStatus.COMPLETED && s.orderStatus !== OrderStatus.CANCELLED).length;
+  const todayBillsCount = useMemo(() => {
+    const today = new Date().toISOString().split('T')[0];
+    return sales.filter(s => s.date && s.date.split('T')[0] === today).length;
+  }, [sales]);
+
   const totalPendingPayments = sales.filter(s => s.paymentStatus !== PaymentStatus.PAID && s.paymentStatus !== PaymentStatus.REFUNDED).reduce((acc, s) => acc + ((s.totalAmount || 0) - (s.paidAmount || 0)), 0);
 
   const handleExportTimeframe = (timeframe: DatePresetTimeframe, formatType: 'excel' | 'csv' = exportFormat) => {
@@ -291,17 +295,17 @@ const Sales: React.FC = () => {
           <p className="text-[10px] sm:text-[11px] font-bold text-[#fe569f] mt-1.5 truncate">Total orders</p>
         </div>
 
-        <div className="bg-white hover:bg-slate-50/60 p-3 sm:p-4 rounded-md border border-slate-200/80 hover:border-yellow-300 transition-all">
+        <div className="bg-white hover:bg-slate-50/60 p-3 sm:p-4 rounded-md border border-slate-200/80 hover:border-violet-300 transition-all">
           <div className="flex items-center justify-between mb-1.5">
-            <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-500 whitespace-nowrap">In Progress</span>
-            <div className={`w-6 h-6 sm:w-7 sm:h-7 rounded-md flex items-center justify-center font-bold text-xs shrink-0 ${activeOrders > 0 ? 'bg-yellow-100 text-yellow-800' : 'bg-slate-50 text-slate-400'}`}>
+            <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-500 whitespace-nowrap">Today's Bills</span>
+            <div className={`w-6 h-6 sm:w-7 sm:h-7 rounded-md flex items-center justify-center font-bold text-xs shrink-0 ${todayBillsCount > 0 ? 'bg-violet-100 text-violet-800' : 'bg-slate-50 text-slate-400'}`}>
               <Clock size={13} />
             </div>
           </div>
-          <h3 className={`text-lg sm:text-2xl font-black tracking-tight leading-none font-mono whitespace-nowrap truncate ${activeOrders > 0 ? 'text-yellow-700' : 'text-slate-900'}`}>
-            {activeOrders}
+          <h3 className={`text-lg sm:text-2xl font-black tracking-tight leading-none font-mono whitespace-nowrap truncate ${todayBillsCount > 0 ? 'text-violet-700' : 'text-slate-900'}`}>
+            {todayBillsCount}
           </h3>
-          <p className="text-[10px] sm:text-[11px] font-bold text-yellow-700 mt-1.5 truncate">Pending orders</p>
+          <p className="text-[10px] sm:text-[11px] font-bold text-violet-700 mt-1.5 truncate">Bills created today</p>
         </div>
 
         <div className="bg-white hover:bg-slate-50/60 p-3 sm:p-4 rounded-md border border-slate-200/80 hover:border-rose-300 transition-all">
