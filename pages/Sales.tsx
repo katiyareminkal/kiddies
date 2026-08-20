@@ -616,13 +616,24 @@ const Sales: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Price & Date Strip */}
-                  <div className="flex items-baseline justify-between gap-1 bg-slate-50/90 px-2 py-1.5 rounded-md border border-slate-100">
+                  {/* Price & Status Strip */}
+                  <div className="flex items-center justify-between gap-1 bg-slate-50/90 px-2 py-1.5 rounded-md border border-slate-100">
                     <span className="text-xs sm:text-sm font-black text-slate-900 font-mono">
                       {formatCurrency(sale.totalAmount)}
                     </span>
-                    <span className="text-[9px] sm:text-[10px] font-bold text-slate-400 whitespace-nowrap">
-                      {format(parseISO(sale.date), 'dd MMM')}
+                    <span className={`inline-flex items-center gap-1 text-[8px] sm:text-[9px] font-black uppercase px-1.5 py-0.5 rounded border ${
+                      isPaid
+                        ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                        : isPartial
+                        ? 'bg-amber-50 text-amber-700 border-amber-200'
+                        : isRefunded
+                        ? 'bg-slate-50 text-slate-600 border-slate-200'
+                        : 'bg-rose-50 text-rose-700 border-rose-200'
+                    }`}>
+                      <span className={`w-1.5 h-1.5 rounded-full ${
+                        isPaid ? 'bg-emerald-500' : isPartial ? 'bg-amber-500' : isRefunded ? 'bg-slate-400' : 'bg-rose-500'
+                      }`}></span>
+                      <span>{isPaid ? 'Paid' : (dueAmount > 0 ? `Due ₹${dueAmount}` : sale.paymentStatus)}</span>
                     </span>
                   </div>
 
@@ -645,22 +656,9 @@ const Sales: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Card Bottom: Status Badge & Delete */}
-                <div className="flex items-center justify-between pt-2 mt-2 border-t border-slate-100">
-                  <span className={`inline-flex items-center gap-1 text-[9px] sm:text-[10px] font-black uppercase px-2 py-0.5 rounded-md border ${
-                    isPaid
-                      ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                      : isPartial
-                      ? 'bg-amber-50 text-amber-700 border-amber-200'
-                      : isRefunded
-                      ? 'bg-slate-50 text-slate-600 border-slate-200'
-                      : 'bg-rose-50 text-rose-700 border-rose-200'
-                  }`}>
-                    <span className={`w-1.5 h-1.5 rounded-full ${
-                      isPaid ? 'bg-emerald-500' : isPartial ? 'bg-amber-500' : isRefunded ? 'bg-slate-400' : 'bg-rose-500'
-                    }`}></span>
-                    <span>{isPaid ? 'Paid' : (dueAmount > 0 ? `Due ₹${dueAmount}` : sale.paymentStatus)}</span>
-                  </span>
+                {/* Card Bottom: Date & Delete */}
+                <div className="flex items-center justify-between pt-2 mt-2 border-t border-slate-100 text-[9px] sm:text-[10px] text-slate-400 font-bold">
+                  <span>{format(parseISO(sale.date), 'dd MMM yyyy, hh:mm a')}</span>
 
                   {settings?.enableDeleteTransactions && (
                     <button
