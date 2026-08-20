@@ -515,20 +515,41 @@ const Sales: React.FC = () => {
                         <div className="flex flex-wrap gap-1">
                           {(sale.items || []).slice(0, 2).map((item, i) => {
                             const matchedProd = products.find(p => p.id === item.productId || p.sku === item.sku || p.name.toLowerCase() === item.name.toLowerCase());
+                            const effectiveProduct = matchedProd || {
+                              id: item.productId || `item-${i}`,
+                              name: item.name || 'Sold Item',
+                              sku: item.sku || 'N/A',
+                              barcode: '',
+                              category: 'Sale Item',
+                              gender: 'Universal',
+                              subCategory: 'General',
+                              clothingType: 'Standard',
+                              brand: 'Store',
+                              purpose: 'SALE' as const,
+                              purchasePrice: 0,
+                              sellingPrice: item.unitPrice || 0,
+                              rentalPrice: 0,
+                              taxPercent: 0,
+                              stockQuantity: 0,
+                              saleStock: 0,
+                              rentalStock: 0,
+                              minStockAlert: 0,
+                              supplierId: '',
+                              description: '',
+                              sizes: item.size ? [item.size] : [],
+                              images: []
+                            };
+
                             return (
                               <button
                                 key={i}
                                 type="button"
                                 onClick={(e) => {
-                                  if (matchedProd) {
-                                    e.stopPropagation();
-                                    setViewingProduct(matchedProd);
-                                  }
+                                  e.stopPropagation();
+                                  setViewingProduct(effectiveProduct);
                                 }}
-                                className={`text-[10px] font-bold px-2 py-0.5 rounded text-left transition-colors flex items-center gap-1 ${
-                                  matchedProd ? 'text-slate-800 bg-slate-100 hover:bg-[#01a9fb]/15 hover:text-[#01a9fb] cursor-pointer' : 'text-slate-700 bg-slate-100'
-                                }`}
-                                title={matchedProd ? `Click to view/edit ${matchedProd.name}` : ''}
+                                className="text-[10px] font-bold px-2 py-0.5 rounded text-left transition-colors flex items-center gap-1 text-slate-800 bg-slate-100 hover:bg-[#01a9fb]/15 hover:text-[#01a9fb] cursor-pointer"
+                                title={`Click to view ${item.name}`}
                               >
                                 <Package size={10} className="text-slate-400" />
                                 <span>{item.quantity}x {item.name}</span>
@@ -638,23 +659,44 @@ const Sales: React.FC = () => {
                     </span>
                   </div>
 
-                  {/* Items summary pills (Clickable to inspect/edit product) */}
+                  {/* Items summary pills (Clickable to inspect product) */}
                   <div className="flex flex-wrap gap-1 my-1.5">
                     {(sale.items || []).slice(0, 1).map((item, i) => {
                       const matchedProd = products.find(p => p.id === item.productId || p.sku === item.sku || p.name.toLowerCase() === item.name.toLowerCase());
+                      const effectiveProduct = matchedProd || {
+                        id: item.productId || `item-${i}`,
+                        name: item.name || 'Sold Item',
+                        sku: item.sku || 'N/A',
+                        barcode: '',
+                        category: 'Sale Item',
+                        gender: 'Universal',
+                        subCategory: 'General',
+                        clothingType: 'Standard',
+                        brand: 'Store',
+                        purpose: 'SALE' as const,
+                        purchasePrice: 0,
+                        sellingPrice: item.unitPrice || 0,
+                        rentalPrice: 0,
+                        taxPercent: 0,
+                        stockQuantity: 0,
+                        saleStock: 0,
+                        rentalStock: 0,
+                        minStockAlert: 0,
+                        supplierId: '',
+                        description: '',
+                        sizes: item.size ? [item.size] : [],
+                        images: []
+                      };
+
                       return (
                         <span
                           key={i}
                           onClick={(e) => {
-                            if (matchedProd) {
-                              e.stopPropagation();
-                              setViewingProduct(matchedProd);
-                            }
+                            e.stopPropagation();
+                            setViewingProduct(effectiveProduct);
                           }}
-                          className={`text-[9px] sm:text-[10px] font-bold px-1.5 py-0.5 rounded truncate max-w-full flex items-center gap-1 transition-colors ${
-                            matchedProd ? 'text-slate-800 bg-slate-100 hover:bg-[#01a9fb]/15 hover:text-[#01a9fb] cursor-pointer' : 'text-slate-700 bg-slate-100'
-                          }`}
-                          title={matchedProd ? `Click to inspect/edit ${matchedProd.name}` : ''}
+                          className="text-[9px] sm:text-[10px] font-bold px-1.5 py-0.5 rounded truncate max-w-full flex items-center gap-1 transition-colors text-slate-800 bg-slate-100 hover:bg-[#01a9fb]/15 hover:text-[#01a9fb] cursor-pointer"
+                          title={`Click to view product ${item.name}`}
                         >
                           <Package size={10} className="shrink-0 text-slate-400" />
                           <span className="truncate">{item.quantity}x {item.name}</span>
@@ -1204,21 +1246,44 @@ const SaleDetailsModal: React.FC<{ saleId: string; onClose: () => void }> = ({ s
             <div className="space-y-2">
               {(sale.items || []).map((item, idx) => {
                 const matchedProd = products.find(p => p.id === item.productId || p.sku === item.sku || p.name.toLowerCase() === item.name.toLowerCase());
+                const effectiveProduct = matchedProd || {
+                  id: item.productId || `item-${idx}`,
+                  name: item.name || 'Sold Item',
+                  sku: item.sku || 'N/A',
+                  barcode: '',
+                  category: 'Sale Item',
+                  gender: 'Universal',
+                  subCategory: 'General',
+                  clothingType: 'Standard',
+                  brand: 'Store',
+                  purpose: 'SALE' as const,
+                  purchasePrice: 0,
+                  sellingPrice: item.unitPrice || 0,
+                  rentalPrice: 0,
+                  taxPercent: 0,
+                  stockQuantity: 0,
+                  saleStock: 0,
+                  rentalStock: 0,
+                  minStockAlert: 0,
+                  supplierId: '',
+                  description: '',
+                  sizes: item.size ? [item.size] : [],
+                  images: []
+                };
+
                 return (
                   <div key={idx} className="p-3 bg-white border border-slate-200/80 rounded-md hover:border-slate-300 transition-colors">
                     <div className="flex justify-between items-start">
                       <div>
                         <div
                           onClick={() => {
-                            if (matchedProd) {
-                              setViewingProduct(matchedProd);
-                            }
+                            setViewingProduct(effectiveProduct);
                           }}
-                          className={`flex items-center gap-1.5 ${matchedProd ? 'cursor-pointer group/modalItem' : ''}`}
-                          title={matchedProd ? `Click to view product ${matchedProd.name}` : ''}
+                          className="flex items-center gap-1.5 cursor-pointer group/modalItem"
+                          title={`Click to view product ${item.name}`}
                         >
                           <Package size={13} className="text-slate-400 group-hover/modalItem:text-[#01a9fb] shrink-0" />
-                          <p className={`text-xs font-extrabold text-slate-900 ${matchedProd ? 'group-hover/modalItem:text-[#01a9fb] group-hover/modalItem:underline' : ''}`}>
+                          <p className="text-xs font-extrabold text-slate-900 group-hover/modalItem:text-[#01a9fb] group-hover/modalItem:underline">
                             {item.name}
                           </p>
                         </div>

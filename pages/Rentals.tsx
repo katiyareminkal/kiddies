@@ -507,12 +507,34 @@ const Rentals: React.FC = () => {
                     {/* Product & Rent Amount */}
                     <div 
                       onClick={() => {
-                        if (product) {
-                          setViewingProduct(product);
-                        }
+                        const effectiveProd = product || {
+                          id: rental.productId || 'rental-item',
+                          name: 'Rental Outfit',
+                          sku: 'N/A',
+                          barcode: '',
+                          category: 'Rental Item',
+                          gender: 'Universal',
+                          subCategory: 'General',
+                          clothingType: 'Standard',
+                          brand: 'Store',
+                          purpose: 'RENTAL' as const,
+                          purchasePrice: 0,
+                          sellingPrice: 0,
+                          rentalPrice: rental.dailyRate || 0,
+                          taxPercent: 0,
+                          stockQuantity: 0,
+                          saleStock: 0,
+                          rentalStock: 0,
+                          minStockAlert: 0,
+                          supplierId: '',
+                          description: '',
+                          sizes: [],
+                          images: []
+                        };
+                        setViewingProduct(effectiveProd);
                       }}
-                      className={`bg-slate-50/90 px-1.5 sm:px-2.5 py-1 rounded-lg border border-slate-100 transition-all ${product ? 'hover:bg-[#01a9fb]/10 hover:border-[#01a9fb]/30 cursor-pointer group/item' : ''}`}
-                      title={product ? `Click to view product: ${product.name}` : ''}
+                      className="bg-slate-50/90 px-1.5 sm:px-2.5 py-1 rounded-lg border border-slate-100 transition-all hover:bg-[#01a9fb]/10 hover:border-[#01a9fb]/30 cursor-pointer group/item"
+                      title="Click to view product details"
                     >
                       <div className="flex items-center justify-between gap-1">
                         <span className="text-[10px] sm:text-[11px] font-bold text-slate-800 truncate flex-1 leading-tight group-hover/item:text-[#01a9fb] flex items-center gap-1">
