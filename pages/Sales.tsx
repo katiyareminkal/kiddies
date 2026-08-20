@@ -1227,22 +1227,23 @@ const SaleDetailsModal: React.FC<{ saleId: string; onClose: () => void }> = ({ s
                       <p className="text-xs font-extrabold text-slate-900 font-mono">{formatCurrency(item.total)}</p>
                     </div>
 
-                  {/* Return / Exchange Button */}
-                  {(item.quantity || 1) - (item.returnedQuantity || 0) > 0 && !item.productId?.startsWith('CUSTOM_') && (
-                    <div className="mt-2 pt-2 border-t border-slate-100 flex justify-end">
-                      <button
-                        onClick={() => setReturnModalState({ isOpen: true, itemIndex: idx, item })}
-                        className="text-[10px] font-extrabold uppercase text-rose-600 bg-rose-50 hover:bg-rose-100 px-2.5 py-1 rounded transition-colors flex items-center gap-1"
-                      >
-                        <Undo2 size={11} /> Return / Exchange
-                      </button>
-                    </div>
-                  )}
-                  {(item.returnedQuantity || 0) > 0 && (
-                    <p className="text-[9px] font-extrabold text-rose-600 uppercase mt-1">({item.returnedQuantity} Returned)</p>
-                  )}
-                </div>
-              ))}
+                    {/* Return / Exchange Button */}
+                    {(item.quantity || 1) - (item.returnedQuantity || 0) > 0 && !item.productId?.startsWith('CUSTOM_') && (
+                      <div className="mt-2 pt-2 border-t border-slate-100 flex justify-end">
+                        <button
+                          onClick={() => setReturnModalState({ isOpen: true, itemIndex: idx, item })}
+                          className="text-[10px] font-extrabold uppercase text-rose-600 bg-rose-50 hover:bg-rose-100 px-2.5 py-1 rounded transition-colors flex items-center gap-1"
+                        >
+                          <Undo2 size={11} /> Return / Exchange
+                        </button>
+                      </div>
+                    )}
+                    {(item.returnedQuantity || 0) > 0 && (
+                      <p className="text-[9px] font-extrabold text-rose-600 uppercase mt-1">({item.returnedQuantity} Returned)</p>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
 
