@@ -195,24 +195,24 @@ const TopBar: React.FC<{ activeTab: string; onTabChange: (id: string) => void }>
           onClick={() => onTabChange('dashboard')} 
           className="cursor-pointer flex flex-col items-start select-none group shrink-0"
         >
-          <div className="flex items-center text-2xl sm:text-3xl font-black tracking-tight leading-none drop-shadow-sm">
-            <span className="text-[#01a9fb]">K</span>
-            <span className="text-[#01a9fb]">i</span>
-            <span className="text-[#01a9fb]">d</span>
-            <span className="text-[#fe569f]">d</span>
-            <span className="text-[#fe569f]">i</span>
-            <span className="text-[#FACC15]">e</span>
-            <span className="text-[#fe569f]">s</span>
+          <div className="flex items-center text-2xl sm:text-3xl font-black tracking-tight leading-none drop-shadow-[0_2px_4px_rgba(0,0,0,0.25)]">
+            <span className="text-[#38bdf8]">K</span>
+            <span className="text-[#38bdf8]">i</span>
+            <span className="text-[#38bdf8]">d</span>
+            <span className="text-[#f472b6]">d</span>
+            <span className="text-[#f472b6]">i</span>
+            <span className="text-[#fde047]">e</span>
+            <span className="text-[#f472b6]">s</span>
           </div>
-          <div className="w-full flex justify-between text-[6.5px] sm:text-[7px] font-black uppercase text-blue-200/90 leading-none mt-1 select-none">
+          <div className="w-full flex justify-between text-[6.5px] sm:text-[7px] font-black uppercase text-white/90 leading-none mt-1 select-none tracking-wider drop-shadow-sm">
             <span>R</span><span>E</span><span>T</span><span>A</span><span>I</span><span>L</span>
             <span>&nbsp;</span><span>&amp;</span><span>&nbsp;</span>
             <span>R</span><span>E</span><span>N</span><span>T</span><span>A</span><span>L</span><span>S</span>
           </div>
         </div>
 
-        {/* Center: Translucent Search Bar */}
-        <div className="flex-1 max-w-md mx-1 sm:mx-2">
+        {/* Center: Translucent Search Bar with breathing space */}
+        <div className="flex-1 max-w-md ml-3.5 sm:ml-6 mr-1.5 sm:mr-3">
           <div className="flex items-center bg-white/15 hover:bg-white/20 focus-within:bg-white/25 border border-white/20 rounded-xl sm:rounded-2xl px-3 py-1.5 sm:py-2 transition-all shadow-inner">
             <Search size={15} className="text-blue-200 shrink-0 mr-2" strokeWidth={2.3} />
             <input
