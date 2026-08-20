@@ -195,7 +195,7 @@ const TopBar: React.FC<{ activeTab: string; onTabChange: (id: string) => void }>
           onClick={() => onTabChange('dashboard')} 
           className="cursor-pointer flex flex-col items-start select-none group shrink-0"
         >
-          <div className="flex items-center text-xl sm:text-2xl font-black tracking-tight leading-none drop-shadow-sm">
+          <div className="flex items-center text-2xl sm:text-3xl font-black tracking-tight leading-none drop-shadow-sm">
             <span className="text-[#01a9fb]">K</span>
             <span className="text-[#01a9fb]">i</span>
             <span className="text-[#01a9fb]">d</span>
@@ -204,9 +204,11 @@ const TopBar: React.FC<{ activeTab: string; onTabChange: (id: string) => void }>
             <span className="text-[#FACC15]">e</span>
             <span className="text-[#fe569f]">s</span>
           </div>
-          <span className="text-[7.5px] sm:text-[8.5px] font-black uppercase tracking-[0.18em] text-blue-200/90 leading-tight mt-0.5">
-            STORE MANAGEMENT
-          </span>
+          <div className="w-full flex justify-between text-[6px] sm:text-[6.5px] font-black uppercase text-blue-200/90 leading-none mt-1 select-none">
+            <span>S</span><span>T</span><span>O</span><span>R</span><span>E</span>
+            <span>&nbsp;</span>
+            <span>M</span><span>A</span><span>N</span><span>A</span><span>G</span><span>E</span><span>M</span><span>E</span><span>N</span><span>T</span>
+          </div>
         </div>
 
         {/* Center: Translucent Search Bar */}
