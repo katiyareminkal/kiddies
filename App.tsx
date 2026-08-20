@@ -204,10 +204,10 @@ const TopBar: React.FC<{ activeTab: string; onTabChange: (id: string) => void }>
             <span className="text-[#FACC15]">e</span>
             <span className="text-[#fe569f]">s</span>
           </div>
-          <div className="w-full flex justify-between text-[6px] sm:text-[6.5px] font-black uppercase text-blue-200/90 leading-none mt-1 select-none">
-            <span>S</span><span>T</span><span>O</span><span>R</span><span>E</span>
-            <span>&nbsp;</span>
-            <span>M</span><span>A</span><span>N</span><span>A</span><span>G</span><span>E</span><span>M</span><span>E</span><span>N</span><span>T</span>
+          <div className="w-full flex justify-between text-[6.5px] sm:text-[7px] font-black uppercase text-blue-200/90 leading-none mt-1 select-none">
+            <span>R</span><span>E</span><span>T</span><span>A</span><span>I</span><span>L</span>
+            <span>&nbsp;</span><span>&amp;</span><span>&nbsp;</span>
+            <span>R</span><span>E</span><span>N</span><span>T</span><span>A</span><span>L</span><span>S</span>
           </div>
         </div>
 
