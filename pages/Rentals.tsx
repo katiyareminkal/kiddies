@@ -443,9 +443,9 @@ const Rentals: React.FC = () => {
           </div>
         )}
 
-        {/* ── View Mode 1: CARD VIEW (1 column on narrow mobile, 2 on tablet, 3 on desktop) ── */}
+        {/* ── View Mode 1: CARD VIEW (2 columns on mobile, 3 on tablet, 4 on desktop) ── */}
         {viewMode === 'card' ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-3.5">
+          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-3.5">
             {filteredRentals.map(rental => {
               const customer = customers.find(c => c.id === rental.customerId);
               const product = products.find(p => p.id === rental.productId);
@@ -460,27 +460,27 @@ const Rentals: React.FC = () => {
               return (
                 <div
                   key={rental.id}
-                  className={`bg-white rounded-xl border p-3 sm:p-3.5 transition-all duration-200 flex flex-col justify-between group hover:border-[#fe569f]/50 hover:shadow-md ${
+                  className={`bg-white rounded-xl border p-2 sm:p-3.5 transition-all duration-200 flex flex-col justify-between group hover:border-[#fe569f]/50 hover:shadow-md ${
                     isItemLate ? 'border-rose-300' : isItemDueToday ? 'border-amber-300' : 'border-slate-200/90'
                   }`}
                 >
-                  <div className="space-y-2.5">
+                  <div className="space-y-2">
                     {/* Top Row: Customer Info + Micro Status Indicator */}
                     <div className="flex items-center justify-between gap-1 pb-1.5 border-b border-slate-100">
-                      <div className="flex items-center gap-1.5 min-w-0 flex-1">
-                        <div className="w-6 h-6 rounded-md bg-[#fe569f]/10 text-[#fe569f] font-black text-[11px] flex items-center justify-center shrink-0">
+                      <div className="flex items-center gap-1 min-w-0 flex-1">
+                        <div className="w-5 h-5 sm:w-6 sm:h-6 rounded bg-[#fe569f]/10 text-[#fe569f] font-black text-[10px] sm:text-[11px] flex items-center justify-center shrink-0">
                           {(customer?.name || 'C').charAt(0).toUpperCase()}
                         </div>
                         <div className="min-w-0 flex-1">
-                          <h4 className="font-extrabold text-xs text-slate-900 leading-tight truncate">
+                          <h4 className="font-extrabold text-[11px] sm:text-xs text-slate-900 leading-tight truncate">
                             {customer?.name || 'Customer'}
                           </h4>
-                          <p className="text-[9px] text-slate-400 font-mono leading-none mt-0.5">{rental.invoiceNumber}</p>
+                          <p className="text-[8px] sm:text-[9px] text-slate-400 font-mono leading-none mt-0.5">{rental.invoiceNumber}</p>
                         </div>
                       </div>
 
                       {/* Micro Status Indicator Badge */}
-                      <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[8px] font-extrabold uppercase tracking-tight whitespace-nowrap shrink-0 ${
+                      <span className={`inline-flex items-center gap-0.5 sm:gap-1 px-1 sm:px-1.5 py-0.5 rounded text-[7.5px] sm:text-[8px] font-extrabold uppercase tracking-tight whitespace-nowrap shrink-0 ${
                         rental.status === 'RETURNED'
                           ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/80'
                           : isItemLate
@@ -500,40 +500,40 @@ const Rentals: React.FC = () => {
                         }`}></span>
                         <span>
                           {rental.status === 'RETURNED' 
-                            ? 'Returned' 
+                            ? 'Ret' 
                             : isItemLate 
-                              ? 'Overdue' 
+                              ? 'Late' 
                               : isItemDueToday 
                                 ? 'Due' 
-                                : 'Active'}
+                                : 'Act'}
                         </span>
                       </span>
                     </div>
 
                     {/* Product & Rent Amount */}
-                    <div className="bg-slate-50/90 px-2.5 py-1.5 rounded-lg border border-slate-100">
-                      <div className="flex items-center justify-between gap-1.5">
-                        <span className="text-[11px] font-bold text-slate-800 break-words flex-1 leading-snug">
+                    <div className="bg-slate-50/90 px-1.5 sm:px-2.5 py-1 rounded-lg border border-slate-100">
+                      <div className="flex items-center justify-between gap-1">
+                        <span className="text-[10px] sm:text-[11px] font-bold text-slate-800 truncate flex-1 leading-tight">
                           {product?.name || 'Garment Item'}
                         </span>
-                        <span className="text-xs font-black text-slate-900 font-mono whitespace-nowrap shrink-0">
+                        <span className="text-[11px] sm:text-xs font-black text-slate-900 font-mono whitespace-nowrap shrink-0">
                           {formatCurrency(rental.totalRentAmount)}
                         </span>
                       </div>
                     </div>
 
                     {/* Due Date & Deposit Section */}
-                    <div className="space-y-1.5 bg-slate-50/70 p-2.5 rounded-lg border border-slate-100/90 text-[10px]">
-                      <div className="flex items-center justify-between gap-1 text-[9px] sm:text-[10px]">
+                    <div className="space-y-1 bg-slate-50/70 p-1.5 sm:p-2.5 rounded-lg border border-slate-100/90 text-[9px] sm:text-[10px]">
+                      <div className="flex items-center justify-between gap-1">
                         <span className="text-slate-400 uppercase tracking-wider text-[8px] sm:text-[9px] font-bold shrink-0">Due</span>
-                        <span className={`font-mono font-extrabold whitespace-nowrap ${isItemLate ? 'text-rose-600' : isItemDueToday ? 'text-amber-700' : 'text-slate-800'}`}>
-                          {format(parseISO(rental.expectedReturnDate), 'dd MMM yyyy')}
+                        <span className={`font-mono font-extrabold whitespace-nowrap text-[9px] sm:text-[10px] ${isItemLate ? 'text-rose-600' : isItemDueToday ? 'text-amber-700' : 'text-slate-800'}`}>
+                          {format(parseISO(rental.expectedReturnDate), 'dd MMM')}
                         </span>
                       </div>
 
-                      <div className="flex items-center justify-between gap-1 text-[9px] sm:text-[10px]">
-                        <span className="text-slate-400 uppercase tracking-wider text-[8px] sm:text-[9px] font-bold shrink-0">Deposit</span>
-                        <span className="font-mono font-extrabold text-slate-700 whitespace-nowrap">
+                      <div className="flex items-center justify-between gap-1">
+                        <span className="text-slate-400 uppercase tracking-wider text-[8px] sm:text-[9px] font-bold shrink-0">Dep</span>
+                        <span className="font-mono font-extrabold text-slate-700 whitespace-nowrap text-[9px] sm:text-[10px]">
                           {formatCurrency(rental.securityDeposit)}
                         </span>
                       </div>
@@ -559,26 +559,26 @@ const Rentals: React.FC = () => {
                   </div>
 
                   {/* Card Footer Actions */}
-                  <div className="flex items-center justify-between gap-2 pt-2.5 mt-2 border-t border-slate-100">
-                    <div className="flex items-center gap-1 shrink-0">
+                  <div className="flex items-center justify-between gap-1 pt-2 mt-1.5 border-t border-slate-100">
+                    <div className="flex items-center gap-0.5 shrink-0">
                       {rental.status === 'ACTIVE' && (
                         <button
                           type="button"
                           onClick={() => openExtend(rental)}
-                          className="p-1.5 text-slate-500 hover:text-[#01a9fb] hover:bg-[#01a9fb]/10 rounded-md transition-colors"
+                          className="p-1 text-slate-500 hover:text-[#01a9fb] hover:bg-[#01a9fb]/10 rounded transition-colors"
                           title="Extend Lease"
                         >
-                          <CalendarDays size={14} strokeWidth={2.2} />
+                          <CalendarDays size={13} strokeWidth={2.2} />
                         </button>
                       )}
 
                       <button
                         type="button"
                         onClick={() => openEdit(rental)}
-                        className="p-1.5 text-slate-500 hover:text-[#fe569f] hover:bg-[#fe569f]/10 rounded-md transition-colors"
+                        className="p-1 text-slate-500 hover:text-[#fe569f] hover:bg-[#fe569f]/10 rounded transition-colors"
                         title="Edit Booking"
                       >
-                        <Pencil size={14} strokeWidth={2.2} />
+                        <Pencil size={13} strokeWidth={2.2} />
                       </button>
 
                       {(settings?.enableDeleteRentals || settings?.enableDeleteTransactions) && (
@@ -589,10 +589,10 @@ const Rentals: React.FC = () => {
                               deleteRental(rental.id);
                             }
                           }}
-                          className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-md transition-colors"
+                          className="p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded transition-colors"
                           title="Delete Booking"
                         >
-                          <Trash2 size={14} strokeWidth={2.2} />
+                          <Trash2 size={13} strokeWidth={2.2} />
                         </button>
                       )}
                     </div>
@@ -601,7 +601,7 @@ const Rentals: React.FC = () => {
                       <button
                         type="button"
                         onClick={() => { setSelectedRental(rental); setIsCheckInModalOpen(true); }}
-                        className="px-3 py-1 bg-[#fe569f] hover:bg-[#eb4890] active:scale-95 text-white rounded-md text-[10px] font-black uppercase tracking-wider transition-all shadow-xs shrink-0 flex items-center justify-center"
+                        className="px-2 py-0.5 sm:px-3 sm:py-1 bg-[#fe569f] hover:bg-[#eb4890] active:scale-95 text-white rounded text-[9px] sm:text-[10px] font-black uppercase tracking-tight transition-all shadow-xs shrink-0 flex items-center justify-center"
                       >
                         Return
                       </button>
