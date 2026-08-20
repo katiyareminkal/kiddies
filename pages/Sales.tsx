@@ -774,6 +774,13 @@ const Sales: React.FC = () => {
         />
       )}
 
+      {/* Product Read-Only Details Modal Triggered from Sales Item */}
+      <ProductDetailsModal
+        isOpen={!!viewingProduct}
+        onClose={() => setViewingProduct(null)}
+        product={viewingProduct}
+      />
+
       {/* ── Floating New Sale Action Button ── */}
       {createPortal(
         <div className="fixed bottom-20 md:bottom-8 right-4 md:right-8 z-50 pointer-events-none">
@@ -1001,6 +1008,7 @@ const SaleDetailsModal: React.FC<{ saleId: string; onClose: () => void }> = ({ s
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
   const [paymentInput, setPaymentInput] = useState<string>('');
   const [returnModalState, setReturnModalState] = useState<{ isOpen: boolean; itemIndex: number; item: any }>({ isOpen: false, itemIndex: -1, item: null });
+  const [viewingProduct, setViewingProduct] = useState<any | null>(null);
 
   if (!sale) return null;
 
@@ -1041,16 +1049,16 @@ const SaleDetailsModal: React.FC<{ saleId: string; onClose: () => void }> = ({ s
       textReceipt += `${item.name}\n${item.quantity} x ${item.unitPrice} = ${item.total.toFixed(2)}\n`;
     });
 
-    textReceipt += `------------------------\nSubtotal: ${sale.totalAmount.toFixed(2)}\n`;
-    if (sale.discount > 0) textReceipt += `Discount: -${sale.discount.toFixed(2)}\n`;
-    textReceipt += `Total: Rs ${((sale.netPayout || sale.totalAmount)).toFixed(2)}\n------------------------\nThank you for your visit!\n`;
+    textReceipt += `------------------------\nSubtotal: ${(sale.totalAmount || 0).toFixed(2)}\n`;
+    if ((sale.discount || 0) > 0) textReceipt += `Discount: -${(sale.discount || 0).toFixed(2)}\n`;
+    textReceipt += `Total: Rs ${((sale.netPayout ?? sale.totalAmount ?? 0)).toFixed(2)}\n------------------------\nThank you for your visit!\n`;
 
     const escapedTextReceipt = textReceipt.replace(/\n/g, '\\n').replace(/'/g, "\\'");
 
     const html = `
       <html>
         <head>
-          <title>Receipt ${sale.invoiceNumber}</title>
+          <title>Receipt ${sale.invoiceNumber || 'Invoice'}</title>
           <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
           <style>
             body { font-family: 'Courier New', Courier, monospace; margin: 0; padding: 0; background: #f1f5f9; color: #000; }
@@ -1078,16 +1086,16 @@ const SaleDetailsModal: React.FC<{ saleId: string; onClose: () => void }> = ({ s
             <h2>Kiddies – Kids Wear & Baby Clothing</h2>
             <p>SHOP NO. 203, 204 C-30, next to HDFC Bank<br/>Ph: 097134 69928</p>
             <hr style="border: 1px dashed #000;" />
-            <p><strong>Inv: ${sale.invoiceNumber}</strong><br/>${format(parseISO(sale.date), 'dd MMM yyyy, hh:mm a')}</p>
+            <p><strong>Inv: ${sale.invoiceNumber || 'N/A'}</strong><br/>${sale.date ? format(parseISO(sale.date), 'dd MMM yyyy, hh:mm a') : 'N/A'}</p>
             <p>Customer: ${customer?.name || 'Walk-in'}</p>
             <hr style="border: 1px dashed #000;" />
             <table>
               ${itemsHtml}
             </table>
             <div style="text-align: right; margin-bottom: 15px;">
-              <div>Subtotal: ${sale.totalAmount.toFixed(2)}</div>
-              ${sale.discount > 0 ? `<div>Discount: -${sale.discount.toFixed(2)}</div>` : ''}
-              <div class="total-row" style="margin-top: 5px;">Total: Rs ${((sale.netPayout || sale.totalAmount)).toFixed(2)}</div>
+              <div>Subtotal: ${(sale.totalAmount || 0).toFixed(2)}</div>
+              ${(sale.discount || 0) > 0 ? `<div>Discount: -${(sale.discount || 0).toFixed(2)}</div>` : ''}
+              <div class="total-row" style="margin-top: 5px;">Total: Rs ${((sale.netPayout ?? sale.totalAmount ?? 0)).toFixed(2)}</div>
             </div>
             <hr style="border: 1px dashed #000;" />
             <p style="margin-top: 15px; text-align: center;">Thank you for your visit!</p>
