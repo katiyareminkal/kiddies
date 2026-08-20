@@ -443,9 +443,9 @@ const Rentals: React.FC = () => {
           </div>
         )}
 
-        {/* ── View Mode 1: CARD VIEW (2 columns on mobile, 3 on tablet/desktop) ── */}
+        {/* ── View Mode 1: CARD VIEW (1 column on narrow mobile, 2 on tablet, 3 on desktop) ── */}
         {viewMode === 'card' ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-2.5 sm:gap-3.5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-3.5">
             {filteredRentals.map(rental => {
               const customer = customers.find(c => c.id === rental.customerId);
               const product = products.find(p => p.id === rental.productId);
@@ -511,7 +511,7 @@ const Rentals: React.FC = () => {
                     </div>
 
                     {/* Product & Rent Amount */}
-                    <div className="bg-slate-50/90 px-2 py-1.5 rounded-lg border border-slate-100">
+                    <div className="bg-slate-50/90 px-2.5 py-1.5 rounded-lg border border-slate-100">
                       <div className="flex items-center justify-between gap-1.5">
                         <span className="text-[11px] font-bold text-slate-800 break-words flex-1 leading-snug">
                           {product?.name || 'Garment Item'}
@@ -523,7 +523,7 @@ const Rentals: React.FC = () => {
                     </div>
 
                     {/* Due Date & Deposit Section */}
-                    <div className="space-y-1 bg-slate-50/70 p-2 rounded-lg border border-slate-100/90 text-[10px]">
+                    <div className="space-y-1.5 bg-slate-50/70 p-2.5 rounded-lg border border-slate-100/90 text-[10px]">
                       <div className="flex items-center justify-between gap-1 text-[9px] sm:text-[10px]">
                         <span className="text-slate-400 uppercase tracking-wider text-[8px] sm:text-[9px] font-bold shrink-0">Due</span>
                         <span className={`font-mono font-extrabold whitespace-nowrap ${isItemLate ? 'text-rose-600' : isItemDueToday ? 'text-amber-700' : 'text-slate-800'}`}>
@@ -559,8 +559,8 @@ const Rentals: React.FC = () => {
                   </div>
 
                   {/* Card Footer Actions */}
-                  <div className="flex items-center justify-between pt-2.5 mt-2 border-t border-slate-100">
-                    <div className="flex items-center gap-1">
+                  <div className="flex items-center justify-between gap-2 pt-2.5 mt-2 border-t border-slate-100">
+                    <div className="flex items-center gap-1 shrink-0">
                       {rental.status === 'ACTIVE' && (
                         <button
                           type="button"
@@ -601,7 +601,7 @@ const Rentals: React.FC = () => {
                       <button
                         type="button"
                         onClick={() => { setSelectedRental(rental); setIsCheckInModalOpen(true); }}
-                        className="px-3 py-1 bg-[#fe569f] hover:bg-[#eb4890] active:scale-95 text-white rounded-md text-[10px] font-black uppercase tracking-wider transition-all shadow-xs"
+                        className="px-3 py-1 bg-[#fe569f] hover:bg-[#eb4890] active:scale-95 text-white rounded-md text-[10px] font-black uppercase tracking-wider transition-all shadow-xs shrink-0 flex items-center justify-center"
                       >
                         Return
                       </button>
