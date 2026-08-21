@@ -10,36 +10,45 @@ export interface BackupData {
 }
 
 export const exportToExcel = (data: BackupData) => {
-  const wb = XLSX.utils.book_new();
+  try {
+    const wb = XLSX.utils.book_new();
 
-  const addSheet = (arr: any[], sheetName: string) => {
-    // Avoid crashes on empty lists by putting a placeholder row
-    const rows = arr && arr.length > 0 ? arr.map(item => {
-      // Flatten arrays or objects to make it readable in Excel
-      const flattened: Record<string, any> = {};
-      Object.entries(item).forEach(([key, val]) => {
-        if (Array.isArray(val)) {
-          flattened[key] = val.join(', ');
-        } else if (val && typeof val === 'object') {
-          flattened[key] = JSON.stringify(val);
-        } else {
-          flattened[key] = val;
+    const addSheet = (arr: any[], sheetName: string) => {
+      // Avoid crashes on empty lists by putting a placeholder row
+      const rows = arr && Array.isArray(arr) && arr.length > 0 ? arr.map(item => {
+        // Flatten arrays or objects to make it readable in Excel
+        const flattened: Record<string, any> = {};
+        if (item && typeof item === 'object') {
+          Object.entries(item).forEach(([key, val]) => {
+            if (Array.isArray(val)) {
+              flattened[key] = val.map(v => (typeof v === 'object' ? JSON.stringify(v) : v)).join(', ');
+            } else if (val && typeof val === 'object') {
+              flattened[key] = JSON.stringify(val);
+            } else {
+              flattened[key] = val;
+            }
+          });
         }
-      });
-      return flattened;
-    }) : [{ Info: 'No records found' }];
+        return flattened;
+      }) : [{ Info: 'No records found' }];
 
-    const ws = XLSX.utils.json_to_sheet(rows);
-    XLSX.utils.book_append_sheet(wb, ws, sheetName);
-  };
+      const ws = XLSX.utils.json_to_sheet(rows);
+      XLSX.utils.book_append_sheet(wb, ws, sheetName);
+    };
 
-  addSheet(data.products, "Products");
-  addSheet(data.sales, "Sales");
-  addSheet(data.rentals, "Rentals");
-  addSheet(data.customers, "Customers");
-  addSheet(data.suppliers, "Suppliers");
-  addSheet(data.stockLogs, "Stock Logs");
+    addSheet(data.products || [], "Products");
+    addSheet(data.sales || [], "Sales");
+    addSheet(data.rentals || [], "Rentals");
+    addSheet(data.customers || [], "Customers");
+    addSheet(data.suppliers || [], "Suppliers");
+    addSheet(data.stockLogs || [], "Stock Logs");
 
-  const fileName = `Kiddies_Daily_Backup_${new Date().toISOString().slice(0, 10)}.xlsx`;
-  XLSX.writeFile(wb, fileName);
+    const dateStr = new Date().toISOString().slice(0, 10);
+    const fileName = `Kiddies_Backup_${dateStr}.xlsx`;
+    XLSX.writeFile(wb, fileName);
+    return true;
+  } catch (error) {
+    console.error("Excel backup failed:", error);
+    return false;
+  }
 };
