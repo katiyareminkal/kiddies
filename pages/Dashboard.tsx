@@ -1388,7 +1388,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
               </div>
 
               {/* View & Timeframe Toggles */}
-              <div className="flex items-center gap-1.5 flex-wrap overflow-x-auto hide-scrollbar">
+              <div className="flex items-center gap-2 justify-end shrink-0">
                 {/* Metric Filter */}
                 <div className="inline-flex bg-slate-100 p-0.5 rounded-md text-[10px] font-bold shrink-0">
                   <button
@@ -1411,37 +1411,41 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
                   </button>
                 </div>
 
-                {/* Bar vs Area Toggle */}
-                <div className="inline-flex bg-slate-100 p-0.5 rounded-md text-[10px] font-bold shrink-0">
-                  <button
-                    onClick={() => setChartType('BAR')}
-                    className={`px-2 py-0.5 rounded transition-all whitespace-nowrap ${chartType === 'BAR' ? 'bg-slate-900 text-white' : 'text-slate-500 hover:text-slate-800'}`}
-                  >
-                    Bar
-                  </button>
-                  <button
-                    onClick={() => setChartType('AREA')}
-                    className={`px-2 py-0.5 rounded transition-all whitespace-nowrap ${chartType === 'AREA' ? 'bg-slate-900 text-white' : 'text-slate-500 hover:text-slate-800'}`}
-                  >
-                    Curve
-                  </button>
-                </div>
-
                 {/* Timeframe selector (only when not custom date) */}
                 {(!startDateFilter && !endDateFilter) && (
                   <div className="relative shrink-0">
                     <select
                       value={timeframe}
                       onChange={(e) => setTimeframe(e.target.value as 'WEEKLY' | 'MONTHLY' | 'YEARLY')}
-                      className="appearance-none bg-slate-50 border border-slate-200 px-2 py-0.5 pr-5 rounded-md text-[10px] font-bold text-slate-700 uppercase outline-none cursor-pointer"
+                      className="appearance-none bg-slate-100 hover:bg-slate-200/80 border-0 px-2.5 py-1 pr-6 rounded-md text-[10px] font-bold text-slate-700 uppercase outline-none cursor-pointer transition-colors"
                     >
                       <option value="WEEKLY">Weekly</option>
                       <option value="MONTHLY">Monthly</option>
                       <option value="YEARLY">Yearly</option>
                     </select>
-                    <ChevronDown className="absolute right-1.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={10} strokeWidth={2.5} />
+                    <ChevronDown className="absolute right-1.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" size={11} strokeWidth={2.5} />
                   </div>
                 )}
+
+                {/* Bar vs Curve Icon Toggle (Aligned Right) */}
+                <div className="inline-flex bg-slate-100 p-0.5 rounded-md text-[10px] font-bold shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setChartType('BAR')}
+                    className={`p-1.5 rounded transition-all flex items-center justify-center ${chartType === 'BAR' ? 'bg-slate-900 text-white shadow-2xs' : 'text-slate-500 hover:text-slate-800'}`}
+                    title="Bar Chart View"
+                  >
+                    <BarChart3 size={13} strokeWidth={2.5} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setChartType('AREA')}
+                    className={`p-1.5 rounded transition-all flex items-center justify-center ${chartType === 'AREA' ? 'bg-slate-900 text-white shadow-2xs' : 'text-slate-500 hover:text-slate-800'}`}
+                    title="Smooth Curve Area View"
+                  >
+                    <Activity size={13} strokeWidth={2.5} />
+                  </button>
+                </div>
               </div>
             </div>
 
