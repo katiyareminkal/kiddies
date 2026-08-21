@@ -52,10 +52,11 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-[#f0f7ff] to-[#fdf2f8] flex items-center justify-center p-4 sm:p-6 relative font-sans select-none overflow-hidden">
-      {/* Subtle Ambient Background Glows */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-[#01a9fb]/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-1/4 right-1/3 w-80 h-80 bg-[#fe569f]/10 rounded-full blur-3xl pointer-events-none" />
+    <div className="min-h-screen bg-gradient-to-br from-[#e0f2fe] via-[#f0f9ff] to-[#fce7f3] flex items-center justify-center p-4 sm:p-6 relative font-sans select-none overflow-hidden">
+      {/* Vivid Ambient Background Glows */}
+      <div className="absolute -top-10 -left-10 w-96 h-96 bg-[#01a9fb]/20 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute -bottom-10 -right-10 w-96 h-96 bg-[#fe569f]/20 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-white/40 rounded-full blur-2xl pointer-events-none" />
 
       <motion.div
         initial={{ opacity: 0, y: 15 }}
@@ -65,13 +66,15 @@ const Login: React.FC = () => {
       >
         {/* Branding Header */}
         <div className="flex flex-col items-center mb-6 text-center">
-          <div className="p-3 bg-white rounded-2xl border border-slate-200/90 shadow-md shadow-blue-500/5 mb-3.5 transition-transform hover:scale-105">
-            <img src="/logo.png" alt="Kids Wear Logo" className="h-12 w-auto object-contain" />
-          </div>
+          <img
+            src="/logo.png"
+            alt="Kids Wear Logo"
+            className="h-16 w-auto object-contain mb-3 drop-shadow-sm transition-transform hover:scale-105"
+          />
           <h1 className="text-2xl font-black text-slate-900 tracking-tight">
             Kids Wear
           </h1>
-          <p className="text-slate-500 text-xs font-bold mt-1 tracking-wide">
+          <p className="text-slate-600 text-xs font-bold mt-1 tracking-wide">
             Rental & Stock Management
           </p>
         </div>
