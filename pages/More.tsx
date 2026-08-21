@@ -201,7 +201,7 @@ const More: React.FC<MoreProps> = ({ onTabChange }) => {
       {/* User Profile Card */}
       <div className="bg-white rounded-2xl border border-slate-200/90 p-5 sm:p-6 shadow-xs flex items-center justify-between gap-4">
         <div className="flex items-center gap-4">
-          <div className="w-13 h-13 rounded-2xl bg-gradient-to-tr from-[#01a9fb] to-[#fe569f] text-white flex items-center justify-center text-xl font-black shadow-md shadow-blue-500/20 shrink-0">
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-[#01a9fb] to-[#fe569f] text-white flex items-center justify-center text-xl font-black shadow-md shadow-blue-500/15 shrink-0 border border-white/20">
             {(currentUser?.name || 'U').charAt(0).toUpperCase()}
           </div>
           <div>

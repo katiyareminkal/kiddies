@@ -110,7 +110,7 @@ const Settings: React.FC = () => {
       const blob = new Blob([dataStr], { type: 'application/json;charset=utf-8' });
       const url = window.URL.createObjectURL(blob);
       const fileName = `kiddies_backup_${new Date().toISOString().slice(0, 10)}.json`;
-      
+
       const linkElement = document.createElement('a');
       linkElement.href = url;
       linkElement.download = fileName;

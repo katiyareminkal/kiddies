@@ -191,8 +191,8 @@ const TopBar: React.FC<{ activeTab: string; onTabChange: (id: string) => void }>
 
       <div className="flex items-center justify-between gap-2.5 sm:gap-4 relative z-10">
         {/* Left side: Colorful Logo & Subtitle */}
-        <div 
-          onClick={() => onTabChange('dashboard')} 
+        <div
+          onClick={() => onTabChange('dashboard')}
           className="cursor-pointer flex flex-col items-start select-none group shrink-0"
         >
           <div className="flex items-center text-2xl sm:text-3xl font-black tracking-tight leading-none drop-shadow-[0_2px_4px_rgba(0,0,0,0.25)]">
