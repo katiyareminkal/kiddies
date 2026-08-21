@@ -52,35 +52,30 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#e0f2fe] via-[#f0f9ff] to-[#fce7f3] flex items-center justify-center p-4 sm:p-6 relative font-sans select-none overflow-hidden">
-      {/* Vivid Ambient Background Glows */}
-      <div className="absolute -top-10 -left-10 w-96 h-96 bg-[#01a9fb]/20 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute -bottom-10 -right-10 w-96 h-96 bg-[#fe569f]/20 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-white/40 rounded-full blur-2xl pointer-events-none" />
-
+    <div className="min-h-screen bg-slate-100 flex items-center justify-center p-4 sm:p-6 relative font-sans select-none">
       <motion.div
-        initial={{ opacity: 0, y: 15 }}
+        initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
-        className="w-full max-w-[410px] relative z-10"
+        transition={{ duration: 0.25 }}
+        className="w-full max-w-[400px] relative z-10"
       >
         {/* Branding Header */}
         <div className="flex flex-col items-center mb-6 text-center">
           <img
             src="/logo.png"
             alt="Kids Wear Logo"
-            className="h-16 w-auto object-contain mb-3 drop-shadow-sm transition-transform hover:scale-105"
+            className="h-16 w-auto object-contain mb-2.5 transition-transform hover:scale-105"
           />
           <h1 className="text-2xl font-black text-slate-900 tracking-tight">
             Kids Wear
           </h1>
-          <p className="text-slate-600 text-xs font-bold mt-1 tracking-wide">
+          <p className="text-slate-500 text-xs font-bold mt-0.5 tracking-wide">
             Rental & Stock Management
           </p>
         </div>
 
         {/* Main Card */}
-        <div className="bg-white/95 backdrop-blur-md rounded-3xl shadow-xl shadow-slate-200/60 border border-slate-200/90 p-6 sm:p-8">
+        <div className="bg-white rounded-3xl shadow-sm border border-slate-200/90 p-6 sm:p-8">
           <div className="mb-6">
             <h2 className="text-lg font-black text-slate-900 tracking-tight">
               Store Sign In
