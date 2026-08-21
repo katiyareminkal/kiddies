@@ -95,14 +95,38 @@ const Settings: React.FC = () => {
   };
 
   const handleExportData = () => {
-    const dataStr = JSON.stringify({ storeProfile, settings, products, sales, customers }, null, 2);
-    const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
-    const exportFileDefaultName = `kiddies_backup_${new Date().toISOString().slice(0, 10)}.json`;
-    const linkElement = document.createElement('a');
-    linkElement.setAttribute('href', dataUri);
-    linkElement.setAttribute('download', exportFileDefaultName);
-    linkElement.click();
-    showNotification('JSON backup file downloaded.', 'success');
+    try {
+      const dataStr = JSON.stringify({
+        storeProfile,
+        settings,
+        products: products || [],
+        sales: sales || [],
+        customers: customers || [],
+        suppliers: suppliers || [],
+        rentals: rentals || [],
+        stockLogs: stockLogs || []
+      }, null, 2);
+
+      const blob = new Blob([dataStr], { type: 'application/json;charset=utf-8' });
+      const url = window.URL.createObjectURL(blob);
+      const fileName = `kiddies_backup_${new Date().toISOString().slice(0, 10)}.json`;
+      
+      const linkElement = document.createElement('a');
+      linkElement.href = url;
+      linkElement.download = fileName;
+      document.body.appendChild(linkElement);
+      linkElement.click();
+
+      setTimeout(() => {
+        document.body.removeChild(linkElement);
+        window.URL.revokeObjectURL(url);
+      }, 100);
+
+      showNotification('JSON backup file downloaded.', 'success');
+    } catch (err) {
+      console.error("Export JSON failed:", err);
+      showNotification('Failed to generate JSON backup.', 'error');
+    }
   };
 
   const handleImportClick = () => {
