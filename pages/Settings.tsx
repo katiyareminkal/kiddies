@@ -27,7 +27,7 @@ import {
 import { exportToExcel } from '../utils/excelBackup';
 
 const Settings: React.FC = () => {
-  const { storeProfile, settings, updateStoreProfile, updateSettings, importData, resetData, products, sales, customers, suppliers, rentals, stockLogs } = useApp();
+  const { currentUser, storeProfile, settings, updateStoreProfile, updateSettings, importData, resetData, products, sales, customers, suppliers, rentals, stockLogs } = useApp();
   const [activeTab, setActiveTab] = useState<'profile' | 'preferences' | 'data'>('profile');
   const [notification, setNotification] = useState<{ message: string, type: 'success' | 'error' } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -264,8 +264,19 @@ const Settings: React.FC = () => {
                     <input name="phone" defaultValue={storeProfile.phone} required className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#01a9fb] rounded-md outline-none font-bold text-xs text-slate-900" />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-[10px] font-bold uppercase text-slate-400 tracking-wider">Official Email *</label>
-                    <input name="email" defaultValue={storeProfile.email} required className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#01a9fb] rounded-md outline-none font-bold text-xs text-slate-900" />
+                    <div className="flex items-center justify-between">
+                      <label className="text-[10px] font-bold uppercase text-slate-400 tracking-wider">Official Email *</label>
+                      <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded flex items-center gap-1">
+                        <CheckCircle2 size={10} /> Verified Active
+                      </span>
+                    </div>
+                    <input
+                      name="email"
+                      defaultValue={currentUser?.email || storeProfile.email}
+                      required
+                      className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#01a9fb] rounded-md outline-none font-bold text-xs text-slate-900"
+                    />
+                    <p className="text-[10px] text-slate-400">Defaults to your active logged-in email. Updating will send a verification link to your new inbox.</p>
                   </div>
                   <div className="space-y-1">
                     <label className="text-[10px] font-bold uppercase text-slate-400 tracking-wider">GSTIN / Tax Registration</label>

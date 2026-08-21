@@ -228,7 +228,7 @@ const More: React.FC<MoreProps> = ({ onTabChange }) => {
               )}
             </div>
             <p className="text-xs text-slate-500 font-semibold mt-0.5">
-              {storeProfile?.email || storeProfile?.phone || currentUser?.email}
+              {currentUser?.email || storeProfile?.email}
             </p>
           </div>
         </div>
