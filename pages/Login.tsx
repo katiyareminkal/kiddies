@@ -168,7 +168,7 @@ const Login: React.FC = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-2.5 bg-[#01a9fb] hover:bg-[#0098e6] text-white text-xs font-black uppercase tracking-wider rounded-xl transition-all active:scale-[0.99] disabled:opacity-60 flex items-center justify-center gap-1.5 !mt-4 shadow-sm shadow-blue-500/20"
+              className="w-full py-3 bg-[#01a9fb] hover:bg-[#0098e6] text-white text-xs font-black uppercase tracking-wider rounded-xl transition-all active:scale-[0.99] disabled:opacity-60 flex items-center justify-center gap-1.5 !mt-5 shadow-sm shadow-blue-500/20"
             >
               {isLoading ? (
                 <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -180,29 +180,6 @@ const Login: React.FC = () => {
               )}
             </button>
           </form>
-
-          {/* Quick Demo Credentials */}
-          <div className="mt-5 pt-4 border-t border-slate-100">
-            <p className="text-[10px] font-black uppercase tracking-wider text-slate-400 text-center mb-2.5">
-              Quick Demo Access
-            </p>
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={() => fillDemo('admin@kiddies.store', 'admin')}
-                className="px-2.5 py-2 bg-slate-50 hover:bg-[#01a9fb]/10 text-slate-700 hover:text-[#01a9fb] border border-slate-200 hover:border-[#01a9fb]/40 rounded-xl text-[11px] font-black transition-all active:scale-95"
-              >
-                👑 Store Admin
-              </button>
-              <button
-                type="button"
-                onClick={() => fillDemo('staff@kiddies.store', 'staff')}
-                className="px-2.5 py-2 bg-slate-50 hover:bg-[#fe569f]/10 text-slate-700 hover:text-[#fe569f] border border-slate-200 hover:border-[#fe569f]/40 rounded-xl text-[11px] font-black transition-all active:scale-95"
-              >
-                💼 Store Staff
-              </button>
-            </div>
-          </div>
         </div>
 
         {/* Security / Admin notice */}
