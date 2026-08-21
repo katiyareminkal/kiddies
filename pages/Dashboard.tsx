@@ -51,8 +51,7 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  Legend,
-  LabelList
+  Legend
 } from 'recharts';
 import {
   format,
@@ -623,7 +622,13 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
         for (let i = 0; i < 6; i++) {
           const startPeriod = addDays(start, i * intervalDays);
           const endPeriod = addDays(start, Math.min((i + 1) * intervalDays, diffDays));
-          const dateStr = `${format(startPeriod, 'dd MMM')} - ${format(endPeriod, 'dd MMM')}`;
+          
+          let dateStr = '';
+          if (format(startPeriod, 'MMM') === format(endPeriod, 'MMM')) {
+            dateStr = `${format(startPeriod, 'd')}-${format(endPeriod, 'd')} ${format(startPeriod, 'MMM')}`;
+          } else {
+            dateStr = `${format(startPeriod, 'd MMM')} - ${format(endPeriod, 'd MMM')}`;
+          }
 
           const periodSales = sales
             .filter(s => {
@@ -645,72 +650,38 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
       return data;
     }
 
-    if (timeframe === 'WEEKLY') {
-      for (let i = 6; i >= 0; i--) {
-        const date = subDays(new Date(), i);
-        const dateStr = format(date, 'dd MMM (EEE)');
-        const dailySales = sales
-          .filter(s => isSameDay(parseISO(s.date), date) && s.orderStatus !== OrderStatus.CANCELLED && s.orderStatus !== OrderStatus.RETURNED)
-          .reduce((sum, s) => sum + (s.netPayout || 0), 0);
-        const dailyRentals = rentals
-          .filter(r => isSameDay(parseISO(r.date), date))
-          .reduce((sum, r) => sum + (r.paidAmount || 0), 0);
+    // Default 30-Day Monthly View broken into 4 clean 7-day blocks: e.g. 1-7 Aug, 8-14 Aug
+    for (let i = 3; i >= 0; i--) {
+      const startOfPeriod = subDays(new Date(), (i + 1) * 7 - 1);
+      const endOfPeriod = subDays(new Date(), i * 7);
 
-        data.push({
-          name: dateStr,
-          Sales: dailySales,
-          Rentals: dailyRentals,
-          Total: dailySales + dailyRentals
-        });
+      let dateStr = '';
+      if (format(startOfPeriod, 'MMM') === format(endOfPeriod, 'MMM')) {
+        dateStr = `${format(startOfPeriod, 'd')}-${format(endOfPeriod, 'd')} ${format(startOfPeriod, 'MMM')}`;
+      } else {
+        dateStr = `${format(startOfPeriod, 'd MMM')} - ${format(endOfPeriod, 'd MMM')}`;
       }
-    } else if (timeframe === 'MONTHLY') {
-      for (let i = 3; i >= 0; i--) {
-        const startOfPeriod = subDays(new Date(), (i + 1) * 7 - 1);
-        const endOfPeriod = subDays(new Date(), i * 7);
 
-        const periodSales = sales
-          .filter(s => {
-            const d = parseISO(s.date);
-            return (d >= startOfPeriod && d <= endOfPeriod) && s.orderStatus !== OrderStatus.CANCELLED && s.orderStatus !== OrderStatus.RETURNED;
-          })
-          .reduce((sum, s) => sum + (s.netPayout || 0), 0);
+      const periodSales = sales
+        .filter(s => {
+          const d = parseISO(s.date);
+          return (d >= startOfPeriod && d <= endOfPeriod) && s.orderStatus !== OrderStatus.CANCELLED && s.orderStatus !== OrderStatus.RETURNED;
+        })
+        .reduce((sum, s) => sum + (s.netPayout || 0), 0);
 
-        const periodRentals = rentals
-          .filter(r => {
-            const d = parseISO(r.date);
-            return (d >= startOfPeriod && d <= endOfPeriod);
-          })
-          .reduce((sum, r) => sum + (r.paidAmount || 0), 0);
+      const periodRentals = rentals
+        .filter(r => {
+          const d = parseISO(r.date);
+          return (d >= startOfPeriod && d <= endOfPeriod);
+        })
+        .reduce((sum, r) => sum + (r.paidAmount || 0), 0);
 
-        const dateStr = `${format(startOfPeriod, 'dd MMM')} - ${format(endOfPeriod, 'dd MMM')}`;
-
-        data.push({
-          name: dateStr,
-          Sales: periodSales,
-          Rentals: periodRentals,
-          Total: periodSales + periodRentals
-        });
-      }
-    } else {
-      for (let i = 11; i >= 0; i--) {
-        const date = subMonths(new Date(), i);
-        const dateStr = format(date, 'MMM yyyy');
-
-        const periodSales = sales
-          .filter(s => isSameMonth(parseISO(s.date), date) && s.orderStatus !== OrderStatus.CANCELLED && s.orderStatus !== OrderStatus.RETURNED)
-          .reduce((sum, s) => sum + (s.netPayout || 0), 0);
-
-        const periodRentals = rentals
-          .filter(r => isSameMonth(parseISO(r.date), date))
-          .reduce((sum, r) => sum + (r.paidAmount || 0), 0);
-
-        data.push({
-          name: dateStr,
-          Sales: periodSales,
-          Rentals: periodRentals,
-          Total: periodSales + periodRentals
-        });
-      }
+      data.push({
+        name: dateStr,
+        Sales: periodSales,
+        Rentals: periodRentals,
+        Total: periodSales + periodRentals
+      });
     }
     return data;
   }, [sales, rentals, timeframe, startDateFilter, endDateFilter]);
@@ -1463,15 +1434,9 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
               <div className="h-[200px] sm:h-[240px] w-full mt-2">
                 <ResponsiveContainer width="100%" height="100%">
                   {chartType === 'BAR' ? (
-                    <BarChart data={salesGraphData} margin={{ top: 15, right: 10, left: -15, bottom: 5 }}>
+                    <BarChart data={salesGraphData} margin={{ top: 10, right: 10, left: -15, bottom: 0 }}>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                      <XAxis
-                        dataKey="name"
-                        axisLine={false}
-                        tickLine={false}
-                        tick={{ fontSize: 10, fontWeight: 700, fill: '#64748b' }}
-                        dy={6}
-                      />
+                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fontWeight: 600, fill: '#64748b' }} dy={8} />
                       <YAxis
                         axisLine={false}
                         tickLine={false}
@@ -1483,74 +1448,12 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
                         formatter={(value: any, name: any) => [`₹${Number(value || 0).toLocaleString('en-IN')}`, name]}
                         contentStyle={{ borderRadius: '8px', border: '1px solid #e2e8f0', boxShadow: 'none', fontSize: '11px', fontWeight: 'bold', padding: '8px 12px' }}
                       />
-                      <Legend iconType="circle" wrapperStyle={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', paddingTop: '6px' }} />
+                      <Legend iconType="circle" wrapperStyle={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', paddingTop: '10px' }} />
                       {(chartMetric === 'ALL' || chartMetric === 'SALES') && (
-                        <Bar
-                          dataKey="Sales"
-                          stackId={chartMetric === 'ALL' ? 'a' : undefined}
-                          fill="#01a9fb"
-                          radius={chartMetric === 'ALL' ? [0, 0, 2, 2] : [4, 4, 0, 0]}
-                          maxBarSize={45}
-                        >
-                          <LabelList
-                            dataKey="Sales"
-                            position="insideBottom"
-                            content={(props: any) => {
-                              const { x, y, width, height, value } = props;
-                              if (!value || height < 30) return null;
-                              return (
-                                <g transform={`translate(${x + width / 2}, ${y + height - 8})`}>
-                                  <text
-                                    x={0}
-                                    y={0}
-                                    fill="#ffffff"
-                                    textAnchor="start"
-                                    transform="rotate(-90)"
-                                    fontSize={9}
-                                    fontWeight={800}
-                                    letterSpacing="0.03em"
-                                  >
-                                    ₹{value >= 1000 ? `${(value / 1000).toFixed(1)}k` : value}
-                                  </text>
-                                </g>
-                              );
-                            }}
-                          />
-                        </Bar>
+                        <Bar dataKey="Sales" stackId={chartMetric === 'ALL' ? 'a' : undefined} fill="#01a9fb" radius={chartMetric === 'ALL' ? [0, 0, 2, 2] : [4, 4, 0, 0]} maxBarSize={45} />
                       )}
                       {(chartMetric === 'ALL' || chartMetric === 'RENTALS') && (
-                        <Bar
-                          dataKey="Rentals"
-                          stackId={chartMetric === 'ALL' ? 'a' : undefined}
-                          fill="#fe569f"
-                          radius={[4, 4, 0, 0]}
-                          maxBarSize={45}
-                        >
-                          <LabelList
-                            dataKey="Rentals"
-                            position="insideBottom"
-                            content={(props: any) => {
-                              const { x, y, width, height, value } = props;
-                              if (!value || height < 30) return null;
-                              return (
-                                <g transform={`translate(${x + width / 2}, ${y + height - 8})`}>
-                                  <text
-                                    x={0}
-                                    y={0}
-                                    fill="#ffffff"
-                                    textAnchor="start"
-                                    transform="rotate(-90)"
-                                    fontSize={9}
-                                    fontWeight={800}
-                                    letterSpacing="0.03em"
-                                  >
-                                    ₹{value >= 1000 ? `${(value / 1000).toFixed(1)}k` : value}
-                                  </text>
-                                </g>
-                              );
-                            }}
-                          />
-                        </Bar>
+                        <Bar dataKey="Rentals" stackId={chartMetric === 'ALL' ? 'a' : undefined} fill="#fe569f" radius={[4, 4, 0, 0]} maxBarSize={45} />
                       )}
                     </BarChart>
                   ) : (
