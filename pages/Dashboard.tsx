@@ -1003,13 +1003,13 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
         {/* Action 1: New Bill / Sale */}
         <button
           onClick={() => setIsCreateBillModalOpen(true)}
-          className="min-w-[120px] shrink-0 snap-start sm:min-w-0 sm:shrink group relative flex flex-col justify-between p-3.5 bg-white hover:bg-[#01a9fb]/5 border border-slate-200/90 hover:border-[#01a9fb] rounded-2xl transition-all text-left shadow-xs active:scale-95"
+          className="min-w-[130px] shrink-0 snap-start sm:min-w-0 sm:shrink group relative flex flex-col justify-between p-3.5 bg-white hover:bg-[#01a9fb]/5 border border-slate-200/90 hover:border-[#01a9fb] rounded-2xl transition-all text-left shadow-xs active:scale-95"
         >
-          <div className="w-full flex items-center justify-between mb-3">
-            <div className="w-9 h-9 rounded-xl bg-[#01a9fb] text-white flex items-center justify-center transition-transform group-hover:scale-105 shadow-sm shadow-blue-500/20">
+          <div className="w-full flex items-center justify-between gap-2 mb-3">
+            <div className="w-9 h-9 rounded-xl bg-[#01a9fb] text-white flex items-center justify-center transition-transform group-hover:scale-105 shadow-sm shadow-blue-500/20 shrink-0">
               <ShoppingBag size={17} strokeWidth={2.2} />
             </div>
-            <span className="text-[9.5px] font-black tracking-wider uppercase text-[#01a9fb] bg-[#eff6ff] border border-[#dbeafe] px-2 py-0.5 rounded-md">
+            <span className="text-[9.5px] font-black tracking-wider uppercase text-[#01a9fb] bg-[#eff6ff] border border-[#dbeafe] px-2 py-0.5 rounded-md shrink-0 whitespace-nowrap">
               POS
             </span>
           </div>
@@ -1022,13 +1022,13 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
         {/* Action 2: New Rental */}
         <button
           onClick={() => setIsNewRentalModalOpen(true)}
-          className="min-w-[120px] shrink-0 snap-start sm:min-w-0 sm:shrink group relative flex flex-col justify-between p-3.5 bg-white hover:bg-[#fe569f]/5 border border-slate-200/90 hover:border-[#fe569f] rounded-2xl transition-all text-left shadow-xs active:scale-95"
+          className="min-w-[130px] shrink-0 snap-start sm:min-w-0 sm:shrink group relative flex flex-col justify-between p-3.5 bg-white hover:bg-[#fe569f]/5 border border-slate-200/90 hover:border-[#fe569f] rounded-2xl transition-all text-left shadow-xs active:scale-95"
         >
-          <div className="w-full flex items-center justify-between mb-3">
-            <div className="w-9 h-9 rounded-xl bg-[#fe569f] text-white flex items-center justify-center transition-transform group-hover:scale-105 shadow-sm shadow-pink-500/20">
+          <div className="w-full flex items-center justify-between gap-2 mb-3">
+            <div className="w-9 h-9 rounded-xl bg-[#fe569f] text-white flex items-center justify-center transition-transform group-hover:scale-105 shadow-sm shadow-pink-500/20 shrink-0">
               <Calendar size={17} strokeWidth={2.2} />
             </div>
-            <span className="text-[9.5px] font-black tracking-wider uppercase text-[#fe569f] bg-[#fdf2f8] border border-[#fce7f3] px-2 py-0.5 rounded-md">
+            <span className="text-[9.5px] font-black tracking-wider uppercase text-[#fe569f] bg-[#fdf2f8] border border-[#fce7f3] px-2 py-0.5 rounded-md shrink-0 whitespace-nowrap">
               RENT
             </span>
           </div>
@@ -1041,13 +1041,13 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
         {/* Action 3: Add Product */}
         <button
           onClick={() => setIsProductModalOpen(true)}
-          className="min-w-[120px] shrink-0 snap-start sm:min-w-0 sm:shrink group relative flex flex-col justify-between p-3.5 bg-white hover:bg-[#01a9fb]/5 border border-slate-200/90 hover:border-[#01a9fb] rounded-2xl transition-all text-left shadow-xs active:scale-95"
+          className="min-w-[130px] shrink-0 snap-start sm:min-w-0 sm:shrink group relative flex flex-col justify-between p-3.5 bg-white hover:bg-[#01a9fb]/5 border border-slate-200/90 hover:border-[#01a9fb] rounded-2xl transition-all text-left shadow-xs active:scale-95"
         >
-          <div className="w-full flex items-center justify-between mb-3">
-            <div className="w-9 h-9 rounded-xl bg-[#0f172a] text-white group-hover:bg-[#01a9fb] flex items-center justify-center transition-colors shadow-sm">
+          <div className="w-full flex items-center justify-between gap-2 mb-3">
+            <div className="w-9 h-9 rounded-xl bg-[#0f172a] text-white group-hover:bg-[#01a9fb] flex items-center justify-center transition-colors shadow-sm shrink-0">
               <PlusCircle size={17} strokeWidth={2.2} />
             </div>
-            <span className="text-[9.5px] font-black tracking-wider uppercase text-slate-800 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-md">
+            <span className="text-[9.5px] font-black tracking-wider uppercase text-slate-800 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-md shrink-0 whitespace-nowrap">
               SKU
             </span>
           </div>
@@ -1060,13 +1060,13 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
         {/* Action 4: Return Rental */}
         <button
           onClick={() => setIsReturnRentalModalOpen(true)}
-          className="min-w-[120px] shrink-0 snap-start sm:min-w-0 sm:shrink group relative flex flex-col justify-between p-3.5 bg-white hover:bg-yellow-50/60 border border-slate-200/90 hover:border-yellow-400 rounded-2xl transition-all text-left shadow-xs active:scale-95"
+          className="min-w-[130px] shrink-0 snap-start sm:min-w-0 sm:shrink group relative flex flex-col justify-between p-3.5 bg-white hover:bg-yellow-50/60 border border-slate-200/90 hover:border-yellow-400 rounded-2xl transition-all text-left shadow-xs active:scale-95"
         >
-          <div className="w-full flex items-center justify-between mb-3">
-            <div className="w-9 h-9 rounded-xl bg-[#FACC15] text-slate-900 flex items-center justify-center font-bold transition-transform group-hover:scale-105 shadow-sm shadow-yellow-500/20">
+          <div className="w-full flex items-center justify-between gap-2 mb-3">
+            <div className="w-9 h-9 rounded-xl bg-[#FACC15] text-slate-900 flex items-center justify-center font-bold transition-transform group-hover:scale-105 shadow-sm shadow-yellow-500/20 shrink-0">
               <Undo2 size={17} strokeWidth={2.5} />
             </div>
-            <span className="text-[9px] font-black tracking-wider uppercase text-yellow-900 bg-yellow-100 px-1.5 py-0.5 rounded border border-yellow-300">
+            <span className="text-[9px] font-black tracking-wider uppercase text-yellow-900 bg-yellow-100 px-2 py-0.5 rounded border border-yellow-300 shrink-0 whitespace-nowrap">
               Inward
             </span>
           </div>
@@ -1079,13 +1079,13 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
         {/* Action 5: Stock In */}
         <button
           onClick={() => setIsStockModalOpen(true)}
-          className="min-w-[110px] shrink-0 snap-start sm:min-w-0 sm:shrink group relative flex flex-col justify-between p-3 bg-white hover:bg-[#01a9fb]/5 border border-slate-200/90 hover:border-[#01a9fb] rounded-md transition-all text-left active:scale-95"
+          className="min-w-[130px] shrink-0 snap-start sm:min-w-0 sm:shrink group relative flex flex-col justify-between p-3.5 bg-white hover:bg-[#01a9fb]/5 border border-slate-200/90 hover:border-[#01a9fb] rounded-2xl transition-all text-left shadow-xs active:scale-95"
         >
-          <div className="w-full flex items-center justify-between mb-2.5">
-            <div className="w-8 h-8 rounded-md bg-[#01a9fb]/15 text-[#01a9fb] group-hover:bg-[#01a9fb] group-hover:text-white flex items-center justify-center transition-colors">
-              <Package size={15} strokeWidth={2.2} />
+          <div className="w-full flex items-center justify-between gap-2 mb-3">
+            <div className="w-9 h-9 rounded-xl bg-[#01a9fb]/15 text-[#01a9fb] group-hover:bg-[#01a9fb] group-hover:text-white flex items-center justify-center transition-colors shrink-0">
+              <Package size={17} strokeWidth={2.2} />
             </div>
-            <span className="text-[9px] font-black tracking-wider uppercase text-[#01a9fb] bg-[#01a9fb]/10 px-1.5 py-0.5 rounded">
+            <span className="text-[9px] font-black tracking-wider uppercase text-[#01a9fb] bg-[#01a9fb]/10 px-2 py-0.5 rounded border border-[#01a9fb]/20 shrink-0 whitespace-nowrap">
               Stock
             </span>
           </div>
@@ -1098,13 +1098,13 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
         {/* Action 6: Add Customer */}
         <button
           onClick={() => setIsCustomerModalOpen(true)}
-          className="min-w-[110px] shrink-0 snap-start sm:min-w-0 sm:shrink group relative flex flex-col justify-between p-3 bg-white hover:bg-[#fe569f]/5 border border-slate-200/90 hover:border-[#fe569f] rounded-md transition-all text-left active:scale-95"
+          className="min-w-[130px] shrink-0 snap-start sm:min-w-0 sm:shrink group relative flex flex-col justify-between p-3.5 bg-white hover:bg-[#fe569f]/5 border border-slate-200/90 hover:border-[#fe569f] rounded-2xl transition-all text-left shadow-xs active:scale-95"
         >
-          <div className="w-full flex items-center justify-between mb-2.5">
-            <div className="w-8 h-8 rounded-md bg-[#fe569f]/15 text-[#fe569f] group-hover:bg-[#fe569f] group-hover:text-white flex items-center justify-center transition-colors">
-              <Users size={15} strokeWidth={2.2} />
+          <div className="w-full flex items-center justify-between gap-2 mb-3">
+            <div className="w-9 h-9 rounded-xl bg-[#fe569f]/15 text-[#fe569f] group-hover:bg-[#fe569f] group-hover:text-white flex items-center justify-center transition-colors shrink-0">
+              <Users size={17} strokeWidth={2.2} />
             </div>
-            <span className="text-[9px] font-black tracking-wider uppercase text-[#fe569f] bg-[#fe569f]/10 px-1.5 py-0.5 rounded">
+            <span className="text-[9px] font-black tracking-wider uppercase text-[#fe569f] bg-[#fe569f]/10 px-2 py-0.5 rounded border border-[#fe569f]/20 shrink-0 whitespace-nowrap">
               CRM
             </span>
           </div>
@@ -1117,13 +1117,13 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
         {/* Action 7: Record Expense */}
         <button
           onClick={() => setIsRecordExpenseModalOpen(true)}
-          className="min-w-[110px] shrink-0 snap-start sm:min-w-0 sm:shrink sm:col-span-4 lg:col-span-1 group relative flex flex-col justify-between p-3 bg-white hover:bg-yellow-50/60 border border-slate-200/90 hover:border-yellow-400 rounded-md transition-all text-left active:scale-95"
+          className="min-w-[130px] shrink-0 snap-start sm:min-w-0 sm:shrink sm:col-span-4 lg:col-span-1 group relative flex flex-col justify-between p-3.5 bg-white hover:bg-yellow-50/60 border border-slate-200/90 hover:border-yellow-400 rounded-2xl transition-all text-left shadow-xs active:scale-95"
         >
-          <div className="w-full flex items-center justify-between mb-2.5">
-            <div className="w-8 h-8 rounded-md bg-yellow-100 text-yellow-900 group-hover:bg-[#FACC15] group-hover:text-slate-900 flex items-center justify-center transition-colors">
-              <Wallet size={15} strokeWidth={2.2} />
+          <div className="w-full flex items-center justify-between gap-2 mb-3">
+            <div className="w-9 h-9 rounded-xl bg-yellow-100 text-yellow-900 group-hover:bg-[#FACC15] group-hover:text-slate-900 flex items-center justify-center transition-colors shrink-0">
+              <Wallet size={17} strokeWidth={2.2} />
             </div>
-            <span className="text-[9px] font-black tracking-wider uppercase text-yellow-900 bg-yellow-100 px-1.5 py-0.5 rounded border border-yellow-300">
+            <span className="text-[9px] font-black tracking-wider uppercase text-yellow-900 bg-yellow-100 px-2 py-0.5 rounded border border-yellow-300 shrink-0 whitespace-nowrap">
               Cost
             </span>
           </div>
