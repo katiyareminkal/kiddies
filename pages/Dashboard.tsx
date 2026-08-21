@@ -1379,15 +1379,16 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
         <div className="lg:col-span-8 bg-white p-5 sm:p-6 rounded-md border border-slate-200/80 flex flex-col justify-between">
           <div>
             {/* Chart Control Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-3 border-b border-slate-100">
-              {/* Left Side: Title + Metric Filter (All, Sales, Rentals) */}
-              <div className="flex items-center gap-3 flex-wrap">
-                <div className="flex items-center gap-2">
-                  <BarChart3 size={17} className="text-[#01a9fb] shrink-0" />
-                  <h2 className="text-sm sm:text-base font-extrabold text-slate-900 tracking-tight whitespace-nowrap">Revenue Trends</h2>
-                </div>
+            <div className="space-y-2.5 pb-3 border-b border-slate-100">
+              {/* Row 1: Title Header */}
+              <div className="flex items-center gap-2">
+                <BarChart3 size={17} className="text-[#01a9fb] shrink-0" />
+                <h2 className="text-sm sm:text-base font-extrabold text-slate-900 tracking-tight whitespace-nowrap">Revenue Trends</h2>
+              </div>
 
-                {/* Metric Filter */}
+              {/* Row 2: All / Sales / Rentals Filter on Left, Bar vs Curve Icons on Right */}
+              <div className="flex items-center justify-between gap-2.5">
+                {/* Metric Filter (Left Aligned) */}
                 <div className="inline-flex bg-slate-100 p-0.5 rounded-md text-[10px] font-bold shrink-0">
                   <button
                     onClick={() => setChartMetric('ALL')}
@@ -1408,10 +1409,8 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
                     Rentals
                   </button>
                 </div>
-              </div>
 
-              {/* Right Side: Bar vs Curve Icon Toggle */}
-              <div className="flex items-center justify-end shrink-0">
+                {/* Bar vs Curve Icon Toggle (Right Aligned) */}
                 <div className="inline-flex bg-slate-100 p-0.5 rounded-md text-[10px] font-bold shrink-0">
                   <button
                     type="button"
