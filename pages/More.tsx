@@ -201,17 +201,17 @@ const More: React.FC<MoreProps> = ({ onTabChange }) => {
       {/* Store Profile Card */}
       <div className="bg-white rounded-2xl border border-slate-200/90 p-5 sm:p-6 shadow-xs flex items-center justify-between gap-4">
         <div className="flex items-center gap-4">
-          <div className="w-13 h-13 rounded-xl bg-slate-50 border border-slate-200/80 p-1.5 flex items-center justify-center shadow-xs shrink-0 overflow-hidden">
-            {storeProfile?.logoUrl ? (
+          <div className="w-13 h-13 rounded-xl bg-slate-50 border border-slate-200/80 p-1 flex items-center justify-center shadow-xs shrink-0 overflow-hidden">
+            {storeProfile?.logo || (storeProfile as any)?.logoUrl ? (
               <img
-                src={storeProfile.logoUrl}
+                src={storeProfile.logo || (storeProfile as any).logoUrl}
                 alt={storeProfile.storeName || 'Store Profile'}
                 className="w-full h-full object-contain"
               />
             ) : (
               <img
-                src="/logo.png"
-                alt="Kiddies Store"
+                src="/icon-192.png"
+                alt={storeProfile?.storeName || 'Kiddies Store'}
                 className="w-full h-full object-contain"
               />
             )}
