@@ -216,7 +216,7 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
       size: size !== 'FREE' ? size : (target.size || 'FREE'),
       styleCode: target.styleCode || '',
       subCategory: target.subCategory || '',
-      labelSize: `${activeTemplate?.labelWidth || 50}x${activeTemplate?.labelHeight || 30}`
+      labelSize: `${activeTemplate?.labelWidth || 50}x${activeTemplate?.labelHeight || 30}` as any
     };
   };
 

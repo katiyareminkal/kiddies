@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode, useMemo } from 'react';
-import { AppState, Product, Customer, Supplier, Sale, Rental, StockLog, RentalStatus, PaymentStatus, SalesChannel, OrderStatus, PaymentMethod, StoreProfile, AppSettings, User, UserRole, AppNotification, CreditNote, Expense } from '../types';
+import { AppState, Product, Customer, Supplier, Sale, Rental, StockLog, RentalStatus, PaymentStatus, SalesChannel, OrderStatus, PaymentMethod, StoreProfile, AppSettings, User, UserRole, AppNotification, CreditNote, Expense, SupplierBill, SupplierBillItem } from '../types';
 import { generateID } from '../utils/helpers';
 import { supabase } from '../supabase';
 
@@ -854,7 +854,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         }
 
         // Fetch database profile in the background
-        supabase.from('profiles').select('*').eq('id', session.user.id).single()
+        Promise.resolve(supabase.from('profiles').select('*').eq('id', session.user.id).single())
           .then(({ data }) => {
             if (data && mounted) {
               setState(prev => {
@@ -1256,12 +1256,12 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
           }
         }));
 
-        // Fetch profile in the background
-        supabase.from('profiles').select('*').eq('id', data.user.id).single()
+        // Fetch database profile in the background
+        Promise.resolve(supabase.from('profiles').select('*').eq('id', sessionUser.id).single())
           .then(({ data: profile }) => {
             if (profile) {
               setState(prev => {
-                if (!prev.currentUser || prev.currentUser.id !== data.user.id) return prev;
+                if (!prev.currentUser || prev.currentUser.id !== sessionUser.id) return prev;
                 return {
                   ...prev,
                   currentUser: {

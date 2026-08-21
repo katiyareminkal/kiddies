@@ -330,7 +330,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
 
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      const files = Array.from(e.target.files);
+      const files: File[] = Array.from(e.target.files);
       const validFiles = files.filter(f => f.size <= 10 * 1024 * 1024);
 
       for (const file of validFiles) {

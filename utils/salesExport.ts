@@ -304,7 +304,7 @@ export const exportSalesToFormattedExcel = (
           const custName = cust?.name || 'Walk-in Guest';
           const custPhone = cust?.phone || '-';
           const dateFormatted = format(parseISO(s.date), 'yyyy-MM-dd HH:mm');
-          const itemsSummary = s.items.map(i => `${i.quantity}x ${i.customName || i.name || 'Item'}`).join(', ');
+          const itemsSummary = s.items.map(i => `${i.quantity}x ${(i as any).customName || i.name || 'Item'}`).join(', ');
           const itemCount = s.items.reduce((sum, i) => sum + i.quantity, 0);
           const paidAmt = s.paidAmount !== undefined ? s.paidAmount : s.totalAmount;
           const dueAmt = Math.max(0, s.totalAmount - paidAmt);
@@ -398,7 +398,7 @@ export const exportSalesToCSV = (
 
   const rows = salesList.map(s => {
     const cust = customersList.find(c => c.id === s.customerId);
-    const itemsStr = s.items.map(i => `${i.quantity}x ${i.customName || i.name || 'Item'}`).join('; ');
+    const itemsStr = s.items.map(i => `${i.quantity}x ${(i as any).customName || i.name || 'Item'}`).join('; ');
     const paidAmt = s.paidAmount !== undefined ? s.paidAmount : s.totalAmount;
     const dueAmt = Math.max(0, s.totalAmount - paidAmt);
     return [
