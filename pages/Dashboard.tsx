@@ -647,7 +647,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
     if (timeframe === 'WEEKLY') {
       for (let i = 6; i >= 0; i--) {
         const date = subDays(new Date(), i);
-        const dateStr = format(date, 'EEE');
+        const dateStr = format(date, 'dd MMM (EEE)');
         const dailySales = sales
           .filter(s => isSameDay(parseISO(s.date), date) && s.orderStatus !== OrderStatus.CANCELLED && s.orderStatus !== OrderStatus.RETURNED)
           .reduce((sum, s) => sum + (s.netPayout || 0), 0);
@@ -664,7 +664,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
       }
     } else if (timeframe === 'MONTHLY') {
       for (let i = 3; i >= 0; i--) {
-        const startOfPeriod = subDays(new Date(), (i + 1) * 7);
+        const startOfPeriod = subDays(new Date(), (i + 1) * 7 - 1);
         const endOfPeriod = subDays(new Date(), i * 7);
 
         const periodSales = sales
@@ -681,8 +681,10 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
           })
           .reduce((sum, r) => sum + (r.paidAmount || 0), 0);
 
+        const dateStr = `${format(startOfPeriod, 'dd MMM')} - ${format(endOfPeriod, 'dd MMM')}`;
+
         data.push({
-          name: `Week ${4 - i}`,
+          name: dateStr,
           Sales: periodSales,
           Rentals: periodRentals,
           Total: periodSales + periodRentals
@@ -691,7 +693,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
     } else {
       for (let i = 11; i >= 0; i--) {
         const date = subMonths(new Date(), i);
-        const dateStr = format(date, 'MMM');
+        const dateStr = format(date, 'MMM yyyy');
 
         const periodSales = sales
           .filter(s => isSameMonth(parseISO(s.date), date) && s.orderStatus !== OrderStatus.CANCELLED && s.orderStatus !== OrderStatus.RETURNED)
