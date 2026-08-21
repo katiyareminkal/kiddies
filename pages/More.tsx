@@ -91,7 +91,7 @@ const InstallGuideModal: React.FC<{ isOpen: boolean; onClose: () => void; isIOS:
 };
 
 const More: React.FC<MoreProps> = ({ onTabChange }) => {
-  const { currentUser, logout } = useApp();
+  const { currentUser, storeProfile, logout } = useApp();
 
   const [deferredPrompt, setDeferredPrompt] = useState<any>((window as any).deferredPWAInstallPrompt || null);
   const [isStandalone, setIsStandalone] = useState(false);
@@ -198,20 +198,36 @@ const More: React.FC<MoreProps> = ({ onTabChange }) => {
         </div>
       </div>
 
-      {/* User Profile Card */}
+      {/* Store Profile Card */}
       <div className="bg-white rounded-2xl border border-slate-200/90 p-5 sm:p-6 shadow-xs flex items-center justify-between gap-4">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-[#01a9fb] to-[#fe569f] text-white flex items-center justify-center text-xl font-black shadow-md shadow-blue-500/15 shrink-0 border border-white/20">
-            {(currentUser?.name || 'U').charAt(0).toUpperCase()}
+          <div className="w-13 h-13 rounded-xl bg-slate-50 border border-slate-200/80 p-1.5 flex items-center justify-center shadow-xs shrink-0 overflow-hidden">
+            {storeProfile?.logoUrl ? (
+              <img
+                src={storeProfile.logoUrl}
+                alt={storeProfile.storeName || 'Store Profile'}
+                className="w-full h-full object-contain"
+              />
+            ) : (
+              <img
+                src="/logo.png"
+                alt="Kiddies Store"
+                className="w-full h-full object-contain"
+              />
+            )}
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-base font-black text-slate-900">{currentUser?.name}</h2>
+              <h2 className="text-base font-black text-slate-900">
+                {storeProfile?.storeName || 'Kiddies Store'}
+              </h2>
               <span className="bg-[#01a9fb]/10 text-[#01a9fb] border border-[#01a9fb]/30 text-[10px] font-black uppercase px-2 py-0.5 rounded-md">
-                {currentUser?.role}
+                {currentUser?.role || 'Staff'}
               </span>
             </div>
-            <p className="text-xs text-slate-500 font-semibold mt-0.5">{currentUser?.email}</p>
+            <p className="text-xs text-slate-500 font-semibold mt-0.5">
+              {currentUser?.name ? `${currentUser.name} • ${currentUser.email}` : (storeProfile?.email || 'Authorized Store Terminal')}
+            </p>
           </div>
         </div>
 
