@@ -181,19 +181,25 @@ const More: React.FC<MoreProps> = ({ onTabChange }) => {
   return (
     <div className="pb-24 animate-nano space-y-5 max-w-[1000px] mx-auto">
       {/* Page Header */}
-      <div className="bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-5 shadow-xs flex items-center justify-between">
+      <div className="bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-5 shadow-xs">
         <div className="flex items-center gap-3.5">
-          <div className="w-11 h-11 rounded-xl bg-[#01a9fb] text-white flex items-center justify-center shadow-md shadow-blue-500/20 shrink-0">
+          <div className="w-11 h-11 rounded-xl bg-[#01a9fb] text-white flex items-center justify-center shadow-md shadow-blue-500/15 shrink-0">
             <Layers size={22} strokeWidth={2.2} />
           </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">Navigation & Utilities</h1>
-              <span className="text-[10px] font-black uppercase text-[#01a9fb] bg-[#eff6ff] border border-[#dbeafe] px-2 py-0.5 rounded-md">
+          <div className="flex-1 min-w-0">
+            {/* Line 1: Title + Badge side by side */}
+            <div className="flex items-center justify-between gap-2">
+              <h1 className="text-base sm:text-lg font-black text-slate-900 tracking-tight truncate">
+                Navigation & Utilities
+              </h1>
+              <span className="text-[10px] font-black uppercase text-[#01a9fb] bg-[#eff6ff] border border-[#dbeafe] px-2 py-0.5 rounded-md shrink-0">
                 Admin Console
               </span>
             </div>
-            <p className="text-xs text-slate-500 font-semibold mt-0.5">Quick access to admin modules, reports, CRM, and system tools</p>
+            {/* Line 2: Descriptive Subtitle */}
+            <p className="text-xs text-slate-500 font-semibold truncate mt-0.5">
+              Quick access to admin modules, reports, CRM, and system tools
+            </p>
           </div>
         </div>
       </div>
