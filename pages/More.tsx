@@ -127,38 +127,43 @@ const More: React.FC<MoreProps> = ({ onTabChange }) => {
   return (
     <div className="pb-24 animate-nano space-y-5 max-w-[1000px] mx-auto">
       {/* Page Header */}
-      <div className="bg-white border border-slate-200/80 rounded-md p-4 sm:p-5 shadow-xs flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-md bg-[#01a9fb] text-white flex items-center justify-center shadow-xs shrink-0">
-            <Layers size={20} strokeWidth={2.2} />
+      <div className="bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-5 shadow-xs flex items-center justify-between">
+        <div className="flex items-center gap-3.5">
+          <div className="w-11 h-11 rounded-xl bg-[#01a9fb] text-white flex items-center justify-center shadow-md shadow-blue-500/20 shrink-0">
+            <Layers size={22} strokeWidth={2.2} />
           </div>
           <div>
-            <h1 className="text-lg sm:text-xl font-extrabold text-slate-900 tracking-tight">Navigation & Utilities</h1>
-            <p className="text-xs text-slate-500 font-medium mt-0.5">Quick access to admin modules, reports, CRM, and system tools</p>
+            <div className="flex items-center gap-2">
+              <h1 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">Navigation & Utilities</h1>
+              <span className="text-[10px] font-black uppercase text-[#01a9fb] bg-[#eff6ff] border border-[#dbeafe] px-2 py-0.5 rounded-md">
+                Admin Console
+              </span>
+            </div>
+            <p className="text-xs text-slate-500 font-semibold mt-0.5">Quick access to admin modules, reports, CRM, and system tools</p>
           </div>
         </div>
       </div>
 
       {/* User Profile Card */}
-      <div className="bg-white rounded-md border border-slate-200/80 p-5 shadow-xs flex items-center justify-between gap-4">
+      <div className="bg-white rounded-2xl border border-slate-200/90 p-5 sm:p-6 shadow-xs flex items-center justify-between gap-4">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-md bg-[#01a9fb] text-white flex items-center justify-center text-lg font-extrabold shadow-xs shrink-0">
+          <div className="w-13 h-13 rounded-2xl bg-gradient-to-tr from-[#01a9fb] to-[#fe569f] text-white flex items-center justify-center text-xl font-black shadow-md shadow-blue-500/20 shrink-0">
             {(currentUser?.name || 'U').charAt(0).toUpperCase()}
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-base font-extrabold text-slate-900">{currentUser?.name}</h2>
-              <span className="bg-[#01a9fb]/10 text-[#01a9fb] border border-[#01a9fb]/30 text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-md">
+              <h2 className="text-base font-black text-slate-900">{currentUser?.name}</h2>
+              <span className="bg-[#01a9fb]/10 text-[#01a9fb] border border-[#01a9fb]/30 text-[10px] font-black uppercase px-2 py-0.5 rounded-md">
                 {currentUser?.role}
               </span>
             </div>
-            <p className="text-xs text-slate-400 font-medium mt-0.5">{currentUser?.email}</p>
+            <p className="text-xs text-slate-500 font-semibold mt-0.5">{currentUser?.email}</p>
           </div>
         </div>
 
         <button
           onClick={logout}
-          className="px-3.5 py-2 text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-md text-xs font-extrabold uppercase tracking-wider transition-all flex items-center gap-1.5 shrink-0"
+          className="px-3.5 py-2 text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-xl text-xs font-black uppercase tracking-wider transition-all active:scale-95 flex items-center gap-1.5 shrink-0"
           title="Sign out of current terminal session"
         >
           <LogOut size={14} strokeWidth={2.5} />
@@ -169,9 +174,9 @@ const More: React.FC<MoreProps> = ({ onTabChange }) => {
       {/* Menu Groups */}
       <div className="space-y-5">
         {menuGroups.map((group, idx) => (
-          <div key={idx} className="space-y-2">
-            <h3 className="text-xs font-extrabold text-slate-400 uppercase tracking-wider px-2">{group.title}</h3>
-            <div className="bg-white rounded-md border border-slate-200/80 shadow-xs overflow-hidden divide-y divide-slate-100">
+          <div key={idx} className="space-y-2.5">
+            <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-wider px-2">{group.title}</h3>
+            <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs overflow-hidden divide-y divide-slate-100">
               {group.items.filter(canAccess).map((item) => (
                 <button
                   key={item.id}
@@ -184,20 +189,20 @@ const More: React.FC<MoreProps> = ({ onTabChange }) => {
                       onTabChange(item.id);
                     }
                   }}
-                  className="w-full flex items-center justify-between p-4 hover:bg-slate-50/80 transition-colors group text-left"
+                  className="w-full flex items-center justify-between p-4 sm:p-4.5 hover:bg-slate-50 transition-colors group text-left active:scale-[0.99]"
                 >
                   <div className="flex items-center gap-3.5">
-                    <div className={`w-10 h-10 rounded-md ${item.bg} ${item.color} border flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform`}>
+                    <div className={`w-10 h-10 rounded-xl ${item.bg} ${item.color} border flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform shadow-2xs`}>
                       {item.icon}
                     </div>
                     <div>
-                      <h4 className="text-xs font-extrabold text-slate-900 group-hover:text-[#01a9fb] transition-colors">
+                      <h4 className="text-xs sm:text-sm font-black text-slate-900 group-hover:text-[#01a9fb] transition-colors">
                         {item.label}
                       </h4>
-                      <p className="text-[11px] text-slate-400 font-medium mt-0.5">{item.desc}</p>
+                      <p className="text-[11px] text-slate-400 font-semibold mt-0.5">{item.desc}</p>
                     </div>
                   </div>
-                  <ChevronRight size={16} strokeWidth={2.5} className="text-slate-300 group-hover:text-slate-900 group-hover:translate-x-0.5 transition-all" />
+                  <ChevronRight size={17} strokeWidth={2.5} className="text-slate-300 group-hover:text-slate-900 group-hover:translate-x-1 transition-all shrink-0" />
                 </button>
               ))}
             </div>
@@ -207,7 +212,7 @@ const More: React.FC<MoreProps> = ({ onTabChange }) => {
         {/* Big Sign Out Button */}
         <button
           onClick={logout}
-          className="w-full flex items-center justify-center gap-2 py-3 bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white border border-rose-200 rounded-md font-extrabold text-xs uppercase tracking-wider transition-all shadow-xs"
+          className="w-full flex items-center justify-center gap-2 py-3.5 bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white border border-rose-200 rounded-2xl font-black text-xs uppercase tracking-wider transition-all shadow-xs active:scale-95"
         >
           <LogOut size={16} strokeWidth={2.5} />
           <span>Sign Out of Terminal</span>
