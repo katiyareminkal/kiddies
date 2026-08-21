@@ -51,7 +51,8 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  Legend
+  Legend,
+  LabelList
 } from 'recharts';
 import {
   format,
@@ -1462,9 +1463,15 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
               <div className="h-[200px] sm:h-[240px] w-full mt-2">
                 <ResponsiveContainer width="100%" height="100%">
                   {chartType === 'BAR' ? (
-                    <BarChart data={salesGraphData} margin={{ top: 10, right: 10, left: -15, bottom: 0 }}>
+                    <BarChart data={salesGraphData} margin={{ top: 15, right: 10, left: -15, bottom: 5 }}>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fontWeight: 600, fill: '#64748b' }} dy={8} />
+                      <XAxis
+                        dataKey="name"
+                        axisLine={false}
+                        tickLine={false}
+                        tick={{ fontSize: 10, fontWeight: 700, fill: '#64748b' }}
+                        dy={6}
+                      />
                       <YAxis
                         axisLine={false}
                         tickLine={false}
@@ -1476,12 +1483,74 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
                         formatter={(value: any, name: any) => [`₹${Number(value || 0).toLocaleString('en-IN')}`, name]}
                         contentStyle={{ borderRadius: '8px', border: '1px solid #e2e8f0', boxShadow: 'none', fontSize: '11px', fontWeight: 'bold', padding: '8px 12px' }}
                       />
-                      <Legend iconType="circle" wrapperStyle={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', paddingTop: '10px' }} />
+                      <Legend iconType="circle" wrapperStyle={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', paddingTop: '6px' }} />
                       {(chartMetric === 'ALL' || chartMetric === 'SALES') && (
-                        <Bar dataKey="Sales" stackId={chartMetric === 'ALL' ? 'a' : undefined} fill="#01a9fb" radius={chartMetric === 'ALL' ? [0, 0, 2, 2] : [4, 4, 0, 0]} maxBarSize={45} />
+                        <Bar
+                          dataKey="Sales"
+                          stackId={chartMetric === 'ALL' ? 'a' : undefined}
+                          fill="#01a9fb"
+                          radius={chartMetric === 'ALL' ? [0, 0, 2, 2] : [4, 4, 0, 0]}
+                          maxBarSize={45}
+                        >
+                          <LabelList
+                            dataKey="Sales"
+                            position="insideBottom"
+                            content={(props: any) => {
+                              const { x, y, width, height, value } = props;
+                              if (!value || height < 30) return null;
+                              return (
+                                <g transform={`translate(${x + width / 2}, ${y + height - 8})`}>
+                                  <text
+                                    x={0}
+                                    y={0}
+                                    fill="#ffffff"
+                                    textAnchor="start"
+                                    transform="rotate(-90)"
+                                    fontSize={9}
+                                    fontWeight={800}
+                                    letterSpacing="0.03em"
+                                  >
+                                    ₹{value >= 1000 ? `${(value / 1000).toFixed(1)}k` : value}
+                                  </text>
+                                </g>
+                              );
+                            }}
+                          />
+                        </Bar>
                       )}
                       {(chartMetric === 'ALL' || chartMetric === 'RENTALS') && (
-                        <Bar dataKey="Rentals" stackId={chartMetric === 'ALL' ? 'a' : undefined} fill="#fe569f" radius={[4, 4, 0, 0]} maxBarSize={45} />
+                        <Bar
+                          dataKey="Rentals"
+                          stackId={chartMetric === 'ALL' ? 'a' : undefined}
+                          fill="#fe569f"
+                          radius={[4, 4, 0, 0]}
+                          maxBarSize={45}
+                        >
+                          <LabelList
+                            dataKey="Rentals"
+                            position="insideBottom"
+                            content={(props: any) => {
+                              const { x, y, width, height, value } = props;
+                              if (!value || height < 30) return null;
+                              return (
+                                <g transform={`translate(${x + width / 2}, ${y + height - 8})`}>
+                                  <text
+                                    x={0}
+                                    y={0}
+                                    fill="#ffffff"
+                                    textAnchor="start"
+                                    transform="rotate(-90)"
+                                    fontSize={9}
+                                    fontWeight={800}
+                                    letterSpacing="0.03em"
+                                  >
+                                    ₹{value >= 1000 ? `${(value / 1000).toFixed(1)}k` : value}
+                                  </text>
+                                </g>
+                              );
+                            }}
+                          />
+                        </Bar>
                       )}
                     </BarChart>
                   ) : (
