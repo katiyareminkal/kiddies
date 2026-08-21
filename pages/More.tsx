@@ -219,7 +219,7 @@ const More: React.FC<MoreProps> = ({ onTabChange }) => {
           <div>
             <div className="flex items-center gap-2">
               <h2 className="text-base font-black text-slate-900">
-                {storeProfile?.storeName}
+                {storeProfile?.storeName || 'Store Profile'}
               </h2>
               {currentUser?.role && (
                 <span className="bg-[#01a9fb]/10 text-[#01a9fb] border border-[#01a9fb]/30 text-[10px] font-black uppercase px-2 py-0.5 rounded-md">
@@ -228,7 +228,7 @@ const More: React.FC<MoreProps> = ({ onTabChange }) => {
               )}
             </div>
             <p className="text-xs text-slate-500 font-semibold mt-0.5">
-              {currentUser?.name ? `${currentUser.name} • ${currentUser.email}` : storeProfile?.email}
+              {storeProfile?.email || storeProfile?.phone || currentUser?.email}
             </p>
           </div>
         </div>
