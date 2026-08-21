@@ -293,7 +293,7 @@ const More: React.FC<MoreProps> = ({ onTabChange }) => {
           className="w-full flex items-center justify-center gap-2 py-3.5 bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white border border-rose-200 rounded-2xl font-black text-xs uppercase tracking-wider transition-all shadow-xs active:scale-95"
         >
           <LogOut size={16} strokeWidth={2.5} />
-          <span>Sign Out of Terminal</span>
+          <span>Sign Out</span>
         </button>
       </div>
 
