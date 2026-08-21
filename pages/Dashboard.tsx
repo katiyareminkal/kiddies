@@ -1379,72 +1379,74 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
         <div className="lg:col-span-8 bg-white p-5 sm:p-6 rounded-md border border-slate-200/80 flex flex-col justify-between">
           <div>
             {/* Chart Control Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-3 border-b border-slate-100">
-              {/* Left Side: Title + Inline Timeframe Filter */}
-              <div className="flex items-center gap-2.5 flex-wrap">
+            <div className="space-y-2.5 pb-3 border-b border-slate-100">
+              {/* Row 1: Title on left, Timeframe + Chart Icons on right */}
+              <div className="flex items-center justify-between gap-2.5">
                 <div className="flex items-center gap-2">
                   <BarChart3 size={17} className="text-[#01a9fb] shrink-0" />
                   <h2 className="text-sm sm:text-base font-extrabold text-slate-900 tracking-tight whitespace-nowrap">Revenue Trends</h2>
                 </div>
 
-                {/* Timeframe selector (inline on left with title) */}
-                {(!startDateFilter && !endDateFilter) && (
-                  <div className="relative shrink-0">
-                    <select
-                      value={timeframe}
-                      onChange={(e) => setTimeframe(e.target.value as 'WEEKLY' | 'MONTHLY' | 'YEARLY')}
-                      className="appearance-none bg-slate-100 hover:bg-slate-200/80 border-0 px-2.5 py-1 pr-6 rounded-md text-[10px] font-bold text-slate-700 uppercase outline-none cursor-pointer transition-colors"
+                {/* Right Side: Timeframe Selector + Bar/Curve Icons */}
+                <div className="flex items-center gap-2 justify-end shrink-0">
+                  {/* Timeframe selector */}
+                  {(!startDateFilter && !endDateFilter) && (
+                    <div className="relative shrink-0">
+                      <select
+                        value={timeframe}
+                        onChange={(e) => setTimeframe(e.target.value as 'WEEKLY' | 'MONTHLY' | 'YEARLY')}
+                        className="appearance-none bg-slate-100 hover:bg-slate-200/80 border-0 px-2.5 py-1 pr-6 rounded-md text-[10px] font-bold text-slate-700 uppercase outline-none cursor-pointer transition-colors"
+                      >
+                        <option value="WEEKLY">Weekly</option>
+                        <option value="MONTHLY">Monthly</option>
+                        <option value="YEARLY">Yearly</option>
+                      </select>
+                      <ChevronDown className="absolute right-1.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" size={11} strokeWidth={2.5} />
+                    </div>
+                  )}
+
+                  {/* Bar vs Curve Icon Toggle */}
+                  <div className="inline-flex bg-slate-100 p-0.5 rounded-md text-[10px] font-bold shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => setChartType('BAR')}
+                      className={`p-1.5 rounded transition-all flex items-center justify-center ${chartType === 'BAR' ? 'bg-slate-900 text-white shadow-2xs' : 'text-slate-500 hover:text-slate-800'}`}
+                      title="Bar Chart View"
                     >
-                      <option value="WEEKLY">Weekly</option>
-                      <option value="MONTHLY">Monthly</option>
-                      <option value="YEARLY">Yearly</option>
-                    </select>
-                    <ChevronDown className="absolute right-1.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" size={11} strokeWidth={2.5} />
+                      <BarChart3 size={13} strokeWidth={2.5} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setChartType('AREA')}
+                      className={`p-1.5 rounded transition-all flex items-center justify-center ${chartType === 'AREA' ? 'bg-slate-900 text-white shadow-2xs' : 'text-slate-500 hover:text-slate-800'}`}
+                      title="Smooth Curve Area View"
+                    >
+                      <Activity size={13} strokeWidth={2.5} />
+                    </button>
                   </div>
-                )}
+                </div>
               </div>
 
-              {/* Right Side: Metric Filter (Sales, Rentals, All) + Bar/Curve Icons */}
-              <div className="flex items-center gap-2 justify-end shrink-0">
-                {/* Metric Filter */}
+              {/* Row 2: Sales, Rentals & All filter aligned on the left */}
+              <div className="flex items-center justify-start">
                 <div className="inline-flex bg-slate-100 p-0.5 rounded-md text-[10px] font-bold shrink-0">
                   <button
                     onClick={() => setChartMetric('ALL')}
-                    className={`px-2 py-0.5 rounded transition-all whitespace-nowrap ${chartMetric === 'ALL' ? 'bg-slate-900 text-white' : 'text-slate-500 hover:text-slate-800'}`}
+                    className={`px-2.5 py-1 rounded transition-all whitespace-nowrap ${chartMetric === 'ALL' ? 'bg-slate-900 text-white shadow-2xs' : 'text-slate-500 hover:text-slate-800'}`}
                   >
                     All
                   </button>
                   <button
                     onClick={() => setChartMetric('SALES')}
-                    className={`px-2 py-0.5 rounded transition-all whitespace-nowrap ${chartMetric === 'SALES' ? 'bg-[#01a9fb] text-white' : 'text-slate-500 hover:text-slate-800'}`}
+                    className={`px-2.5 py-1 rounded transition-all whitespace-nowrap ${chartMetric === 'SALES' ? 'bg-[#01a9fb] text-white shadow-2xs' : 'text-slate-500 hover:text-slate-800'}`}
                   >
                     Sales
                   </button>
                   <button
                     onClick={() => setChartMetric('RENTALS')}
-                    className={`px-2 py-0.5 rounded transition-all whitespace-nowrap ${chartMetric === 'RENTALS' ? 'bg-[#fe569f] text-white' : 'text-slate-500 hover:text-slate-800'}`}
+                    className={`px-2.5 py-1 rounded transition-all whitespace-nowrap ${chartMetric === 'RENTALS' ? 'bg-[#fe569f] text-white shadow-2xs' : 'text-slate-500 hover:text-slate-800'}`}
                   >
                     Rentals
-                  </button>
-                </div>
-
-                {/* Bar vs Curve Icon Toggle */}
-                <div className="inline-flex bg-slate-100 p-0.5 rounded-md text-[10px] font-bold shrink-0">
-                  <button
-                    type="button"
-                    onClick={() => setChartType('BAR')}
-                    className={`p-1.5 rounded transition-all flex items-center justify-center ${chartType === 'BAR' ? 'bg-slate-900 text-white shadow-2xs' : 'text-slate-500 hover:text-slate-800'}`}
-                    title="Bar Chart View"
-                  >
-                    <BarChart3 size={13} strokeWidth={2.5} />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setChartType('AREA')}
-                    className={`p-1.5 rounded transition-all flex items-center justify-center ${chartType === 'AREA' ? 'bg-slate-900 text-white shadow-2xs' : 'text-slate-500 hover:text-slate-800'}`}
-                    title="Smooth Curve Area View"
-                  >
-                    <Activity size={13} strokeWidth={2.5} />
                   </button>
                 </div>
               </div>
