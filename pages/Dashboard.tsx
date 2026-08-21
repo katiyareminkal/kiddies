@@ -326,6 +326,8 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
 
   // Backup Alert State
   const [showBackupAlert, setShowBackupAlert] = useState(false);
+  const [backupToast, setBackupToast] = useState<string | null>(null);
+  const [isBackingUp, setIsBackingUp] = useState(false);
   const [isMobileDateMenuOpen, setIsMobileDateMenuOpen] = useState(false);
 
   // Stock Stats Breakdown
@@ -389,9 +391,20 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
   }, []);
 
   const handleExcelBackup = () => {
-    exportToExcel({ products, sales, rentals, customers, suppliers, stockLogs });
-    localStorage.setItem('kiddies_last_excel_backup_date', new Date().toDateString());
-    setShowBackupAlert(false);
+    setIsBackingUp(true);
+    setTimeout(() => {
+      const success = exportToExcel({ products, sales, rentals, customers, suppliers, stockLogs });
+      setIsBackingUp(false);
+      if (success) {
+        localStorage.setItem('kiddies_last_excel_backup_date', new Date().toDateString());
+        setShowBackupAlert(false);
+        setBackupToast('Backup downloaded successfully! Excel file saved to your device.');
+        setTimeout(() => setBackupToast(null), 4000);
+      } else {
+        setBackupToast('Error generating backup. Please try again.');
+        setTimeout(() => setBackupToast(null), 4000);
+      }
+    }, 150);
   };
 
   // Find first and last entry dates
@@ -793,6 +806,14 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
   return (
     <div className="space-y-5 pb-24 animate-nano max-w-[1600px] mx-auto">
 
+      {/* ── Backup Feedback Toast Notification ── */}
+      {backupToast && (
+        <div className="fixed top-4 right-4 z-50 bg-slate-900 text-white px-4 py-2.5 rounded-xl shadow-2xl flex items-center gap-2.5 text-xs font-bold animate-in fade-in slide-in-from-top-3 duration-200 border border-slate-700">
+          <CheckCircle2 size={16} className="text-emerald-400 shrink-0" />
+          <span>{backupToast}</span>
+        </div>
+      )}
+
       {/* ── Daily Backup Banner (Compact & Sleek) ── */}
       {showBackupAlert && (
         <div className="bg-amber-50/80 border border-amber-200/90 rounded-lg px-3 py-1.5 flex items-center justify-between gap-2 shadow-2xs animate-in fade-in duration-200">
@@ -805,9 +826,17 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
           <div className="flex items-center gap-1.5 shrink-0">
             <button
               onClick={handleExcelBackup}
-              className="px-2.5 py-1 bg-amber-500 hover:bg-amber-600 active:scale-95 text-white font-extrabold rounded text-[10px] sm:text-[11px] transition-all flex items-center gap-1"
+              disabled={isBackingUp}
+              className="px-2.5 py-1 bg-amber-500 hover:bg-amber-600 disabled:opacity-75 active:scale-95 text-white font-extrabold rounded text-[10px] sm:text-[11px] transition-all flex items-center gap-1"
             >
-              Backup Now
+              {isBackingUp ? (
+                <>
+                  <span className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                  <span>Generating...</span>
+                </>
+              ) : (
+                'Backup Now'
+              )}
             </button>
             <button
               onClick={() => setShowBackupAlert(false)}

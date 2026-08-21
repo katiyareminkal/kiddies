@@ -45,7 +45,23 @@ export const exportToExcel = (data: BackupData) => {
 
     const dateStr = new Date().toISOString().slice(0, 10);
     const fileName = `Kiddies_Backup_${dateStr}.xlsx`;
-    XLSX.writeFile(wb, fileName);
+    
+    // Generate binary array buffer and trigger download via standard HTML5 Blob
+    const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+    const blob = new Blob([wbout], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    
+    setTimeout(() => {
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    }, 100);
+
     return true;
   } catch (error) {
     console.error("Excel backup failed:", error);
