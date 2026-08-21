@@ -1086,7 +1086,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
             const savedLocal = localStorage.getItem('kiddies_offline_rentals');
             if (savedLocal) {
               const offline: Rental[] = JSON.parse(savedLocal);
-              const map = new Map(remoteRentals.map(item => [item.id, item]));
+              const map = new Map<string, Rental>(remoteRentals.map(item => [item.id, item]));
               offline.forEach(off => {
                 if (!map.has(off.id)) {
                   map.set(off.id, off);
@@ -1257,11 +1257,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         }));
 
         // Fetch database profile in the background
-        Promise.resolve(supabase.from('profiles').select('*').eq('id', sessionUser.id).single())
+        Promise.resolve(supabase.from('profiles').select('*').eq('id', data.user.id).single())
           .then(({ data: profile }) => {
             if (profile) {
               setState(prev => {
-                if (!prev.currentUser || prev.currentUser.id !== sessionUser.id) return prev;
+                if (!prev.currentUser || prev.currentUser.id !== data.user.id) return prev;
                 return {
                   ...prev,
                   currentUser: {
