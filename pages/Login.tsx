@@ -97,26 +97,25 @@ const Login: React.FC = () => {
         className="w-full max-w-[400px] relative z-10"
       >
         {/* Branding Header */}
-        <div className="flex flex-col items-center mb-5 text-center">
-          <div className="p-2.5 bg-slate-800 rounded-lg border border-slate-700 shadow-sm mb-2.5">
-            <img src="/logo.png" alt="Kiddies" className="h-9 w-auto object-contain" />
+        <div className="flex flex-col items-center mb-6 text-center">
+          <div className="p-3 bg-slate-800/80 rounded-2xl border border-slate-700/80 shadow-md mb-3">
+            <img src="/logo.png" alt="Kids Wear Logo" className="h-12 w-auto object-contain" />
           </div>
-          <h1 className="text-lg font-bold text-white tracking-tight flex items-center gap-2">
-            <span>Kiddies</span>
-            <span className="text-[10px] font-bold uppercase tracking-wider bg-[#fe569f]/20 text-[#fe569f] px-2 py-0.5 rounded-md border border-[#fe569f]/40">
-              Enterprise
-            </span>
+          <h1 className="text-xl font-black text-white tracking-tight">
+            Kids Wear
           </h1>
-          <p className="text-slate-400 text-xs font-normal mt-0.5">Kids Wear & Garment Rental POS</p>
+          <p className="text-slate-400 text-xs font-semibold mt-1 tracking-wide">
+            Rental & Stock Management
+          </p>
         </div>
 
         {/* Main Card */}
-        <div className="bg-white rounded-lg shadow-elevated border border-slate-200 p-6 sm:p-7">
+        <div className="bg-white rounded-2xl shadow-xl border border-slate-200/90 p-6 sm:p-7 backdrop-blur-sm">
           <div className="mb-5">
-            <h2 className="text-lg font-bold text-slate-900 tracking-tight">
+            <h2 className="text-lg font-black text-slate-900 tracking-tight">
               {isSignUp ? 'Create Staff Account' : 'Welcome Back'}
             </h2>
-            <p className="text-slate-500 text-xs font-normal mt-0.5">
+            <p className="text-slate-500 text-xs font-semibold mt-0.5">
               {isSignUp ? 'Register to manage inventory & sales' : 'Sign in to access your store terminal'}
             </p>
           </div>
@@ -130,7 +129,7 @@ const Login: React.FC = () => {
                 exit={{ opacity: 0, height: 0 }}
                 className="mb-3.5 overflow-hidden"
               >
-                <div className="bg-rose-50 text-rose-700 px-3 py-2 rounded-md text-xs font-semibold border border-rose-200 flex items-center gap-2">
+                <div className="bg-rose-50 text-rose-700 px-3 py-2 rounded-xl text-xs font-bold border border-rose-200 flex items-center gap-2">
                   <AlertCircle size={14} className="shrink-0 text-rose-600" />
                   <span>{error}</span>
                 </div>
@@ -143,7 +142,7 @@ const Login: React.FC = () => {
                 exit={{ opacity: 0, height: 0 }}
                 className="mb-3.5 overflow-hidden"
               >
-                <div className="bg-emerald-50 text-emerald-700 px-3 py-2 rounded-md text-xs font-semibold border border-emerald-200 flex items-center gap-2">
+                <div className="bg-emerald-50 text-emerald-700 px-3 py-2 rounded-xl text-xs font-bold border border-emerald-200 flex items-center gap-2">
                   <CheckCircle2 size={14} className="shrink-0 text-emerald-600" />
                   <span>{successMessage}</span>
                 </div>
@@ -168,7 +167,7 @@ const Login: React.FC = () => {
                       required
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
-                      className="w-full pl-9 pr-3.5 py-2 bg-slate-50 border border-slate-200 rounded-md outline-none focus:border-[#01a9fb] focus:bg-white text-xs font-medium text-slate-900 placeholder:text-slate-400"
+                      className="w-full pl-9 pr-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-[#01a9fb] focus:bg-white text-xs font-semibold text-slate-900 placeholder:text-slate-400 transition-all"
                       placeholder="Full Name"
                     />
                   </div>
@@ -183,7 +182,7 @@ const Login: React.FC = () => {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full pl-9 pr-3.5 py-2 bg-slate-50 border border-slate-200 rounded-md outline-none focus:border-[#01a9fb] focus:bg-white text-xs font-medium text-slate-900 placeholder:text-slate-400"
+                className="w-full pl-9 pr-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-[#01a9fb] focus:bg-white text-xs font-semibold text-slate-900 placeholder:text-slate-400 transition-all"
                 placeholder="Email Address"
               />
             </div>
@@ -195,13 +194,13 @@ const Login: React.FC = () => {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full pl-9 pr-9 py-2 bg-slate-50 border border-slate-200 rounded-md outline-none focus:border-[#01a9fb] focus:bg-white text-xs font-medium text-slate-900 placeholder:text-slate-400"
+                className="w-full pl-9 pr-9 py-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-[#01a9fb] focus:bg-white text-xs font-semibold text-slate-900 placeholder:text-slate-400 transition-all"
                 placeholder="Password"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
               >
                 {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
               </button>
@@ -216,12 +215,12 @@ const Login: React.FC = () => {
                     onChange={() => setRememberMe(!rememberMe)}
                     className="rounded border-slate-300 text-[#01a9fb] focus:ring-[#01a9fb] w-3.5 h-3.5"
                   />
-                  <span className="text-slate-600 font-medium text-xs">Remember me</span>
+                  <span className="text-slate-600 font-semibold text-xs">Remember me</span>
                 </label>
                 <button
                   type="button"
                   onClick={handleForgotPassword}
-                  className="text-xs text-[#01a9fb] font-semibold hover:underline"
+                  className="text-xs text-[#01a9fb] font-bold hover:underline"
                 >
                   Forgot password?
                 </button>
@@ -231,7 +230,7 @@ const Login: React.FC = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-2.5 bg-[#01a9fb] hover:bg-[#0098e6] text-white text-xs font-bold uppercase tracking-wider rounded-md transition-all active:scale-[0.99] disabled:opacity-60 flex items-center justify-center gap-1.5 !mt-4 shadow-xs"
+              className="w-full py-2.5 bg-[#01a9fb] hover:bg-[#0098e6] text-white text-xs font-black uppercase tracking-wider rounded-xl transition-all active:scale-[0.99] disabled:opacity-60 flex items-center justify-center gap-1.5 !mt-4 shadow-sm shadow-blue-500/20"
             >
               {isLoading ? (
                 <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -245,22 +244,22 @@ const Login: React.FC = () => {
           </form>
 
           {/* Quick Demo Access */}
-          <div className="mt-4 pt-3.5 border-t border-slate-100">
-            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 text-center mb-2">
+          <div className="mt-5 pt-4 border-t border-slate-100">
+            <p className="text-[10px] font-black uppercase tracking-wider text-slate-400 text-center mb-2.5">
               Quick Demo Access
             </p>
             <div className="grid grid-cols-2 gap-2">
               <button
                 type="button"
                 onClick={() => fillDemo('admin@kiddies.store', 'admin')}
-                className="px-2.5 py-1.5 bg-slate-50 hover:bg-[#01a9fb]/10 text-slate-700 hover:text-[#01a9fb] border border-slate-200 hover:border-[#01a9fb]/40 rounded-md text-[11px] font-bold transition-all"
+                className="px-2.5 py-2 bg-slate-50 hover:bg-[#01a9fb]/10 text-slate-700 hover:text-[#01a9fb] border border-slate-200 hover:border-[#01a9fb]/40 rounded-xl text-[11px] font-black transition-all active:scale-95"
               >
                 👑 Store Admin
               </button>
               <button
                 type="button"
                 onClick={() => fillDemo('staff@kiddies.store', 'staff')}
-                className="px-2.5 py-1.5 bg-slate-50 hover:bg-[#fe569f]/10 text-slate-700 hover:text-[#fe569f] border border-slate-200 hover:border-[#fe569f]/40 rounded-md text-[11px] font-bold transition-all"
+                className="px-2.5 py-2 bg-slate-50 hover:bg-[#fe569f]/10 text-slate-700 hover:text-[#fe569f] border border-slate-200 hover:border-[#fe569f]/40 rounded-xl text-[11px] font-black transition-all active:scale-95"
               >
                 💼 Store Staff
               </button>
