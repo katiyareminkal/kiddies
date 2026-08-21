@@ -76,10 +76,10 @@ const Login: React.FC = () => {
         <div className="bg-white rounded-2xl shadow-xl border border-slate-200/90 p-6 sm:p-7 backdrop-blur-sm">
           <div className="mb-5">
             <h2 className="text-lg font-black text-slate-900 tracking-tight">
-              Terminal Login
+              Store Sign In
             </h2>
             <p className="text-slate-500 text-xs font-semibold mt-0.5">
-              Sign in to access store inventory, billing & rentals
+              Enter your credentials to manage your store
             </p>
           </div>
 
@@ -174,7 +174,7 @@ const Login: React.FC = () => {
                 <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
               ) : (
                 <>
-                  <span>Sign In To Terminal</span>
+                  <span>Sign In</span>
                   <ArrowRight size={14} />
                 </>
               )}
