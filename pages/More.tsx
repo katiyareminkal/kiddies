@@ -197,8 +197,8 @@ const More: React.FC<MoreProps> = ({ onTabChange }) => {
               </span>
             </div>
             {/* Line 2: Descriptive Subtitle */}
-            <p className="text-xs text-slate-500 font-semibold truncate mt-0.5">
-              Quick access to admin modules, reports, CRM, and system tools
+            <p className="text-xs text-slate-500 font-semibold mt-0.5 leading-relaxed">
+              Admin tools, reports, CRM, and system settings
             </p>
           </div>
         </div>
