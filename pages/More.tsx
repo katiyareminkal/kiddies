@@ -26,35 +26,64 @@ interface MoreProps {
   onTabChange: (id: string) => void;
 }
 
-const InstallGuideModal: React.FC<{ isOpen: boolean; onClose: () => void; isIOS: boolean }> = ({ isOpen, onClose, isIOS }) => {
+const InstallGuideModal: React.FC<{ isOpen: boolean; onClose: () => void; isIOS: boolean; hasPrompt: boolean; onTriggerPrompt: () => void }> = ({ isOpen, onClose, isIOS, hasPrompt, onTriggerPrompt }) => {
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Install Kiddies Terminal App">
-      <div className="p-4 space-y-4 flex flex-col items-center text-center">
-        <div className="w-14 h-14 bg-[#01a9fb]/10 text-[#01a9fb] border border-[#01a9fb]/30 rounded-md flex items-center justify-center">
-          <Download size={26} strokeWidth={2.2} />
+      <div className="p-4 sm:p-5 space-y-4 flex flex-col items-center text-center">
+        <div className="w-16 h-16 bg-[#01a9fb]/10 text-[#01a9fb] border border-[#01a9fb]/30 rounded-2xl flex items-center justify-center shadow-xs">
+          <Download size={30} strokeWidth={2.2} />
         </div>
 
-        {isIOS ? (
+        {hasPrompt ? (
           <div>
-            <h3 className="text-sm font-extrabold text-slate-900 mb-1">Install on iOS (Safari)</h3>
-            <p className="text-xs text-slate-500 mb-3">Follow these quick steps to add the app to your Home Screen:</p>
-            <ol className="text-xs text-slate-700 space-y-2 text-left bg-slate-50 p-3.5 rounded-md border border-slate-200">
-              <li className="flex gap-2"><strong>1.</strong> Tap the <b>Share</b> button at the bottom toolbar.</li>
-              <li className="flex gap-2"><strong>2.</strong> Scroll down and select <b>Add to Home Screen</b>.</li>
-            </ol>
+            <h3 className="text-base font-black text-slate-900 mb-1">One-Click Install Ready</h3>
+            <p className="text-xs text-slate-500 mb-4 font-semibold">Click below to install Kiddies on your device desktop or home screen for offline access.</p>
+            <button
+              onClick={onTriggerPrompt}
+              className="w-full bg-[#01a9fb] hover:bg-[#0098e6] active:scale-95 text-white rounded-xl py-3 text-xs font-black uppercase tracking-wider transition-all shadow-md shadow-blue-500/25 flex items-center justify-center gap-2"
+            >
+              <Download size={16} strokeWidth={2.5} />
+              <span>Install App Now</span>
+            </button>
+          </div>
+        ) : isIOS ? (
+          <div className="w-full text-left">
+            <h3 className="text-sm font-black text-slate-900 mb-1 text-center">Install on iOS (Safari)</h3>
+            <p className="text-xs text-slate-500 mb-3 text-center font-medium">Follow these quick steps to add the app to your Home Screen:</p>
+            <div className="text-xs text-slate-700 space-y-2.5 bg-slate-50 p-4 rounded-xl border border-slate-200">
+              <div className="flex items-start gap-2.5">
+                <span className="w-5 h-5 rounded-full bg-[#01a9fb] text-white flex items-center justify-center text-[10px] font-black shrink-0 mt-0.5">1</span>
+                <span>Tap the <b>Share button</b> (box with arrow up) at the bottom toolbar of Safari.</span>
+              </div>
+              <div className="flex items-start gap-2.5">
+                <span className="w-5 h-5 rounded-full bg-[#01a9fb] text-white flex items-center justify-center text-[10px] font-black shrink-0 mt-0.5">2</span>
+                <span>Scroll down and tap <b>"Add to Home Screen"</b>.</span>
+              </div>
+              <div className="flex items-start gap-2.5">
+                <span className="w-5 h-5 rounded-full bg-[#01a9fb] text-white flex items-center justify-center text-[10px] font-black shrink-0 mt-0.5">3</span>
+                <span>Tap <b>"Add"</b> at the top-right corner.</span>
+              </div>
+            </div>
           </div>
         ) : (
-          <div>
-            <h3 className="text-sm font-extrabold text-slate-900 mb-1">Install on Desktop / Android</h3>
-            <p className="text-xs text-slate-500 mb-3">Install as a native desktop application for offline access.</p>
-            <div className="text-xs text-slate-700 bg-slate-50 p-3.5 rounded-md border border-slate-200 font-medium">
-              Click the <b>Install</b> icon on the right side of your browser's address bar to install immediately.
+          <div className="w-full text-left">
+            <h3 className="text-sm font-black text-slate-900 mb-1 text-center">Install on Chrome / Edge / Android</h3>
+            <p className="text-xs text-slate-500 mb-3 text-center font-medium">Install as a standalone desktop or mobile application:</p>
+            <div className="text-xs text-slate-700 space-y-2.5 bg-slate-50 p-4 rounded-xl border border-slate-200">
+              <div className="flex items-start gap-2.5">
+                <span className="w-5 h-5 rounded-full bg-[#01a9fb] text-white flex items-center justify-center text-[10px] font-black shrink-0 mt-0.5">1</span>
+                <span>Click the <b>Install App icon (⊕ or 💻)</b> on the right side of your browser address bar.</span>
+              </div>
+              <div className="flex items-start gap-2.5">
+                <span className="w-5 h-5 rounded-full bg-[#01a9fb] text-white flex items-center justify-center text-[10px] font-black shrink-0 mt-0.5">2</span>
+                <span>Or open browser menu (<b>⋮</b>) and select <b>"Install Kiddies..."</b> or <b>"Add to Home screen"</b>.</span>
+              </div>
             </div>
           </div>
         )}
 
-        <button onClick={onClose} className="w-full bg-[#01a9fb] hover:bg-[#0098e6] text-white rounded-md py-2.5 text-xs font-extrabold uppercase tracking-wider transition-colors shadow-xs">
-          Got It
+        <button onClick={onClose} className="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl py-2.5 text-xs font-black uppercase tracking-wider transition-colors">
+          Dismiss
         </button>
       </div>
     </Modal>
@@ -64,7 +93,7 @@ const InstallGuideModal: React.FC<{ isOpen: boolean; onClose: () => void; isIOS:
 const More: React.FC<MoreProps> = ({ onTabChange }) => {
   const { currentUser, logout } = useApp();
 
-  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [deferredPrompt, setDeferredPrompt] = useState<any>((window as any).deferredPWAInstallPrompt || null);
   const [isStandalone, setIsStandalone] = useState(false);
   const [showInstallGuide, setShowInstallGuide] = useState(false);
   const [isIOSDevice, setIsIOSDevice] = useState(false);
@@ -73,23 +102,48 @@ const More: React.FC<MoreProps> = ({ onTabChange }) => {
     setIsStandalone(window.matchMedia('(display-mode: standalone)').matches || (navigator as any).standalone);
     setIsIOSDevice(/iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream);
 
+    if ((window as any).deferredPWAInstallPrompt) {
+      setDeferredPrompt((window as any).deferredPWAInstallPrompt);
+    }
+
     const handleBeforeInstallPrompt = (e: any) => {
       e.preventDefault();
+      (window as any).deferredPWAInstallPrompt = e;
       setDeferredPrompt(e);
     };
+
+    const handleInstallReady = () => {
+      if ((window as any).deferredPWAInstallPrompt) {
+        setDeferredPrompt((window as any).deferredPWAInstallPrompt);
+      }
+    };
+
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-    return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    window.addEventListener('pwa-install-ready', handleInstallReady);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      window.removeEventListener('pwa-install-ready', handleInstallReady);
+    };
   }, []);
 
   const handleInstallClick = async () => {
-    if (!deferredPrompt) {
+    const promptToUse = deferredPrompt || (window as any).deferredPWAInstallPrompt;
+    if (!promptToUse) {
       setShowInstallGuide(true);
       return;
     }
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    if (outcome === 'accepted') {
-      setDeferredPrompt(null);
+    try {
+      promptToUse.prompt();
+      const { outcome } = await promptToUse.userChoice;
+      if (outcome === 'accepted') {
+        setDeferredPrompt(null);
+        (window as any).deferredPWAInstallPrompt = null;
+        setShowInstallGuide(false);
+      }
+    } catch (err) {
+      console.warn('Install prompt error:', err);
+      setShowInstallGuide(true);
     }
   };
 
@@ -219,7 +273,13 @@ const More: React.FC<MoreProps> = ({ onTabChange }) => {
         </button>
       </div>
 
-      <InstallGuideModal isOpen={showInstallGuide} onClose={() => setShowInstallGuide(false)} isIOS={isIOSDevice} />
+      <InstallGuideModal
+        isOpen={showInstallGuide}
+        onClose={() => setShowInstallGuide(false)}
+        isIOS={isIOSDevice}
+        hasPrompt={Boolean(deferredPrompt || (window as any).deferredPWAInstallPrompt)}
+        onTriggerPrompt={handleInstallClick}
+      />
     </div>
   );
 };
