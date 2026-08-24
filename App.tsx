@@ -77,9 +77,12 @@ const Sidebar: React.FC<{ activeTab: string; onTabChange: (id: string) => void }
 
   return (
     <aside className="hidden md:flex flex-col w-60 bg-white h-screen border-r border-gray-200/60 shrink-0">
-      {/* Branding Area */}
-      <div className="px-6 py-5">
-        <Logo size="lg" onClick={() => onTabChange('dashboard')} />
+      {/* Branding Area: Logo + Retail & Rentals subtitle */}
+      <div className="px-6 py-5 cursor-pointer select-none" onClick={() => onTabChange('dashboard')}>
+        <Logo size="lg" />
+        <p className="text-[10px] font-black uppercase text-slate-500 tracking-wider mt-1.5 pl-0.5">
+          Retail & Rentals
+        </p>
       </div>
 
       {/* Navigation */}
@@ -182,44 +185,28 @@ const TopBar: React.FC<{ activeTab: string; onTabChange: (id: string) => void }>
   }, []);
 
   return (
-    <header className="bg-gradient-to-r from-[#1746c9] via-[#1a56db] to-[#2563eb] text-white px-3 sm:px-5 py-3 sm:py-3.5 shadow-md relative z-30">
-      {/* Background glow accents */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-10 -left-10 w-40 h-40 bg-blue-400/20 rounded-full blur-2xl" />
-        <div className="absolute -bottom-10 -right-10 w-48 h-48 bg-indigo-400/25 rounded-full blur-2xl" />
-      </div>
-
+    <header className="bg-[#18181b] text-white px-3 sm:px-5 py-3 sm:py-3.5 shadow-md border-b border-zinc-800/80 relative z-30">
       <div className="flex items-center justify-between gap-2.5 sm:gap-4 relative z-10">
-        {/* Left side: Colorful Logo & Subtitle */}
+        {/* Mobile Left: Minimalist Logo + Retail & Rentals (hidden on md screens where sidebar is present) */}
         <div
           onClick={() => onTabChange('dashboard')}
-          className="cursor-pointer flex flex-col items-start select-none group shrink-0"
+          className="md:hidden cursor-pointer flex flex-col items-start select-none group shrink-0"
         >
-          <div className="flex items-center text-2xl sm:text-3xl font-black tracking-tight leading-none drop-shadow-[0_2px_4px_rgba(0,0,0,0.25)]">
-            <span className="text-[#38bdf8]">K</span>
-            <span className="text-[#38bdf8]">i</span>
-            <span className="text-[#38bdf8]">d</span>
-            <span className="text-[#f472b6]">d</span>
-            <span className="text-[#f472b6]">i</span>
-            <span className="text-[#fde047]">e</span>
-            <span className="text-[#f472b6]">s</span>
-          </div>
-          <div className="w-full flex justify-between text-[6.5px] sm:text-[7px] font-black uppercase text-white/90 leading-none mt-1 select-none tracking-wider drop-shadow-sm">
-            <span>R</span><span>E</span><span>T</span><span>A</span><span>I</span><span>L</span>
-            <span>&nbsp;</span><span>&amp;</span><span>&nbsp;</span>
-            <span>R</span><span>E</span><span>N</span><span>T</span><span>A</span><span>L</span><span>S</span>
-          </div>
+          <img src="/logo.png" alt="Kiddies" className="h-6 w-auto object-contain" />
+          <span className="text-[7.5px] font-black uppercase text-zinc-400 tracking-wider mt-0.5">
+            Retail & Rentals
+          </span>
         </div>
 
         {/* Center: Translucent Search Bar with breathing space */}
-        <div className="flex-1 max-w-md ml-3.5 sm:ml-6 mr-1.5 sm:mr-3">
-          <div className="flex items-center bg-white/15 hover:bg-white/20 focus-within:bg-white/25 border border-white/20 rounded-xl sm:rounded-2xl px-3 py-1.5 sm:py-2 transition-all shadow-inner">
-            <Search size={15} className="text-blue-200 shrink-0 mr-2" strokeWidth={2.3} />
+        <div className="flex-1 max-w-md md:ml-0 mr-1.5 sm:mr-3">
+          <div className="flex items-center bg-zinc-800/80 hover:bg-zinc-800 focus-within:bg-zinc-800 focus-within:border-zinc-600 border border-zinc-700/60 rounded-xl sm:rounded-2xl px-3 py-1.5 sm:py-2 transition-all shadow-inner">
+            <Search size={15} className="text-zinc-400 shrink-0 mr-2" strokeWidth={2.3} />
             <input
               ref={searchInputRef}
               type="text"
               placeholder="Search anything..."
-              className="bg-transparent text-xs sm:text-sm font-semibold outline-none flex-1 placeholder:text-blue-200/80 text-white w-full"
+              className="bg-transparent text-xs sm:text-sm font-semibold outline-none flex-1 placeholder:text-zinc-400 text-white w-full"
             />
           </div>
         </div>
