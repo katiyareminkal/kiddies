@@ -76,17 +76,9 @@ const Sidebar: React.FC<{ activeTab: string; onTabChange: (id: string) => void }
   const { currentUser } = useApp();
 
   return (
-    <aside className="hidden md:flex flex-col w-60 bg-white h-screen border-r border-gray-200/60 shrink-0">
-      {/* Branding Area: Logo + Retail & Rentals subtitle */}
-      <div className="px-6 py-5 cursor-pointer select-none" onClick={() => onTabChange('dashboard')}>
-        <Logo size="lg" />
-        <p className="text-[10px] font-black uppercase text-slate-500 tracking-wider mt-1.5 pl-0.5">
-          Retail & Rentals
-        </p>
-      </div>
-
+    <aside className="hidden md:flex flex-col w-60 bg-white h-full border-r border-gray-200/60 shrink-0">
       {/* Navigation */}
-      <nav className="flex-1 px-3 space-y-1 overflow-y-auto hide-scrollbar">
+      <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto hide-scrollbar">
         {NAVIGATION_ITEMS.map((item) => {
           if (!canAccess(currentUser, item.id)) return null;
           const isActive = activeTab === item.id;
@@ -185,21 +177,27 @@ const TopBar: React.FC<{ activeTab: string; onTabChange: (id: string) => void }>
   }, []);
 
   return (
-    <header className="bg-[#18181b] text-white px-3 sm:px-5 py-3 sm:py-3.5 shadow-md border-b border-zinc-800/80 relative z-30">
-      <div className="flex items-center justify-between gap-2.5 sm:gap-4 relative z-10">
-        {/* Mobile Left: Minimalist Logo + Retail & Rentals (hidden on md screens where sidebar is present) */}
+    <header className="bg-[#18181b] text-white px-4 sm:px-6 py-2.5 sm:py-3 shadow-md border-b border-zinc-800/90 relative z-30 w-full shrink-0">
+      <div className="flex items-center justify-between gap-4 w-full">
+        {/* Left Side: Brand Logo + Subtitle (Matching width) */}
         <div
           onClick={() => onTabChange('dashboard')}
-          className="md:hidden cursor-pointer flex flex-col items-start select-none group shrink-0"
+          className="cursor-pointer flex flex-col items-start select-none group shrink-0 w-[130px] sm:w-[145px]"
         >
-          <img src="/logo.png" alt="Kiddies" className="h-6 w-auto object-contain" />
-          <span className="text-[7.5px] font-black uppercase text-zinc-400 tracking-wider mt-0.5">
-            Retail & Rentals
-          </span>
+          <img
+            src="/logo.png"
+            alt="Kiddies Logo"
+            className="h-6 sm:h-7 w-full object-contain object-left transition-transform active:scale-95"
+          />
+          <div className="w-full flex justify-between text-[6.5px] sm:text-[7.5px] font-black uppercase text-zinc-400 leading-none mt-1 select-none tracking-widest">
+            <span>R</span><span>E</span><span>T</span><span>A</span><span>I</span><span>L</span>
+            <span>&nbsp;</span><span>&amp;</span><span>&nbsp;</span>
+            <span>R</span><span>E</span><span>N</span><span>T</span><span>A</span><span>L</span><span>S</span>
+          </div>
         </div>
 
-        {/* Center: Translucent Search Bar with breathing space */}
-        <div className="flex-1 max-w-md md:ml-0 mr-1.5 sm:mr-3">
+        {/* Center: Search Bar */}
+        <div className="flex-1 max-w-md mx-2 sm:mx-6">
           <div className="flex items-center bg-zinc-800/80 hover:bg-zinc-800 focus-within:bg-zinc-800 focus-within:border-zinc-600 border border-zinc-700/60 rounded-xl sm:rounded-2xl px-3 py-1.5 sm:py-2 transition-all shadow-inner">
             <Search size={15} className="text-zinc-400 shrink-0 mr-2" strokeWidth={2.3} />
             <input
@@ -552,14 +550,18 @@ const AppContent: React.FC = () => {
   };
 
   return (
-    <div className="flex h-screen bg-gray-50 font-sans text-gray-900">
-      <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
-      <div className="flex-1 flex flex-col h-screen overflow-hidden">
-        <TopBar activeTab={activeTab} onTabChange={setActiveTab} />
+    <div className="flex flex-col h-screen bg-gray-50 font-sans text-gray-900 overflow-hidden">
+      {/* Full-Width Charcoal Black Header (100% viewport width) */}
+      <TopBar activeTab={activeTab} onTabChange={setActiveTab} />
+      
+      {/* Body Area: Sidebar + Main Content */}
+      <div className="flex-1 flex overflow-hidden">
+        <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
         <main className="flex-1 overflow-y-auto px-3 sm:px-6 pt-3 sm:pt-4 pb-24 md:pb-6 custom-scrollbar relative">
           {renderContent()}
         </main>
       </div>
+
       <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
     </div>
   );
