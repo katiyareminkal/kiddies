@@ -1462,33 +1462,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
                           fill="#01a9fb"
                           radius={chartMetric === 'ALL' ? [0, 0, 2, 2] : [4, 4, 0, 0]}
                           maxBarSize={48}
-                        >
-                          <LabelList
-                            dataKey="name"
-                            position="insideBottom"
-                            content={(props: any) => {
-                              const { x, y, width, height, value } = props;
-                              if (!value || height < 35) return null;
-                              return (
-                                <g transform={`translate(${x + width / 2}, ${y + height - 10})`}>
-                                  <text
-                                    x={0}
-                                    y={0}
-                                    fill="#ffffff"
-                                    textAnchor="start"
-                                    transform="rotate(-90)"
-                                    fontSize={11}
-                                    fontWeight={900}
-                                    letterSpacing="0.05em"
-                                    style={{ filter: 'drop-shadow(0px 1px 2px rgba(0,0,0,0.35))' }}
-                                  >
-                                    {value}
-                                  </text>
-                                </g>
-                              );
-                            }}
-                          />
-                        </Bar>
+                        />
                       )}
                       {(chartMetric === 'ALL' || chartMetric === 'RENTALS') && (
                         <Bar
@@ -1497,35 +1471,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
                           fill="#fe569f"
                           radius={[4, 4, 0, 0]}
                           maxBarSize={48}
-                        >
-                          {chartMetric === 'RENTALS' && (
-                            <LabelList
-                              dataKey="name"
-                              position="insideBottom"
-                              content={(props: any) => {
-                                const { x, y, width, height, value } = props;
-                                if (!value || height < 35) return null;
-                                return (
-                                  <g transform={`translate(${x + width / 2}, ${y + height - 10})`}>
-                                    <text
-                                      x={0}
-                                      y={0}
-                                      fill="#ffffff"
-                                      textAnchor="start"
-                                      transform="rotate(-90)"
-                                      fontSize={11}
-                                      fontWeight={900}
-                                      letterSpacing="0.05em"
-                                      style={{ filter: 'drop-shadow(0px 1px 2px rgba(0,0,0,0.35))' }}
-                                    >
-                                      {value}
-                                    </text>
-                                  </g>
-                                );
-                              }}
-                            />
-                          )}
-                        </Bar>
+                        />
                       )}
                     </BarChart>
                   ) : (
