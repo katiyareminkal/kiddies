@@ -23,7 +23,7 @@ interface StockEntryModalProps {
 export const StockEntryModal: React.FC<StockEntryModalProps> = ({ isOpen, onClose, product }) => {
   const { products, updateStock } = useApp();
   const [selectedProductId, setSelectedProductId] = useState<string>('');
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [stockStatus, setStockStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
 
   useEffect(() => {
     if (product) {
@@ -35,6 +35,8 @@ export const StockEntryModal: React.FC<StockEntryModalProps> = ({ isOpen, onClos
 
   const handleStockUpdate = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (stockStatus !== 'idle') return;
+    setStockStatus('saving');
     const formData = new FormData(e.currentTarget);
     const prodId = selectedProductId || (formData.get('productId') as string);
     const activeProd = product || products.find(p => p.id === prodId);
@@ -60,11 +62,13 @@ export const StockEntryModal: React.FC<StockEntryModalProps> = ({ isOpen, onClos
           updateStock(prodId, pool, qty, type, reason);
         }
       }
-      handleClose();
-      setSuccessMessage('SUCCESS');
+      setStockStatus('saved');
       setTimeout(() => {
-        setSuccessMessage(null);
-      }, 1000);
+        handleClose();
+        setStockStatus('idle');
+      }, 550);
+    } else {
+      setStockStatus('idle');
     }
   };
 
@@ -77,8 +81,7 @@ export const StockEntryModal: React.FC<StockEntryModalProps> = ({ isOpen, onClos
   const isHybrid = activeProduct?.purpose === 'HYBRID';
 
   return (
-    <>
-      <Modal isOpen={isOpen} onClose={handleClose} title="Stock Adjustment">
+    <Modal isOpen={isOpen} onClose={handleClose} title="Stock Adjustment">
       <form onSubmit={handleStockUpdate} className="space-y-4">
         {/* If no product is pre-selected, show dropdown */}
         {!product && (
@@ -240,30 +243,35 @@ export const StockEntryModal: React.FC<StockEntryModalProps> = ({ isOpen, onClos
           <button 
             type="button" 
             onClick={handleClose}
-            className="flex-1 px-4 py-3 border border-gray-200 text-gray-700 rounded-md font-bold uppercase tracking-widest text-[9px] hover:bg-gray-50 transition-colors"
+            disabled={stockStatus !== 'idle'}
+            className="flex-1 px-4 py-3 border border-gray-200 text-gray-700 rounded-md font-bold uppercase tracking-widest text-[9px] hover:bg-gray-50 transition-colors disabled:opacity-50"
           >
             Cancel
           </button>
           <button 
             type="submit" 
-            className="flex-1 px-4 py-3 bg-[#01a9fb] hover:bg-[#0098e6] text-white rounded-md font-bold uppercase tracking-widest text-[9px] shadow-sm transition-all active:scale-95"
+            disabled={stockStatus !== 'idle'}
+            className={`flex-1 px-4 py-3 rounded-md font-bold uppercase tracking-widest text-[9px] shadow-sm transition-all flex items-center justify-center gap-1.5 ${
+              stockStatus === 'saved'
+                ? 'bg-emerald-600 hover:bg-emerald-600 text-white shadow-emerald-500/20'
+                : stockStatus === 'saving'
+                ? 'bg-[#01a9fb]/85 text-white cursor-wait'
+                : 'bg-[#01a9fb] hover:bg-[#0098e6] text-white active:scale-95'
+            }`}
           >
-            Confirm Adjustment
+            {stockStatus === 'saved' ? (
+              <>
+                <Check size={14} strokeWidth={3} className="text-white animate-bounce" />
+                <span>Adjusted!</span>
+              </>
+            ) : stockStatus === 'saving' ? (
+              <span>Adjusting...</span>
+            ) : (
+              <span>Confirm Adjustment</span>
+            )}
           </button>
         </div>
       </form>
     </Modal>
-
-    {successMessage && createPortal(
-      <div className="fixed inset-0 z-[99999] pointer-events-none flex items-center justify-center p-4">
-        <div className="bg-slate-900/95 backdrop-blur-2xl border border-slate-700/80 rounded-full p-5 shadow-2xl shadow-black/80 flex items-center justify-center animate-in zoom-in-90 fade-in duration-200">
-          <div className="w-20 h-20 rounded-full border-2 border-emerald-400 bg-emerald-500/20 flex items-center justify-center text-emerald-400 shadow-xl shadow-emerald-500/30">
-            <Check size={44} strokeWidth={4} className="text-emerald-400" />
-          </div>
-        </div>
-      </div>,
-      document.body
-    )}
-    </>
   );
 };

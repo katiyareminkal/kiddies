@@ -42,7 +42,10 @@ import {
   EyeOff,
   Sun,
   Download,
-  Loader2
+  Loader2,
+  Truck,
+  Users as UsersIcon,
+  BarChart3
 } from 'lucide-react';
 import { UserRole } from './types';
 import { formatDistanceToNow, parseISO } from 'date-fns';
@@ -73,48 +76,108 @@ const Logo: React.FC<{ size?: 'sm' | 'md' | 'lg', onClick?: () => void }> = ({ s
 };
 
 const Sidebar: React.FC<{ activeTab: string; onTabChange: (id: string) => void }> = ({ activeTab, onTabChange }) => {
-  const { currentUser } = useApp();
+  const { currentUser, products, rentals, storeProfile } = useApp();
+
+  const activeRentalsCount = (rentals || []).filter(r => r.status === 'ACTIVE' || r.status === 'OVERDUE').length;
+  const lowStockCount = (products || []).filter(p => ((p.saleStock || 0) + (p.rentalStock || 0)) <= (p.minStockAlert || 3) && ((p.saleStock || 0) + (p.rentalStock || 0)) > 0).length;
+
+  const NAV_SECTIONS = [
+    {
+      title: 'OPERATIONS',
+      items: [
+        { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard size={20} strokeWidth={2.2} /> },
+        { id: 'sales', label: 'Sales', icon: <ShoppingBag size={20} strokeWidth={2.2} /> },
+        { 
+          id: 'rentals', 
+          label: 'Rentals', 
+          icon: <RefreshCcw size={20} strokeWidth={2.2} />,
+          badge: activeRentalsCount > 0 ? `${activeRentalsCount}` : undefined,
+          badgeColor: 'bg-sky-100 text-sky-700'
+        },
+      ]
+    },
+    {
+      title: 'CATALOG & PARTNERS',
+      items: [
+        { 
+          id: 'inventory', 
+          label: 'Inventory', 
+          icon: <Package size={20} strokeWidth={2.2} />,
+          badge: lowStockCount > 0 ? `${lowStockCount}` : undefined,
+          badgeColor: 'bg-amber-100 text-amber-800'
+        },
+        { id: 'suppliers', label: 'Suppliers & Bills', icon: <Truck size={20} strokeWidth={2.2} /> },
+        { id: 'customers', label: 'Customers', icon: <UsersIcon size={20} strokeWidth={2.2} /> },
+      ]
+    },
+    {
+      title: 'MANAGEMENT',
+      items: [
+        { id: 'reports', label: 'Reports & Analytics', icon: <BarChart3 size={20} strokeWidth={2.2} /> },
+        { id: 'users', label: 'User Roles', icon: <ShieldCheck size={20} strokeWidth={2.2} /> },
+        { id: 'settings', label: 'Settings', icon: <SettingsIcon size={20} strokeWidth={2.2} /> },
+      ]
+    }
+  ];
 
   return (
-    <aside className="hidden md:flex flex-col w-60 bg-white h-full border-r border-gray-200/60 shrink-0">
-      {/* Navigation */}
-      <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto hide-scrollbar">
-        {NAVIGATION_ITEMS.map((item) => {
-          if (!canAccess(currentUser, item.id)) return null;
-          const isActive = activeTab === item.id;
+    <aside className="hidden md:flex flex-col w-64 bg-white h-full border-r border-slate-200/80 shrink-0 select-none justify-between">
+      {/* Navigation Groups */}
+      <nav className="flex-1 px-3.5 py-4 space-y-4 overflow-y-auto hide-scrollbar">
+        {NAV_SECTIONS.map((section, idx) => {
+          const visibleItems = section.items.filter(item => canAccess(currentUser, item.id));
+          if (visibleItems.length === 0) return null;
+
           return (
-            <button
-              key={item.id}
-              onClick={() => onTabChange(item.id)}
-              className={`
-                relative w-full flex items-center gap-3 px-3.5 py-2.5 rounded-md text-[13px] font-bold transition-all
-                ${isActive
-                  ? 'bg-[#01a9fb] text-white shadow-xs'
-                  : 'text-slate-600 hover:text-[#01a9fb] hover:bg-[#01a9fb]/5'
-                }
-              `}
-            >
-              <span className={`${isActive ? 'text-white' : 'text-slate-400'} transition-colors`}>
-                {React.isValidElement(item.icon)
-                  ? React.cloneElement(item.icon as React.ReactElement<any>, {
-                    size: 18,
-                    strokeWidth: isActive ? 2.2 : 1.8
-                  })
-                  : item.icon
-                }
-              </span>
-              <span>{item.label}</span>
-            </button>
+            <div key={section.title || idx} className="space-y-1.5">
+              <p className="text-[11px] font-black uppercase text-slate-400 tracking-[0.14em] px-3 pb-1">
+                {section.title}
+              </p>
+              <div className="space-y-1">
+                {visibleItems.map((item) => {
+                  const isActive = activeTab === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => onTabChange(item.id)}
+                      className={`
+                        group relative w-full flex items-center justify-between px-3.5 py-3 rounded-xl text-[13.5px] font-extrabold transition-all duration-150
+                        ${isActive
+                          ? 'bg-[#01a9fb] text-white shadow-xs'
+                          : 'text-slate-700 hover:text-slate-950 hover:bg-slate-100/90 active:bg-slate-200/70'
+                        }
+                      `}
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <span className={`${isActive ? 'text-white' : 'text-slate-400 group-hover:text-slate-700'} transition-colors shrink-0`}>
+                          {item.icon}
+                        </span>
+                        <span className="truncate">{item.label}</span>
+                      </div>
+
+                      {item.badge && !isActive && (
+                        <span className={`text-[11px] font-black px-2 py-0.5 rounded-full shadow-2xs ${item.badgeColor}`}>
+                          {item.badge}
+                        </span>
+                      )}
+
+                      {isActive && (
+                        <span className="w-2 h-2 rounded-full bg-white shadow-xs shrink-0" />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
           );
         })}
       </nav>
 
-      {/* Sidebar Footer */}
-      <div className="px-4 pb-4 pt-2">
-        <div className="bg-[#fe569f]/10 rounded-md p-3.5 border border-[#fe569f]/20">
-          <p className="text-[11px] font-extrabold text-[#fe569f] uppercase tracking-wider mb-0.5">Kiddies Store</p>
-          <p className="text-xs font-bold text-slate-900 leading-snug">Retail & Rental Terminal ✨</p>
-        </div>
+      {/* Minimal Brand Footer */}
+      <div className="px-4 py-2.5 border-t border-slate-100/80 text-center select-none">
+        <p className="text-[9.5px] font-black uppercase text-slate-400 tracking-[0.16em]">
+          RETAIL & RENTALS <span className="text-[#01a9fb] font-black">•</span> MANAGEMENT
+        </p>
       </div>
     </aside>
   );
@@ -177,51 +240,62 @@ const TopBar: React.FC<{ activeTab: string; onTabChange: (id: string) => void }>
   }, []);
 
   return (
-    <header className="bg-[#18181b] text-white px-4 sm:px-6 py-2.5 sm:py-3 shadow-md border-b border-zinc-800/90 relative z-30 w-full shrink-0">
-      <div className="flex items-center justify-between gap-4 w-full">
-        {/* Left Side: Brand Logo + Subtitle (Matching width) */}
+    <header className="bg-slate-900 text-white px-4 sm:px-6 py-2.5 sm:py-3 shadow-xs border-b border-slate-800 sticky top-0 z-40 w-full shrink-0">
+      <div className="flex items-center justify-between gap-3 sm:gap-6 w-full max-w-[1700px] mx-auto">
+        {/* Left Side: Brand Logo Only */}
         <div
           onClick={() => onTabChange('dashboard')}
-          className="cursor-pointer flex flex-col items-start select-none group shrink-0 w-[130px] sm:w-[145px]"
+          className="cursor-pointer flex items-center select-none group shrink-0"
         >
           <img
             src="/logo.png"
             alt="Kiddies Logo"
-            className="h-6 sm:h-7 w-full object-contain object-left transition-transform active:scale-95"
+            className="h-8 sm:h-9 w-auto object-contain transition-transform duration-200 group-hover:scale-105 active:scale-95"
           />
-          <div className="w-full flex justify-between text-[6.5px] sm:text-[7.5px] font-black uppercase text-zinc-400 leading-none mt-1 select-none tracking-widest">
-            <span>R</span><span>E</span><span>T</span><span>A</span><span>I</span><span>L</span>
-            <span>&nbsp;</span><span>&amp;</span><span>&nbsp;</span>
-            <span>R</span><span>E</span><span>N</span><span>T</span><span>A</span><span>L</span><span>S</span>
-          </div>
         </div>
 
         {/* Center: Search Bar */}
-        <div className="flex-1 max-w-md mx-2 sm:mx-6">
-          <div className="flex items-center bg-zinc-800/80 hover:bg-zinc-800 focus-within:bg-zinc-800 focus-within:border-zinc-600 border border-zinc-700/60 rounded-xl sm:rounded-2xl px-3 py-1.5 sm:py-2 transition-all shadow-inner">
-            <Search size={15} className="text-zinc-400 shrink-0 mr-2" strokeWidth={2.3} />
+        <div className="flex-1 max-w-lg mx-1 sm:mx-4">
+          <div className="flex items-center bg-slate-800 hover:bg-slate-800/90 focus-within:bg-slate-800 focus-within:ring-2 focus-within:ring-[#01a9fb]/40 focus-within:border-[#01a9fb] border border-slate-700/70 rounded-full px-3.5 py-1.5 sm:py-2 transition-all shadow-inner">
+            <Search size={15} className="text-slate-400 shrink-0 mr-2.5" strokeWidth={2.3} />
             <input
               ref={searchInputRef}
               type="text"
-              placeholder="Search anything..."
-              className="bg-transparent text-xs sm:text-sm font-semibold outline-none flex-1 placeholder:text-zinc-400 text-white w-full"
+              placeholder="Search products, orders, customers..."
+              className="bg-transparent text-xs sm:text-sm font-semibold outline-none flex-1 placeholder:text-slate-400 text-white w-full"
             />
+            <span className="hidden md:inline-flex items-center text-[9.5px] font-mono font-bold text-slate-400 bg-slate-700/60 px-1.5 py-0.5 rounded border border-slate-600/60 select-none">
+              Ctrl+K
+            </span>
           </div>
         </div>
 
-        {/* Right side: Notifications bell with red counter + Circular User Avatar */}
-        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0" ref={dropdownRef}>
+        {/* Right side: Notifications + User Profile */}
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0" ref={dropdownRef}>
+          {/* Install App Shortcut */}
+          {!isStandalone && deferredPrompt && (
+            <button
+              type="button"
+              onClick={handleInstallClick}
+              className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 active:scale-95 text-white rounded-full text-xs font-extrabold transition-all border border-slate-700"
+              title="Install App as PWA"
+            >
+              <Download size={13} strokeWidth={2.5} />
+              <span>Install</span>
+            </button>
+          )}
+
           {/* Notifications Popover */}
           <div className="relative">
             <button
               type="button"
               onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
-              className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white/15 hover:bg-white/25 active:scale-95 flex items-center justify-center text-white transition-all border border-white/10 relative shrink-0 shadow-inner"
+              className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-slate-800 hover:bg-slate-700 active:scale-95 flex items-center justify-center text-slate-200 hover:text-white transition-all border border-slate-700 relative shrink-0 shadow-xs"
               title="Notifications"
             >
-              <Bell size={18} strokeWidth={2.2} />
+              <Bell size={17} strokeWidth={2.2} />
               {unreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 min-w-[17px] h-[17px] bg-[#fe569f] text-white text-[9.5px] font-black rounded-full flex items-center justify-center px-1 border-2 border-[#1a56db] shadow-sm">
+                <span className="absolute -top-1 -right-1 min-w-[17px] h-[17px] bg-[#fe569f] text-white text-[9.5px] font-black rounded-full flex items-center justify-center px-1 border-2 border-slate-900 shadow-sm animate-pulse">
                   {unreadCount}
                 </span>
               )}
@@ -269,15 +343,26 @@ const TopBar: React.FC<{ activeTab: string; onTabChange: (id: string) => void }>
             )}
           </div>
 
-          {/* User Profile Dropdown (Large Round Badge with Initial) */}
+          {/* User Profile Solid Capsule Dropdown */}
           <div className="relative">
             <button
               type="button"
               onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-              className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#01a9fb] hover:bg-[#0098e6] active:scale-95 text-white flex items-center justify-center font-black text-sm sm:text-base transition-all border-2 border-white/40 shadow-md shrink-0"
+              className="flex items-center gap-2 p-1 sm:pr-3 rounded-full bg-slate-800 hover:bg-slate-700 active:scale-95 text-white transition-all border border-slate-700 shadow-xs shrink-0 group"
               title={currentUser?.name || 'Account'}
             >
-              {(currentUser?.name || 'K').charAt(0).toUpperCase()}
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#01a9fb] text-white flex items-center justify-center font-black text-xs sm:text-sm shadow-xs shrink-0">
+                {(currentUser?.name || 'K').charAt(0).toUpperCase()}
+              </div>
+              <div className="hidden sm:flex flex-col text-left">
+                <span className="text-xs font-extrabold text-white leading-none truncate max-w-[100px]">
+                  {currentUser?.name || 'User'}
+                </span>
+                <span className="text-[8.5px] font-bold text-[#01a9fb] leading-none mt-0.5 uppercase tracking-wider">
+                  {currentUser?.role || 'Staff'}
+                </span>
+              </div>
+              <ChevronDown size={12} className="hidden sm:block text-slate-400 group-hover:text-white transition-colors" />
             </button>
 
             {isUserMenuOpen && (

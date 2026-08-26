@@ -10,46 +10,80 @@ interface ModalProps {
   children: React.ReactNode;
   headerActions?: React.ReactNode;
   maxWidth?: string;
+  size?: 'sm' | 'md' | 'lg' | 'xl' | 'full';
+  zIndex?: number;
 }
 
-export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children, headerActions, maxWidth }) => {
+export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children, headerActions, maxWidth, size = 'md', zIndex = 100 }) => {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
+  // Close modal on Escape key press
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen) {
+        onClose();
+      }
+    };
+    if (isOpen) {
+      window.addEventListener('keydown', handleKeyDown);
+    }
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
   if (!mounted) return null;
+
+  const sizeClasses = {
+    sm: 'max-w-md',
+    md: 'max-w-2xl',
+    lg: 'max-w-4xl',
+    xl: 'max-w-6xl',
+    full: 'max-w-[95vw]'
+  };
+
+  const finalMaxWidth = maxWidth || sizeClasses[size] || 'max-w-2xl';
 
   return createPortal(
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[100] flex items-end md:items-center justify-center md:p-4">
+        <div 
+          className="fixed inset-0 flex items-end md:items-center justify-center md:p-4 overflow-x-hidden overflow-y-auto"
+          style={{ zIndex }}
+        >
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.15 }}
             onClick={onClose}
-            className="absolute inset-0 bg-black/25 backdrop-blur-[2px]"
+            className="fixed inset-0 bg-slate-950/40 backdrop-blur-[2px] cursor-pointer"
           />
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 20, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.98 }}
             transition={{ type: 'spring', damping: 28, stiffness: 350 }}
-            className={`bg-white rounded-t-lg md:rounded-lg shadow-dropdown w-full md:w-full h-auto max-h-[90vh] md:max-h-[85vh] ${maxWidth || 'max-w-2xl'} overflow-hidden border border-gray-200/60 flex flex-col relative z-10`}
+            onClick={(e) => e.stopPropagation()}
+            className={`bg-white rounded-t-xl md:rounded-xl shadow-2xl w-full h-auto max-h-[90vh] md:max-h-[85vh] ${finalMaxWidth} overflow-hidden border border-slate-200 flex flex-col relative z-10 my-auto`}
           >
-            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 shrink-0 bg-white">
-              <h2 className="text-base font-semibold text-gray-900 tracking-tight">{title}</h2>
+            <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-100 shrink-0 bg-white">
+              <h2 className="text-base font-extrabold text-slate-900 tracking-tight">{title}</h2>
               <div className="flex items-center gap-2">
                 {headerActions}
-                <button onClick={onClose} className="p-1.5 hover:bg-gray-100 rounded-md transition-colors text-gray-400 hover:text-gray-600">
-                  <X size={18} />
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors text-slate-400 hover:text-slate-700 active:scale-95"
+                  title="Close (Esc)"
+                >
+                  <X size={18} strokeWidth={2.5} />
                 </button>
               </div>
             </div>
-            <div className="px-5 py-5 overflow-y-auto flex-1 hide-scrollbar">
+            <div className="px-5 py-4 overflow-y-auto flex-1 hide-scrollbar">
               {children}
             </div>
           </motion.div>

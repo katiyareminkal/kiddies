@@ -1,13 +1,13 @@
-import React, { useState, useRef, useMemo } from 'react';
+import React, { useState, useRef, useMemo, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { Plus, X, Upload, ScanLine, Edit2, Image as ImageIcon, Palette, CheckCircle2, Check, RefreshCcw, Trash2 } from 'lucide-react';
+import { Plus, X, Upload, ScanLine, Edit2, Image as ImageIcon, Palette, CheckCircle2, Check, RefreshCcw, Trash2, FileText, ChevronDown, ChevronUp, Sparkles, Eye } from 'lucide-react';
 import { Modal } from '../Shared';
 import { useApp } from '../../store/AppContext';
 import { Product } from '../../types';
 import BarcodeScanner from '../BarcodeScanner';
 import { CATEGORIES, SUB_CATEGORIES_BY_GENDER_AND_CATEGORY, GENDERS, CLOTHING_TYPES, CATEGORIES_BY_GENDER } from '../../constants';
-import { generateDynamicLabelPDF } from '../../utils/pdfLabel';
-import { extractBaseSku } from '../../utils/helpers';
+import { generateDynamicLabelPDF, cleanSizeLabel, cleanSku } from '../../utils/pdfLabel';
+import { extractBaseSku, formatCurrency } from '../../utils/helpers';
 import LabelDesigner from './LabelDesigner';
 interface ProductFormModalProps {
   isOpen: boolean;
@@ -17,9 +17,10 @@ interface ProductFormModalProps {
 }
 
 export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onClose, productToEdit, onSaveSuccess }) => {
-  const { products, suppliers, addProduct, updateProduct, deleteProduct } = useApp();
+  const { products, suppliers, supplierBills, addProduct, updateProduct, deleteProduct } = useApp();
   
   const [productPurpose, setProductPurpose] = useState<'SALE' | 'RENTAL' | 'HYBRID'>(productToEdit ? productToEdit.purpose : 'SALE');
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
   const [isSaving, setIsSaving] = useState(false);
   const [savingStatus, setSavingStatus] = useState<string>('');
   const formRef = useRef<HTMLFormElement>(null);
@@ -49,13 +50,93 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
   const [selectedImagesIndex, setSelectedImagesIndex] = useState<number>(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Category, Gender, SubCategory, ClothingType, and Supplier State
+  // Category, Gender, SubCategory, ClothingType, Supplier & Purchase Bill State
   const initialGender = productToEdit?.gender || GENDERS[0] || '';
   const [selectedGender, setSelectedGender] = useState<string>(initialGender);
   const [selectedCategory, setSelectedCategory] = useState<string>(productToEdit?.category || (CATEGORIES_BY_GENDER[initialGender] || [])[0] || '');
   const [selectedSubCategory, setSelectedSubCategory] = useState<string>(productToEdit?.subCategory || '');
   const [selectedClothingType, setSelectedClothingType] = useState<string>(productToEdit?.clothingType || '');
   const [selectedSupplierId, setSelectedSupplierId] = useState<string>(productToEdit?.supplierId || '');
+  const [selectedBillNumber, setSelectedBillNumber] = useState<string>(productToEdit?.billNumber || '');
+  const [selectedBillDate, setSelectedBillDate] = useState<string>(productToEdit?.billDate || '');
+  const [nameValue, setNameValue] = useState<string>(productToEdit?.name || '');
+  const [showBillDetails, setShowBillDetails] = useState<boolean>(false);
+  const [isBillModalOpen, setIsBillModalOpen] = useState<boolean>(false);
+
+  // Reset/sync state when modal opens or productToEdit changes
+  useEffect(() => {
+    if (isOpen) {
+      if (productToEdit) {
+        setNameValue(productToEdit.name || '');
+        setSelectedSupplierId(productToEdit.supplierId || '');
+        setSelectedBillNumber(productToEdit.billNumber || '');
+        setSelectedBillDate(productToEdit.billDate || '');
+      } else {
+        setNameValue('');
+        setSelectedSupplierId('');
+        setSelectedBillNumber('');
+        setSelectedBillDate('');
+      }
+      setShowBillDetails(false);
+    }
+  }, [isOpen, productToEdit]);
+
+  // Computed available bills for selected supplier (Guaranteed safe array)
+  const availableVendorBills = useMemo(() => {
+    try {
+      if (!selectedSupplierId || !Array.isArray(supplierBills)) return [];
+      return supplierBills.filter(b => b && String(b.supplierId) === String(selectedSupplierId));
+    } catch {
+      return [];
+    }
+  }, [supplierBills, selectedSupplierId]);
+
+  // Currently selected purchase bill object
+  const selectedBill = useMemo(() => {
+    if (!selectedBillNumber || !Array.isArray(availableVendorBills)) return null;
+    return availableVendorBills.find(b => b && String(b.billNumber) === String(selectedBillNumber)) || null;
+  }, [availableVendorBills, selectedBillNumber]);
+
+  // Auto fetch bill number and date when supplier changes (Wrapped in try-catch to prevent white page errors)
+  const handleSupplierChange = (supId: string) => {
+    try {
+      setSelectedSupplierId(supId);
+      if (!supId || !Array.isArray(supplierBills)) {
+        setSelectedBillNumber('');
+        setSelectedBillDate('');
+        return;
+      }
+      const matchingBills = supplierBills.filter(b => b && String(b.supplierId) === String(supId));
+      if (matchingBills && matchingBills.length > 0) {
+        const latest = matchingBills[0];
+        if (latest) {
+          setSelectedBillNumber(latest.billNumber || '');
+          setSelectedBillDate(latest.date || '');
+          return;
+        }
+      }
+      setSelectedBillNumber('');
+      setSelectedBillDate('');
+    } catch (err) {
+      console.error('Error selecting supplier:', err);
+      setSelectedBillNumber('');
+      setSelectedBillDate('');
+    }
+  };
+
+  // Auto set date when bill number changes (Wrapped in try-catch)
+  const handleBillNumberChange = (billNo: string) => {
+    try {
+      setSelectedBillNumber(billNo);
+      if (!billNo || !Array.isArray(availableVendorBills)) return;
+      const matchedBill = availableVendorBills.find(b => b && String(b.billNumber) === String(billNo));
+      if (matchedBill && matchedBill.date) {
+        setSelectedBillDate(matchedBill.date);
+      }
+    } catch (err) {
+      console.error('Error changing bill number:', err);
+    }
+  };
 
   // Label Printing State
   const [printLabelSize, setPrintLabelSize] = useState<'50x30' | '30x50'>('50x30');
@@ -361,7 +442,8 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
 
     const formData = new FormData(formRef.current);
     const name = (formData.get('name') as string || '').trim();
-    const sku = (skuValue || (formData.get('sku') as string) || '').trim();
+    const rawSku = (skuValue || (formData.get('sku') as string) || '').trim();
+    const sku = cleanSku(rawSku);
 
     if (!name || !sku) {
       alert('Please fill in both Product Name and SKU.');
@@ -379,7 +461,8 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
     // SKU Duplication check
     if (!productToEdit) {
       for (const size of effectiveSizes) {
-        const variantSku = effectiveSizes.length > 1 || size !== 'Standard' ? `${sku}-${size}` : sku;
+        const cleanSize = cleanSizeLabel(size);
+        const variantSku = cleanSku(effectiveSizes.length > 1 || cleanSize !== 'Standard' ? `${sku}-${cleanSize}` : sku);
         const isDuplicate = products.some(p => p.sku.toUpperCase() === variantSku.toUpperCase() || p.sku.toUpperCase() === sku.toUpperCase());
         if (isDuplicate) {
           alert(`The variant SKU "${variantSku}" is already in use by another product. SKU must be unique.`);
@@ -388,7 +471,8 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
       }
     } else {
       for (const size of effectiveSizes) {
-        const variantSku = effectiveSizes.length > 1 || size !== 'Standard' ? `${sku}-${size}` : sku;
+        const cleanSize = cleanSizeLabel(size);
+        const variantSku = cleanSku(effectiveSizes.length > 1 || cleanSize !== 'Standard' ? `${sku}-${cleanSize}` : sku);
         const isDuplicate = products.some(p => {
           if (p.sku.toUpperCase() !== variantSku.toUpperCase() && p.sku.toUpperCase() !== sku.toUpperCase()) return false;
           if (p.id === productToEdit.id) return false;
@@ -425,6 +509,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
     }
 
     setIsSaving(true);
+    setSaveStatus('saving');
     
     try {
       const baseProductData = {
@@ -444,6 +529,9 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
         taxPercent: Number(formData.get('taxPercent')) || 0,
         minStockAlert: Number(formData.get('minStockAlert')) || 0,
         supplierId: selectedSupplierId || (formData.get('supplierId') as string) || '',
+        supplierName: suppliers.find(s => s.id === (selectedSupplierId || (formData.get('supplierId') as string)))?.name || '',
+        billNumber: selectedBillNumber || (formData.get('billNumber') as string) || '',
+        billDate: selectedBillDate || (formData.get('billDate') as string) || '',
         description: (formData.get('description') as string) || '',
         imageUrl: previewImages[0] || '',
         images: previewImages,
@@ -462,11 +550,12 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
 
       // 1. Save new or update existing size variants
       for (const size of effectiveSizes) {
-        const variantSku = effectiveSizes.length > 1 || size !== 'Standard' ? `${sku}-${size}` : sku;
+        const cleanSize = cleanSizeLabel(size);
+        const variantSku = cleanSku(effectiveSizes.length > 1 || cleanSize !== 'Standard' ? `${sku}-${cleanSize}` : sku);
         const existing = siblings.find(sib => {
-          if (sib.id === productToEdit?.id && (effectiveSizes.length === 1 || sib.sizes?.[0] === size)) return true;
-          const sibSize = sib.sizes?.[0];
-          return sibSize?.toUpperCase() === size.toUpperCase();
+          if (sib.id === productToEdit?.id && (effectiveSizes.length === 1 || cleanSizeLabel(sib.sizes?.[0]) === cleanSize)) return true;
+          const sibSize = cleanSizeLabel(sib.sizes?.[0]);
+          return sibSize?.toUpperCase() === cleanSize.toUpperCase();
         });
 
         const formColor = (formData.get('color') as string || '').trim();
@@ -505,30 +594,22 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
         }
       }
 
-      // Small brief delay to ensure the user clearly sees 'Saving...' state before auto-closing
-      await new Promise(r => setTimeout(r, 400));
-
-      const successTitle = productToEdit ? 'Product Updated' : 'Product Added';
-      const successMsg = productToEdit ? `${name} updated successfully!` : `${name} added to inventory!`;
-
-      if (onSaveSuccess) {
-        onSaveSuccess(successTitle, successMsg);
-      } else {
-        setSuccessMessage(successMsg);
-        setTimeout(() => {
-          setSuccessMessage(null);
-        }, 1000);
-      }
-      
-      onClose();
-      setPreviewImages([]);
-      setSelectedImagesIndex(0);
+      // Transition to saved state for in-button confirmation tick
+      setSaveStatus('saved');
+      setTimeout(() => {
+        onClose();
+        setPreviewImages([]);
+        setSelectedImagesIndex(0);
+        setSaveStatus('idle');
+        setIsSaving(false);
+      }, 550);
     } catch (error: any) {
       console.error('Save error:', error);
       let msg = error?.message || error?.details || (typeof error === 'object' ? JSON.stringify(error) : String(error));
       alert('Save Failed: ' + msg);
-    } finally {
       setIsSaving(false);
+      setSaveStatus('idle');
+    } finally {
       setSavingStatus('');
     }
   };
@@ -546,7 +627,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
     const material = formData.get('material') as string || '';
     const gender = selectedGender || (formData.get('gender') as string) || '';
     const subCategory = formData.get('subCategory') as string || '';
-    const size = printGarmentSize || (selectedSizes.length > 0 ? selectedSizes[0] : '');
+    const size = cleanSizeLabel(printGarmentSize || (selectedSizes.length > 0 ? selectedSizes[0] : ''));
 
     setLabelData({
       name,
@@ -559,7 +640,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
       gender,
       subCategory,
       styleCode: '',
-      sizesToPrint: selectedSizes.length > 0 ? [...selectedSizes] : [''], 
+      sizesToPrint: selectedSizes.length > 0 ? selectedSizes.map(cleanSizeLabel) : [''], 
       labelSize: printLabelSize,
       fontFamily: 'helvetica',
       isBold: true
@@ -577,7 +658,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
           className="text-[9px] font-bold uppercase tracking-wider border border-slate-200 rounded-md px-2 py-1.5 outline-none bg-slate-50 text-slate-700 max-w-[80px]"
         >
           <option value="">Size...</option>
-          {selectedSizes.map(s => <option key={s} value={s}>{s}</option>)}
+          {selectedSizes.map(s => <option key={s} value={s}>{cleanSizeLabel(s)}</option>)}
         </select>
       )}
       <select 
@@ -739,10 +820,100 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
             </div>
           </div>
 
+          {/* Minimalist Procurement & Vendor Bill Strip with Quick Bill Preview */}
+          <div className="pt-2.5 border-t border-slate-100 space-y-2">
+            <div className="flex items-center justify-between ml-1">
+              <label className="text-[9px] font-extrabold uppercase tracking-wider text-slate-400">
+                Supplier & Bill Details (Optional)
+              </label>
+              {selectedSupplierId && availableVendorBills.length > 0 && (
+                <span className="text-[8.5px] font-extrabold text-[#01a9fb] bg-[#01a9fb]/10 px-1.5 py-0.2 rounded">
+                  {availableVendorBills.length} Bills
+                </span>
+              )}
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              {/* Supplier Selection */}
+              <div className="space-y-1">
+                <label className="text-[8.5px] font-bold uppercase tracking-wider text-slate-400 ml-0.5">Supplier</label>
+                <select 
+                  name="supplierId" 
+                  value={selectedSupplierId} 
+                  onChange={(e) => handleSupplierChange(e.target.value)}
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#01a9fb] rounded-md outline-none transition-all font-bold text-xs text-slate-800"
+                >
+                  <option value="">Select Supplier</option>
+                  {(suppliers || []).map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                </select>
+              </div>
+
+              {/* Purchase Bill No Dropdown / Input + View Details Icon Button */}
+              <div className="space-y-1">
+                <div className="flex items-center justify-between">
+                  <label className="text-[8.5px] font-bold uppercase tracking-wider text-slate-400 ml-0.5">Bill Number</label>
+                  {selectedBill && (
+                    <button
+                      type="button"
+                      onClick={() => setIsBillModalOpen(true)}
+                      className="text-[9px] font-black text-[#01a9fb] hover:text-[#0088cc] flex items-center gap-1 transition-colors hover:underline"
+                      title="View Bill Details & Line Items"
+                    >
+                      <Eye size={11} strokeWidth={2.5} />
+                      <span>View Bill</span>
+                    </button>
+                  )}
+                </div>
+                {availableVendorBills && availableVendorBills.length > 0 ? (
+                  <select
+                    name="billNumber"
+                    value={selectedBillNumber}
+                    onChange={(e) => handleBillNumberChange(e.target.value)}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#01a9fb] rounded-md outline-none transition-all font-mono font-bold text-xs text-slate-800 uppercase"
+                  >
+                    <option value="">Select Bill No</option>
+                    {(availableVendorBills || []).map(b => (
+                      <option key={b.id} value={b.billNumber}>
+                        #{b.billNumber} ({b.date || ''})
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <input
+                    name="billNumber"
+                    value={selectedBillNumber}
+                    onChange={(e) => setSelectedBillNumber(e.target.value)}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#01a9fb] rounded-md outline-none transition-all font-mono font-bold text-xs text-slate-800 uppercase"
+                    placeholder="e.g. #INV-9821"
+                  />
+                )}
+              </div>
+
+              {/* Bill Date Auto-Populate */}
+              <div className="space-y-1">
+                <label className="text-[8.5px] font-bold uppercase tracking-wider text-slate-400 ml-0.5">Bill Date</label>
+                <input
+                  type="date"
+                  name="billDate"
+                  value={selectedBillDate}
+                  onChange={(e) => setSelectedBillDate(e.target.value)}
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#01a9fb] rounded-md outline-none transition-all font-mono font-bold text-xs text-slate-800"
+                />
+              </div>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1.5">
               <label className="text-[9px] font-bold uppercase tracking-widest text-gray-400 ml-1">Product Name <span className="text-red-500">*</span></label>
-              <input name="name" defaultValue={productToEdit?.name} required className="w-full px-4 py-3 bg-gray-50 border-gray-200/60 border focus:bg-white focus:border-[#8B5CF6]/30 rounded-xl outline-none transition-all font-bold uppercase tracking-widest text-gray-700 text-[10px]" placeholder="e.g. Designer Suit" />
+              <input 
+                name="name" 
+                value={nameValue} 
+                onChange={(e) => setNameValue(e.target.value)} 
+                required 
+                className="w-full px-4 py-3 bg-gray-50 border-gray-200/60 border focus:bg-white focus:border-[#8B5CF6]/30 rounded-xl outline-none transition-all font-bold uppercase tracking-widest text-gray-700 text-[10px]" 
+                placeholder="e.g. Designer Suit" 
+              />
             </div>
             <div className="space-y-1.5">
               <label className="text-[9px] font-bold uppercase tracking-widest text-gray-400 ml-1">Gender</label>
@@ -982,19 +1153,6 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
             </div>
           </div>
 
-          <div className="space-y-1.5 border-t border-slate-100 pt-3.5">
-            <label className="text-[9px] font-extrabold uppercase tracking-wider text-slate-400 ml-1">Supplier</label>
-            <select 
-              name="supplierId" 
-              value={selectedSupplierId} 
-              onChange={(e) => setSelectedSupplierId(e.target.value)}
-              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#01a9fb] rounded-md outline-none transition-all font-bold uppercase tracking-wider text-slate-800 text-xs appearance-none"
-            >
-              <option value="">Select Supplier (Optional)</option>
-              {suppliers.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
-            </select>
-          </div>
-
           {/* Prices Section */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
             {(productPurpose === 'SALE' || productPurpose === 'HYBRID') && (
@@ -1083,7 +1241,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
             </div>
             <div className="space-y-1.5">
               <label className="text-[9px] font-extrabold uppercase tracking-wider text-slate-400 ml-1">Tax (%)</label>
-              <input name="taxPercent" type="number" defaultValue={productToEdit?.taxPercent || 12} className="w-full px-3 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#01a9fb] rounded-md outline-none transition-all font-bold uppercase tracking-wider text-slate-800 text-xs" placeholder="12" />
+              <input name="taxPercent" type="number" defaultValue={productToEdit ? (productToEdit.taxPercent ?? 0) : 0} className="w-full px-3 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#01a9fb] rounded-md outline-none transition-all font-bold uppercase tracking-wider text-slate-800 text-xs" placeholder="0" />
             </div>
             <div className="space-y-1.5">
               <label className="text-[9px] font-extrabold uppercase tracking-wider text-slate-400 ml-1">Min Stock</label>
@@ -1100,20 +1258,31 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
             <button 
               type="button" 
               onClick={onClose} 
-              disabled={isSaving}
+              disabled={saveStatus !== 'idle'}
               className="flex-1 rounded-md border border-slate-200 font-bold uppercase tracking-wider text-[10px] text-slate-600 py-2.5 disabled:opacity-50 hover:bg-slate-50 transition-colors"
             >
               Cancel
             </button>
             <button 
               type="submit" 
-              disabled={isSaving}
-              className={`flex-1 ${isSaving ? 'bg-[#01a9fb]/80 text-white cursor-wait' : 'bg-[#01a9fb] hover:bg-[#0098e6] text-white'} rounded-md font-extrabold uppercase tracking-wider text-[10px] shadow-xs py-2.5 transition-all active:scale-[0.98] flex items-center justify-center gap-2`}
+              disabled={saveStatus !== 'idle'}
+              className={`flex-1 rounded-md font-extrabold uppercase tracking-wider text-[10px] shadow-xs py-2.5 transition-all flex items-center justify-center gap-2 ${
+                saveStatus === 'saved'
+                  ? 'bg-emerald-600 hover:bg-emerald-600 text-white shadow-emerald-500/20'
+                  : saveStatus === 'saving'
+                  ? 'bg-[#01a9fb]/85 text-white cursor-wait'
+                  : 'bg-[#01a9fb] hover:bg-[#0098e6] text-white active:scale-[0.98]'
+              }`}
             >
-              {isSaving ? (
+              {saveStatus === 'saved' ? (
+                <>
+                  <Check size={16} strokeWidth={3} className="text-white animate-bounce" />
+                  <span>{productToEdit ? 'Updated!' : 'Added!'}</span>
+                </>
+              ) : saveStatus === 'saving' ? (
                 <>
                   <RefreshCcw size={14} className="animate-spin text-white" />
-                  <span>Saving..</span>
+                  <span>{productToEdit ? 'Updating...' : 'Adding...'}</span>
                 </>
               ) : (
                 <>
@@ -1149,6 +1318,115 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({ isOpen, onCl
             setIsScannerOpen(false);
           }}
           onClose={() => setIsScannerOpen(false)}
+        />
+      )}
+
+      {/* ── View Bill Details Modal inside Product Form ── */}
+      {isBillModalOpen && selectedBill && (
+        <Modal
+          isOpen={isBillModalOpen}
+          onClose={() => setIsBillModalOpen(false)}
+          title={`Bill Details: #${selectedBill.billNumber}`}
+          size="lg"
+          zIndex={130}
+        >
+          <div className="space-y-4 text-left">
+            <div className="p-4 bg-slate-900 text-white rounded-lg flex justify-between items-center shadow-xs">
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Supplier Purchase Bill</span>
+                <h3 className="text-base font-extrabold text-white tracking-tight">#{selectedBill.billNumber}</h3>
+                <p className="text-xs text-slate-400 font-medium mt-0.5">
+                  Date: {selectedBill.date} • {suppliers.find(s => s.id === selectedBill.supplierId)?.name || 'Vendor'}
+                </p>
+              </div>
+              <span className={`inline-block px-3 py-1 text-[10px] font-extrabold uppercase tracking-wider rounded-md ${
+                selectedBill.status === 'PAID' ? 'bg-emerald-500 text-white' :
+                selectedBill.status === 'PARTIAL' ? 'bg-amber-500 text-white' :
+                'bg-rose-500 text-white'
+              }`}>
+                {selectedBill.status}
+              </span>
+            </div>
+
+            {selectedBill.items && selectedBill.items.length > 0 ? (
+              <div className="border border-slate-200 rounded-lg overflow-hidden">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-slate-50 border-b border-slate-200 text-slate-400 font-extrabold text-[10px] uppercase tracking-wider">
+                    <tr>
+                      <th className="px-4 py-2.5">Item Description</th>
+                      <th className="px-4 py-2.5 text-center">Qty</th>
+                      <th className="px-4 py-2.5 text-right">Unit Price</th>
+                      <th className="px-4 py-2.5 text-right">Total</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 font-bold text-slate-800">
+                    {selectedBill.items.map((item, idx) => (
+                      <tr key={item.id || idx} className="hover:bg-slate-50/50">
+                        <td className="px-4 py-2.5 font-extrabold text-slate-900">{item.itemName}</td>
+                        <td className="px-4 py-2.5 text-center font-mono">{item.quantity}</td>
+                        <td className="px-4 py-2.5 text-right font-mono">{formatCurrency(item.unitPrice)}</td>
+                        <td className="px-4 py-2.5 text-right font-mono font-extrabold text-slate-900">{formatCurrency(item.total)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="p-4 bg-slate-50 rounded-md border border-slate-200 text-slate-400 text-xs italic text-center">
+                No line items itemized on this bill.
+              </div>
+            )}
+
+            {/* Bill Summary */}
+            <div className="p-3.5 bg-slate-50 rounded-lg border border-slate-200 text-xs space-y-2">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[10px]">
+                {selectedBill.subtotal !== undefined && (
+                  <div>
+                    <span className="text-slate-400 font-bold uppercase tracking-wider block">Subtotal</span>
+                    <span className="font-mono font-bold text-slate-800">{formatCurrency(selectedBill.subtotal)}</span>
+                  </div>
+                )}
+                {selectedBill.discountAmount !== undefined && selectedBill.discountAmount > 0 && (
+                  <div>
+                    <span className="text-slate-400 font-bold uppercase tracking-wider block">Discount</span>
+                    <span className="font-mono font-bold text-emerald-600">-{formatCurrency(selectedBill.discountAmount)}</span>
+                  </div>
+                )}
+                {selectedBill.taxAmount !== undefined && selectedBill.taxAmount > 0 && (
+                  <div>
+                    <span className="text-slate-400 font-bold uppercase tracking-wider block">Tax ({selectedBill.taxRate}%)</span>
+                    <span className="font-mono font-bold text-slate-800">+{formatCurrency(selectedBill.taxAmount)}</span>
+                  </div>
+                )}
+                <div>
+                  <span className="text-slate-400 font-bold uppercase tracking-wider block">Grand Total</span>
+                  <span className="font-mono font-black text-sm text-slate-900">{formatCurrency(selectedBill.totalAmount)}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end pt-2">
+              <button
+                type="button"
+                onClick={() => setIsBillModalOpen(false)}
+                className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold uppercase text-xs rounded-lg transition-all"
+              >
+                Close View
+              </button>
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {showLabelEditor && labelData && (
+        <LabelDesigner
+          labelData={labelData}
+          allProductSizes={selectedSizes}
+          onClose={() => setShowLabelEditor(false)}
+          onPrint={(tpl, products) => {
+            generateDynamicLabelPDF(products, tpl);
+            setShowLabelEditor(false);
+          }}
         />
       )}
     </>

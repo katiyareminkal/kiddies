@@ -36,7 +36,6 @@ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Allow anon full access on supplier_bills') THEN
         CREATE POLICY "Allow anon full access on supplier_bills" ON public.supplier_bills FOR ALL TO anon USING (true) WITH CHECK (true);
     END IF;
-
     IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Allow authenticated full access on supplier_bill_items') THEN
         CREATE POLICY "Allow authenticated full access on supplier_bill_items" ON public.supplier_bill_items FOR ALL TO authenticated USING (true) WITH CHECK (true);
     END IF;
@@ -44,3 +43,12 @@ BEGIN
         CREATE POLICY "Allow anon full access on supplier_bill_items" ON public.supplier_bill_items FOR ALL TO anon USING (true) WITH CHECK (true);
     END IF;
 END $$;
+
+-- 4. Optional Columns for Tax and Discount
+ALTER TABLE public.supplier_bills ADD COLUMN IF NOT EXISTS subtotal NUMERIC;
+ALTER TABLE public.supplier_bills ADD COLUMN IF NOT EXISTS discount_type TEXT;
+ALTER TABLE public.supplier_bills ADD COLUMN IF NOT EXISTS discount_value NUMERIC;
+ALTER TABLE public.supplier_bills ADD COLUMN IF NOT EXISTS discount_amount NUMERIC DEFAULT 0;
+ALTER TABLE public.supplier_bills ADD COLUMN IF NOT EXISTS tax_type TEXT;
+ALTER TABLE public.supplier_bills ADD COLUMN IF NOT EXISTS tax_rate NUMERIC;
+ALTER TABLE public.supplier_bills ADD COLUMN IF NOT EXISTS tax_amount NUMERIC DEFAULT 0;

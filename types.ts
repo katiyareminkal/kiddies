@@ -79,7 +79,10 @@ export interface Product {
   purpose: 'SALE' | 'RENTAL' | 'HYBRID';
   
   minStockAlert: number;
-  supplierId: string;
+  supplierId?: string;
+  supplierName?: string;
+  billNumber?: string;
+  billDate?: string;
   description: string;
   imageUrl?: string;
   images?: string[]; // Multiple product photos
@@ -124,6 +127,13 @@ export interface SupplierBill {
   billNumber: string;
   date: string;
   items: SupplierBillItem[];
+  subtotal?: number;
+  discountType?: 'PERCENT' | 'FIXED';
+  discountValue?: number;
+  discountAmount?: number;
+  taxType?: 'NONE' | 'GST' | 'SPLIT_GST'; // NONE, GST (integrated/overall), SPLIT_GST (CGST + SGST)
+  taxRate?: number; // e.g. 5, 12, 18
+  taxAmount?: number;
   totalAmount: number;
   paidAmount: number;
   status: 'UNPAID' | 'PARTIAL' | 'PAID';

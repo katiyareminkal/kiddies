@@ -11,7 +11,8 @@ import {
   DEFAULT_TEMPLATE_30x50, 
   generateDynamicLabelPDF,
   adaptTemplateToDimensions,
-  getEffectiveGender
+  getEffectiveGender,
+  cleanSizeLabel
 } from '../../utils/pdfLabel';
 
 const MM_TO_PX = 3.7795275591;
@@ -37,7 +38,7 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
 
   // Available Product Sizes
   const initialAvailableSizes = useMemo(() => {
-    return product.sizes && product.sizes.length > 0 ? product.sizes : ['FREE'];
+    return (product && product.sizes && Array.isArray(product.sizes) && product.sizes.length > 0) ? product.sizes : ['FREE'];
   }, [product]);
 
   const [customSizes, setCustomSizes] = useState<string[]>([]);
@@ -64,11 +65,11 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed)) {
           parsed.forEach((item: any, idx: number) => {
-            if (item && item.template && Array.isArray(item.template.elements) && item.name && (item.template.labelWidth || 0) > 0 && (item.template.labelHeight || 0) > 0) {
+            if (item && item.template && Array.isArray(item.template.elements) && item.name) {
               list.push({
                 id: `custom_${idx}_${item.name}`,
                 name: item.name,
-                template: item.template
+                template: ensureSubCategoryElement(item.template)
               });
             }
           });
@@ -79,33 +80,41 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
   }, []);
 
   // Combined presets
-  const allPresets = useMemo(() => [...builtInPresets, ...customPresets], [builtInPresets, customPresets]);
+  const allPresets = useMemo(() => {
+    const list = [...builtInPresets, ...customPresets];
+    return list.length > 0 ? list : builtInPresets;
+  }, [builtInPresets, customPresets]);
 
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
-  const selectedPreset = allPresets[selectedIndex] || allPresets[0];
+  const selectedPreset = allPresets[selectedIndex] || allPresets[0] || builtInPresets[0];
 
   // Paper Dimensions state
-  const [selectedPaperDim, setSelectedPaperDim] = useState<{ width: number; height: number }>({
-    width: selectedPreset.template.labelWidth,
-    height: selectedPreset.template.labelHeight
-  });
+  const [selectedPaperDim, setSelectedPaperDim] = useState<{ width: number; height: number }>(() => ({
+    width: selectedPreset?.template?.labelWidth || 50,
+    height: selectedPreset?.template?.labelHeight || 30
+  }));
 
-  const [inputWidth, setInputWidth] = useState<string>('50');
-  const [inputHeight, setInputHeight] = useState<string>('30');
+  const [inputWidth, setInputWidth] = useState<string>(() => (selectedPreset?.template?.labelWidth || 50).toString());
+  const [inputHeight, setInputHeight] = useState<string>(() => (selectedPreset?.template?.labelHeight || 30).toString());
   const [showCustomDimInputs, setShowCustomDimInputs] = useState(false);
 
   // Active Template - automatically adapted to selectedPaperDim
   const activeTemplate = useMemo(() => {
-    return adaptTemplateToDimensions(selectedPreset.template, selectedPaperDim.width, selectedPaperDim.height);
+    const tpl = selectedPreset?.template || DEFAULT_TEMPLATE_50x30;
+    const w = selectedPaperDim?.width || tpl.labelWidth || 50;
+    const h = selectedPaperDim?.height || tpl.labelHeight || 30;
+    return adaptTemplateToDimensions(tpl, w, h);
   }, [selectedPreset, selectedPaperDim]);
 
   const selectPreset = (idx: number) => {
     setSelectedIndex(idx);
-    const p = allPresets[idx];
-    if (p) {
-      setSelectedPaperDim({ width: p.template.labelWidth, height: p.template.labelHeight });
-      setInputWidth(p.template.labelWidth.toString());
-      setInputHeight(p.template.labelHeight.toString());
+    const p = allPresets[idx] || allPresets[0];
+    if (p && p.template) {
+      const w = p.template.labelWidth || 50;
+      const h = p.template.labelHeight || 30;
+      setSelectedPaperDim({ width: w, height: h });
+      setInputWidth(w.toString());
+      setInputHeight(h.toString());
     }
   };
 
@@ -206,14 +215,14 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
 
     return {
       name: target.name || '',
-      sku: target.sku || '',
+      sku: cleanSku(target.sku || ''),
       barcode: target.barcode || '',
       sellingPrice: target.sellingPrice || 0,
       purchasePrice: target.purchasePrice || 0,
       color: target.color || '',
       material: target.material || '',
       gender: target.gender || '',
-      size: size !== 'FREE' ? size : (target.size || 'FREE'),
+      size: size !== 'FREE' ? cleanSizeLabel(size) : (cleanSizeLabel(target.size) || 'FREE'),
       styleCode: target.styleCode || '',
       subCategory: target.subCategory || '',
       labelSize: `${activeTemplate?.labelWidth || 50}x${activeTemplate?.labelHeight || 30}` as any
@@ -239,7 +248,7 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
       const image = canvas.toDataURL("image/png");
       const link = document.createElement('a');
       link.href = image;
-      link.download = `Tag_${product.sku.toUpperCase()}_${activeTemplate.labelWidth}x${activeTemplate.labelHeight}mm.png`;
+      link.download = `Tag_${cleanSku(product.sku).toUpperCase()}_${activeTemplate.labelWidth}x${activeTemplate.labelHeight}mm.png`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -277,7 +286,7 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
       let val = el.customValue !== undefined ? el.customValue : '';
       if (!val && previewData) {
         if (el.id === 'name') val = (previewData.name || '').slice(0, 23).toUpperCase();
-        else if (el.id === 'size') val = (previewData.size || '').toUpperCase();
+        else if (el.id === 'size') val = cleanSizeLabel(previewData.size).toUpperCase();
         else if (el.id === 'color') {
           const displayColor = (previewData.color || previewData.material || getEffectiveGender(previewData) || '').trim();
           if (displayColor) val = displayColor.toUpperCase().slice(0, 12);
@@ -285,24 +294,20 @@ export const TagPrintModal: React.FC<TagPrintModalProps> = ({
         else if (el.id === 'style') val = (previewData.styleCode || '').toUpperCase();
         else if (el.id === 'price') val = Number(previewData.sellingPrice || 0).toFixed(2);
         else if (el.id === 'code') val = '91' + ((previewData.purchasePrice || 0) * 2).toString();
-        else if (el.id === 'sku') val = (previewData.sku || '').toUpperCase();
-        else if (el.id === 'barcodeText') val = (previewData.barcode || previewData.sku || '').toUpperCase();
+        else if (el.id === 'sku') val = cleanSku(previewData.sku || '').toUpperCase();
+        else if (el.id === 'barcodeText') val = cleanSku(previewData.barcode || previewData.sku || '').toUpperCase();
         else if (el.id === 'subCategory' && previewData.subCategory) val = (previewData.subCategory || '').toUpperCase().slice(0, 10);
       }
 
       const prefix = el.staticText || '';
       const text = prefix + val;
 
-      const fontSizeInMm = (el.fontSize || 6) * 0.352778;
-      const baselineY = el.y + (fontSizeInMm * 0.72);
-      const fontTopMm = baselineY - fontSizeInMm;
-
       return (
         <div
           key={el.id}
           style={{
             ...baseStyle,
-            top: `${fontTopMm * MM_TO_PX}px`,
+            top: `${el.y * MM_TO_PX}px`,
             fontSize: `${(el.fontSize || 6) * 1.33}px`,
             fontWeight: el.isBold ? 900 : 'normal',
             fontFamily: el.fontFamily === 'times' ? 'Times New Roman, Times, serif' : el.fontFamily === 'courier' ? 'Courier New, Courier, monospace' : 'Helvetica, Arial, sans-serif',

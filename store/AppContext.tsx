@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode, useMemo } from 'react';
 import { AppState, Product, Customer, Supplier, Sale, Rental, StockLog, RentalStatus, PaymentStatus, SalesChannel, OrderStatus, PaymentMethod, StoreProfile, AppSettings, User, UserRole, AppNotification, CreditNote, Expense, SupplierBill, SupplierBillItem } from '../types';
-import { generateID } from '../utils/helpers';
+import { generateID, generateUUID, isValidUUID } from '../utils/helpers';
 import { supabase } from '../supabase';
 
 enum OperationType {
@@ -86,631 +86,22 @@ const INITIAL_DATA: AppState = {
       createdAt: new Date().toISOString()
     }
   ],
-  products: [
-    // 1. Boys Top Wear & Daily Wear
-    {
-      id: 'P101',
-      name: 'Boys Cotton Graphic Printed T-Shirt',
-      sku: 'TSH-B01',
-      barcode: '8901001001',
-      category: 'Top Wear',
-      subCategory: 'T-Shirts',
-      gender: 'Boys',
-      clothingType: 'Half (Short Sleeves/Shorts)',
-      brand: 'Kiddies Casuals',
-      color: 'Navy Blue',
-      material: '100% Combed Cotton',
-      purchasePrice: 220,
-      sellingPrice: 499,
-      rentalPrice: 0,
-      taxPercent: 5,
-      saleStock: 15,
-      rentalStock: 0,
-      purpose: 'SALE',
-      minStockAlert: 3,
-      supplierId: 'S1',
-      description: 'Soft 100% breathable cotton t-shirt with durable dinosaur graphic print.',
-      sizes: ['2-3Y', '4-5Y', '6-7Y', '8-9Y'],
-      createdAt: new Date().toISOString()
-    },
-    {
-      id: 'P102',
-      name: 'Boys Cotton Polo Collar T-Shirt',
-      sku: 'POL-B02',
-      barcode: '8901001002',
-      category: 'Top Wear',
-      subCategory: 'Polo T-Shirts',
-      gender: 'Boys',
-      clothingType: 'Half (Short Sleeves/Shorts)',
-      brand: 'Kiddies Premium',
-      color: 'Royal Blue',
-      material: 'Pique Cotton',
-      purchasePrice: 320,
-      sellingPrice: 699,
-      rentalPrice: 0,
-      taxPercent: 5,
-      saleStock: 12,
-      rentalStock: 0,
-      purpose: 'SALE',
-      minStockAlert: 3,
-      supplierId: 'S1',
-      description: 'Classic rib polo collar with 2-button placket for casual & party wear.',
-      sizes: ['4-5Y', '6-7Y', '8-9Y', '10-11Y'],
-      createdAt: new Date().toISOString()
-    },
-    {
-      id: 'P103',
-      name: 'Boys Printed Casual Full Sleeve Shirt',
-      sku: 'SHT-B03',
-      barcode: '8901001003',
-      category: 'Top Wear',
-      subCategory: 'Casual Shirts',
-      gender: 'Boys',
-      clothingType: 'Full (Long Sleeves/Pants)',
-      brand: 'Little Champs',
-      color: 'Olive Green',
-      material: 'Cotton Linen',
-      purchasePrice: 400,
-      sellingPrice: 899,
-      rentalPrice: 0,
-      taxPercent: 5,
-      saleStock: 10,
-      rentalStock: 0,
-      purpose: 'SALE',
-      minStockAlert: 2,
-      supplierId: 'S1',
-      description: 'Lightweight linen blend casual roll-up sleeve shirt.',
-      sizes: ['3-4Y', '5-6Y', '7-8Y', '9-10Y'],
-      createdAt: new Date().toISOString()
-    },
-
-    // 2. Boys Bottom Wear
-    {
-      id: 'P104',
-      name: 'Boys Slim Fit Stretch Denim Jeans',
-      sku: 'JNS-B04',
-      barcode: '8901001004',
-      category: 'Bottom Wear',
-      subCategory: 'Jeans',
-      gender: 'Boys',
-      clothingType: 'Full (Long Sleeves/Pants)',
-      brand: 'Kiddies Denim Co',
-      color: 'Dark Indigo',
-      material: 'Stretch Denim',
-      purchasePrice: 450,
-      sellingPrice: 999,
-      rentalPrice: 0,
-      taxPercent: 5,
-      saleStock: 18,
-      rentalStock: 0,
-      purpose: 'SALE',
-      minStockAlert: 4,
-      supplierId: 'S1',
-      description: 'Adjustable inner elastic waistband stretch denim jeans for active boys.',
-      sizes: ['4-5Y', '6-7Y', '8-9Y', '10-12Y'],
-      createdAt: new Date().toISOString()
-    },
-    {
-      id: 'P105',
-      name: 'Boys Cotton Jogger Track Pants',
-      sku: 'JOG-B05',
-      barcode: '8901001005',
-      category: 'Bottom Wear',
-      subCategory: 'Joggers',
-      gender: 'Boys',
-      clothingType: 'Full (Long Sleeves/Pants)',
-      brand: 'ActiveTots',
-      color: 'Melange Grey',
-      material: 'Cotton Fleece',
-      purchasePrice: 280,
-      sellingPrice: 599,
-      rentalPrice: 0,
-      taxPercent: 5,
-      saleStock: 14,
-      rentalStock: 0,
-      purpose: 'SALE',
-      minStockAlert: 3,
-      supplierId: 'S1',
-      description: 'Elastic drawstring jogger pants with side zipper pockets.',
-      sizes: ['2-3Y', '4-5Y', '6-7Y', '8-9Y'],
-      createdAt: new Date().toISOString()
-    },
-    {
-      id: 'P106',
-      name: 'Boys Multi-Pocket Cargo Shorts',
-      sku: 'SHR-B06',
-      barcode: '8901001006',
-      category: 'Bottom Wear',
-      subCategory: 'Shorts',
-      gender: 'Boys',
-      clothingType: 'Half (Short Sleeves/Shorts)',
-      brand: 'Kiddies Outdoor',
-      color: 'Khaki Beige',
-      material: '100% Cotton Twill',
-      purchasePrice: 250,
-      sellingPrice: 549,
-      rentalPrice: 0,
-      taxPercent: 5,
-      saleStock: 16,
-      rentalStock: 0,
-      purpose: 'SALE',
-      minStockAlert: 3,
-      supplierId: 'S1',
-      description: 'Durable cotton twill cargo shorts with multi utility flap pockets.',
-      sizes: ['3-4Y', '5-6Y', '7-8Y', '9-10Y'],
-      createdAt: new Date().toISOString()
-    },
-
-    // 3. Boys Ethnic & Festive Wear
-    {
-      id: 'P107',
-      name: 'Boys Jacquard Silk Kurta Pajama Set',
-      sku: 'KRT-B07',
-      barcode: '8901001007',
-      category: 'Ethnic Wear',
-      subCategory: 'Kurta Pajama',
-      gender: 'Boys',
-      clothingType: 'Set - Full Top & Full Bottom',
-      brand: 'Shree Kids Ethnic',
-      color: 'Maroon & Gold',
-      material: 'Art Silk Blend',
-      purchasePrice: 650,
-      sellingPrice: 1499,
-      rentalPrice: 350,
-      taxPercent: 12,
-      saleStock: 6,
-      rentalStock: 3,
-      purpose: 'HYBRID',
-      minStockAlert: 2,
-      supplierId: 'S1',
-      description: 'Traditional brocade woven mandarin collar kurta with comfy churidar.',
-      sizes: ['2-3Y', '4-5Y', '6-7Y', '8-9Y', '10-12Y'],
-      createdAt: new Date().toISOString()
-    },
-    {
-      id: 'P108',
-      name: 'Boys Designer Royal Sherwani Set',
-      sku: 'SHW-B08',
-      barcode: '8901001008',
-      category: 'Ethnic Wear',
-      subCategory: 'Sherwani',
-      gender: 'Boys',
-      clothingType: 'Set - Full Top & Full Bottom',
-      brand: 'Royal Heritage Kids',
-      color: 'Off-White & Red',
-      material: 'Raw Silk & Velvet',
-      purchasePrice: 1800,
-      sellingPrice: 4200,
-      rentalPrice: 750,
-      taxPercent: 12,
-      saleStock: 4,
-      rentalStock: 4,
-      purpose: 'HYBRID',
-      minStockAlert: 2,
-      supplierId: 'S1',
-      description: 'Heavy zardozi embroidered Royal Sherwani set with matching dupatta & brooch.',
-      sizes: ['4-5Y', '6-7Y', '8-9Y', '10-12Y'],
-      createdAt: new Date().toISOString()
-    },
-    {
-      id: 'P109',
-      name: 'Boys Garba Kediyu & Dhoti Set (Navratri)',
-      sku: 'KED-B09',
-      barcode: '8901001009',
-      category: 'Ethnic Wear',
-      subCategory: 'Kurta Dhoti',
-      gender: 'Boys',
-      clothingType: 'Set - Full Top & Full Bottom',
-      brand: 'Gujrat Heritage',
-      color: 'Multi-color Mirror Work',
-      material: 'Pure Cotton',
-      purchasePrice: 700,
-      sellingPrice: 1699,
-      rentalPrice: 400,
-      taxPercent: 12,
-      saleStock: 5,
-      rentalStock: 5,
-      purpose: 'HYBRID',
-      minStockAlert: 2,
-      supplierId: 'S1',
-      description: 'Authentic Gujarati mirror-work Kediyu top with ready-to-wear stitched dhoti & turban cap.',
-      sizes: ['2-3Y', '4-5Y', '6-7Y', '8-9Y'],
-      createdAt: new Date().toISOString()
-    },
-
-    // 4. Boys Party Wear & Tuxedos
-    {
-      id: 'P110',
-      name: 'Boys 5-Piece Classic Tuxedo Suit Set',
-      sku: 'TUX-B10',
-      barcode: '8901001010',
-      category: 'Party Wear',
-      subCategory: 'Tuxedo',
-      gender: 'Boys',
-      clothingType: 'Set - Full Top & Full Bottom',
-      brand: 'Little Gentleman',
-      color: 'Midnight Black',
-      material: 'Poly-Viscose Suiting',
-      purchasePrice: 1600,
-      sellingPrice: 3800,
-      rentalPrice: 650,
-      taxPercent: 12,
-      saleStock: 5,
-      rentalStock: 4,
-      purpose: 'HYBRID',
-      minStockAlert: 2,
-      supplierId: 'S1',
-      description: 'Complete 5-piece tuxedo suite including coat, trousers, shirt, waistcoat & satin bow-tie.',
-      sizes: ['4-5Y', '6-7Y', '8-9Y', '10-12Y'],
-      createdAt: new Date().toISOString()
-    },
-
-    // 5. Girls Tops, Bottoms & Casual Wear
-    {
-      id: 'P201',
-      name: 'Girls Printed Cotton Peplum Top',
-      sku: 'TOP-G01',
-      barcode: '8902002001',
-      category: 'Top Wear',
-      subCategory: 'Tops',
-      gender: 'Girls',
-      clothingType: 'Half (Short Sleeves/Shorts)',
-      brand: 'Angel Wear',
-      color: 'Blush Pink',
-      material: '100% Cotton',
-      purchasePrice: 240,
-      sellingPrice: 549,
-      rentalPrice: 0,
-      taxPercent: 5,
-      saleStock: 14,
-      rentalStock: 0,
-      purpose: 'SALE',
-      minStockAlert: 3,
-      supplierId: 'S1',
-      description: 'Ruffled peplum waist floral printed top with keyhole back opening.',
-      sizes: ['2-3Y', '4-5Y', '6-7Y', '8-9Y'],
-      createdAt: new Date().toISOString()
-    },
-    {
-      id: 'P202',
-      name: 'Girls Stretch Denim Jegging Pants',
-      sku: 'LEG-G02',
-      barcode: '8902002002',
-      category: 'Bottom Wear',
-      subCategory: 'Jeggings',
-      gender: 'Girls',
-      clothingType: 'Full (Long Sleeves/Pants)',
-      brand: 'Cute Fit',
-      color: 'Deep Blue',
-      material: 'Cotton Lycra Stretch',
-      purchasePrice: 300,
-      sellingPrice: 649,
-      rentalPrice: 0,
-      taxPercent: 5,
-      saleStock: 18,
-      rentalStock: 0,
-      purpose: 'SALE',
-      minStockAlert: 4,
-      supplierId: 'S1',
-      description: 'Super soft elasticated stretch denim jegging pants for girls.',
-      sizes: ['3-4Y', '5-6Y', '7-8Y', '9-10Y'],
-      createdAt: new Date().toISOString()
-    },
-    {
-      id: 'P203',
-      name: 'Girls Printed Summer Cotton Frock',
-      sku: 'FRK-G03',
-      barcode: '8902002003',
-      category: 'Dresses',
-      subCategory: 'Frock',
-      gender: 'Girls',
-      clothingType: 'Half (Short Sleeves/Shorts)',
-      brand: 'Princess Cut',
-      color: 'Lemon Yellow',
-      material: '100% Cotton',
-      purchasePrice: 350,
-      sellingPrice: 799,
-      rentalPrice: 0,
-      taxPercent: 5,
-      saleStock: 12,
-      rentalStock: 0,
-      purpose: 'SALE',
-      minStockAlert: 3,
-      supplierId: 'S1',
-      description: 'Breathable tiered cotton A-line flared summer dress with sash belt.',
-      sizes: ['2-3Y', '4-5Y', '6-7Y', '8-9Y'],
-      createdAt: new Date().toISOString()
-    },
-
-    // 6. Girls Party Wear & Gowns
-    {
-      id: 'P204',
-      name: 'Girls Sequin Layered Birthday Party Gown',
-      sku: 'GWN-G04',
-      barcode: '8902002004',
-      category: 'Party Wear',
-      subCategory: 'Designer Gown',
-      gender: 'Girls',
-      clothingType: 'Full (Long Sleeves/Pants)',
-      brand: 'Royal Fairytale',
-      color: 'Lavender Purple',
-      material: 'Net Tulle & Satin',
-      purchasePrice: 1500,
-      sellingPrice: 3600,
-      rentalPrice: 600,
-      taxPercent: 12,
-      saleStock: 5,
-      rentalStock: 4,
-      purpose: 'HYBRID',
-      minStockAlert: 2,
-      supplierId: 'S1',
-      description: 'Heavy sequined bodice with fluffy 5-layer tulle flare gown for birthdays.',
-      sizes: ['3-4Y', '5-6Y', '7-8Y', '9-10Y', '11-12Y'],
-      createdAt: new Date().toISOString()
-    },
-    {
-      id: 'P205',
-      name: 'Girls Velvet Royal Ball Gown',
-      sku: 'GWN-G05',
-      barcode: '8902002005',
-      category: 'Party Wear',
-      subCategory: 'Designer Gown',
-      gender: 'Girls',
-      clothingType: 'Full (Long Sleeves/Pants)',
-      brand: 'Royal Fairytale',
-      color: 'Emerald Green',
-      material: 'Micro Velvet & Organza',
-      purchasePrice: 1900,
-      sellingPrice: 4500,
-      rentalPrice: 750,
-      taxPercent: 12,
-      saleStock: 4,
-      rentalStock: 3,
-      purpose: 'HYBRID',
-      minStockAlert: 2,
-      supplierId: 'S1',
-      description: 'Rich micro-velvet bodice ball gown with organza trailing skirt.',
-      sizes: ['4-5Y', '6-7Y', '8-9Y', '10-12Y'],
-      createdAt: new Date().toISOString()
-    },
-
-    // 7. Girls Ethnic Wear & Navratri Chaniya Choli
-    {
-      id: 'P206',
-      name: 'Girls Embroidered Lehenga Choli Set',
-      sku: 'LHG-G06',
-      barcode: '8902002006',
-      category: 'Ethnic Wear',
-      subCategory: 'Lehenga Choli',
-      gender: 'Girls',
-      clothingType: 'Set - Full Top & Full Bottom',
-      brand: 'Bapu Ethnic',
-      color: 'Magenta & Gold',
-      material: 'Silk Blend & Net Dupatta',
-      purchasePrice: 1400,
-      sellingPrice: 3200,
-      rentalPrice: 550,
-      taxPercent: 12,
-      saleStock: 6,
-      rentalStock: 4,
-      purpose: 'HYBRID',
-      minStockAlert: 2,
-      supplierId: 'S1',
-      description: 'Traditional zari work choli top with flared pleated lehenga & matching dupatta.',
-      sizes: ['3-4Y', '5-6Y', '7-8Y', '9-10Y', '11-12Y'],
-      createdAt: new Date().toISOString()
-    },
-    {
-      id: 'P207',
-      name: 'Girls Navratri Heavy Mirror-Work Chaniya Choli',
-      sku: 'LHG-G07',
-      barcode: '8902002007',
-      category: 'Ethnic Wear',
-      subCategory: 'Lehenga Choli',
-      gender: 'Girls',
-      clothingType: 'Set - Full Top & Full Bottom',
-      brand: 'Gujrat Heritage',
-      color: 'Multi-color Patchwork',
-      material: 'Cotton & Real Glass Mirror',
-      purchasePrice: 1200,
-      sellingPrice: 2800,
-      rentalPrice: 500,
-      taxPercent: 12,
-      saleStock: 5,
-      rentalStock: 5,
-      purpose: 'HYBRID',
-      minStockAlert: 2,
-      supplierId: 'S1',
-      description: 'Authentic Garba Chaniya Choli set with traditional pom-pom hangings & mirror work dupatta.',
-      sizes: ['3-4Y', '5-6Y', '7-8Y', '9-10Y'],
-      createdAt: new Date().toISOString()
-    },
-
-    // 8. Baby Wear (0-2 Years)
-    {
-      id: 'P301',
-      name: 'Baby Boys Printed Cotton Romper Set',
-      sku: 'RMP-B01',
-      barcode: '8903003001',
-      category: 'Clothing',
-      subCategory: 'Rompers',
-      gender: 'Baby Boys (0–2 Years)',
-      clothingType: 'Set - Half Top & Half Bottom',
-      brand: 'Tiny Care',
-      color: 'Sky Blue',
-      material: '100% Organic Cotton',
-      purchasePrice: 260,
-      sellingPrice: 599,
-      rentalPrice: 0,
-      taxPercent: 5,
-      saleStock: 20,
-      rentalStock: 0,
-      purpose: 'SALE',
-      minStockAlert: 5,
-      supplierId: 'S1',
-      description: 'Super soft nickle-free snap button diaper access cotton romper.',
-      sizes: ['0-3M', '3-6M', '6-12M', '12-18M'],
-      createdAt: new Date().toISOString()
-    },
-    {
-      id: 'P302',
-      name: 'Baby Girls Floral Cotton Dress Frock',
-      sku: 'RMP-G02',
-      barcode: '8903003002',
-      category: 'Clothing',
-      subCategory: 'Frocks',
-      gender: 'Baby Girls (0–2 Years)',
-      clothingType: 'Half (Short Sleeves/Shorts)',
-      brand: 'Tiny Care',
-      color: 'Coral Pink',
-      material: 'Soft Organic Cotton',
-      purchasePrice: 290,
-      sellingPrice: 649,
-      rentalPrice: 0,
-      taxPercent: 5,
-      saleStock: 18,
-      rentalStock: 0,
-      purpose: 'SALE',
-      minStockAlert: 4,
-      supplierId: 'S1',
-      description: 'Adorable baby girl floral frock with matching inner bloomers.',
-      sizes: ['3-6M', '6-12M', '12-18M', '18-24M'],
-      createdAt: new Date().toISOString()
-    },
-
-    // 9. Costumes & Roleplay
-    {
-      id: 'P401',
-      name: 'Superhero Spiderman Full Suit Costume',
-      sku: 'COS-01',
-      barcode: '8904004001',
-      category: 'Costumes',
-      subCategory: 'Roleplay',
-      gender: 'Unisex',
-      clothingType: 'Full (Long Sleeves/Pants)',
-      brand: 'Fun Costumes',
-      color: 'Red & Blue',
-      material: 'Polyester Spandex',
-      purchasePrice: 500,
-      sellingPrice: 1200,
-      rentalPrice: 300,
-      taxPercent: 12,
-      saleStock: 8,
-      rentalStock: 6,
-      purpose: 'HYBRID',
-      minStockAlert: 3,
-      supplierId: 'S1',
-      description: 'Stretchable full body superhero costume with detachable mask for school plays & parties.',
-      sizes: ['3-4Y', '5-6Y', '7-8Y'],
-      createdAt: new Date().toISOString()
-    },
-    {
-      id: 'P402',
-      name: 'Fairy Princess Costume with Wings & Wand',
-      sku: 'COS-02',
-      barcode: '8904004002',
-      category: 'Costumes',
-      subCategory: 'Roleplay',
-      gender: 'Girls',
-      clothingType: 'Set - Sleeveless & Shorts',
-      brand: 'Fun Costumes',
-      color: 'Pink Glitter',
-      material: 'Satin & Glitter Net',
-      purchasePrice: 450,
-      sellingPrice: 1100,
-      rentalPrice: 250,
-      taxPercent: 12,
-      saleStock: 6,
-      rentalStock: 5,
-      purpose: 'HYBRID',
-      minStockAlert: 2,
-      supplierId: 'S1',
-      description: 'Fairy dress complete with detachable wings, tiara headpiece & magic wand.',
-      sizes: ['3-4Y', '5-6Y', '7-8Y'],
-      createdAt: new Date().toISOString()
-    },
-
-    // 10. Winter Wear & Rainwear
-    {
-      id: 'P501',
-      name: 'Boys Fleece Hooded Jacket',
-      sku: 'WNT-01',
-      barcode: '8905005001',
-      category: 'Winter Wear',
-      subCategory: 'Jackets',
-      gender: 'Boys',
-      clothingType: 'Full (Long Sleeves/Pants)',
-      brand: 'Kiddies Warm',
-      color: 'Navy & Yellow',
-      material: 'Polyester Fleece',
-      purchasePrice: 550,
-      sellingPrice: 1299,
-      rentalPrice: 0,
-      taxPercent: 12,
-      saleStock: 10,
-      rentalStock: 0,
-      purpose: 'SALE',
-      minStockAlert: 3,
-      supplierId: 'S1',
-      description: 'Heavy thermal fleece warm hooded zipper jacket with side pockets.',
-      sizes: ['4-5Y', '6-7Y', '8-9Y', '10-12Y'],
-      createdAt: new Date().toISOString()
-    },
-    {
-      id: 'P502',
-      name: 'Kids Waterproof Hooded Raincoat Set',
-      sku: 'RAIN-01',
-      barcode: '8905005002',
-      category: 'Clothing',
-      subCategory: 'Raincoats',
-      gender: 'Unisex',
-      clothingType: 'Set - Full Top & Full Bottom',
-      brand: 'RainShield',
-      color: 'Bright Yellow',
-      material: 'Waterproof PVC',
-      purchasePrice: 350,
-      sellingPrice: 799,
-      rentalPrice: 0,
-      taxPercent: 12,
-      saleStock: 12,
-      rentalStock: 0,
-      purpose: 'SALE',
-      minStockAlert: 3,
-      supplierId: 'S1',
-      description: '100% waterproof raincoat with school bag space back panel & pants.',
-      sizes: ['3-5Y', '6-8Y', '9-12Y'],
-      createdAt: new Date().toISOString()
-    }
-  ],
-  customers: [
-    { id: 'C1', name: 'Sarah Jenkins', phone: '9876543210', email: 'sarah@example.com', address: '123 Main St, Springfield', createdAt: new Date().toISOString() },
-    { id: 'C_AMZ', name: 'Amazon Customer', phone: '', email: 'orders@amazon.in', address: 'Marketplace Order', createdAt: new Date().toISOString() },
-    { id: 'C_FK', name: 'Flipkart Customer', phone: '', email: 'orders@flipkart.com', address: 'Marketplace Order', createdAt: new Date().toISOString() },
-    { id: 'C_MEE', name: 'Meesho Customer', phone: '', email: 'orders@meesho.com', address: 'Marketplace Order', createdAt: new Date().toISOString() }
-  ],
-  suppliers: [
-    { id: 'S1', name: 'Tiny Tots Wholesalers', contactPerson: 'Mike Brown', phone: '1122334455', email: 'orders@tinytots.com', address: 'Garment District, City', createdAt: new Date().toISOString() }
-  ],
+  products: [],
+  customers: [],
+  suppliers: [],
   supplierBills: [],
-  sales: [
-    {
-      id: 'SALE1', invoiceNumber: 'INV-1001', externalOrderId: '404-1234567-1234567', channel: SalesChannel.AMAZON, customerId: 'C_AMZ',
-      items: [{ productId: 'P1', name: 'Princess Gown', quantity: 1, unitPrice: 3500, taxAmount: 0, total: 3500 }],
-      totalAmount: 3500, marketplaceFees: 500, netPayout: 3000, taxTotal: 0, discount: 0, paidAmount: 0,
-      paymentStatus: PaymentStatus.UNPAID, paymentMethod: PaymentMethod.BANK_TRANSFER, orderStatus: OrderStatus.SHIPPED, date: new Date(Date.now() - 86400000).toISOString()
-    },
-    {
-      id: 'SALE2', invoiceNumber: 'INV-1002', externalOrderId: 'OD1234567890', channel: SalesChannel.FLIPKART, customerId: 'C_FK',
-      items: [{ productId: 'P2', name: 'Tuxedo Suit', quantity: 1, unitPrice: 4500, taxAmount: 0, total: 4500 }],
-      totalAmount: 4500, marketplaceFees: 650, netPayout: 3850, taxTotal: 0, discount: 0, paidAmount: 3850,
-      paymentStatus: PaymentStatus.PAID, paymentMethod: PaymentMethod.BANK_TRANSFER, orderStatus: OrderStatus.DELIVERED, date: new Date(Date.now() - 172800000).toISOString()
-    }
-  ],
+  sales: [],
   rentals: [],
   stockLogs: [],
   notifications: [
     {
-      id: 'n1', type: 'SUCCESS', category: 'SYSTEM', title: 'Welcome to Kiddies', message: 'System initialized successfully.', timestamp: new Date().toISOString(), isRead: false
+      id: 'n1',
+      type: 'SUCCESS',
+      category: 'SYSTEM',
+      title: 'Welcome to Kiddies',
+      message: 'System ready. Start fresh by adding suppliers, purchase bills, and products.',
+      timestamp: new Date().toISOString(),
+      isRead: false
     }
   ],
   storeProfile: {
@@ -728,12 +119,12 @@ const INITIAL_DATA: AppState = {
     lowStockThreshold: 3,
     salesInvoicePrefix: 'INV-',
     rentalInvoicePrefix: 'RNT-',
-    enableDeleteInventory: false,
-    enableDeleteCustomers: false,
-    enableDeleteTransactions: false,
-    enableDeleteRentals: false,
-    enableDeleteSuppliers: false,
-    enableDeleteUsers: false
+    enableDeleteInventory: true,
+    enableDeleteCustomers: true,
+    enableDeleteTransactions: true,
+    enableDeleteRentals: true,
+    enableDeleteSuppliers: true,
+    enableDeleteUsers: true
   },
   creditNotes: [],
   expenses: []
@@ -957,18 +348,29 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         };
       });
 
+      let customOfflineUsers: User[] = [];
+      try {
+        const savedUsers = localStorage.getItem('kiddies_custom_users');
+        if (savedUsers) customOfflineUsers = JSON.parse(savedUsers);
+      } catch (e) {}
+
+      const remoteUsers = (users || []).map(u => ({
+        id: u.id,
+        name: u.name || '',
+        email: u.email || '',
+        role: u.role || UserRole.STAFF,
+        permissions: u.permissions || [],
+        createdAt: u.created_at
+      }));
+
+      const userMap = new Map<string, User>();
+      remoteUsers.forEach(u => userMap.set(u.id, u));
+      customOfflineUsers.forEach(u => userMap.set(u.id, u));
+
       setState(prev => ({
         ...prev,
-        users: (users || []).map(u => ({
-          id: u.id,
-          name: u.name || '',
-          email: u.email || '',
-          role: u.role || UserRole.STAFF,
-          permissions: u.permissions || [],
-          createdAt: u.created_at
-        })),
-        products: (products && products.length > 0)
-          ? products.map(p => ({
+        users: Array.from(userMap.values()),
+        products: (products || []).map(p => ({
             id: p.id,
             name: p.name,
             sku: p.sku,
@@ -1012,8 +414,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
               return p.image_url ? [p.image_url] : [];
             })(),
             createdAt: p.created_at
-          }))
-          : INITIAL_DATA.products,
+          })),
         customers: (customers || []).map(c => ({
           id: c.id,
           name: c.name,
@@ -1034,30 +435,71 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
           category: s.category || undefined,
           createdAt: s.created_at
         })),
-        supplierBills: (supplierBills || []).map(b => {
-          const items = (supplierBillItems || []).filter((i: any) => i.bill_id === b.id).map((i: any) => ({
-            id: i.id,
-            billId: i.bill_id,
-            itemName: i.item_name,
-            quantity: Number(i.quantity),
-            unitPrice: Number(i.unit_price),
-            total: Number(i.total),
-            createdAt: i.created_at
-          }));
-          return {
-            id: b.id,
-            supplierId: b.supplier_id,
-            billNumber: b.bill_number || '',
-            date: b.date,
-            items,
-            totalAmount: Number(b.total_amount || 0),
-            paidAmount: Number(b.paid_amount || 0),
-            status: b.status as 'UNPAID' | 'PARTIAL' | 'PAID',
-            notes: b.notes || '',
-            imageUrl: b.image_url || undefined,
-            createdAt: b.created_at
-          };
-        }),
+        supplierBills: (() => {
+          const remoteBills = (supplierBills || []).map(b => {
+            const items = (supplierBillItems || []).filter((i: any) => i.bill_id === b.id).map((i: any) => ({
+              id: i.id,
+              billId: i.bill_id,
+              itemName: i.item_name,
+              quantity: Number(i.quantity),
+              unitPrice: Number(i.unit_price),
+              total: Number(i.total),
+              createdAt: i.created_at
+            }));
+            return {
+              id: b.id,
+              supplierId: b.supplier_id,
+              billNumber: b.bill_number || '',
+              date: b.date,
+              items,
+              subtotal: b.subtotal !== undefined ? Number(b.subtotal) : undefined,
+              discountType: b.discount_type || undefined,
+              discountValue: b.discount_value !== undefined ? Number(b.discount_value) : undefined,
+              discountAmount: b.discount_amount !== undefined ? Number(b.discount_amount) : undefined,
+              taxType: b.tax_type || undefined,
+              taxRate: b.tax_rate !== undefined ? Number(b.tax_rate) : undefined,
+              taxAmount: b.tax_amount !== undefined ? Number(b.tax_amount) : undefined,
+              totalAmount: Number(b.total_amount || 0),
+              paidAmount: Number(b.paid_amount || 0),
+              status: b.status as 'UNPAID' | 'PARTIAL' | 'PAID',
+              notes: b.notes || '',
+              imageUrl: b.image_url || undefined,
+              createdAt: b.created_at
+            };
+          });
+
+          // Merge with local offline bills to guarantee tax & discount details are never stripped by remote DB schema limits
+          try {
+            const savedLocal = localStorage.getItem('kiddies_offline_supplier_bills');
+            if (savedLocal) {
+              const offline: SupplierBill[] = JSON.parse(savedLocal);
+              const map = new Map<string, SupplierBill>(remoteBills.map(item => [item.id, item]));
+              offline.forEach(off => {
+                const existing = map.get(off.id);
+                if (!existing) {
+                  map.set(off.id, off);
+                } else {
+                  map.set(off.id, {
+                    ...existing,
+                    subtotal: off.subtotal !== undefined ? off.subtotal : existing.subtotal,
+                    discountType: off.discountType || existing.discountType,
+                    discountValue: off.discountValue !== undefined ? off.discountValue : existing.discountValue,
+                    discountAmount: off.discountAmount !== undefined ? off.discountAmount : existing.discountAmount,
+                    taxType: off.taxType || existing.taxType,
+                    taxRate: off.taxRate !== undefined ? off.taxRate : existing.taxRate,
+                    taxAmount: off.taxAmount !== undefined ? off.taxAmount : existing.taxAmount,
+                    items: (off.items && off.items.length > 0) ? off.items : existing.items
+                  });
+                }
+              });
+              return Array.from(map.values());
+            }
+          } catch (e) {
+            console.warn('Failed to parse offline supplier bills:', e);
+          }
+
+          return remoteBills;
+        })(),
         sales: combinedSales,
         rentals: (() => {
           const remoteRentals = (rentals || []).map(r => ({
@@ -1313,45 +755,92 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   // -- USERS --
   const addUser = async (u: Omit<User, 'id' | 'createdAt'>) => {
+    const id = generateID();
+    const createdAt = new Date().toISOString();
+    const newUser: User = {
+      ...u,
+      id,
+      createdAt,
+      permissions: u.role === UserRole.ADMIN ? [] : (u.permissions || [])
+    };
+
+    // 1. Instant local optimistic state update
+    setState(prev => ({
+      ...prev,
+      users: [...prev.users.filter(x => x.id !== id), newUser]
+    }));
+
+    // 2. Persist to offline storage
     try {
-      const id = generateID();
-      // Insert custom profile
-      const { error } = await supabase.from('profiles').insert({
+      const current = JSON.parse(localStorage.getItem('kiddies_custom_users') || '[]');
+      localStorage.setItem('kiddies_custom_users', JSON.stringify([...current.filter((x: any) => x.id !== id), newUser]));
+    } catch (e) {}
+
+    // 3. Persist to Supabase
+    try {
+      await supabase.from('profiles').insert({
         id,
         name: u.name,
         email: u.email,
         role: u.role,
         permissions: u.role === UserRole.ADMIN ? [] : (u.permissions || [])
       });
-      if (error) throw error;
       await fetchAllData();
     } catch (error) {
-      console.error('Error adding user profiles:', error);
+      console.warn('Error adding user profile to Supabase:', error);
     }
   };
 
   const updateUser = async (id: string, updates: Partial<User>) => {
+    // 1. Instant local state update
+    setState(prev => ({
+      ...prev,
+      users: prev.users.map(u => u.id === id ? { ...u, ...updates } : u)
+    }));
+
+    // 2. Persist to offline storage
     try {
-      const { error } = await supabase.from('profiles').update({
+      const current = JSON.parse(localStorage.getItem('kiddies_custom_users') || '[]');
+      localStorage.setItem('kiddies_custom_users', JSON.stringify(
+        current.map((x: any) => x.id === id ? { ...x, ...updates } : x)
+      ));
+    } catch (e) {}
+
+    // 3. Persist to Supabase
+    try {
+      await supabase.from('profiles').update({
         name: updates.name,
         email: updates.email,
         role: updates.role,
         permissions: updates.permissions
       }).eq('id', id);
-      if (error) throw error;
       await fetchAllData();
     } catch (error) {
-      console.error('Error updating profile:', error);
+      console.warn('Error updating profile in Supabase:', error);
     }
   };
 
   const deleteUser = async (id: string) => {
+    // 1. Instant local state update (removes user immediately from UI)
+    setState(prev => ({
+      ...prev,
+      users: prev.users.filter(u => u.id !== id)
+    }));
+
+    // 2. Remove from offline storage
     try {
-      const { error } = await supabase.from('profiles').delete().eq('id', id);
-      if (error) throw error;
+      const current = JSON.parse(localStorage.getItem('kiddies_custom_users') || '[]');
+      localStorage.setItem('kiddies_custom_users', JSON.stringify(
+        current.filter((x: any) => x.id !== id)
+      ));
+    } catch (e) {}
+
+    // 3. Delete from Supabase
+    try {
+      await supabase.from('profiles').delete().eq('id', id);
       await fetchAllData();
     } catch (error) {
-      console.error('Error deleting user:', error);
+      console.warn('Error deleting user from Supabase:', error);
     }
   };
 
@@ -1545,7 +1034,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   // -- SUPPLIERS --
   const addSupplier = async (s: Omit<Supplier, 'id' | 'createdAt'>) => {
-    const id = generateID();
+    const id = generateUUID();
     try {
       const { error } = await supabase.from('suppliers').insert({
         id,
@@ -1557,7 +1046,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         location: s.location,
         category: s.category
       });
-      if (error) throw error;
+      if (error) console.warn('Supabase addSupplier error:', error);
       await fetchAllData();
     } catch (error) {
       console.error('Error adding supplier:', error);
@@ -1575,8 +1064,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       if (updates.location !== undefined) dbUpdates.location = updates.location;
       if (updates.category !== undefined) dbUpdates.category = updates.category;
 
-      const { error } = await supabase.from('suppliers').update(dbUpdates).eq('id', id);
-      if (error) throw error;
+      if (isValidUUID(id)) {
+        const { error } = await supabase.from('suppliers').update(dbUpdates).eq('id', id);
+        if (error) console.warn('Supabase updateSupplier error:', error);
+      }
       await fetchAllData();
     } catch (error) {
       console.error('Error updating supplier:', error);
@@ -1585,12 +1076,29 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const deleteSupplier = async (id: string) => {
     try {
-      setState(prev => ({
-        ...prev,
-        suppliers: prev.suppliers.filter(s => s.id !== id)
-      }));
-      const { error } = await supabase.from('suppliers').delete().eq('id', id);
-      if (error) console.warn('Supabase deleteSupplier error:', error);
+      setState(prev => {
+        const nextSuppliers = prev.suppliers.filter(s => s.id !== id);
+        const nextBills = prev.supplierBills.filter(b => b.supplierId !== id);
+        try {
+          localStorage.setItem('kiddies_offline_suppliers', JSON.stringify(nextSuppliers));
+          localStorage.setItem('kiddies_offline_supplier_bills', JSON.stringify(nextBills));
+        } catch (e) {}
+        return {
+          ...prev,
+          suppliers: nextSuppliers,
+          supplierBills: nextBills
+        };
+      });
+
+      if (isValidUUID(id)) {
+        const billsToDelete = state.supplierBills.filter(b => b.supplierId === id).map(b => b.id).filter(isValidUUID);
+        if (billsToDelete.length > 0) {
+          await supabase.from('supplier_bill_items').delete().in('bill_id', billsToDelete);
+          await supabase.from('supplier_bills').delete().in('id', billsToDelete);
+        }
+        const { error } = await supabase.from('suppliers').delete().eq('id', id);
+        if (error) console.warn('Supabase deleteSupplier error:', error);
+      }
       await fetchAllData();
     } catch (error) {
       console.error('Error deleting supplier:', error);
@@ -1598,14 +1106,59 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   };
 
   const addSupplierBill = async (bill: Omit<SupplierBill, 'id' | 'createdAt' | 'items'> & { items: Omit<SupplierBillItem, 'id' | 'billId' | 'createdAt'>[] }, imageFile?: File) => {
-    try {
-      let imageUrl = bill.imageUrl;
-      if (imageFile) {
-        imageUrl = await uploadImage(imageFile, `supplier_bills/${bill.supplierId}_${Date.now()}`);
-      }
+    const newBillId = generateUUID();
+    const createdAt = new Date().toISOString();
 
-      const { data, error } = await supabase.from('supplier_bills').insert([{
-        supplier_id: bill.supplierId,
+    let imageUrl = bill.imageUrl || '';
+    if (imageFile) {
+      imageUrl = await uploadImage(imageFile, `supplier_bills/${bill.supplierId}_${Date.now()}`);
+    }
+
+    const newBill: SupplierBill = {
+      id: newBillId,
+      supplierId: bill.supplierId,
+      billNumber: bill.billNumber,
+      date: bill.date,
+      subtotal: bill.subtotal,
+      discountType: bill.discountType,
+      discountValue: bill.discountValue,
+      discountAmount: bill.discountAmount,
+      taxType: bill.taxType,
+      taxRate: bill.taxRate,
+      taxAmount: bill.taxAmount,
+      totalAmount: bill.totalAmount,
+      paidAmount: bill.paidAmount,
+      status: bill.status,
+      notes: bill.notes,
+      imageUrl,
+      createdAt,
+      items: (bill.items || []).map((item) => ({
+        id: generateUUID(),
+        billId: newBillId,
+        itemName: item.itemName,
+        quantity: item.quantity,
+        unitPrice: item.unitPrice,
+        total: item.total,
+        createdAt
+      }))
+    };
+
+    // 1. Instant local state update & offline persistence for zero-latency UI
+    setState(prev => {
+      const nextBills = [newBill, ...prev.supplierBills];
+      try {
+        localStorage.setItem('kiddies_offline_supplier_bills', JSON.stringify(nextBills));
+      } catch (e) {}
+      return {
+        ...prev,
+        supplierBills: nextBills
+      };
+    });
+
+    try {
+      const supplierIdToSend = isValidUUID(bill.supplierId) ? bill.supplierId : undefined;
+      const insertData: any = {
+        id: newBillId,
         bill_number: bill.billNumber,
         date: bill.date,
         total_amount: bill.totalAmount,
@@ -1613,13 +1166,39 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         status: bill.status,
         notes: bill.notes,
         image_url: imageUrl
-      }]).select().single();
-      if (error) throw error;
+      };
+      if (supplierIdToSend) insertData.supplier_id = supplierIdToSend;
+      if (bill.subtotal !== undefined) insertData.subtotal = bill.subtotal;
+      if (bill.discountType !== undefined) insertData.discount_type = bill.discountType;
+      if (bill.discountValue !== undefined) insertData.discount_value = bill.discountValue;
+      if (bill.discountAmount !== undefined) insertData.discount_amount = bill.discountAmount;
+      if (bill.taxType !== undefined) insertData.tax_type = bill.taxType;
+      if (bill.taxRate !== undefined) insertData.tax_rate = bill.taxRate;
+      if (bill.taxAmount !== undefined) insertData.tax_amount = bill.taxAmount;
 
-      const newBillId = data.id;
+      try {
+        const { error } = await supabase.from('supplier_bills').insert([insertData]);
+        if (error) throw error;
+      } catch (err: any) {
+        console.warn('Initial insert note, trying base insert:', err?.message || err);
+        const fallbackData: any = {
+          id: newBillId,
+          bill_number: bill.billNumber,
+          date: bill.date,
+          total_amount: bill.totalAmount,
+          paid_amount: bill.paidAmount,
+          status: bill.status,
+          notes: bill.notes,
+          image_url: imageUrl
+        };
+        if (supplierIdToSend) fallbackData.supplier_id = supplierIdToSend;
+        const { error: resFallbackErr } = await supabase.from('supplier_bills').insert([fallbackData]);
+        if (resFallbackErr) console.warn('Supabase fallback insert note:', resFallbackErr);
+      }
 
       if (bill.items && bill.items.length > 0) {
         const itemsToInsert = bill.items.map(item => ({
+          id: generateUUID(),
           bill_id: newBillId,
           item_name: item.itemName,
           quantity: item.quantity,
@@ -1627,13 +1206,12 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
           total: item.total
         }));
         const { error: itemsError } = await supabase.from('supplier_bill_items').insert(itemsToInsert);
-        if (itemsError) throw itemsError;
+        if (itemsError) console.warn('Supabase items insert note:', itemsError);
       }
 
       await fetchAllData();
     } catch (error) {
-      console.error('Error adding supplier bill:', error);
-      throw error;
+      console.warn('Network sync for supplier bill had note, saved locally:', error);
     }
   };
 
@@ -1648,6 +1226,52 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         imageUrl = await uploadImage(imageFile, `supplier_bills/${bill.supplierId || 'edit'}_${Date.now()}`);
       }
 
+      const isLegacyId = !isValidUUID(billId);
+      const activeDbId = isLegacyId ? generateUUID() : billId;
+
+      // 1. Instant local optimistic state update & offline persistence
+      setState(prev => {
+        const nextBills = prev.supplierBills.map(b => {
+          if (b.id !== billId && b.id !== activeDbId) return b;
+          return {
+            ...b,
+            id: activeDbId,
+            billNumber: bill.billNumber !== undefined ? bill.billNumber : b.billNumber,
+            date: bill.date !== undefined ? bill.date : b.date,
+            subtotal: bill.subtotal !== undefined ? bill.subtotal : b.subtotal,
+            discountType: bill.discountType !== undefined ? bill.discountType : b.discountType,
+            discountValue: bill.discountValue !== undefined ? bill.discountValue : b.discountValue,
+            discountAmount: bill.discountAmount !== undefined ? bill.discountAmount : b.discountAmount,
+            taxType: bill.taxType !== undefined ? bill.taxType : b.taxType,
+            taxRate: bill.taxRate !== undefined ? bill.taxRate : b.taxRate,
+            taxAmount: bill.taxAmount !== undefined ? bill.taxAmount : b.taxAmount,
+            totalAmount: bill.totalAmount !== undefined ? bill.totalAmount : b.totalAmount,
+            paidAmount: bill.paidAmount !== undefined ? bill.paidAmount : b.paidAmount,
+            status: bill.status !== undefined ? bill.status : b.status,
+            notes: bill.notes !== undefined ? bill.notes : b.notes,
+            imageUrl: imageUrl !== undefined ? imageUrl : b.imageUrl,
+            items: bill.items ? bill.items.map((item) => ({
+              id: generateUUID(),
+              billId: activeDbId,
+              itemName: item.itemName,
+              quantity: item.quantity,
+              unitPrice: item.unitPrice,
+              total: item.total,
+              createdAt: new Date().toISOString()
+            })) : b.items
+          };
+        });
+
+        try {
+          localStorage.setItem('kiddies_offline_supplier_bills', JSON.stringify(nextBills));
+        } catch (e) {}
+
+        return {
+          ...prev,
+          supplierBills: nextBills
+        };
+      });
+
       const updateData: any = {};
       if (bill.billNumber !== undefined) updateData.bill_number = bill.billNumber;
       if (bill.date !== undefined) updateData.date = bill.date;
@@ -1656,31 +1280,64 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       if (bill.status !== undefined) updateData.status = bill.status;
       if (bill.notes !== undefined) updateData.notes = bill.notes;
       if (imageUrl !== undefined) updateData.image_url = imageUrl;
+      if (bill.subtotal !== undefined) updateData.subtotal = bill.subtotal;
+      if (bill.discountType !== undefined) updateData.discount_type = bill.discountType;
+      if (bill.discountValue !== undefined) updateData.discount_value = bill.discountValue;
+      if (bill.discountAmount !== undefined) updateData.discount_amount = bill.discountAmount;
+      if (bill.taxType !== undefined) updateData.tax_type = bill.taxType;
+      if (bill.taxRate !== undefined) updateData.tax_rate = bill.taxRate;
+      if (bill.taxAmount !== undefined) updateData.tax_amount = bill.taxAmount;
 
-      if (Object.keys(updateData).length > 0) {
-        const { error } = await supabase.from('supplier_bills').update(updateData).eq('id', billId);
-        if (error) throw error;
+      if (isLegacyId) {
+        // Insert clean record with activeDbId
+        const supplierIdToSend = (bill.supplierId && isValidUUID(bill.supplierId)) ? bill.supplierId : undefined;
+        const insertData = {
+          ...updateData,
+          id: activeDbId,
+          ...(supplierIdToSend ? { supplier_id: supplierIdToSend } : {})
+        };
+        const { error: insErr } = await supabase.from('supplier_bills').insert([insertData]);
+        if (insErr) console.warn('Supabase insert legacy bill error:', insErr);
+      } else if (Object.keys(updateData).length > 0) {
+        try {
+          const { error } = await supabase.from('supplier_bills').update(updateData).eq('id', activeDbId);
+          if (error) throw error;
+        } catch (err: any) {
+          console.warn('Update with tax/discount had note, falling back to base columns:', err?.message || err);
+          const baseData: any = {};
+          if (bill.billNumber !== undefined) baseData.bill_number = bill.billNumber;
+          if (bill.date !== undefined) baseData.date = bill.date;
+          if (bill.totalAmount !== undefined) baseData.total_amount = bill.totalAmount;
+          if (bill.paidAmount !== undefined) baseData.paid_amount = bill.paidAmount;
+          if (bill.status !== undefined) baseData.status = bill.status;
+          if (bill.notes !== undefined) baseData.notes = bill.notes;
+          if (imageUrl !== undefined) baseData.image_url = imageUrl;
+          const { error } = await supabase.from('supplier_bills').update(baseData).eq('id', activeDbId);
+          if (error) console.warn('Supabase base update note:', error);
+        }
       }
 
       if (bill.items) {
-        await supabase.from('supplier_bill_items').delete().eq('bill_id', billId);
+        if (!isLegacyId) {
+          await supabase.from('supplier_bill_items').delete().eq('bill_id', activeDbId);
+        }
         if (bill.items.length > 0) {
           const itemsToInsert = bill.items.map(item => ({
-            bill_id: billId,
+            id: generateUUID(),
+            bill_id: activeDbId,
             item_name: item.itemName,
             quantity: item.quantity,
             unit_price: item.unitPrice,
             total: item.total
           }));
           const { error: itemsError } = await supabase.from('supplier_bill_items').insert(itemsToInsert);
-          if (itemsError) throw itemsError;
+          if (itemsError) console.warn('Supabase itemsError:', itemsError);
         }
       }
 
       await fetchAllData();
     } catch (error) {
-      console.error('Error updating supplier bill:', error);
-      throw error;
+      console.warn('Network sync note for update bill, saved locally:', error);
     }
   };
 
@@ -1710,8 +1367,20 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const deleteSupplierBill = async (id: string) => {
     try {
+      setState(prev => {
+        const nextBills = prev.supplierBills.filter(b => b.id !== id);
+        try {
+          localStorage.setItem('kiddies_offline_supplier_bills', JSON.stringify(nextBills));
+        } catch (e) {}
+        return {
+          ...prev,
+          supplierBills: nextBills
+        };
+      });
+
+      await supabase.from('supplier_bill_items').delete().eq('bill_id', id);
       const { error } = await supabase.from('supplier_bills').delete().eq('id', id);
-      if (error) throw error;
+      if (error) console.warn('Supabase deleteSupplierBill error:', error);
       await fetchAllData();
     } catch (error) {
       console.error('Error deleting supplier bill:', error);
@@ -2468,23 +2137,35 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
   };
 
-  const updateSettings = async (settings: Partial<AppSettings>) => {
+  const updateSettings = async (newSettings: Partial<AppSettings>) => {
     try {
-      const { error } = await supabase.from('settings').update({
-        default_tax_rate: settings.defaultTaxRate,
-        currency: settings.currency,
-        enable_low_stock_alerts: settings.enableLowStockAlerts,
-        low_stock_threshold: settings.lowStockThreshold,
-        sales_invoice_prefix: settings.salesInvoicePrefix,
-        rental_invoice_prefix: settings.rentalInvoicePrefix,
-        enable_delete_inventory: settings.enableDeleteInventory,
-        enable_delete_customers: settings.enableDeleteCustomers,
-        enable_delete_transactions: settings.enableDeleteTransactions,
-        enable_delete_rentals: settings.enableDeleteRentals,
-        enable_delete_suppliers: settings.enableDeleteSuppliers,
-        enable_delete_users: settings.enableDeleteUsers
-      }).eq('id', 'default');
-      if (error) throw error;
+      // Optimistically update local state immediately so UI updates instantly
+      setState(prev => ({
+        ...prev,
+        settings: {
+          ...prev.settings,
+          ...newSettings
+        }
+      }));
+
+      const payload: Record<string, any> = {};
+      if (newSettings.defaultTaxRate !== undefined) payload.default_tax_rate = newSettings.defaultTaxRate;
+      if (newSettings.currency !== undefined) payload.currency = newSettings.currency;
+      if (newSettings.enableLowStockAlerts !== undefined) payload.enable_low_stock_alerts = newSettings.enableLowStockAlerts;
+      if (newSettings.lowStockThreshold !== undefined) payload.low_stock_threshold = newSettings.lowStockThreshold;
+      if (newSettings.salesInvoicePrefix !== undefined) payload.sales_invoice_prefix = newSettings.salesInvoicePrefix;
+      if (newSettings.rentalInvoicePrefix !== undefined) payload.rental_invoice_prefix = newSettings.rentalInvoicePrefix;
+      if (newSettings.enableDeleteInventory !== undefined) payload.enable_delete_inventory = newSettings.enableDeleteInventory;
+      if (newSettings.enableDeleteCustomers !== undefined) payload.enable_delete_customers = newSettings.enableDeleteCustomers;
+      if (newSettings.enableDeleteTransactions !== undefined) payload.enable_delete_transactions = newSettings.enableDeleteTransactions;
+      if (newSettings.enableDeleteRentals !== undefined) payload.enable_delete_rentals = newSettings.enableDeleteRentals;
+      if (newSettings.enableDeleteSuppliers !== undefined) payload.enable_delete_suppliers = newSettings.enableDeleteSuppliers;
+      if (newSettings.enableDeleteUsers !== undefined) payload.enable_delete_users = newSettings.enableDeleteUsers;
+
+      const { error } = await supabase.from('settings').update(payload).eq('id', 'default');
+      if (error) {
+        console.warn('Supabase settings update note:', error.message || error);
+      }
       await fetchAllData();
     } catch (error) {
       console.error('Error updating settings:', error);
@@ -2537,15 +2218,69 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const resetData = async () => {
     try {
-      await Promise.all([
+      // 1. Delete dependent / child tables first to avoid Foreign Key constraint violations
+      await Promise.allSettled([
+        supabase.from('supplier_bill_items').delete().gte('quantity', 0),
+        supabase.from('sale_items').delete().gte('quantity', 0),
+        supabase.from('credit_notes').delete().neq('id', ''),
+        supabase.from('expenses').delete().neq('id', '')
+      ]);
+
+      // 2. Delete parent transactional records
+      await Promise.allSettled([
+        supabase.from('supplier_bills').delete().neq('id', ''),
+        supabase.from('sales').delete().neq('id', ''),
+        supabase.from('rentals').delete().neq('id', ''),
+        supabase.from('stock_logs').delete().neq('id', '')
+      ]);
+
+      // 3. Delete master entities
+      await Promise.allSettled([
         supabase.from('products').delete().neq('id', ''),
         supabase.from('customers').delete().neq('id', ''),
         supabase.from('suppliers').delete().neq('id', ''),
-        supabase.from('sales').delete().neq('id', ''),
-        supabase.from('rentals').delete().neq('id', ''),
-        supabase.from('stock_logs').delete().neq('id', ''),
         supabase.from('notifications').delete().neq('id', '')
       ]);
+
+      // 4. Wipe all local storage caches
+      try {
+        const keysToRemove = [
+          'kiddies_offline_supplier_bills',
+          'kiddies_offline_rentals',
+          'kiddies_last_excel_backup_date',
+          'inventory_pro_data'
+        ];
+        keysToRemove.forEach(k => localStorage.removeItem(k));
+      } catch (e) {
+        console.warn('Could not clear local storage caches:', e);
+      }
+
+      // 5. Instantly clear in-memory state
+      setState(prev => ({
+        ...prev,
+        products: [],
+        customers: [],
+        suppliers: [],
+        supplierBills: [],
+        sales: [],
+        rentals: [],
+        stockLogs: [],
+        creditNotes: [],
+        expenses: [],
+        notifications: [
+          {
+            id: `n_${Date.now()}`,
+            type: 'SUCCESS',
+            category: 'SYSTEM',
+            title: 'Store Reset Complete',
+            message: 'All records have been permanently cleared. Database is fresh and blank.',
+            timestamp: new Date().toISOString(),
+            isRead: false
+          }
+        ]
+      }));
+
+      // 6. Refresh sync with remote database
       await fetchAllData();
     } catch (error) {
       console.error('Error resetting database:', error);

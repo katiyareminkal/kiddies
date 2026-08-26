@@ -972,138 +972,103 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
         )}
       </div>
 
-      {/* ── High-Efficiency Quick Action Strip (Matching Reference Design) ── */}
+      {/* ── High-Efficiency Quick Action Strip (Clean Brand Design) ── */}
       <div className="flex overflow-x-auto gap-2.5 sm:gap-3 pb-1.5 hide-scrollbar snap-x sm:grid sm:grid-cols-4 lg:grid-cols-7 sm:overflow-visible sm:pb-0">
         {/* Action 1: New Bill / Sale */}
         <button
           onClick={() => setIsCreateBillModalOpen(true)}
-          className="min-w-[130px] shrink-0 snap-start sm:min-w-0 sm:shrink group relative flex flex-col justify-between p-3.5 bg-white hover:bg-[#01a9fb]/5 border border-slate-200/90 hover:border-[#01a9fb] rounded-2xl transition-all text-left shadow-xs active:scale-95"
+          className="min-w-[135px] shrink-0 snap-start sm:min-w-0 sm:shrink group flex flex-col justify-between p-3.5 bg-white hover:bg-slate-50/70 border border-slate-200/80 hover:border-[#01a9fb]/60 rounded-xl transition-all text-left shadow-2xs hover:shadow-xs active:scale-[0.98]"
         >
-          <div className="w-full flex items-center justify-between gap-2 mb-3">
-            <div className="w-9 h-9 rounded-xl bg-[#01a9fb] text-white flex items-center justify-center transition-transform group-hover:scale-105 shadow-sm shadow-blue-500/20 shrink-0">
-              <ShoppingBag size={17} strokeWidth={2.2} />
-            </div>
-            <span className="text-[9.5px] font-black tracking-wider uppercase text-[#01a9fb] bg-[#eff6ff] border border-[#dbeafe] px-2 py-0.5 rounded-md shrink-0 whitespace-nowrap">
-              POS
-            </span>
+          <div className="w-9 h-9 rounded-lg bg-[#01a9fb]/10 text-[#01a9fb] group-hover:bg-[#01a9fb] group-hover:text-white flex items-center justify-center transition-all shadow-xs mb-3">
+            <ShoppingBag size={17} strokeWidth={2.2} />
           </div>
           <div>
-            <span className="text-xs sm:text-sm font-black text-slate-900 leading-tight block whitespace-nowrap">+ New Bill</span>
-            <span className="text-[10px] font-semibold text-slate-400 mt-0.5 block whitespace-nowrap">Instant Sale</span>
+            <span className="text-xs sm:text-[13px] font-black text-slate-900 leading-tight block whitespace-nowrap">New Bill</span>
+            <span className="text-[10.5px] font-bold text-slate-400 mt-0.5 block whitespace-nowrap">Create Sale</span>
           </div>
         </button>
 
         {/* Action 2: New Rental */}
         <button
           onClick={() => setIsNewRentalModalOpen(true)}
-          className="min-w-[130px] shrink-0 snap-start sm:min-w-0 sm:shrink group relative flex flex-col justify-between p-3.5 bg-white hover:bg-[#fe569f]/5 border border-slate-200/90 hover:border-[#fe569f] rounded-2xl transition-all text-left shadow-xs active:scale-95"
+          className="min-w-[135px] shrink-0 snap-start sm:min-w-0 sm:shrink group flex flex-col justify-between p-3.5 bg-white hover:bg-slate-50/70 border border-slate-200/80 hover:border-[#fe569f]/60 rounded-xl transition-all text-left shadow-2xs hover:shadow-xs active:scale-[0.98]"
         >
-          <div className="w-full flex items-center justify-between gap-2 mb-3">
-            <div className="w-9 h-9 rounded-xl bg-[#fe569f] text-white flex items-center justify-center transition-transform group-hover:scale-105 shadow-sm shadow-pink-500/20 shrink-0">
-              <Calendar size={17} strokeWidth={2.2} />
-            </div>
-            <span className="text-[9.5px] font-black tracking-wider uppercase text-[#fe569f] bg-[#fdf2f8] border border-[#fce7f3] px-2 py-0.5 rounded-md shrink-0 whitespace-nowrap">
-              RENT
-            </span>
+          <div className="w-9 h-9 rounded-lg bg-[#fe569f]/10 text-[#fe569f] group-hover:bg-[#fe569f] group-hover:text-white flex items-center justify-center transition-all shadow-xs mb-3">
+            <Calendar size={17} strokeWidth={2.2} />
           </div>
           <div>
-            <span className="text-xs sm:text-sm font-black text-slate-900 leading-tight block whitespace-nowrap">+ Rental</span>
-            <span className="text-[10px] font-semibold text-slate-400 mt-0.5 block whitespace-nowrap">Book Outfit</span>
+            <span className="text-xs sm:text-[13px] font-black text-slate-900 leading-tight block whitespace-nowrap">New Rental</span>
+            <span className="text-[10.5px] font-bold text-slate-400 mt-0.5 block whitespace-nowrap">Book Garment</span>
           </div>
         </button>
 
         {/* Action 3: Add Product */}
         <button
           onClick={() => setIsProductModalOpen(true)}
-          className="min-w-[130px] shrink-0 snap-start sm:min-w-0 sm:shrink group relative flex flex-col justify-between p-3.5 bg-white hover:bg-[#01a9fb]/5 border border-slate-200/90 hover:border-[#01a9fb] rounded-2xl transition-all text-left shadow-xs active:scale-95"
+          className="min-w-[135px] shrink-0 snap-start sm:min-w-0 sm:shrink group flex flex-col justify-between p-3.5 bg-white hover:bg-slate-50/70 border border-slate-200/80 hover:border-slate-800 rounded-xl transition-all text-left shadow-2xs hover:shadow-xs active:scale-[0.98]"
         >
-          <div className="w-full flex items-center justify-between gap-2 mb-3">
-            <div className="w-9 h-9 rounded-xl bg-[#0f172a] text-white group-hover:bg-[#01a9fb] flex items-center justify-center transition-colors shadow-sm shrink-0">
-              <PlusCircle size={17} strokeWidth={2.2} />
-            </div>
-            <span className="text-[9.5px] font-black tracking-wider uppercase text-slate-800 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-md shrink-0 whitespace-nowrap">
-              SKU
-            </span>
+          <div className="w-9 h-9 rounded-lg bg-slate-900/10 text-slate-900 group-hover:bg-slate-900 group-hover:text-white flex items-center justify-center transition-all shadow-xs mb-3">
+            <PlusCircle size={17} strokeWidth={2.2} />
           </div>
           <div>
-            <span className="text-xs sm:text-sm font-black text-slate-900 leading-tight block whitespace-nowrap">+ Product</span>
-            <span className="text-[10px] font-semibold text-slate-400 mt-0.5 block whitespace-nowrap">Add Catalog</span>
+            <span className="text-xs sm:text-[13px] font-black text-slate-900 leading-tight block whitespace-nowrap">Add Product</span>
+            <span className="text-[10.5px] font-bold text-slate-400 mt-0.5 block whitespace-nowrap">Catalog SKU</span>
           </div>
         </button>
 
         {/* Action 4: Return Rental */}
         <button
           onClick={() => setIsReturnRentalModalOpen(true)}
-          className="min-w-[130px] shrink-0 snap-start sm:min-w-0 sm:shrink group relative flex flex-col justify-between p-3.5 bg-white hover:bg-yellow-50/60 border border-slate-200/90 hover:border-yellow-400 rounded-2xl transition-all text-left shadow-xs active:scale-95"
+          className="min-w-[135px] shrink-0 snap-start sm:min-w-0 sm:shrink group flex flex-col justify-between p-3.5 bg-white hover:bg-slate-50/70 border border-slate-200/80 hover:border-amber-400 rounded-xl transition-all text-left shadow-2xs hover:shadow-xs active:scale-[0.98]"
         >
-          <div className="w-full flex items-center justify-between gap-2 mb-3">
-            <div className="w-9 h-9 rounded-xl bg-[#FACC15] text-slate-900 flex items-center justify-center font-bold transition-transform group-hover:scale-105 shadow-sm shadow-yellow-500/20 shrink-0">
-              <Undo2 size={17} strokeWidth={2.5} />
-            </div>
-            <span className="text-[9px] font-black tracking-wider uppercase text-yellow-900 bg-yellow-100 px-2 py-0.5 rounded border border-yellow-300 shrink-0 whitespace-nowrap">
-              Inward
-            </span>
+          <div className="w-9 h-9 rounded-lg bg-amber-500/10 text-amber-600 group-hover:bg-amber-500 group-hover:text-white flex items-center justify-center transition-all shadow-xs mb-3">
+            <Undo2 size={17} strokeWidth={2.2} />
           </div>
           <div>
-            <span className="text-xs font-black text-slate-900 leading-tight block whitespace-nowrap">Return</span>
-            <span className="text-[10px] font-semibold text-slate-400 mt-0.5 block whitespace-nowrap">Check In</span>
+            <span className="text-xs sm:text-[13px] font-black text-slate-900 leading-tight block whitespace-nowrap">Return Rental</span>
+            <span className="text-[10.5px] font-bold text-slate-400 mt-0.5 block whitespace-nowrap">Inward Check-in</span>
           </div>
         </button>
 
         {/* Action 5: Stock In */}
         <button
           onClick={() => setIsStockModalOpen(true)}
-          className="min-w-[130px] shrink-0 snap-start sm:min-w-0 sm:shrink group relative flex flex-col justify-between p-3.5 bg-white hover:bg-[#01a9fb]/5 border border-slate-200/90 hover:border-[#01a9fb] rounded-2xl transition-all text-left shadow-xs active:scale-95"
+          className="min-w-[135px] shrink-0 snap-start sm:min-w-0 sm:shrink group flex flex-col justify-between p-3.5 bg-white hover:bg-slate-50/70 border border-slate-200/80 hover:border-indigo-400 rounded-xl transition-all text-left shadow-2xs hover:shadow-xs active:scale-[0.98]"
         >
-          <div className="w-full flex items-center justify-between gap-2 mb-3">
-            <div className="w-9 h-9 rounded-xl bg-[#01a9fb]/15 text-[#01a9fb] group-hover:bg-[#01a9fb] group-hover:text-white flex items-center justify-center transition-colors shrink-0">
-              <Package size={17} strokeWidth={2.2} />
-            </div>
-            <span className="text-[9px] font-black tracking-wider uppercase text-[#01a9fb] bg-[#01a9fb]/10 px-2 py-0.5 rounded border border-[#01a9fb]/20 shrink-0 whitespace-nowrap">
-              Stock
-            </span>
+          <div className="w-9 h-9 rounded-lg bg-indigo-500/10 text-indigo-600 group-hover:bg-indigo-500 group-hover:text-white flex items-center justify-center transition-all shadow-xs mb-3">
+            <Package size={17} strokeWidth={2.2} />
           </div>
           <div>
-            <span className="text-xs font-black text-slate-900 leading-tight block whitespace-nowrap">+ Stock In</span>
-            <span className="text-[10px] font-semibold text-slate-400 mt-0.5 block whitespace-nowrap">Add Units</span>
+            <span className="text-xs sm:text-[13px] font-black text-slate-900 leading-tight block whitespace-nowrap">Stock In / Out</span>
+            <span className="text-[10.5px] font-bold text-slate-400 mt-0.5 block whitespace-nowrap">Adjust Quantity</span>
           </div>
         </button>
 
         {/* Action 6: Add Customer */}
         <button
           onClick={() => setIsCustomerModalOpen(true)}
-          className="min-w-[130px] shrink-0 snap-start sm:min-w-0 sm:shrink group relative flex flex-col justify-between p-3.5 bg-white hover:bg-[#fe569f]/5 border border-slate-200/90 hover:border-[#fe569f] rounded-2xl transition-all text-left shadow-xs active:scale-95"
+          className="min-w-[135px] shrink-0 snap-start sm:min-w-0 sm:shrink group flex flex-col justify-between p-3.5 bg-white hover:bg-slate-50/70 border border-slate-200/80 hover:border-emerald-400 rounded-xl transition-all text-left shadow-2xs hover:shadow-xs active:scale-[0.98]"
         >
-          <div className="w-full flex items-center justify-between gap-2 mb-3">
-            <div className="w-9 h-9 rounded-xl bg-[#fe569f]/15 text-[#fe569f] group-hover:bg-[#fe569f] group-hover:text-white flex items-center justify-center transition-colors shrink-0">
-              <Users size={17} strokeWidth={2.2} />
-            </div>
-            <span className="text-[9px] font-black tracking-wider uppercase text-[#fe569f] bg-[#fe569f]/10 px-2 py-0.5 rounded border border-[#fe569f]/20 shrink-0 whitespace-nowrap">
-              CRM
-            </span>
+          <div className="w-9 h-9 rounded-lg bg-emerald-500/10 text-emerald-600 group-hover:bg-emerald-500 group-hover:text-white flex items-center justify-center transition-all shadow-xs mb-3">
+            <Users size={17} strokeWidth={2.2} />
           </div>
           <div>
-            <span className="text-xs font-black text-slate-900 leading-tight block whitespace-nowrap">+ Customer</span>
-            <span className="text-[10px] font-semibold text-slate-400 mt-0.5 block whitespace-nowrap">New Profile</span>
+            <span className="text-xs sm:text-[13px] font-black text-slate-900 leading-tight block whitespace-nowrap">Add Customer</span>
+            <span className="text-[10.5px] font-bold text-slate-400 mt-0.5 block whitespace-nowrap">Client CRM</span>
           </div>
         </button>
 
         {/* Action 7: Record Expense */}
         <button
           onClick={() => setIsRecordExpenseModalOpen(true)}
-          className="min-w-[130px] shrink-0 snap-start sm:min-w-0 sm:shrink sm:col-span-4 lg:col-span-1 group relative flex flex-col justify-between p-3.5 bg-white hover:bg-yellow-50/60 border border-slate-200/90 hover:border-yellow-400 rounded-2xl transition-all text-left shadow-xs active:scale-95"
+          className="min-w-[135px] shrink-0 snap-start sm:min-w-0 sm:shrink sm:col-span-4 lg:col-span-1 group flex flex-col justify-between p-3.5 bg-white hover:bg-slate-50/70 border border-slate-200/80 hover:border-rose-400 rounded-xl transition-all text-left shadow-2xs hover:shadow-xs active:scale-[0.98]"
         >
-          <div className="w-full flex items-center justify-between gap-2 mb-3">
-            <div className="w-9 h-9 rounded-xl bg-yellow-100 text-yellow-900 group-hover:bg-[#FACC15] group-hover:text-slate-900 flex items-center justify-center transition-colors shrink-0">
-              <Wallet size={17} strokeWidth={2.2} />
-            </div>
-            <span className="text-[9px] font-black tracking-wider uppercase text-yellow-900 bg-yellow-100 px-2 py-0.5 rounded border border-yellow-300 shrink-0 whitespace-nowrap">
-              Cost
-            </span>
+          <div className="w-9 h-9 rounded-lg bg-rose-500/10 text-rose-600 group-hover:bg-rose-500 group-hover:text-white flex items-center justify-center transition-all shadow-xs mb-3">
+            <Wallet size={17} strokeWidth={2.2} />
           </div>
           <div>
-            <span className="text-xs font-black text-slate-900 leading-tight block whitespace-nowrap">+ Expense</span>
-            <span className="text-[10px] font-semibold text-slate-400 mt-0.5 block whitespace-nowrap">Log Outflow</span>
+            <span className="text-xs sm:text-[13px] font-black text-slate-900 leading-tight block whitespace-nowrap">Add Expense</span>
+            <span className="text-[10.5px] font-bold text-slate-400 mt-0.5 block whitespace-nowrap">Track Outflow</span>
           </div>
         </button>
       </div>
@@ -1502,10 +1467,9 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
             )}
           </div>
         </div>
-      </div>
 
-      {/* ── Festive Stocking Hub (Standalone Section) ── */}
-      <div className="bg-white p-4 sm:p-5 rounded-md border border-slate-200/80 border-l-4 border-l-[#fe569f]">
+        {/* 2. Festive Stocking Hub (4 Cols) */}
+        <div className="lg:col-span-4 bg-white p-4 sm:p-5 rounded-md border border-slate-200/80 border-l-4 border-l-[#fe569f] flex flex-col justify-between">
         <div>
           {/* Header */}
           <div className="flex items-center justify-between mb-2 pb-2 border-b border-slate-100">
@@ -1629,6 +1593,8 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
             )}
           </div>
         </div>
+      </div>
+
       </div>
 
       {/* ── Operations Hub: Active Rentals Tracker & Inventory/Activity ── */}
@@ -1779,10 +1745,9 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
             </table>
           </div>
         </div>
-      </div>
 
-      {/* 2. Smart Stock Health Gauge & Recent Activity (5 Cols) */}
-      <div className="lg:col-span-5 flex flex-col gap-5">
+        {/* 2. Smart Stock Health Gauge & Recent Activity (5 Cols) */}
+        <div className="lg:col-span-5 flex flex-col gap-5">
 
         {/* Stock Health & Low Alerts */}
         <div className="bg-white p-4 sm:p-5 rounded-md border border-slate-200/80">
@@ -1889,6 +1854,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onTabChange }) => {
           </div>
         </div>
 
+        </div>
       </div>
 
       {/* ── High Sales Days & Festive Intelligence Explorer ── */}

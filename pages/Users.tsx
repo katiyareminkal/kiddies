@@ -108,9 +108,9 @@ const Users: React.FC = () => {
     setIsDeleteModalOpen(true);
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (userToDelete) {
-      deleteUser(userToDelete);
+      await deleteUser(userToDelete);
       setIsDeleteModalOpen(false);
       setUserToDelete(null);
     }
@@ -244,7 +244,7 @@ const Users: React.FC = () => {
                       >
                         <Edit2 size={15} strokeWidth={2.2} />
                       </button>
-                      {user.id !== currentUser?.id && settings?.enableDeleteUsers && (
+                      {user.id !== currentUser?.id && (
                         <button
                           onClick={() => handleDeleteClick(user.id)}
                           className="p-1.5 text-slate-300 hover:text-rose-600 hover:bg-rose-50 rounded-md transition-colors"

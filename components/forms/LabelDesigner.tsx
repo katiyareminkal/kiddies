@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Move, Type, Square, Minus, Trash2, Save, Printer, CheckSquare, Layers, ChevronUp, ChevronDown, Eye, EyeOff, Download, Undo, Redo, RotateCw, LayoutGrid, FileDown, ZoomIn, ZoomOut, ImagePlus, Maximize2, Minimize2, Sticker, Shirt, Baby, ShoppingBag, Tag, Heart, Star, Smile, Scissors, IndianRupee, DollarSign, Euro, PoundSterling, Gift, Crown, Truck, Phone, Plus } from 'lucide-react';
-import { LabelProduct, LabelTemplate, LabelElement, DEFAULT_TEMPLATE_30x50, DEFAULT_TEMPLATE_50x30, ensureSubCategoryElement, getEffectiveGender } from '../../utils/pdfLabel';
+import { LabelProduct, LabelTemplate, LabelElement, DEFAULT_TEMPLATE_30x50, DEFAULT_TEMPLATE_50x30, ensureSubCategoryElement, getEffectiveGender, cleanSizeLabel, cleanSku } from '../../utils/pdfLabel';
 import html2canvas from 'html2canvas';
 
 const ICON_LIBRARY = [
@@ -28,7 +28,7 @@ const MM_TO_PX = 3.7795275591;
 interface LabelDesignerProps {
   labelData: LabelProduct;
   initialTemplate?: LabelTemplate;
-  allProductSizes: string[];
+  allProductSizes?: string[];
   onClose: () => void;
   onPrint: (template: LabelTemplate, products: LabelProduct[]) => void;
 }
@@ -62,8 +62,8 @@ export default function LabelDesignerWrapper(props: LabelDesignerProps) {
   );
 }
 
-function LabelDesigner({ labelData, initialTemplate, allProductSizes, onClose, onPrint }: LabelDesignerProps) {
-  const [printSizes, setPrintSizes] = useState<string[]>(allProductSizes.length > 0 ? [...allProductSizes] : ['']);
+function LabelDesigner({ labelData, initialTemplate, allProductSizes = [], onClose, onPrint }: LabelDesignerProps) {
+  const [printSizes, setPrintSizes] = useState<string[]>(allProductSizes && allProductSizes.length > 0 ? [...allProductSizes] : ['']);
   const [currentPresetName, setCurrentPresetName] = useState<string | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [confirmDialog, setConfirmDialog] = useState<{ message: string, onConfirm: () => void } | null>(null);
@@ -81,31 +81,36 @@ function LabelDesigner({ labelData, initialTemplate, allProductSizes, onClose, o
   const [savedLayouts, setSavedLayouts] = useState<{ name: string, template: LabelTemplate }[]>(() => {
     try {
       const saved = localStorage.getItem('kiddies_saved_layouts');
-      if (saved) return JSON.parse(saved);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          return parsed
+            .filter((p: any) => p && p.name && p.template && Array.isArray(p.template.elements))
+            .map((p: any) => ({ ...p, template: ensureSubCategoryElement(p.template) }));
+        }
+      }
     } catch (e) { }
     return [];
   });
 
   const [template, setTemplate] = useState<LabelTemplate>(() => {
-    let tpl: LabelTemplate;
-    if (initialTemplate) {
+    let tpl: LabelTemplate | null = null;
+    if (initialTemplate && Array.isArray(initialTemplate.elements)) {
       tpl = initialTemplate;
     } else {
       try {
-        const saved = localStorage.getItem('kiddies_label_template_' + (labelData.labelSize || '30x50'));
+        const key = 'kiddies_label_template_' + ((labelData && labelData.labelSize) || '50x30');
+        const saved = localStorage.getItem(key);
         if (saved) {
           const parsed = JSON.parse(saved);
           if (parsed && Array.isArray(parsed.elements)) {
             tpl = parsed;
-          } else {
-            tpl = labelData.labelSize === '50x30' ? DEFAULT_TEMPLATE_50x30 : DEFAULT_TEMPLATE_30x50;
           }
-        } else {
-          tpl = labelData.labelSize === '50x30' ? DEFAULT_TEMPLATE_50x30 : DEFAULT_TEMPLATE_30x50;
         }
-      } catch (e) {
-        tpl = labelData.labelSize === '50x30' ? DEFAULT_TEMPLATE_50x30 : DEFAULT_TEMPLATE_30x50;
-      }
+      } catch (e) {}
+    }
+    if (!tpl) {
+      tpl = (labelData && labelData.labelSize === '30x50') ? DEFAULT_TEMPLATE_30x50 : DEFAULT_TEMPLATE_50x30;
     }
     return ensureSubCategoryElement(tpl);
   });
@@ -640,14 +645,14 @@ function LabelDesigner({ labelData, initialTemplate, allProductSizes, onClose, o
     if (el.type === 'text') {
       let val = el.staticText || '';
       if (el.id === 'name') val = (el.staticText || '') + (labelData.name || '').slice(0, 15).toUpperCase();
-      else if (el.id === 'size') val = (el.staticText || '') + (labelData.size || (printSizes && printSizes[0]) || '30').toUpperCase();
+      else if (el.id === 'size') val = (el.staticText || '') + cleanSizeLabel(labelData.size || (printSizes && printSizes[0]) || '30').toUpperCase();
       else if (el.id === 'color') {
         const displayColor = (labelData.color || labelData.material || getEffectiveGender(labelData) || '').trim();
         if (displayColor) val = (el.staticText || '') + displayColor.toUpperCase();
       }
       else if (el.id === 'price') val = (el.staticText || '') + Number(labelData.sellingPrice || 0).toFixed(2);
       else if (el.id === 'code') val = (el.staticText || '') + '91' + ((labelData.purchasePrice || 0) * 2).toString();
-      else if (el.id === 'sku') val = (el.staticText || '') + (labelData.sku || '').toUpperCase();
+      else if (el.id === 'sku') val = (el.staticText || '') + cleanSku(labelData.sku || '').toUpperCase();
       else if (el.id === 'size_lbl') val = el.staticText || 'SIZE';
       else if (el.id === 'rs_lbl') val = el.staticText || 'Rs.';
 
@@ -716,7 +721,7 @@ function LabelDesigner({ labelData, initialTemplate, allProductSizes, onClose, o
       let val = el.customValue !== undefined ? el.customValue : '';
       if (!val) {
         if (el.id === 'name') val = (labelData.name || '').slice(0, 23).toUpperCase();
-        else if (el.id === 'size') val = (labelData.size || (printSizes && printSizes[0]) || '30').toUpperCase();
+        else if (el.id === 'size') val = cleanSizeLabel(labelData.size || (printSizes && printSizes[0]) || '30').toUpperCase();
         else if (el.id === 'color') {
           const displayColor = (labelData.color || labelData.material || getEffectiveGender(labelData) || '').trim();
           if (displayColor) val = displayColor.toUpperCase().slice(0, 12);
@@ -724,24 +729,20 @@ function LabelDesigner({ labelData, initialTemplate, allProductSizes, onClose, o
         else if (el.id === 'style') val = (labelData.styleCode || '').toUpperCase();
         else if (el.id === 'price') val = Number(labelData.sellingPrice || 0).toFixed(2);
         else if (el.id === 'code') val = '91' + ((labelData.purchasePrice || 0) * 2).toString();
-        else if (el.id === 'sku') val = (labelData.sku || '').toUpperCase();
-        else if (el.id === 'barcodeText') val = (labelData.barcode || labelData.sku || '').toUpperCase();
+        else if (el.id === 'sku') val = cleanSku(labelData.sku || '').toUpperCase();
+        else if (el.id === 'barcodeText') val = cleanSku(labelData.barcode || labelData.sku || '').toUpperCase();
         else if (el.id === 'subCategory' && labelData.subCategory) val = (labelData.subCategory || '').toUpperCase().slice(0, 10);
       }
 
       const prefix = el.staticText || '';
       const text = prefix + val;
 
-      const fontSizeInMm = (el.fontSize || 6) * 0.352778;
-      const baselineY = el.y + (fontSizeInMm * 0.72);
-      const fontTopMm = baselineY - fontSizeInMm;
-
       return (
         <div
           key={el.id}
           style={{
             ...baseStyle,
-            top: `${fontTopMm * MM_TO_PX}px`,
+            top: `${el.y * MM_TO_PX}px`,
             fontSize: `${(el.fontSize || 6) * 1.33}px`,
             fontWeight: el.isBold ? 900 : 'normal',
             fontFamily: el.fontFamily === 'times' ? 'Times New Roman, Times, serif' : el.fontFamily === 'courier' ? 'Courier New, Courier, monospace' : 'Helvetica, Arial, sans-serif',

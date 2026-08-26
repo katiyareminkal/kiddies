@@ -33,21 +33,22 @@ import {
   Check,
   Layers,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Truck,
+  FileText
 } from 'lucide-react';
 import { formatCurrency, extractBaseSku } from '../utils/helpers';
 import { CATEGORIES } from '../constants';
 import { Product } from '../types';
 import { auth } from '../firebase';
 import BarcodeScanner from '../components/BarcodeScanner';
-import { generateDynamicLabelPDF, DEFAULT_TEMPLATE_50x30, getEffectiveGender } from '../utils/pdfLabel';
+import { generateDynamicLabelPDF, DEFAULT_TEMPLATE_50x30, getEffectiveGender, cleanSizeLabel, cleanSku, LabelTemplate } from '../utils/pdfLabel';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
 import { StockEntryModal } from '../components/forms/StockEntryModal';
 import LabelDesigner from '../components/forms/LabelDesigner';
 import { TagPrintModal } from '../components/forms/TagPrintModal';
-import { LabelTemplate } from '../utils/pdfLabel';
 
 const Inventory: React.FC = () => {
   const { products, addProduct, updateProduct, deleteProduct, suppliers, settings } = useApp();
@@ -203,6 +204,10 @@ const Inventory: React.FC = () => {
         if (!g.imageUrl && p.imageUrl) {
           g.imageUrl = p.imageUrl;
         }
+        if (!g.supplierName && p.supplierName) g.supplierName = p.supplierName;
+        if (!g.supplierId && p.supplierId) g.supplierId = p.supplierId;
+        if (!g.billNumber && p.billNumber) g.billNumber = p.billNumber;
+        if (!g.billDate && p.billDate) g.billDate = p.billDate;
       }
     });
 
@@ -211,12 +216,14 @@ const Inventory: React.FC = () => {
 
   const inventoryStats = useMemo(() => {
     const totalSKUs = products.length;
+    const totalSalePieces = products.reduce((acc, p) => acc + (p.saleStock || 0), 0);
+    const totalRentPieces = products.reduce((acc, p) => acc + (p.rentalStock || 0), 0);
+    const totalPieces = totalSalePieces + totalRentPieces;
     const lowStockCount = products.filter(p => ((p.saleStock || 0) + (p.rentalStock || 0)) <= (p.minStockAlert || 3) && ((p.saleStock || 0) + (p.rentalStock || 0)) > 0).length;
     const outOfStockCount = products.filter(p => ((p.saleStock || 0) + (p.rentalStock || 0)) === 0).length;
     const totalValuation = products.reduce((acc, p) => acc + ((p.purchasePrice || 0) * ((p.saleStock || 0) + (p.rentalStock || 0))), 0);
-    const totalPieces = products.reduce((acc, p) => acc + (p.saleStock || 0) + (p.rentalStock || 0), 0);
 
-    return { totalSKUs, lowStockCount, outOfStockCount, totalValuation, totalPieces };
+    return { totalSKUs, totalSalePieces, totalRentPieces, totalPieces, lowStockCount, outOfStockCount, totalValuation };
   }, [products]);
 
   return (
@@ -234,18 +241,20 @@ const Inventory: React.FC = () => {
                 {inventoryStats.totalPieces} Pcs in Stock
               </span>
             </div>
-            <p className="text-xs text-slate-500 font-medium mt-0.5">Live warehouse & rental stock levels, pricing, and barcodes</p>
+            <p className="text-xs text-slate-500 font-medium mt-0.5">Manage garments, size variants, barcodes, pricing, and vendor details</p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
           <button
             onClick={() => setIsStockModalOpen(true)}
-            className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 bg-yellow-100 hover:bg-yellow-200 text-yellow-900 border border-yellow-300 text-xs font-extrabold uppercase tracking-wider rounded-md transition-all active:scale-95 shadow-xs"
+            className="inline-flex items-center justify-center gap-1.5 px-3 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-extrabold uppercase tracking-wider rounded-md shadow-xs transition-all active:scale-95"
+            title="Adjust Stock Quantity"
           >
-            <Boxes size={15} strokeWidth={2.5} />
-            <span>Stock In</span>
+            <RefreshCcw size={14} strokeWidth={2.5} />
+            <span>Stock In / Out</span>
           </button>
+
           <button
             onClick={() => {
               setProductToEdit(null);
@@ -259,62 +268,109 @@ const Inventory: React.FC = () => {
         </div>
       </div>
 
-      {/* ── KPI Summary Cards (4 Cards) ── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3.5">
-        <div className="bg-white hover:bg-slate-50/60 p-3 sm:p-4 rounded-md border border-slate-200/80 hover:border-[#01a9fb]/50 transition-all">
-          <div className="flex items-center justify-between mb-1.5">
-            <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-500 whitespace-nowrap">Total SKUs</span>
-            <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-md bg-[#01a9fb]/10 text-[#01a9fb] flex items-center justify-center font-bold text-xs shrink-0">
-              <Package size={13} />
-            </div>
-          </div>
-          <h3 className="text-lg sm:text-2xl font-black text-slate-900 tracking-tight leading-none whitespace-nowrap truncate">{inventoryStats.totalSKUs}</h3>
-          <p className="text-[10px] sm:text-[11px] font-bold text-[#01a9fb] mt-1.5 whitespace-nowrap truncate">{inventoryStats.totalPieces} pcs cataloged</p>
-        </div>
-
-        <div
-          onClick={() => { setStockFilter('LOW_STOCK'); setShowFilters(true); }}
-          className={`p-3 sm:p-4 rounded-md border transition-all duration-200 cursor-pointer ${inventoryStats.lowStockCount > 0
-            ? 'bg-yellow-50/70 border-yellow-200 hover:border-yellow-300'
-            : 'bg-white hover:bg-slate-50/60 border-slate-200/80'
-            }`}
+      {/* ── KPI Summary Cards (4 Highly Relevant & Understandable Cards) ── */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3.5">
+        {/* Card 1: Total Inventory */}
+        <div 
+          onClick={() => { setStockFilter('ALL'); }}
+          className={`p-3.5 sm:p-4 rounded-xl border transition-all duration-200 cursor-pointer ${
+            stockFilter === 'ALL' 
+              ? 'bg-white hover:bg-slate-50/70 border-slate-200 shadow-xs hover:border-[#01a9fb]/60' 
+              : 'bg-white/70 hover:bg-white border-slate-200/70'
+          }`}
+          title="Click to view all items"
         >
           <div className="flex items-center justify-between mb-1.5">
-            <span className={`text-[10px] sm:text-[11px] font-bold uppercase tracking-wider whitespace-nowrap ${inventoryStats.lowStockCount > 0 ? 'text-yellow-800' : 'text-slate-500'}`}>Low Stock Alerts</span>
-            <div className={`w-6 h-6 sm:w-7 sm:h-7 rounded-md flex items-center justify-center font-bold text-xs shrink-0 ${inventoryStats.lowStockCount > 0 ? 'bg-yellow-100 text-yellow-800' : 'bg-slate-100 text-slate-400'}`}>
-              <AlertTriangle size={13} />
+            <span className="text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider text-slate-500 whitespace-nowrap">Total Inventory</span>
+            <div className="w-7 h-7 rounded-lg bg-[#01a9fb]/10 text-[#01a9fb] flex items-center justify-center font-bold shrink-0">
+              <Package size={14} strokeWidth={2.5} />
             </div>
           </div>
-          <h3 className={`text-lg sm:text-2xl font-black tracking-tight leading-none whitespace-nowrap truncate ${inventoryStats.lowStockCount > 0 ? 'text-yellow-700' : 'text-slate-900'}`}>
-            {inventoryStats.lowStockCount}
-          </h3>
-          <p className={`text-[10px] sm:text-[11px] font-bold mt-1.5 whitespace-nowrap truncate ${inventoryStats.lowStockCount > 0 ? 'text-yellow-800' : 'text-slate-400'}`}>
-            {inventoryStats.lowStockCount > 0 ? 'Reorder needed' : 'Stock healthy'}
+          <div className="flex items-baseline gap-1.5">
+            <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-none truncate">{inventoryStats.totalPieces}</h3>
+            <span className="text-xs font-bold text-slate-400">Pcs</span>
+          </div>
+          <p className="text-[10px] sm:text-[11px] font-bold text-slate-500 mt-1.5 truncate">
+            {inventoryStats.totalSKUs} unique products ({inventoryStats.totalSalePieces} sale, {inventoryStats.totalRentPieces} rent)
           </p>
         </div>
 
-        <div className="bg-white hover:bg-slate-50/60 p-3 sm:p-4 rounded-md border border-slate-200/80 hover:border-[#fe569f]/50 transition-all">
+        {/* Card 2: Low Stock Alert (Interactive) */}
+        <div
+          onClick={() => { setStockFilter(stockFilter === 'LOW_STOCK' ? 'ALL' : 'LOW_STOCK'); setShowFilters(true); }}
+          className={`p-3.5 sm:p-4 rounded-xl border transition-all duration-200 cursor-pointer ${
+            stockFilter === 'LOW_STOCK'
+              ? 'bg-amber-100/80 border-amber-400 ring-2 ring-amber-400/30 shadow-xs'
+              : inventoryStats.lowStockCount > 0
+                ? 'bg-amber-50/70 border-amber-200 hover:border-amber-300 shadow-2xs'
+                : 'bg-white hover:bg-slate-50/70 border-slate-200'
+          }`}
+          title="Click to filter low stock items"
+        >
           <div className="flex items-center justify-between mb-1.5">
-            <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-500 whitespace-nowrap">Valuation</span>
-            <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-md bg-[#fe569f]/10 text-[#fe569f] flex items-center justify-center font-bold text-xs shrink-0">
-              <Tag size={13} />
+            <span className={`text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider whitespace-nowrap ${inventoryStats.lowStockCount > 0 ? 'text-amber-800' : 'text-slate-500'}`}>
+              Low Stock Alert
+            </span>
+            <div className={`w-7 h-7 rounded-lg flex items-center justify-center font-bold shrink-0 ${inventoryStats.lowStockCount > 0 ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-400'}`}>
+              <AlertTriangle size={14} strokeWidth={2.5} />
             </div>
           </div>
-          <h3 className="text-lg sm:text-2xl font-black text-[#fe569f] tracking-tight leading-none font-mono whitespace-nowrap truncate">
-            {formatCurrency(inventoryStats.totalValuation)}
-          </h3>
-          <p className="text-[10px] sm:text-[11px] font-bold text-[#fe569f] mt-1.5 whitespace-nowrap truncate">Purchase cost basis</p>
+          <div className="flex items-baseline gap-1.5">
+            <h3 className={`text-xl sm:text-2xl font-black tracking-tight leading-none truncate ${inventoryStats.lowStockCount > 0 ? 'text-amber-900' : 'text-slate-900'}`}>
+              {inventoryStats.lowStockCount}
+            </h3>
+            <span className="text-xs font-bold text-slate-400">Items</span>
+          </div>
+          <p className={`text-[10px] sm:text-[11px] font-bold mt-1.5 truncate ${inventoryStats.lowStockCount > 0 ? 'text-amber-800' : 'text-slate-400'}`}>
+            {inventoryStats.lowStockCount > 0 ? 'Reorder needed (Click to view)' : 'Stock levels healthy'}
+          </p>
         </div>
 
-        <div className="bg-white hover:bg-slate-50/60 p-3 sm:p-4 rounded-md border border-slate-200/80 hover:border-[#01a9fb]/50 transition-all">
+        {/* Card 3: Out of Stock Alert (Interactive) */}
+        <div
+          onClick={() => { setStockFilter(stockFilter === 'OUT_OF_STOCK' ? 'ALL' : 'OUT_OF_STOCK'); setShowFilters(true); }}
+          className={`p-3.5 sm:p-4 rounded-xl border transition-all duration-200 cursor-pointer ${
+            stockFilter === 'OUT_OF_STOCK'
+              ? 'bg-rose-100/80 border-rose-400 ring-2 ring-rose-400/30 shadow-xs'
+              : inventoryStats.outOfStockCount > 0
+                ? 'bg-rose-50/60 border-rose-200 hover:border-rose-300 shadow-2xs'
+                : 'bg-white hover:bg-slate-50/70 border-slate-200'
+          }`}
+          title="Click to filter out of stock items"
+        >
           <div className="flex items-center justify-between mb-1.5">
-            <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-500 whitespace-nowrap">Suppliers</span>
-            <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-md bg-[#01a9fb]/10 text-[#01a9fb] flex items-center justify-center font-bold text-xs shrink-0">
-              <Boxes size={13} />
+            <span className={`text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider whitespace-nowrap ${inventoryStats.outOfStockCount > 0 ? 'text-rose-700' : 'text-slate-500'}`}>
+              Out of Stock
+            </span>
+            <div className={`w-7 h-7 rounded-lg flex items-center justify-center font-bold shrink-0 ${inventoryStats.outOfStockCount > 0 ? 'bg-rose-100 text-rose-600' : 'bg-slate-100 text-slate-400'}`}>
+              <XCircle size={14} strokeWidth={2.5} />
             </div>
           </div>
-          <h3 className="text-lg sm:text-2xl font-black text-slate-900 tracking-tight leading-none whitespace-nowrap truncate">{suppliers.length}</h3>
-          <p className="text-[10px] sm:text-[11px] font-bold text-[#01a9fb] mt-1.5 whitespace-nowrap truncate">Registered partners</p>
+          <div className="flex items-baseline gap-1.5">
+            <h3 className={`text-xl sm:text-2xl font-black tracking-tight leading-none truncate ${inventoryStats.outOfStockCount > 0 ? 'text-rose-700' : 'text-slate-900'}`}>
+              {inventoryStats.outOfStockCount}
+            </h3>
+            <span className="text-xs font-bold text-slate-400">Items</span>
+          </div>
+          <p className={`text-[10px] sm:text-[11px] font-bold mt-1.5 truncate ${inventoryStats.outOfStockCount > 0 ? 'text-rose-600' : 'text-slate-400'}`}>
+            {inventoryStats.outOfStockCount > 0 ? '0 qty available (Click to view)' : 'No stockouts'}
+          </p>
+        </div>
+
+        {/* Card 4: Inventory Valuation */}
+        <div className="bg-white hover:bg-slate-50/70 p-3.5 sm:p-4 rounded-xl border border-slate-200 shadow-xs transition-all">
+          <div className="flex items-center justify-between mb-1.5">
+            <span className="text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider text-slate-500 whitespace-nowrap">Total Stock Value</span>
+            <div className="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold shrink-0">
+              <Tag size={14} strokeWidth={2.5} />
+            </div>
+          </div>
+          <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-none font-mono whitespace-nowrap truncate">
+            {formatCurrency(inventoryStats.totalValuation)}
+          </h3>
+          <p className="text-[10px] sm:text-[11px] font-bold text-emerald-600 mt-1.5 whitespace-nowrap truncate">
+            Cost basis investment
+          </p>
         </div>
       </div>
 
@@ -620,6 +676,20 @@ const Inventory: React.FC = () => {
                   </h4>
                   <p className="text-[9px] text-slate-400 font-mono mt-0.5 truncate">{product.sku}</p>
 
+                  {/* Supplier & Bill Details Tag */}
+                  {(product.supplierName || product.supplierId || product.billNumber) && (
+                    <div className="flex items-center gap-1 mt-1 text-[8.5px] font-bold text-slate-600 bg-slate-50 border border-slate-200/70 px-1.5 py-0.5 rounded truncate">
+                      <Truck size={10} className="text-slate-400 shrink-0" />
+                      <span className="truncate max-w-[85px]">{product.supplierName || suppliers.find(s => s.id === product.supplierId)?.name || 'Vendor'}</span>
+                      {product.billNumber && (
+                        <>
+                          <span className="text-slate-300">•</span>
+                          <span className="font-mono text-[#01a9fb] font-extrabold shrink-0">#{product.billNumber.replace(/^#/, '')}</span>
+                        </>
+                      )}
+                    </div>
+                  )}
+
                   {/* Price and Stock Strip */}
                   <div className="flex items-baseline justify-between mt-2 pt-1.5 border-t border-slate-100">
                     <span className="text-xs sm:text-sm font-black text-slate-900 font-mono">
@@ -731,12 +801,25 @@ const Inventory: React.FC = () => {
                       <td className="px-4 py-3.5">
                         <p className="font-mono font-bold text-slate-700">{product.sku}</p>
                         <p className="text-[10px] font-semibold text-slate-400">{product.brand || 'No brand'}</p>
+                        {(product.supplierName || product.supplierId || product.billNumber) && (
+                          <div className="flex items-center gap-1.5 mt-1 text-[9px] font-bold text-slate-600">
+                            <span className="text-slate-700 truncate max-w-[120px] flex items-center gap-1">
+                              <Truck size={10} className="text-slate-400 shrink-0" />
+                              <span className="truncate">{product.supplierName || suppliers.find(s => s.id === product.supplierId)?.name || 'Vendor'}</span>
+                            </span>
+                            {product.billNumber && (
+                              <span className="bg-blue-50 border border-blue-200 text-[#01a9fb] font-mono px-1 py-0.2 rounded text-[8.5px] font-black shrink-0">
+                                #{product.billNumber.replace(/^#/, '')}
+                              </span>
+                            )}
+                          </div>
+                        )}
                       </td>
                       <td className="px-4 py-3.5">
                         <div className="flex flex-wrap gap-1 max-w-[120px]">
                           {(product.sizes || []).map(size => (
                             <span key={size} className="text-[10px] font-bold bg-slate-100 text-slate-700 px-1.5 py-0.5 rounded border border-slate-200">
-                              {size}
+                              {cleanSizeLabel(size)}
                             </span>
                           ))}
                         </div>
@@ -874,12 +957,12 @@ const Inventory: React.FC = () => {
         <LabelDesigner
           labelData={{
             name: designerConfig.product.name,
-            sku: designerConfig.product.sku,
+            sku: cleanSku(designerConfig.product.sku),
             barcode: designerConfig.product.barcode || '',
             sellingPrice: designerConfig.product.sellingPrice,
             purchasePrice: designerConfig.product.purchasePrice,
             color: designerConfig.product.color || '',
-            size: (designerConfig.sizes && designerConfig.sizes[0]) || (designerConfig.product.sizes && designerConfig.product.sizes[0]) || '30',
+            size: cleanSizeLabel((designerConfig.sizes && designerConfig.sizes[0]) || (designerConfig.product.sizes && designerConfig.product.sizes[0]) || '30'),
             styleCode: '',
             subCategory: designerConfig.product.subCategory || '',
             labelSize: designerConfig.template.labelWidth === 30 ? '30x50' : '50x30'
@@ -1000,6 +1083,29 @@ const Inventory: React.FC = () => {
                     <span className="font-bold text-slate-700">{viewProductDetails.brand || 'In-House'}</span>
                   </div>
                 </div>
+
+                {/* Procurement & Vendor Bill Details */}
+                {(viewProductDetails.supplierName || viewProductDetails.supplierId || viewProductDetails.billNumber || viewProductDetails.billDate) && (
+                  <div className="mt-3 p-3 bg-slate-50 rounded-lg border border-slate-200/80 space-y-1 text-xs">
+                    <span className="text-[9px] font-black uppercase text-slate-400 tracking-wider block">
+                      Supplier & Bill Details
+                    </span>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs font-bold text-slate-800">
+                      <div>
+                        <span className="text-[9px] font-semibold text-slate-400 block uppercase">Supplier</span>
+                        <span>{viewProductDetails.supplierName || suppliers.find(s => s.id === viewProductDetails.supplierId)?.name || 'Unspecified Vendor'}</span>
+                      </div>
+                      <div>
+                        <span className="text-[9px] font-semibold text-slate-400 block uppercase">Bill Number</span>
+                        <span className="font-mono">{viewProductDetails.billNumber ? `#${viewProductDetails.billNumber.replace(/^#/, '')}` : 'N/A'}</span>
+                      </div>
+                      <div>
+                        <span className="text-[9px] font-semibold text-slate-400 block uppercase">Purchase Date</span>
+                        <span className="font-mono">{viewProductDetails.billDate || 'N/A'}</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -1111,16 +1217,17 @@ const Inventory: React.FC = () => {
                   } else if (el.type === 'text') {
                     let text = el.staticText || '';
                     if (el.id === 'name') text = (downloadingProduct.product.name || '').slice(0, 23).toUpperCase();
-                    if (el.id === 'size') text += (size || '').toUpperCase();
+                    if (el.id === 'size') text += cleanSizeLabel(size).toUpperCase();
                     if (el.id === 'color') {
                       const displayColor = (downloadingProduct.product.color || downloadingProduct.product.material || getEffectiveGender(downloadingProduct.product) || '').trim();
                       text += displayColor.toUpperCase();
                     }
+                    if (el.id === 'subCategory') text += (downloadingProduct.product.subCategory || '').toUpperCase();
                     if (el.id === 'style') text += '';
                     if (el.id === 'price') text += Number(downloadingProduct.product.sellingPrice || 0).toFixed(2);
                     if (el.id === 'code') text += '91' + ((downloadingProduct.product.purchasePrice || 0) * 2).toString();
-                    if (el.id === 'sku') text += (downloadingProduct.product.sku || '').toUpperCase();
-                    if (el.id === 'barcodeText') text = (downloadingProduct.product.barcode || downloadingProduct.product.sku || '').toUpperCase();
+                    if (el.id === 'sku') text += cleanSku(downloadingProduct.product.sku || '').toUpperCase();
+                    if (el.id === 'barcodeText') text = cleanSku(downloadingProduct.product.barcode || downloadingProduct.product.sku || '').toUpperCase();
 
                     const baseFontPx = (el.fontSize || 6) * 1.3;
                     const labelWidthPxLocal = template.labelWidth * MM_TO_PX;

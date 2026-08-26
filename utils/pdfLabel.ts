@@ -16,6 +16,16 @@ export interface LabelProduct {
   labelSize?: '50x30' | '30x50';
 }
 
+export const cleanSizeLabel = (size?: string): string => {
+  if (!size) return '';
+  return size.replace(/\s*\([^)]*\)|\s*\[[^\]]*\]|\s*\{[^}]*\}/g, '').trim() || size.trim();
+};
+
+export const cleanSku = (sku?: string): string => {
+  if (!sku) return '';
+  return sku.replace(/\s*\([^)]*\)|\s*\[[^\]]*\]|\s*\{[^}]*\}/g, '').trim();
+};
+
 export interface LabelElement {
   id: string;
   type: 'text' | 'barcode' | 'line' | 'rect' | 'image';
@@ -45,137 +55,119 @@ export interface LabelTemplate {
 }
 
 export const DEFAULT_TEMPLATE_30x50: LabelTemplate = {
-  id: 'default_30x50_v7',
-  name: 'Default 30x50 Vertical v7 (Thermal Optimized)',
+  id: 'default_30x50_v8',
+  name: 'Default 30x50 Vertical (Thermal Optimized)',
   labelWidth: 30,
   labelHeight: 50,
   elements: [
     // Top Section - SIZE Header
-    { id: 'size_line_l', type: 'line', x: 4, y: 4, width: 5, height: 0.35, borderStyle: 'solid', visible: true },
-    { id: 'size_lbl', type: 'text', x: 15, y: 3.2, fontSize: 5.5, isBold: true, align: 'center', visible: true, staticText: 'SIZE' },
-    { id: 'size_line_r', type: 'line', x: 21, y: 4, width: 5, height: 0.35, borderStyle: 'solid', visible: true },
+    { id: 'size_line_l', type: 'line', x: 3.5, y: 3.5, width: 5.5, height: 0.35, borderStyle: 'solid', visible: true },
+    { id: 'size_lbl', type: 'text', x: 15.0, y: 2.2, fontSize: 5.5, isBold: true, align: 'center', visible: true, staticText: 'SIZE' },
+    { id: 'size_line_r', type: 'line', x: 21.0, y: 3.5, width: 5.5, height: 0.35, borderStyle: 'solid', visible: true },
     
     // Size Box & Value
-    { id: 'size_box', type: 'rect', x: 4.5, y: 5.8, width: 21, height: 12.5, borderRadius: 1.5, borderStyle: 'solid', visible: true },
-    { id: 'size', type: 'text', x: 15, y: 9.8, fontSize: 17, isBold: true, align: 'center', visible: true, staticText: '' },
+    { id: 'size_box', type: 'rect', x: 3.5, y: 5.2, width: 23.0, height: 13.0, borderRadius: 1.5, borderStyle: 'solid', visible: true },
+    { id: 'size', type: 'text', x: 15.0, y: 7.5, fontSize: 18.0, isBold: true, align: 'center', visible: true, staticText: '' },
     
     // Color Box & Value
-    { id: 'color_box', type: 'rect', x: 4.5, y: 19.0, width: 21, height: 6.2, borderRadius: 1, borderStyle: 'solid', visible: true },
-    { id: 'color', type: 'text', x: 15, y: 21.2, fontSize: 7.5, isBold: true, align: 'center', visible: true, staticText: '' },
+    { id: 'color_box', type: 'rect', x: 3.5, y: 19.5, width: 23.0, height: 6.8, borderRadius: 1.2, borderStyle: 'solid', visible: true },
+    { id: 'color', type: 'text', x: 15.0, y: 21.4, fontSize: 7.5, isBold: true, align: 'center', visible: true, staticText: '' },
 
     // Middle Dashed Divider
-    { id: 'div_mid', type: 'line', x: 2.5, y: 26.0, width: 25, height: 0.35, borderStyle: 'dashed', visible: true },
+    { id: 'div_mid', type: 'line', x: 2.5, y: 27.8, width: 25.0, height: 0.35, borderStyle: 'dashed', visible: true },
 
     // SubCategory & SKU & Code Section
-    { id: 'subCategory', type: 'text', x: 15, y: 27.8, fontSize: 7.0, isBold: true, align: 'center', visible: true, staticText: '' },
-    { id: 'sku', type: 'text', x: 15, y: 31.5, fontSize: 7.5, isBold: true, align: 'center', visible: true, staticText: 'SKU : ' },
-    { id: 'div_r1', type: 'line', x: 4.5, y: 34.8, width: 21, height: 0.35, borderStyle: 'solid', visible: true },
-    { id: 'code', type: 'text', x: 15, y: 37.8, fontSize: 7.5, isBold: true, align: 'center', visible: true, staticText: 'CODE : ' },
+    { id: 'subCategory', type: 'text', x: 15.0, y: 29.5, fontSize: 7.5, isBold: true, align: 'center', visible: true, staticText: '' },
+    { id: 'sku', type: 'text', x: 15.0, y: 33.5, fontSize: 7.0, isBold: true, align: 'center', visible: true, staticText: 'SKU : ' },
+    { id: 'div_r1', type: 'line', x: 3.5, y: 37.2, width: 23.0, height: 0.35, borderStyle: 'solid', visible: true },
+    { id: 'code', type: 'text', x: 15.0, y: 39.0, fontSize: 7.0, isBold: true, align: 'center', visible: true, staticText: 'CODE : ' },
 
     // Bottom Price Box
-    { id: 'price_box', type: 'rect', x: 2.5, y: 41.2, width: 25, height: 7.8, borderRadius: 1.5, borderStyle: 'solid', visible: true },
-    { id: 'rs_lbl', type: 'text', x: 3.8, y: 43.8, fontSize: 9.0, isBold: true, align: 'left', visible: true, staticText: 'Rs.' },
-    { id: 'div_price', type: 'line', x: 10.5, y: 41.2, width: 0, height: 7.8, borderStyle: 'solid', visible: true },
-    { id: 'price', type: 'text', x: 18, y: 43.8, fontSize: 12.5, isBold: true, align: 'center', visible: true, staticText: '' }
+    { id: 'price_box', type: 'rect', x: 2.5, y: 42.5, width: 25.0, height: 6.5, borderRadius: 1.5, borderStyle: 'solid', visible: true },
+    { id: 'rs_lbl', type: 'text', x: 4.0, y: 44.5, fontSize: 8.5, isBold: true, align: 'left', visible: true, staticText: 'Rs.' },
+    { id: 'div_price', type: 'line', x: 10.0, y: 42.5, width: 0, height: 6.5, borderStyle: 'solid', visible: true },
+    { id: 'price', type: 'text', x: 17.5, y: 43.8, fontSize: 12.0, isBold: true, align: 'center', visible: true, staticText: '' }
   ]
 };
 
 export const DEFAULT_TEMPLATE_50x30: LabelTemplate = {
-  id: 'default_50x30_v7',
-  name: 'Default 50x30 Designer v7 (Thermal Optimized)',
+  id: 'default_50x30_v8',
+  name: 'Default 50x30 Designer (Thermal Optimized)',
   labelWidth: 50,
   labelHeight: 30,
   elements: [
-    // --- Left Section (Size & Category) ---
-    { id: 'size_line_l', type: 'line', x: 2, y: 4, width: 4, height: 0.35, borderStyle: 'solid', visible: true },
-    { id: 'size_lbl', type: 'text', x: 9, y: 3.2, fontSize: 5.5, isBold: true, align: 'center', visible: true, staticText: 'SIZE' },
-    { id: 'size_line_r', type: 'line', x: 12, y: 4, width: 4, height: 0.35, borderStyle: 'solid', visible: true },
+    // --- Left Section (Size & Color) ---
+    { id: 'size_line_l', type: 'line', x: 2.0, y: 3.2, width: 3.5, height: 0.35, borderStyle: 'solid', visible: true },
+    { id: 'size_lbl', type: 'text', x: 9.0, y: 1.8, fontSize: 5.5, isBold: true, align: 'center', visible: true, staticText: 'SIZE' },
+    { id: 'size_line_r', type: 'line', x: 12.5, y: 3.2, width: 3.5, height: 0.35, borderStyle: 'solid', visible: true },
     
     // Size Box & Value
-    { id: 'size_box', type: 'rect', x: 1.5, y: 6.5, width: 15, height: 11.5, borderRadius: 1.5, borderStyle: 'solid', visible: true },
-    { id: 'size', type: 'text', x: 9, y: 10.5, fontSize: 17, isBold: true, align: 'center', visible: true, staticText: '' },
+    { id: 'size_box', type: 'rect', x: 1.5, y: 4.8, width: 15.0, height: 13.0, borderRadius: 1.5, borderStyle: 'solid', visible: true },
+    { id: 'size', type: 'text', x: 9.0, y: 7.5, fontSize: 18.0, isBold: true, align: 'center', visible: true, staticText: '' },
     
     // Color Box & Value
-    { id: 'color_box', type: 'rect', x: 1.5, y: 19.5, width: 15, height: 7.5, borderRadius: 1, borderStyle: 'solid', visible: true },
-    { id: 'color', type: 'text', x: 9, y: 22.2, fontSize: 7.5, isBold: true, align: 'center', visible: true, staticText: '' },
+    { id: 'color_box', type: 'rect', x: 1.5, y: 19.2, width: 15.0, height: 8.5, borderRadius: 1.2, borderStyle: 'solid', visible: true },
+    { id: 'color', type: 'text', x: 9.0, y: 22.0, fontSize: 7.5, isBold: true, align: 'center', visible: true, staticText: '' },
 
     // --- Vertical Divider ---
-    { id: 'div_vert', type: 'line', x: 18, y: 2, width: 0, height: 26, borderStyle: 'dashed', visible: true },
+    { id: 'div_vert', type: 'line', x: 18.2, y: 2.0, width: 0, height: 26.0, borderStyle: 'dashed', visible: true },
 
     // --- Right Section ---
     // Sub Category
-    { id: 'subCategory', type: 'text', x: 34, y: 1.8, fontSize: 6.5, isBold: true, align: 'center', visible: true, staticText: '' },
+    { id: 'subCategory', type: 'text', x: 34.0, y: 2.0, fontSize: 7.0, isBold: true, align: 'center', visible: true, staticText: '' },
     // SKU
-    { id: 'sku', type: 'text', x: 34, y: 5.5, fontSize: 7.0, isBold: true, align: 'center', visible: true, staticText: 'SKU : ' },
+    { id: 'sku', type: 'text', x: 34.0, y: 5.8, fontSize: 6.5, isBold: true, align: 'center', visible: true, staticText: 'SKU : ' },
     
     // Horizontal Solid Divider
-    { id: 'div_r1', type: 'line', x: 20, y: 9.5, width: 28, height: 0.35, borderStyle: 'solid', visible: true },
+    { id: 'div_r1', type: 'line', x: 20.0, y: 9.6, width: 28.0, height: 0.35, borderStyle: 'solid', visible: true },
     
     // Code
-    { id: 'code', type: 'text', x: 34, y: 12.5, fontSize: 7.0, isBold: true, align: 'center', visible: true, staticText: 'CODE : ' },
+    { id: 'code', type: 'text', x: 34.0, y: 12.0, fontSize: 7.0, isBold: true, align: 'center', visible: true, staticText: 'CODE : ' },
     
     // Horizontal Dashed Divider
-    { id: 'div_r2', type: 'line', x: 20, y: 16.2, width: 28, height: 0.35, borderStyle: 'dashed', visible: true },
+    { id: 'div_r2', type: 'line', x: 20.0, y: 16.0, width: 28.0, height: 0.35, borderStyle: 'dashed', visible: true },
 
     // Price Box
-    { id: 'price_box', type: 'rect', x: 20, y: 19.2, width: 28, height: 9.0, borderRadius: 1.5, borderStyle: 'solid', visible: true },
+    { id: 'price_box', type: 'rect', x: 20.0, y: 18.5, width: 28.0, height: 9.2, borderRadius: 1.5, borderStyle: 'solid', visible: true },
     // Rs Text
-    { id: 'rs_lbl', type: 'text', x: 21.2, y: 22.2, fontSize: 9.5, isBold: true, align: 'left', visible: true, staticText: 'Rs.' },
+    { id: 'rs_lbl', type: 'text', x: 21.5, y: 21.5, fontSize: 9.0, isBold: true, align: 'left', visible: true, staticText: 'Rs.' },
     // Vertical Divider inside price box
-    { id: 'div_price', type: 'line', x: 27.5, y: 19.2, width: 0, height: 9.0, borderStyle: 'solid', visible: true },
+    { id: 'div_price', type: 'line', x: 27.5, y: 18.5, width: 0, height: 9.2, borderStyle: 'solid', visible: true },
     // Price Value
-    { id: 'price', type: 'text', x: 38.5, y: 22.2, fontSize: 13.0, isBold: true, align: 'center', visible: true, staticText: '' }
+    { id: 'price', type: 'text', x: 38.5, y: 20.5, fontSize: 13.5, isBold: true, align: 'center', visible: true, staticText: '' }
   ]
 };
 
-export const ensureSubCategoryElement = (tpl: LabelTemplate): LabelTemplate => {
-  let updatedElements = tpl.elements.map(el => {
-    if (tpl.id.includes('30x50')) {
-      if (el.id === 'div_mid') return { ...el, y: 26.0, height: 0.35 };
-      if (el.id === 'subCategory') return { ...el, y: 27.8, fontSize: 7.0, isBold: true };
-      if (el.id === 'sku') return { ...el, y: 31.5, fontSize: 7.5, isBold: true };
-      if (el.id === 'div_r1') return { ...el, y: 34.8, height: 0.35 };
-      if (el.id === 'code') return { ...el, y: 37.8, fontSize: 7.5, isBold: true };
-      if (el.id === 'price_box' || el.id === 'div_price') return { ...el, y: 41.2 };
-      if (el.id === 'rs_lbl') return { ...el, y: 43.8, fontSize: 9.0, isBold: true };
-      if (el.id === 'price') return { ...el, y: 43.8, fontSize: 12.5, isBold: true };
-    } else if (tpl.id.includes('50x30')) {
-      if (el.id === 'subCategory') return { ...el, y: 1.8, fontSize: 6.5, isBold: true };
-      if (el.id === 'sku') return { ...el, y: 5.5, fontSize: 7.0, isBold: true };
-      if (el.id === 'div_r1') return { ...el, y: 9.5, height: 0.35 };
-      if (el.id === 'code') return { ...el, y: 12.5, fontSize: 7.0, isBold: true };
-      if (el.id === 'div_r2') return { ...el, y: 16.2, height: 0.35 };
-      if (el.id === 'price_box' || el.id === 'div_price') return { ...el, y: 19.2 };
-      if (el.id === 'rs_lbl') return { ...el, y: 22.2, fontSize: 9.5, isBold: true };
-      if (el.id === 'price') return { ...el, y: 22.2, fontSize: 13.0, isBold: true };
-    }
-    return el;
-  });
+export const ensureSubCategoryElement = (tpl?: LabelTemplate | null): LabelTemplate => {
+  if (!tpl || typeof tpl !== 'object' || !Array.isArray(tpl.elements)) {
+    return DEFAULT_TEMPLATE_50x30;
+  }
+  if (tpl.elements.some(e => e && e.id === 'subCategory')) {
+    return tpl;
+  }
+  const isPortrait = (tpl.labelHeight || 30) >= (tpl.labelWidth || 50);
+  const skuElement = tpl.elements.find(e => e && e.id === 'sku');
+  const x = skuElement ? skuElement.x : (isPortrait ? 15.0 : 34.0);
+  const y = skuElement ? Math.max(1, skuElement.y - 3.5) : (isPortrait ? 29.5 : 2.0);
 
-  if (!updatedElements.some(e => e.id === 'subCategory')) {
-    const isPortrait = tpl.labelHeight >= tpl.labelWidth;
-    const skuElement = updatedElements.find(e => e.id === 'sku');
-    const x = skuElement ? skuElement.x : (isPortrait ? 15 : 34);
-    const y = skuElement ? Math.max(1, skuElement.y - 3.5) : (isPortrait ? 27.8 : 1.8);
+  const subCatEl: LabelElement = {
+    id: 'subCategory',
+    type: 'text',
+    x,
+    y,
+    fontSize: isPortrait ? 7.5 : 7.0,
+    isBold: true,
+    align: 'center',
+    visible: true,
+    staticText: ''
+  };
 
-    const subCatEl: LabelElement = {
-      id: 'subCategory',
-      type: 'text',
-      x,
-      y,
-      fontSize: isPortrait ? 7.0 : 6.5,
-      isBold: true,
-      align: 'center',
-      visible: true,
-      staticText: ''
-    };
-
-    const skuIdx = updatedElements.findIndex(e => e.id === 'sku');
-    if (skuIdx >= 0) {
-      updatedElements.splice(skuIdx, 0, subCatEl);
-    } else {
-      updatedElements.push(subCatEl);
-    }
+  const updatedElements = [...tpl.elements];
+  const skuIdx = updatedElements.findIndex(e => e && e.id === 'sku');
+  if (skuIdx >= 0) {
+    updatedElements.splice(skuIdx, 0, subCatEl);
+  } else {
+    updatedElements.push(subCatEl);
   }
 
   return {
@@ -185,24 +177,30 @@ export const ensureSubCategoryElement = (tpl: LabelTemplate): LabelTemplate => {
 };
 
 export const adaptTemplateToDimensions = (
-  baseTemplate: LabelTemplate,
-  newW: number,
-  newH: number
+  baseTemplate?: LabelTemplate | null,
+  newW: number = 50,
+  newH: number = 30
 ): LabelTemplate => {
-  let template = ensureSubCategoryElement(baseTemplate);
-  const isTargetLandscape = newW >= newH;
-  const isBaseLandscape = template.labelWidth >= template.labelHeight;
+  const safeW = Number(newW) > 5 ? Number(newW) : 50;
+  const safeH = Number(newH) > 5 ? Number(newH) : 30;
+  let template = ensureSubCategoryElement(baseTemplate || DEFAULT_TEMPLATE_50x30);
+  
+  const isTargetLandscape = safeW >= safeH;
+  const isBaseLandscape = (template.labelWidth || 50) >= (template.labelHeight || 30);
 
   // Auto-switch base template orientation if orientation changed
   if (isTargetLandscape !== isBaseLandscape) {
     template = ensureSubCategoryElement(isTargetLandscape ? DEFAULT_TEMPLATE_50x30 : DEFAULT_TEMPLATE_30x50);
   }
 
-  const scaleX = newW / template.labelWidth;
-  const scaleY = newH / template.labelHeight;
+  const baseW = template.labelWidth || (isTargetLandscape ? 50 : 30);
+  const baseH = template.labelHeight || (isTargetLandscape ? 30 : 50);
+  const scaleX = safeW / baseW;
+  const scaleY = safeH / baseH;
   const scaleFont = Math.min(scaleX, scaleY);
 
-  const adaptedElements: LabelElement[] = template.elements.map(el => {
+  const adaptedElements: LabelElement[] = (template.elements || []).map(el => {
+    if (!el) return null as any;
     const newEl: LabelElement = {
       ...el,
       x: Number((el.x * scaleX).toFixed(2)),
@@ -231,13 +229,13 @@ export const adaptTemplateToDimensions = (
     }
 
     return newEl;
-  });
+  }).filter(Boolean);
 
   return {
-    id: `adapted_${newW}x${newH}_${template.id}`,
-    name: `${template.name} (${newW}×${newH}mm)`,
-    labelWidth: newW,
-    labelHeight: newH,
+    id: `adapted_${safeW}x${safeH}_${template.id || 'default'}`,
+    name: `${template.name || 'Custom'} (${safeW}×${safeH}mm)`,
+    labelWidth: safeW,
+    labelHeight: safeH,
     elements: adaptedElements
   };
 };
@@ -284,7 +282,7 @@ export const generateDynamicLabelPDF = (products: LabelProduct | LabelProduct[],
         let val = el.customValue !== undefined ? el.customValue : '';
         if (!val) {
           if (el.id === 'name') val = (product.name || '').slice(0, 23).toUpperCase();
-          else if (el.id === 'size' && product.size) val = product.size.toUpperCase();
+          else if (el.id === 'size' && product.size) val = cleanSizeLabel(product.size).toUpperCase();
           else if (el.id === 'color') {
             const fallbackColor = (product.color || product.material || getEffectiveGender(product) || '').trim();
             if (fallbackColor) val = fallbackColor.toUpperCase().slice(0, 12);
@@ -292,8 +290,8 @@ export const generateDynamicLabelPDF = (products: LabelProduct | LabelProduct[],
           else if (el.id === 'style' && product.styleCode) val = product.styleCode.toUpperCase();
           else if (el.id === 'price') val = Number(product.sellingPrice || 0).toFixed(2);
           else if (el.id === 'code' && product.purchasePrice) val = '91' + (product.purchasePrice * 2);
-          else if (el.id === 'sku') val = (product.sku || '').toUpperCase();
-          else if (el.id === 'barcodeText') val = (product.barcode || product.sku || '').toUpperCase();
+          else if (el.id === 'sku') val = cleanSku(product.sku || '').toUpperCase();
+          else if (el.id === 'barcodeText') val = cleanSku(product.barcode || product.sku || '').toUpperCase();
           else if (el.id === 'subCategory' && product.subCategory) val = (product.subCategory || '').toUpperCase().slice(0, 15);
         }
 
@@ -309,7 +307,7 @@ export const generateDynamicLabelPDF = (products: LabelProduct | LabelProduct[],
           doc.text(text, el.x, baselineY, { align: el.align || 'left', angle: -(el.rotation || 0) });
         }
       } else if (el.type === 'barcode') {
-        const codeValue = product.barcode || product.sku;
+        const codeValue = cleanSku(product.barcode || product.sku);
         const barcodeSeq = getCode39Sequence(codeValue);
         const modWidth = el.width || 0.16;
         const bHeight = el.height || 7;

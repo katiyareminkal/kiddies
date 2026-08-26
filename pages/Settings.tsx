@@ -37,6 +37,9 @@ const Settings: React.FC = () => {
   const [selectedLogoFile, setSelectedLogoFile] = useState<File | null>(null);
   const logoInputRef = useRef<HTMLInputElement>(null);
 
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
+  const [isSavingPreferences, setIsSavingPreferences] = useState(false);
+
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
@@ -61,37 +64,53 @@ const Settings: React.FC = () => {
     setTimeout(() => setNotification(null), 3000);
   };
 
-  const handleProfileSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleProfileSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    updateStoreProfile({
-      storeName: formData.get('storeName') as string,
-      email: formData.get('email') as string,
-      phone: formData.get('phone') as string,
-      address: formData.get('address') as string,
-      gstin: formData.get('gstin') as string,
-      website: formData.get('website') as string,
-    }, selectedLogoFile || undefined);
-    showNotification('Store profile updated successfully!', 'success');
+    setIsSavingProfile(true);
+    try {
+      const formData = new FormData(e.currentTarget);
+      await updateStoreProfile({
+        storeName: formData.get('storeName') as string,
+        email: formData.get('email') as string,
+        phone: formData.get('phone') as string,
+        address: formData.get('address') as string,
+        gstin: formData.get('gstin') as string,
+        website: formData.get('website') as string,
+      }, selectedLogoFile || undefined);
+      showNotification('Store profile updated successfully!', 'success');
+    } catch (err: any) {
+      console.error(err);
+      showNotification(err?.message || 'Failed to update store profile', 'error');
+    } finally {
+      setIsSavingProfile(false);
+    }
   };
 
-  const handlePreferencesSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handlePreferencesSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    updateSettings({
-      defaultTaxRate: Number(formData.get('defaultTaxRate')),
-      lowStockThreshold: Number(formData.get('lowStockThreshold')),
-      enableLowStockAlerts: formData.get('enableLowStockAlerts') === 'on',
-      salesInvoicePrefix: formData.get('salesInvoicePrefix') as string,
-      rentalInvoicePrefix: formData.get('rentalInvoicePrefix') as string,
-      enableDeleteInventory: formData.get('enableDeleteInventory') === 'on',
-      enableDeleteCustomers: formData.get('enableDeleteCustomers') === 'on',
-      enableDeleteTransactions: formData.get('enableDeleteTransactions') === 'on',
-      enableDeleteRentals: formData.get('enableDeleteRentals') === 'on',
-      enableDeleteSuppliers: formData.get('enableDeleteSuppliers') === 'on',
-      enableDeleteUsers: formData.get('enableDeleteUsers') === 'on',
-    });
-    showNotification('System preferences saved!', 'success');
+    setIsSavingPreferences(true);
+    try {
+      const formData = new FormData(e.currentTarget);
+      await updateSettings({
+        defaultTaxRate: Number(formData.get('defaultTaxRate')),
+        lowStockThreshold: Number(formData.get('lowStockThreshold')),
+        enableLowStockAlerts: formData.get('enableLowStockAlerts') === 'on',
+        salesInvoicePrefix: formData.get('salesInvoicePrefix') as string,
+        rentalInvoicePrefix: formData.get('rentalInvoicePrefix') as string,
+        enableDeleteInventory: formData.get('enableDeleteInventory') === 'on',
+        enableDeleteCustomers: formData.get('enableDeleteCustomers') === 'on',
+        enableDeleteTransactions: formData.get('enableDeleteTransactions') === 'on',
+        enableDeleteRentals: formData.get('enableDeleteRentals') === 'on',
+        enableDeleteSuppliers: formData.get('enableDeleteSuppliers') === 'on',
+        enableDeleteUsers: formData.get('enableDeleteUsers') === 'on',
+      });
+      showNotification('System preferences saved successfully!', 'success');
+    } catch (err: any) {
+      console.error(err);
+      showNotification(err?.message || 'Failed to save system preferences', 'error');
+    } finally {
+      setIsSavingPreferences(false);
+    }
   };
 
   const handleExportData = () => {
@@ -150,10 +169,10 @@ const Settings: React.FC = () => {
     }
   };
 
-  const handleReset = () => {
-    if (confirm('Are you sure? This will delete ALL data including products, sales, and customers. This cannot be undone.')) {
-      resetData();
-      showNotification('System reset to factory defaults.', 'success');
+  const handleReset = async () => {
+    if (confirm('Are you sure you want to permanently wipe ALL data? This will clear all products, suppliers, bills, sales, rentals, and customer records to start completely fresh.')) {
+      await resetData();
+      showNotification('Store data wiped completely. System is fresh and blank.', 'success');
     }
   };
 
@@ -183,12 +202,19 @@ const Settings: React.FC = () => {
         </div>
       </div>
 
-      {/* Notification Toast */}
+      {/* Notification Toast with green right tick and round border, transparent look */}
       {notification && (
-        <div className={`fixed bottom-20 md:bottom-10 right-6 px-4 py-3 rounded-md shadow-lg flex items-center gap-2.5 animate-nano z-50 border ${notification.type === 'success' ? 'bg-slate-900 text-white border-slate-800' : 'bg-rose-600 text-white border-rose-700'
-          }`}>
-          {notification.type === 'success' ? <CheckCircle2 size={16} className="text-emerald-400" /> : <AlertTriangle size={16} className="text-amber-300" />}
-          <span className="font-extrabold text-xs">{notification.message}</span>
+        <div className="fixed bottom-20 md:bottom-10 right-6 px-4 py-3 rounded-md shadow-xl flex items-center gap-3 animate-nano z-50 bg-slate-900/95 backdrop-blur-sm text-white border border-slate-700">
+          {notification.type === 'success' ? (
+            <div className="w-5 h-5 rounded-full border-2 border-emerald-500 flex items-center justify-center shrink-0 bg-transparent">
+              <CheckCircle2 size={13} className="text-emerald-400 stroke-[2.5]" />
+            </div>
+          ) : (
+            <div className="w-5 h-5 rounded-full border-2 border-rose-500 flex items-center justify-center shrink-0 bg-transparent">
+              <AlertTriangle size={13} className="text-rose-400 stroke-[2.5]" />
+            </div>
+          )}
+          <span className="font-extrabold text-xs tracking-wide">{notification.message}</span>
         </div>
       )}
 
@@ -294,9 +320,9 @@ const Settings: React.FC = () => {
                 </div>
 
                 <div className="pt-3 flex justify-end border-t border-slate-100">
-                  <button type="submit" className="px-5 py-2.5 bg-[#01a9fb] hover:bg-[#0098e6] text-white rounded-md text-xs font-extrabold uppercase tracking-wider flex items-center gap-1.5 shadow-xs">
+                  <button type="submit" disabled={isSavingProfile} className="px-5 py-2.5 bg-[#01a9fb] hover:bg-[#0098e6] text-white rounded-md text-xs font-extrabold uppercase tracking-wider flex items-center gap-1.5 shadow-xs disabled:opacity-75 disabled:cursor-not-allowed">
                     <Save size={14} />
-                    <span>Save Store Profile</span>
+                    <span>{isSavingProfile ? 'Saving....' : 'Save Store Profile'}</span>
                   </button>
                 </div>
               </form>
@@ -378,9 +404,9 @@ const Settings: React.FC = () => {
                 </div>
 
                 <div className="pt-3 flex justify-end border-t border-slate-100">
-                  <button type="submit" className="px-5 py-2.5 bg-[#01a9fb] hover:bg-[#0098e6] text-white rounded-md text-xs font-extrabold uppercase tracking-wider flex items-center gap-1.5 shadow-xs">
+                  <button type="submit" disabled={isSavingPreferences} className="px-5 py-2.5 bg-[#01a9fb] hover:bg-[#0098e6] text-white rounded-md text-xs font-extrabold uppercase tracking-wider flex items-center gap-1.5 shadow-xs disabled:opacity-75 disabled:cursor-not-allowed">
                     <Save size={14} />
-                    <span>Save System Preferences</span>
+                    <span>{isSavingPreferences ? 'Saving....' : 'Save System Preferences'}</span>
                   </button>
                 </div>
               </form>

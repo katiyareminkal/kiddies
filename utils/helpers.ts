@@ -31,7 +31,25 @@ export const calculateLateFee = (expectedReturnDate: string, actualReturnDate: s
   return 0;
 };
 
-export const generateID = () => Math.random().toString(36).substr(2, 9).toUpperCase();
+export const isValidUUID = (str?: string | null): boolean => {
+  if (!str) return false;
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str);
+};
+
+export const generateUUID = (): string => {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    try {
+      return crypto.randomUUID();
+    } catch (e) {}
+  }
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    const r = Math.random() * 16 | 0;
+    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+};
+
+export const generateID = () => generateUUID();
 
 export const getStatusColor = (status: string) => {
   switch (status) {
@@ -45,15 +63,24 @@ export const getStatusColor = (status: string) => {
   }
 };
 
+export const cleanSku = (sku?: string): string => {
+  if (!sku) return '';
+  return sku.replace(/\s*\([^)]*\)|\s*\[[^\]]*\]|\s*\{[^}]*\}/g, '').trim();
+};
+
 export const extractBaseSku = (sku: string, sizes?: string[]): string => {
   if (!sku) return '';
-  const trimmed = sku.trim();
+  const cleaned = cleanSku(sku);
   if (sizes && sizes.length > 0) {
     for (const size of sizes) {
-      if (size && trimmed.toUpperCase().endsWith(`-${size.trim().toUpperCase()}`)) {
-        return trimmed.substring(0, trimmed.length - size.trim().length - 1);
+      const cleanS = cleanSku(size);
+      if (cleanS && cleaned.toUpperCase().endsWith(`-${cleanS.toUpperCase()}`)) {
+        return cleaned.substring(0, cleaned.length - cleanS.length - 1);
+      }
+      if (size && cleaned.toUpperCase().endsWith(`-${size.trim().toUpperCase()}`)) {
+        return cleaned.substring(0, cleaned.length - size.trim().length - 1);
       }
     }
   }
-  return trimmed;
+  return cleaned;
 };
