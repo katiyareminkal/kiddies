@@ -149,39 +149,44 @@ const More: React.FC<MoreProps> = ({ onTabChange }) => {
 
   const menuGroups = [
     {
-      title: 'Store Operations & Relations',
+      title: 'Operations',
       items: [
-        { id: 'customers', label: 'Customers CRM', desc: 'Client directory & store credits', icon: <Users size={18} />, color: 'text-[#01a9fb]', bg: 'bg-[#01a9fb]/10 border-[#01a9fb]/30' },
-        { id: 'suppliers', label: 'Procurement Suppliers', desc: 'Vendor directory & purchase bills', icon: <Truck size={18} />, color: 'text-[#fe569f]', bg: 'bg-[#fe569f]/10 border-[#fe569f]/30' },
-        { id: 'reports', label: 'Financial Reports & Analytics', desc: 'P&L, channels & audit ledger', icon: <BarChart3 size={18} />, color: 'text-[#01a9fb]', bg: 'bg-[#01a9fb]/10 border-[#01a9fb]/30' },
+        { id: 'customers', label: 'Customers', desc: 'Customer directory & store credit', icon: <Users size={18} />, color: 'text-[#01a9fb]', bg: 'bg-[#01a9fb]/10 border-[#01a9fb]/30' },
+        { id: 'suppliers', label: 'Suppliers', desc: 'Vendor directory & purchase bills', icon: <Truck size={18} />, color: 'text-[#fe569f]', bg: 'bg-[#fe569f]/10 border-[#fe569f]/30' },
+        { id: 'reports', label: 'Reports', desc: 'Sales, rentals & financial reports', icon: <BarChart3 size={18} />, color: 'text-[#01a9fb]', bg: 'bg-[#01a9fb]/10 border-[#01a9fb]/30' },
       ]
     },
     {
-      title: 'Store Administration',
+      title: 'Administration',
       items: [
-        { id: 'users', label: 'Staff & Role Permissions', desc: 'Employee access & security', icon: <ShieldCheck size={18} />, color: 'text-[#fe569f]', bg: 'bg-[#fe569f]/10 border-[#fe569f]/30', adminOnly: true },
-        { id: 'settings', label: 'System Configuration', desc: 'Store profile, taxes & backups', icon: <Settings size={18} />, color: 'text-slate-700', bg: 'bg-slate-100 border-slate-200' },
+        { id: 'users', label: 'Users', desc: 'Staff accounts & permissions', icon: <ShieldCheck size={18} />, color: 'text-[#fe569f]', bg: 'bg-[#fe569f]/10 border-[#fe569f]/30', adminOnly: true },
+        { id: 'settings', label: 'Settings', desc: 'Store profile, taxes & receipts', icon: <Settings size={18} />, color: 'text-slate-700', bg: 'bg-slate-100 border-slate-200', adminOnly: true },
       ]
     },
     {
-      title: 'System Utilities',
+      title: 'Utilities',
       items: [
-        ...(!isStandalone ? [{ id: 'install', label: 'Install Desktop / Mobile App', desc: 'Offline ready progressive web app', icon: <Download size={18} />, color: 'text-emerald-700', bg: 'bg-emerald-50 border-emerald-100' }] : []),
-        { id: 'backup', label: 'Database Backup & Restore', desc: 'Export spreadsheets or raw JSON', icon: <Database size={18} />, color: 'text-slate-600', bg: 'bg-slate-50 border-slate-200' },
-        { id: 'help', label: 'Support & Documentation', desc: 'POS manual and cheat sheet', icon: <HelpCircle size={18} />, color: 'text-slate-600', bg: 'bg-slate-50 border-slate-200' },
+        ...(!isStandalone ? [{ id: 'install', label: 'Install App', desc: 'Add to home screen or desktop', icon: <Download size={18} />, color: 'text-emerald-700', bg: 'bg-emerald-50 border-emerald-100' }] : []),
+        { id: 'backup', label: 'Backup & Restore', desc: 'Export spreadsheets & database', icon: <Database size={18} />, color: 'text-slate-600', bg: 'bg-slate-50 border-slate-200', adminOnly: true },
+        { id: 'help', label: 'Help & Support', desc: 'User guide & keyboard shortcuts', icon: <HelpCircle size={18} />, color: 'text-slate-600', bg: 'bg-slate-50 border-slate-200' },
       ]
     }
   ];
 
   const canAccess = (item: any) => {
-    if (!item.adminOnly) return true;
-    return currentUser?.role === UserRole.ADMIN;
+    if (currentUser?.role === UserRole.ADMIN) return true;
+    if (item.adminOnly) return false;
+    if (['customers', 'suppliers', 'reports'].includes(item.id)) {
+      return currentUser?.permissions?.includes(item.id) || false;
+    }
+    if (item.id === 'install' || item.id === 'help') return true;
+    return false;
   };
 
   return (
     <div className="pb-24 animate-nano space-y-5 max-w-[1000px] mx-auto">
       {/* Page Header */}
-      <div className="bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-5 shadow-xs">
+      <div className="bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-5 shadow-card">
         <div className="flex items-center gap-3.5">
           <div className="w-11 h-11 rounded-xl bg-[#01a9fb] text-white flex items-center justify-center shadow-md shadow-blue-500/15 shrink-0">
             <Layers size={22} strokeWidth={2.2} />
@@ -190,22 +195,22 @@ const More: React.FC<MoreProps> = ({ onTabChange }) => {
             {/* Line 1: Title + Badge side by side */}
             <div className="flex items-center justify-between gap-2">
               <h1 className="text-base sm:text-lg font-black text-slate-900 tracking-tight truncate">
-                Navigation & Utilities
+                More Menu
               </h1>
-              <span className="text-[10px] font-black uppercase text-[#01a9fb] bg-[#eff6ff] border border-[#dbeafe] px-2 py-0.5 rounded-md shrink-0">
-                Admin Console
+              <span className="text-[10px] font-black uppercase text-[#01a9fb] bg-[#eff6ff] border border-[#dbeafe] px-2 py-0.5 rounded-lg shrink-0">
+                Menu
               </span>
             </div>
             {/* Line 2: Descriptive Subtitle */}
             <p className="text-xs text-slate-500 font-semibold mt-0.5 leading-relaxed">
-              Admin tools, reports, CRM, and system settings
+              Customers, suppliers, reports, and system settings
             </p>
           </div>
         </div>
       </div>
 
       {/* Store Profile Card */}
-      <div className="bg-white rounded-2xl border border-slate-200/90 p-5 sm:p-6 shadow-xs flex items-center justify-between gap-4">
+      <div className="bg-white rounded-2xl border border-slate-200/90 p-5 sm:p-6 shadow-card flex items-center justify-between gap-4">
         <div className="flex items-center gap-4">
           <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-200/80 p-1 flex items-center justify-center shadow-2xs shrink-0 overflow-hidden">
             {storeProfile?.logo || (storeProfile as any)?.logoUrl ? (
@@ -251,46 +256,51 @@ const More: React.FC<MoreProps> = ({ onTabChange }) => {
 
       {/* Menu Groups */}
       <div className="space-y-5">
-        {menuGroups.map((group, idx) => (
-          <div key={idx} className="space-y-2.5">
-            <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-wider px-2">{group.title}</h3>
-            <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs overflow-hidden divide-y divide-slate-100">
-              {group.items.filter(canAccess).map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => {
-                    if (item.id === 'install') {
-                      handleInstallClick();
-                    } else if (item.id === 'backup') {
-                      onTabChange('settings');
-                    } else {
-                      onTabChange(item.id);
-                    }
-                  }}
-                  className="w-full flex items-center justify-between p-4 sm:p-4.5 hover:bg-slate-50 transition-colors group text-left active:scale-[0.99]"
-                >
-                  <div className="flex items-center gap-3.5">
-                    <div className={`w-10 h-10 rounded-xl ${item.bg} ${item.color} border flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform shadow-2xs`}>
-                      {item.icon}
+        {menuGroups.map((group, idx) => {
+          const visibleItems = group.items.filter(canAccess);
+          if (visibleItems.length === 0) return null;
+
+          return (
+            <div key={idx} className="space-y-2.5">
+              <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-wider px-2">{group.title}</h3>
+              <div className="bg-white rounded-2xl border border-slate-200/90 shadow-card overflow-hidden divide-y divide-slate-100">
+                {visibleItems.map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={() => {
+                      if (item.id === 'install') {
+                        handleInstallClick();
+                      } else if (item.id === 'backup') {
+                        onTabChange('settings');
+                      } else {
+                        onTabChange(item.id);
+                      }
+                    }}
+                    className="w-full flex items-center justify-between p-4 sm:p-4.5 hover:bg-slate-50 transition-colors group text-left active:scale-[0.99]"
+                  >
+                    <div className="flex items-center gap-3.5">
+                      <div className={`w-10 h-10 rounded-xl ${item.bg} ${item.color} border flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform shadow-2xs`}>
+                        {item.icon}
+                      </div>
+                      <div>
+                        <h4 className="text-xs sm:text-sm font-black text-slate-900 group-hover:text-[#01a9fb] transition-colors">
+                          {item.label}
+                        </h4>
+                        <p className="text-[11px] text-slate-400 font-semibold mt-0.5">{item.desc}</p>
+                      </div>
                     </div>
-                    <div>
-                      <h4 className="text-xs sm:text-sm font-black text-slate-900 group-hover:text-[#01a9fb] transition-colors">
-                        {item.label}
-                      </h4>
-                      <p className="text-[11px] text-slate-400 font-semibold mt-0.5">{item.desc}</p>
-                    </div>
-                  </div>
-                  <ChevronRight size={17} strokeWidth={2.5} className="text-slate-300 group-hover:text-slate-900 group-hover:translate-x-1 transition-all shrink-0" />
-                </button>
-              ))}
+                    <ChevronRight size={17} strokeWidth={2.5} className="text-slate-300 group-hover:text-slate-900 group-hover:translate-x-1 transition-all shrink-0" />
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
 
         {/* Big Sign Out Button */}
         <button
           onClick={logout}
-          className="w-full flex items-center justify-center gap-2 py-3.5 bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white border border-rose-200 rounded-2xl font-black text-xs uppercase tracking-wider transition-all shadow-xs active:scale-95"
+          className="w-full flex items-center justify-center gap-2 py-3.5 bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white border border-rose-200 rounded-2xl font-black text-xs uppercase tracking-wider transition-all shadow-card active:scale-95"
         >
           <LogOut size={16} strokeWidth={2.5} />
           <span>Sign Out</span>

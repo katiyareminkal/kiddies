@@ -248,7 +248,7 @@ const Inventory: React.FC = () => {
         <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
           <button
             onClick={() => setIsStockModalOpen(true)}
-            className="inline-flex items-center justify-center gap-1.5 px-3 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-extrabold uppercase tracking-wider rounded-md shadow-xs transition-all active:scale-95"
+            className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-black uppercase tracking-wider rounded-xl shadow-xs transition-all active:scale-95"
             title="Adjust Stock Quantity"
           >
             <RefreshCcw size={14} strokeWidth={2.5} />
@@ -260,7 +260,7 @@ const Inventory: React.FC = () => {
               setProductToEdit(null);
               setIsProductModalOpen(true);
             }}
-            className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-[#01a9fb] hover:bg-[#0098e6] text-white text-xs font-extrabold uppercase tracking-wider rounded-md shadow-xs transition-all active:scale-95"
+            className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-[#01a9fb] hover:bg-[#0098e6] text-white text-xs font-black uppercase tracking-wider rounded-xl shadow-xs transition-all active:scale-95"
           >
             <Plus size={16} strokeWidth={2.5} />
             <span>Add Product</span>
@@ -269,28 +269,28 @@ const Inventory: React.FC = () => {
       </div>
 
       {/* ── KPI Summary Cards (4 Highly Relevant & Understandable Cards) ── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3.5">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {/* Card 1: Total Inventory */}
         <div 
           onClick={() => { setStockFilter('ALL'); }}
-          className={`p-3.5 sm:p-4 rounded-xl border transition-all duration-200 cursor-pointer ${
+          className={`p-4 sm:p-5 rounded-2xl border transition-all duration-200 cursor-pointer shadow-card ${
             stockFilter === 'ALL' 
-              ? 'bg-white hover:bg-slate-50/70 border-slate-200 shadow-xs hover:border-[#01a9fb]/60' 
+              ? 'bg-white hover:bg-slate-50/70 border-slate-200/90 hover:border-[#01a9fb]/60' 
               : 'bg-white/70 hover:bg-white border-slate-200/70'
           }`}
           title="Click to view all items"
         >
-          <div className="flex items-center justify-between mb-1.5">
-            <span className="text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider text-slate-500 whitespace-nowrap">Total Inventory</span>
-            <div className="w-7 h-7 rounded-lg bg-[#01a9fb]/10 text-[#01a9fb] flex items-center justify-center font-bold shrink-0">
-              <Package size={14} strokeWidth={2.5} />
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[10px] sm:text-xs font-extrabold uppercase tracking-wider text-slate-500 whitespace-nowrap">Total Inventory</span>
+            <div className="w-8 h-8 rounded-xl bg-[#01a9fb]/10 text-[#01a9fb] flex items-center justify-center font-bold shrink-0 shadow-2xs">
+              <Package size={15} strokeWidth={2.5} />
             </div>
           </div>
           <div className="flex items-baseline gap-1.5">
             <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-none truncate">{inventoryStats.totalPieces}</h3>
-            <span className="text-xs font-bold text-slate-400">Pcs</span>
+            <span className="text-xs font-black text-slate-400">Pcs</span>
           </div>
-          <p className="text-[10px] sm:text-[11px] font-bold text-slate-500 mt-1.5 truncate">
+          <p className="text-[10px] sm:text-xs font-bold text-slate-500 mt-2 truncate">
             {inventoryStats.totalSKUs} unique products ({inventoryStats.totalSalePieces} sale, {inventoryStats.totalRentPieces} rent)
           </p>
         </div>
@@ -298,30 +298,30 @@ const Inventory: React.FC = () => {
         {/* Card 2: Low Stock Alert (Interactive) */}
         <div
           onClick={() => { setStockFilter(stockFilter === 'LOW_STOCK' ? 'ALL' : 'LOW_STOCK'); setShowFilters(true); }}
-          className={`p-3.5 sm:p-4 rounded-xl border transition-all duration-200 cursor-pointer ${
+          className={`p-4 sm:p-5 rounded-2xl border transition-all duration-200 cursor-pointer shadow-card ${
             stockFilter === 'LOW_STOCK'
-              ? 'bg-amber-100/80 border-amber-400 ring-2 ring-amber-400/30 shadow-xs'
+              ? 'bg-amber-100/80 border-amber-400 ring-2 ring-amber-400/30'
               : inventoryStats.lowStockCount > 0
-                ? 'bg-amber-50/70 border-amber-200 hover:border-amber-300 shadow-2xs'
-                : 'bg-white hover:bg-slate-50/70 border-slate-200'
+                ? 'bg-amber-50/70 border-amber-200 hover:border-amber-300'
+                : 'bg-white hover:bg-slate-50/70 border-slate-200/90'
           }`}
           title="Click to filter low stock items"
         >
-          <div className="flex items-center justify-between mb-1.5">
-            <span className={`text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider whitespace-nowrap ${inventoryStats.lowStockCount > 0 ? 'text-amber-800' : 'text-slate-500'}`}>
+          <div className="flex items-center justify-between mb-2">
+            <span className={`text-[10px] sm:text-xs font-extrabold uppercase tracking-wider whitespace-nowrap ${inventoryStats.lowStockCount > 0 ? 'text-amber-800' : 'text-slate-500'}`}>
               Low Stock Alert
             </span>
-            <div className={`w-7 h-7 rounded-lg flex items-center justify-center font-bold shrink-0 ${inventoryStats.lowStockCount > 0 ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-400'}`}>
-              <AlertTriangle size={14} strokeWidth={2.5} />
+            <div className={`w-8 h-8 rounded-xl flex items-center justify-center font-bold shrink-0 shadow-2xs ${inventoryStats.lowStockCount > 0 ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-400'}`}>
+              <AlertTriangle size={15} strokeWidth={2.5} />
             </div>
           </div>
           <div className="flex items-baseline gap-1.5">
             <h3 className={`text-xl sm:text-2xl font-black tracking-tight leading-none truncate ${inventoryStats.lowStockCount > 0 ? 'text-amber-900' : 'text-slate-900'}`}>
               {inventoryStats.lowStockCount}
             </h3>
-            <span className="text-xs font-bold text-slate-400">Items</span>
+            <span className="text-xs font-black text-slate-400">Items</span>
           </div>
-          <p className={`text-[10px] sm:text-[11px] font-bold mt-1.5 truncate ${inventoryStats.lowStockCount > 0 ? 'text-amber-800' : 'text-slate-400'}`}>
+          <p className={`text-[10px] sm:text-xs font-bold mt-2 truncate ${inventoryStats.lowStockCount > 0 ? 'text-amber-800' : 'text-slate-400'}`}>
             {inventoryStats.lowStockCount > 0 ? 'Reorder needed (Click to view)' : 'Stock levels healthy'}
           </p>
         </div>
@@ -329,46 +329,46 @@ const Inventory: React.FC = () => {
         {/* Card 3: Out of Stock Alert (Interactive) */}
         <div
           onClick={() => { setStockFilter(stockFilter === 'OUT_OF_STOCK' ? 'ALL' : 'OUT_OF_STOCK'); setShowFilters(true); }}
-          className={`p-3.5 sm:p-4 rounded-xl border transition-all duration-200 cursor-pointer ${
+          className={`p-4 sm:p-5 rounded-2xl border transition-all duration-200 cursor-pointer shadow-card ${
             stockFilter === 'OUT_OF_STOCK'
-              ? 'bg-rose-100/80 border-rose-400 ring-2 ring-rose-400/30 shadow-xs'
+              ? 'bg-rose-100/80 border-rose-400 ring-2 ring-rose-400/30'
               : inventoryStats.outOfStockCount > 0
-                ? 'bg-rose-50/60 border-rose-200 hover:border-rose-300 shadow-2xs'
-                : 'bg-white hover:bg-slate-50/70 border-slate-200'
+                ? 'bg-rose-50/60 border-rose-200 hover:border-rose-300'
+                : 'bg-white hover:bg-slate-50/70 border-slate-200/90'
           }`}
           title="Click to filter out of stock items"
         >
-          <div className="flex items-center justify-between mb-1.5">
-            <span className={`text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider whitespace-nowrap ${inventoryStats.outOfStockCount > 0 ? 'text-rose-700' : 'text-slate-500'}`}>
+          <div className="flex items-center justify-between mb-2">
+            <span className={`text-[10px] sm:text-xs font-extrabold uppercase tracking-wider whitespace-nowrap ${inventoryStats.outOfStockCount > 0 ? 'text-rose-700' : 'text-slate-500'}`}>
               Out of Stock
             </span>
-            <div className={`w-7 h-7 rounded-lg flex items-center justify-center font-bold shrink-0 ${inventoryStats.outOfStockCount > 0 ? 'bg-rose-100 text-rose-600' : 'bg-slate-100 text-slate-400'}`}>
-              <XCircle size={14} strokeWidth={2.5} />
+            <div className={`w-8 h-8 rounded-xl flex items-center justify-center font-bold shrink-0 shadow-2xs ${inventoryStats.outOfStockCount > 0 ? 'bg-rose-100 text-rose-600' : 'bg-slate-100 text-slate-400'}`}>
+              <XCircle size={15} strokeWidth={2.5} />
             </div>
           </div>
           <div className="flex items-baseline gap-1.5">
             <h3 className={`text-xl sm:text-2xl font-black tracking-tight leading-none truncate ${inventoryStats.outOfStockCount > 0 ? 'text-rose-700' : 'text-slate-900'}`}>
               {inventoryStats.outOfStockCount}
             </h3>
-            <span className="text-xs font-bold text-slate-400">Items</span>
+            <span className="text-xs font-black text-slate-400">Items</span>
           </div>
-          <p className={`text-[10px] sm:text-[11px] font-bold mt-1.5 truncate ${inventoryStats.outOfStockCount > 0 ? 'text-rose-600' : 'text-slate-400'}`}>
+          <p className={`text-[10px] sm:text-xs font-bold mt-2 truncate ${inventoryStats.outOfStockCount > 0 ? 'text-rose-600' : 'text-slate-400'}`}>
             {inventoryStats.outOfStockCount > 0 ? '0 qty available (Click to view)' : 'No stockouts'}
           </p>
         </div>
 
         {/* Card 4: Inventory Valuation */}
-        <div className="bg-white hover:bg-slate-50/70 p-3.5 sm:p-4 rounded-xl border border-slate-200 shadow-xs transition-all">
-          <div className="flex items-center justify-between mb-1.5">
-            <span className="text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider text-slate-500 whitespace-nowrap">Total Stock Value</span>
-            <div className="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold shrink-0">
-              <Tag size={14} strokeWidth={2.5} />
+        <div className="bg-white hover:bg-slate-50/70 p-4 sm:p-5 rounded-2xl border border-slate-200/90 shadow-card transition-all">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[10px] sm:text-xs font-extrabold uppercase tracking-wider text-slate-500 whitespace-nowrap">Total Stock Value</span>
+            <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold shrink-0 shadow-2xs">
+              <Tag size={15} strokeWidth={2.5} />
             </div>
           </div>
           <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-none font-mono whitespace-nowrap truncate">
             {formatCurrency(inventoryStats.totalValuation)}
           </h3>
-          <p className="text-[10px] sm:text-[11px] font-bold text-emerald-600 mt-1.5 whitespace-nowrap truncate">
+          <p className="text-[10px] sm:text-xs font-bold text-emerald-600 mt-2 whitespace-nowrap truncate">
             Cost basis investment
           </p>
         </div>
@@ -384,7 +384,7 @@ const Inventory: React.FC = () => {
               <input
                 type="text"
                 placeholder="Search product name, SKU, brand..."
-                className="w-full pl-10 pr-3.5 py-2 bg-white border border-slate-200/80 rounded-md text-xs font-bold text-slate-900 outline-none focus:border-[#01a9fb] focus:ring-2 focus:ring-[#01a9fb]/10 transition-all shadow-xs placeholder:text-slate-400"
+                className="w-full pl-10 pr-3.5 py-2 bg-white border border-slate-200/90 rounded-xl text-xs font-bold text-slate-900 outline-none focus:border-[#01a9fb] focus:ring-2 focus:ring-[#01a9fb]/10 transition-all shadow-xs placeholder:text-slate-400"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -393,7 +393,7 @@ const Inventory: React.FC = () => {
             {/* Filter Toggle */}
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className={`p-2 rounded-md border transition-all flex items-center justify-center shrink-0 ${showFilters ? 'bg-slate-900 text-white border-slate-900 shadow-xs' : 'bg-white text-slate-600 border-slate-200/80 hover:border-slate-300 shadow-xs'}`}
+              className={`p-2 rounded-xl border transition-all flex items-center justify-center shrink-0 ${showFilters ? 'bg-slate-900 text-white border-slate-900 shadow-xs' : 'bg-white text-slate-600 border-slate-200/90 hover:border-slate-300 shadow-xs'}`}
               title="Filter Catalog"
             >
               <Filter size={15} strokeWidth={showFilters ? 3 : 2.5} />
@@ -401,17 +401,17 @@ const Inventory: React.FC = () => {
           </div>
 
           {/* Grid vs Table Layout Toggle */}
-          <div className="inline-flex bg-slate-100 p-1 rounded-md border border-slate-200/70 shrink-0 self-end md:self-auto">
+          <div className="inline-flex bg-white p-1 rounded-xl border border-slate-200/90 shadow-xs shrink-0 self-end md:self-auto gap-0.5">
             <button
               onClick={() => setViewLayout('GRID')}
-              className={`p-1.5 rounded transition-all ${viewLayout === 'GRID' ? 'bg-[#01a9fb] text-white shadow-xs' : 'text-slate-400 hover:text-slate-700'}`}
+              className={`p-1.5 rounded-lg transition-all ${viewLayout === 'GRID' ? 'bg-[#01a9fb] text-white shadow-xs' : 'text-slate-400 hover:text-slate-700'}`}
               title="Grid View"
             >
               <LayoutGrid size={15} strokeWidth={2.5} />
             </button>
             <button
               onClick={() => setViewLayout('TABLE')}
-              className={`p-1.5 rounded transition-all ${viewLayout === 'TABLE' ? 'bg-[#01a9fb] text-white shadow-xs' : 'text-slate-400 hover:text-slate-700'}`}
+              className={`p-1.5 rounded-lg transition-all ${viewLayout === 'TABLE' ? 'bg-[#01a9fb] text-white shadow-xs' : 'text-slate-400 hover:text-slate-700'}`}
               title="Table View"
             >
               <List size={15} strokeWidth={2.5} />
@@ -421,9 +421,9 @@ const Inventory: React.FC = () => {
 
         {/* ── Advanced Filters Drawer ── */}
         {showFilters && (
-          <div className="bg-white border border-slate-200/80 rounded-md p-3.5 sm:p-4 shadow-xs animate-nano space-y-3">
-            <div className="flex items-center justify-between pb-2 border-b border-slate-100">
-              <span className="text-xs font-extrabold uppercase text-slate-600 tracking-wider">Filter Inventory Catalog</span>
+          <div className="bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-5 shadow-card animate-nano space-y-3.5">
+            <div className="flex items-center justify-between pb-2.5 border-b border-slate-100">
+              <span className="text-xs font-black uppercase text-slate-700 tracking-wider">Filter Inventory Catalog</span>
               <button
                 onClick={() => {
                   setStockFilter('ALL');
@@ -539,7 +539,7 @@ const Inventory: React.FC = () => {
                   setDetailsActiveImgIndex(0);
                   setViewProductDetails(product);
                 }}
-                className="bg-white rounded-xl border border-slate-200/90 p-2.5 sm:p-3 transition-all duration-200 flex flex-col justify-between group cursor-pointer hover:border-[#01a9fb]/60 hover:shadow-md"
+                className="bg-white rounded-2xl border border-slate-200/90 p-3 sm:p-3.5 transition-all duration-200 flex flex-col justify-between group cursor-pointer hover:border-[#01a9fb]/60 shadow-card hover:shadow-card-hover"
               >
                 <div>
                   {/* Direct Swipeable / Sliding Image Carousel Container */}
@@ -702,7 +702,7 @@ const Inventory: React.FC = () => {
                 </div>
 
                 {/* Actions */}
-                <div className="flex items-center justify-between gap-1 mt-2.5 pt-1.5 border-t border-slate-100">
+                <div className="flex items-center justify-between gap-1.5 mt-3 pt-2 border-t border-slate-100">
                   <button
                     type="button"
                     onClick={(e) => {
@@ -710,7 +710,7 @@ const Inventory: React.FC = () => {
                       setDetailsActiveImgIndex(0);
                       setViewProductDetails(product);
                     }}
-                    className="flex-1 py-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-md text-slate-600 flex items-center justify-center transition-all hover:text-[#01a9fb]"
+                    className="flex-1 py-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-200/80 rounded-lg text-slate-600 flex items-center justify-center transition-all hover:text-[#01a9fb] active:scale-95"
                     title="View Details"
                   >
                     <Eye size={13} strokeWidth={2.2} />
@@ -722,7 +722,7 @@ const Inventory: React.FC = () => {
                       setProductToEdit(product);
                       setIsProductModalOpen(true);
                     }}
-                    className="flex-1 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-md flex items-center justify-center transition-all shadow-xs"
+                    className="flex-1 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-lg flex items-center justify-center transition-all shadow-xs active:scale-95"
                     title="Edit SKU"
                   >
                     <Edit2 size={13} strokeWidth={2.2} />
@@ -733,7 +733,7 @@ const Inventory: React.FC = () => {
                       e.stopPropagation();
                       handleTagClick(product);
                     }}
-                    className="flex-1 py-1.5 bg-[#fe569f]/10 hover:bg-[#fe569f]/20 text-[#fe569f] border border-[#fe569f]/30 rounded-md flex items-center justify-center transition-all"
+                    className="flex-1 py-1.5 bg-[#fe569f]/10 hover:bg-[#fe569f]/20 text-[#fe569f] border border-[#fe569f]/30 rounded-lg flex items-center justify-center transition-all active:scale-95"
                     title="Print Price Tags"
                   >
                     <Tag size={13} strokeWidth={2.2} />
@@ -747,7 +747,7 @@ const Inventory: React.FC = () => {
                           deleteProduct(product.id);
                         }
                       }}
-                      className="flex-1 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 rounded-md flex items-center justify-center transition-all"
+                      className="flex-1 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 rounded-lg flex items-center justify-center transition-all active:scale-95"
                       title="Delete Product"
                     >
                       <Trash2 size={13} strokeWidth={2.2} />
@@ -760,11 +760,11 @@ const Inventory: React.FC = () => {
         </div>
       ) : (
         /* ── View Layout: TABLE VIEW ── */
-        <div className="bg-white rounded-lg border border-slate-200/80 shadow-xs overflow-hidden">
+        <div className="bg-white rounded-2xl border border-slate-200/90 shadow-card overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead>
-                <tr className="border-b border-slate-100 bg-slate-50/60 text-[10px] font-extrabold uppercase text-slate-400 tracking-wider">
+                <tr className="border-b border-slate-100 bg-slate-50/70 text-[10px] font-extrabold uppercase text-slate-400 tracking-wider">
                   <th className="px-5 py-3.5">Product & Category</th>
                   <th className="px-4 py-3.5">SKU & Brand</th>
                   <th className="px-4 py-3.5">Sizes</th>
@@ -846,7 +846,7 @@ const Inventory: React.FC = () => {
                               e.stopPropagation();
                               setViewProductDetails(product);
                             }}
-                            className="p-1.5 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-md border border-slate-200 transition-all"
+                            className="p-1.5 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-lg border border-slate-200 transition-all hover:text-[#01a9fb] active:scale-95"
                             title="View Details"
                           >
                             <Eye size={14} strokeWidth={2.2} />
@@ -857,7 +857,7 @@ const Inventory: React.FC = () => {
                               setProductToEdit(product);
                               setIsProductModalOpen(true);
                             }}
-                            className="p-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-md shadow-xs transition-all"
+                            className="p-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-lg shadow-xs transition-all active:scale-95"
                             title="Edit SKU"
                           >
                             <Edit2 size={14} strokeWidth={2.2} />
@@ -867,7 +867,7 @@ const Inventory: React.FC = () => {
                               e.stopPropagation();
                               handleTagClick(product);
                             }}
-                            className="p-1.5 bg-violet-50 hover:bg-violet-100 text-violet-700 rounded-md border border-violet-200 transition-all"
+                            className="p-1.5 bg-[#fe569f]/10 hover:bg-[#fe569f]/20 text-[#fe569f] rounded-lg border border-[#fe569f]/30 transition-all active:scale-95"
                             title="Print Label Tags"
                           >
                             <Tag size={14} strokeWidth={2.2} />
@@ -880,7 +880,7 @@ const Inventory: React.FC = () => {
                                   deleteProduct(product.id);
                                 }
                               }}
-                              className="p-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-md border border-rose-200 transition-all"
+                              className="p-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg border border-rose-200 transition-all active:scale-95"
                               title="Delete Product"
                             >
                               <Trash2 size={14} strokeWidth={2.2} />

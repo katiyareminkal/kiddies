@@ -12,7 +12,9 @@ import {
   generateDynamicLabelPDF,
   adaptTemplateToDimensions,
   getEffectiveGender,
-  cleanSizeLabel
+  cleanSizeLabel,
+  ensureSubCategoryElement,
+  cleanSku
 } from '../../utils/pdfLabel';
 
 const MM_TO_PX = 3.7795275591;

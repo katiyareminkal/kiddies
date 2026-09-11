@@ -185,15 +185,15 @@ const Settings: React.FC = () => {
   return (
     <div className="space-y-5 animate-nano pb-20 max-w-[1600px] mx-auto">
       {/* ── Executive Header ── */}
-      <div className="bg-white border border-slate-200/80 rounded-md p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-5 shadow-card flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-md bg-[#01a9fb] text-white flex items-center justify-center shadow-xs shrink-0">
+          <div className="w-10 h-10 rounded-xl bg-[#01a9fb] text-white flex items-center justify-center shadow-xs shrink-0">
             <SettingsIcon size={20} strokeWidth={2.2} />
           </div>
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-lg sm:text-xl font-extrabold text-slate-900 tracking-tight">System Settings</h1>
-              <span className="text-[10px] font-extrabold text-[#01a9fb] bg-[#01a9fb]/10 border border-[#01a9fb]/30 px-2 py-0.5 rounded-md">
+              <span className="text-[10px] font-extrabold text-[#01a9fb] bg-[#01a9fb]/10 border border-[#01a9fb]/30 px-2 py-0.5 rounded-lg">
                 Configuration Console
               </span>
             </div>
@@ -204,7 +204,7 @@ const Settings: React.FC = () => {
 
       {/* Notification Toast with green right tick and round border, transparent look */}
       {notification && (
-        <div className="fixed bottom-20 md:bottom-10 right-6 px-4 py-3 rounded-md shadow-xl flex items-center gap-3 animate-nano z-50 bg-slate-900/95 backdrop-blur-sm text-white border border-slate-700">
+        <div className="fixed bottom-20 md:bottom-10 right-6 px-4 py-3 rounded-xl shadow-xl flex items-center gap-3 animate-nano z-50 bg-slate-900/95 backdrop-blur-sm text-white border border-slate-700">
           {notification.type === 'success' ? (
             <div className="w-5 h-5 rounded-full border-2 border-emerald-500 flex items-center justify-center shrink-0 bg-transparent">
               <CheckCircle2 size={13} className="text-emerald-400 stroke-[2.5]" />
@@ -214,20 +214,20 @@ const Settings: React.FC = () => {
               <AlertTriangle size={13} className="text-rose-400 stroke-[2.5]" />
             </div>
           )}
-          <span className="font-extrabold text-xs tracking-wide">{notification.message}</span>
+          <span className="font-black text-xs tracking-wide">{notification.message}</span>
         </div>
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-12 gap-5">
         {/* Sidebar Navigation */}
         <div className="md:col-span-3">
-          <div className="bg-white rounded-md border border-slate-200/80 p-2 shadow-xs sticky top-20">
-            <nav className="space-y-1">
+          <div className="bg-white rounded-2xl border border-slate-200/90 p-2.5 shadow-card sticky top-20">
+            <nav className="space-y-1.5">
               {tabs.map(tab => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as any)}
-                  className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 text-xs font-extrabold rounded-md transition-all ${activeTab === tab.id
+                  className={`w-full flex items-center gap-2.5 px-4 py-3 text-xs font-black rounded-xl transition-all ${activeTab === tab.id
                     ? 'bg-[#01a9fb] text-white shadow-xs'
                     : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
                     }`}
@@ -244,13 +244,13 @@ const Settings: React.FC = () => {
         <div className="md:col-span-9 space-y-5">
           {/* Store Profile Tab */}
           {activeTab === 'profile' && (
-            <div className="bg-white rounded-md border border-slate-200/80 p-5 sm:p-6 shadow-xs">
+            <div className="bg-white rounded-2xl border border-slate-200/90 p-5 sm:p-6 shadow-card">
               <div className="flex items-center gap-3 mb-6 pb-4 border-b border-slate-100">
-                <div className="w-9 h-9 rounded-md bg-[#01a9fb]/10 text-[#01a9fb] border border-[#01a9fb]/30 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-xl bg-[#01a9fb]/10 text-[#01a9fb] border border-[#01a9fb]/30 flex items-center justify-center shadow-2xs">
                   <Store size={18} />
                 </div>
                 <div>
-                  <h3 className="text-base font-extrabold text-slate-900">Store Profile</h3>
+                  <h3 className="text-base font-black text-slate-900">Store Profile</h3>
                   <p className="text-xs text-slate-400 font-medium">Business identity displayed on customer invoices & tags</p>
                 </div>
               </div>
@@ -259,14 +259,14 @@ const Settings: React.FC = () => {
                 <div className="flex flex-col sm:flex-row items-center gap-4 mb-4">
                   <div
                     onClick={() => logoInputRef.current?.click()}
-                    className="w-24 h-24 rounded-md bg-slate-50 border-2 border-dashed border-slate-200 flex flex-col items-center justify-center text-slate-400 gap-1 cursor-pointer hover:border-[#01a9fb] hover:text-[#01a9fb] transition-all overflow-hidden shrink-0"
+                    className="w-24 h-24 rounded-2xl bg-slate-50 border-2 border-dashed border-slate-200 flex flex-col items-center justify-center text-slate-400 gap-1 cursor-pointer hover:border-[#01a9fb] hover:text-[#01a9fb] transition-all overflow-hidden shrink-0 shadow-2xs"
                   >
                     {logoPreview ? (
                       <img src={logoPreview} alt="Logo" className="w-full h-full object-contain p-1" />
                     ) : (
                       <>
                         <Image size={20} />
-                        <span className="text-[9px] font-extrabold uppercase text-center">Upload Logo</span>
+                        <span className="text-[9px] font-black uppercase text-center">Upload Logo</span>
                       </>
                     )}
                     <input
@@ -278,21 +278,21 @@ const Settings: React.FC = () => {
                     />
                   </div>
 
-                  <div className="flex-1 w-full space-y-1">
-                    <label className="text-[10px] font-bold uppercase text-slate-400 tracking-wider">Store Brand Name *</label>
-                    <input name="storeName" defaultValue={storeProfile.storeName} required className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#01a9fb] rounded-md outline-none font-extrabold text-sm text-slate-900" placeholder="Kiddies Store" />
+                  <div className="flex-1 w-full space-y-1.5">
+                    <label className="text-[10px] font-black uppercase text-slate-400 tracking-wider">Store Brand Name *</label>
+                    <input name="storeName" defaultValue={storeProfile.storeName} required className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200/90 focus:bg-white focus:border-[#01a9fb] rounded-xl outline-none font-black text-sm text-slate-900 transition-all shadow-2xs" placeholder="Kiddies Store" />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div className="space-y-1">
-                    <label className="text-[10px] font-bold uppercase text-slate-400 tracking-wider">Official Phone *</label>
-                    <input name="phone" defaultValue={storeProfile.phone} required className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#01a9fb] rounded-md outline-none font-bold text-xs text-slate-900" />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-black uppercase text-slate-400 tracking-wider">Official Phone *</label>
+                    <input name="phone" defaultValue={storeProfile.phone} required className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200/90 focus:bg-white focus:border-[#01a9fb] rounded-xl outline-none font-bold text-xs text-slate-900 transition-all shadow-2xs" />
                   </div>
-                  <div className="space-y-1">
+                  <div className="space-y-1.5">
                     <div className="flex items-center justify-between">
-                      <label className="text-[10px] font-bold uppercase text-slate-400 tracking-wider">Official Email *</label>
-                      <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded flex items-center gap-1">
+                      <label className="text-[10px] font-black uppercase text-slate-400 tracking-wider">Official Email *</label>
+                      <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-lg flex items-center gap-1">
                         <CheckCircle2 size={10} /> Verified Active
                       </span>
                     </div>
@@ -300,27 +300,27 @@ const Settings: React.FC = () => {
                       name="email"
                       defaultValue={currentUser?.email || storeProfile.email}
                       required
-                      className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#01a9fb] rounded-md outline-none font-bold text-xs text-slate-900"
+                      className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200/90 focus:bg-white focus:border-[#01a9fb] rounded-xl outline-none font-bold text-xs text-slate-900 transition-all shadow-2xs"
                     />
                     <p className="text-[10px] text-slate-400">Defaults to your active logged-in email. Updating will send a verification link to your new inbox.</p>
                   </div>
-                  <div className="space-y-1">
-                    <label className="text-[10px] font-bold uppercase text-slate-400 tracking-wider">GSTIN / Tax Registration</label>
-                    <input name="gstin" defaultValue={storeProfile.gstin} className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#01a9fb] rounded-md outline-none font-mono font-bold text-xs text-slate-900" />
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-black uppercase text-slate-400 tracking-wider">GSTIN / Tax Registration</label>
+                    <input name="gstin" defaultValue={storeProfile.gstin} className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200/90 focus:bg-white focus:border-[#01a9fb] rounded-xl outline-none font-mono font-bold text-xs text-slate-900 transition-all shadow-2xs" />
                   </div>
-                  <div className="space-y-1">
-                    <label className="text-[10px] font-bold uppercase text-slate-400 tracking-wider">Website URL</label>
-                    <input name="website" defaultValue={storeProfile.website} className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#01a9fb] rounded-md outline-none font-bold text-xs text-slate-900" />
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-black uppercase text-slate-400 tracking-wider">Website URL</label>
+                    <input name="website" defaultValue={storeProfile.website} className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200/90 focus:bg-white focus:border-[#01a9fb] rounded-xl outline-none font-bold text-xs text-slate-900 transition-all shadow-2xs" />
                   </div>
                 </div>
 
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase text-slate-400 tracking-wider">Physical Store Address</label>
-                  <textarea name="address" defaultValue={storeProfile.address} className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#01a9fb] rounded-md outline-none font-bold text-xs text-slate-900 h-20 resize-none"></textarea>
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-black uppercase text-slate-400 tracking-wider">Physical Store Address</label>
+                  <textarea name="address" defaultValue={storeProfile.address} className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200/90 focus:bg-white focus:border-[#01a9fb] rounded-xl outline-none font-bold text-xs text-slate-900 h-20 resize-none transition-all shadow-2xs"></textarea>
                 </div>
 
-                <div className="pt-3 flex justify-end border-t border-slate-100">
-                  <button type="submit" disabled={isSavingProfile} className="px-5 py-2.5 bg-[#01a9fb] hover:bg-[#0098e6] text-white rounded-md text-xs font-extrabold uppercase tracking-wider flex items-center gap-1.5 shadow-xs disabled:opacity-75 disabled:cursor-not-allowed">
+                <div className="pt-4 flex justify-end border-t border-slate-100">
+                  <button type="submit" disabled={isSavingProfile} className="px-5 py-2.5 bg-[#01a9fb] hover:bg-[#0098e6] text-white rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-1.5 shadow-xs disabled:opacity-75 disabled:cursor-not-allowed active:scale-95 transition-all">
                     <Save size={14} />
                     <span>{isSavingProfile ? 'Saving....' : 'Save Store Profile'}</span>
                   </button>
@@ -331,13 +331,13 @@ const Settings: React.FC = () => {
 
           {/* Preferences Tab */}
           {activeTab === 'preferences' && (
-            <div className="bg-white rounded-md border border-slate-200/80 p-5 sm:p-6 shadow-xs">
+            <div className="bg-white rounded-2xl border border-slate-200/90 p-5 sm:p-6 shadow-card">
               <div className="flex items-center gap-3 mb-6 pb-4 border-b border-slate-100">
-                <div className="w-9 h-9 rounded-md bg-[#01a9fb]/10 text-[#01a9fb] border border-[#01a9fb]/30 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-xl bg-[#01a9fb]/10 text-[#01a9fb] border border-[#01a9fb]/30 flex items-center justify-center shadow-2xs">
                   <Sliders size={18} />
                 </div>
                 <div>
-                  <h3 className="text-base font-extrabold text-slate-900">System Preferences</h3>
+                  <h3 className="text-base font-black text-slate-900">System Preferences</h3>
                   <p className="text-xs text-slate-400 font-medium">Invoicing prefixes, default tax rates, and safety deletion permissions</p>
                 </div>
               </div>
@@ -345,40 +345,40 @@ const Settings: React.FC = () => {
               <form onSubmit={handlePreferencesSubmit} className="space-y-5">
                 {/* Invoicing Prefixes */}
                 <div className="space-y-2">
-                  <h4 className="text-xs font-extrabold uppercase tracking-wider text-slate-700">Invoice Prefixes & Tax</h4>
+                  <h4 className="text-xs font-black uppercase tracking-wider text-slate-700">Invoice Prefixes & Tax</h4>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <div className="space-y-1">
-                      <label className="text-[10px] font-bold uppercase text-slate-400 tracking-wider">Sales Invoice Prefix</label>
-                      <input name="salesInvoicePrefix" defaultValue={settings.salesInvoicePrefix} className="w-full px-3 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#01a9fb] rounded-md font-mono font-bold text-xs text-slate-900 uppercase" placeholder="INV-" />
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-black uppercase text-slate-400 tracking-wider">Sales Invoice Prefix</label>
+                      <input name="salesInvoicePrefix" defaultValue={settings.salesInvoicePrefix} className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200/90 focus:bg-white focus:border-[#01a9fb] rounded-xl font-mono font-bold text-xs text-slate-900 uppercase shadow-2xs transition-all" placeholder="INV-" />
                     </div>
-                    <div className="space-y-1">
-                      <label className="text-[10px] font-bold uppercase text-slate-400 tracking-wider">Rental Invoice Prefix</label>
-                      <input name="rentalInvoicePrefix" defaultValue={settings.rentalInvoicePrefix} className="w-full px-3 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#01a9fb] rounded-md font-mono font-bold text-xs text-slate-900 uppercase" placeholder="RNT-" />
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-black uppercase text-slate-400 tracking-wider">Rental Invoice Prefix</label>
+                      <input name="rentalInvoicePrefix" defaultValue={settings.rentalInvoicePrefix} className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200/90 focus:bg-white focus:border-[#01a9fb] rounded-xl font-mono font-bold text-xs text-slate-900 uppercase shadow-2xs transition-all" placeholder="RNT-" />
                     </div>
-                    <div className="space-y-1">
-                      <label className="text-[10px] font-bold uppercase text-slate-400 tracking-wider">Default Tax Rate (%)</label>
-                      <input type="number" name="defaultTaxRate" defaultValue={settings.defaultTaxRate} className="w-full px-3 py-2 bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#01a9fb] rounded-md font-bold text-xs text-slate-900" />
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-black uppercase text-slate-400 tracking-wider">Default Tax Rate (%)</label>
+                      <input type="number" name="defaultTaxRate" defaultValue={settings.defaultTaxRate} className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200/90 focus:bg-white focus:border-[#01a9fb] rounded-xl font-bold text-xs text-slate-900 shadow-2xs transition-all" />
                     </div>
                   </div>
                 </div>
 
                 {/* Stock Warnings */}
                 <div className="space-y-2 pt-3 border-t border-slate-100">
-                  <h4 className="text-xs font-extrabold uppercase tracking-wider text-slate-700">Stock Alert Level</h4>
-                  <div className="p-3.5 bg-slate-50 rounded-md border border-slate-200 flex items-center justify-between">
+                  <h4 className="text-xs font-black uppercase tracking-wider text-slate-700">Stock Alert Level</h4>
+                  <div className="p-4 bg-slate-50 rounded-xl border border-slate-200/90 flex items-center justify-between">
                     <div>
-                      <p className="text-xs font-bold text-slate-900">Global Low Stock Threshold</p>
+                      <p className="text-xs font-black text-slate-900">Global Low Stock Threshold</p>
                       <p className="text-[10px] text-slate-400">Trigger warnings on dashboard when stock dips below</p>
                     </div>
-                    <input type="number" name="lowStockThreshold" defaultValue={settings.lowStockThreshold} className="w-20 px-3 py-1.5 bg-white border border-slate-200 focus:border-[#01a9fb] rounded-md font-bold text-xs text-slate-900 text-center" />
+                    <input type="number" name="lowStockThreshold" defaultValue={settings.lowStockThreshold} className="w-20 px-3 py-2 bg-white border border-slate-200/90 focus:border-[#01a9fb] rounded-xl font-black text-xs text-slate-900 text-center shadow-2xs" />
                   </div>
                 </div>
 
                 {/* Deletion Permission Toggles */}
                 <div className="space-y-2 pt-3 border-t border-slate-100">
-                  <h4 className="text-xs font-extrabold uppercase tracking-wider text-slate-700">Deletion Safety Permissions</h4>
+                  <h4 className="text-xs font-black uppercase tracking-wider text-slate-700">Deletion Safety Permissions</h4>
                   <p className="text-[10px] text-slate-400 mb-2">Enable or restrict trash bin actions for system records</p>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {[
                       { key: 'enableDeleteInventory', label: 'Allow Deleting Inventory SKUs', desc: 'Permanent catalog deletion' },
                       { key: 'enableDeleteTransactions', label: 'Allow Deleting Sales Records', desc: 'Permanent invoice deletion' },
@@ -387,24 +387,24 @@ const Settings: React.FC = () => {
                       { key: 'enableDeleteSuppliers', label: 'Allow Deleting Supplier Records', desc: 'Permanent vendor deletion' },
                       { key: 'enableDeleteUsers', label: 'Allow Deleting Staff User Accounts', desc: 'Permanent access revoke' },
                     ].map(item => (
-                      <label key={item.key} className="flex items-center justify-between p-3 bg-slate-50 rounded-md border border-slate-200 cursor-pointer hover:bg-slate-100 transition-colors">
+                      <label key={item.key} className="flex items-center justify-between p-3.5 bg-slate-50 rounded-xl border border-slate-200/90 cursor-pointer hover:bg-slate-100 transition-colors shadow-2xs">
                         <div>
-                          <p className="text-xs font-bold text-slate-900">{item.label}</p>
+                          <p className="text-xs font-black text-slate-900">{item.label}</p>
                           <p className="text-[10px] text-slate-400">{item.desc}</p>
                         </div>
                         <input
                           type="checkbox"
                           name={item.key}
                           defaultChecked={(settings as any)[item.key]}
-                          className="rounded border-slate-300 text-[#01a9fb] focus:ring-[#01a9fb] w-4 h-4"
+                          className="rounded-lg border-slate-300 text-[#01a9fb] focus:ring-[#01a9fb] w-4 h-4 cursor-pointer"
                         />
                       </label>
                     ))}
                   </div>
                 </div>
 
-                <div className="pt-3 flex justify-end border-t border-slate-100">
-                  <button type="submit" disabled={isSavingPreferences} className="px-5 py-2.5 bg-[#01a9fb] hover:bg-[#0098e6] text-white rounded-md text-xs font-extrabold uppercase tracking-wider flex items-center gap-1.5 shadow-xs disabled:opacity-75 disabled:cursor-not-allowed">
+                <div className="pt-4 flex justify-end border-t border-slate-100">
+                  <button type="submit" disabled={isSavingPreferences} className="px-5 py-2.5 bg-[#01a9fb] hover:bg-[#0098e6] text-white rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-1.5 shadow-xs disabled:opacity-75 disabled:cursor-not-allowed active:scale-95 transition-all">
                     <Save size={14} />
                     <span>{isSavingPreferences ? 'Saving....' : 'Save System Preferences'}</span>
                   </button>
@@ -416,37 +416,37 @@ const Settings: React.FC = () => {
           {/* Data Management Tab */}
           {activeTab === 'data' && (
             <div className="space-y-4">
-              <div className="bg-white rounded-lg border border-slate-200/80 p-5 sm:p-6 shadow-xs">
+              <div className="bg-white rounded-2xl border border-slate-200/90 p-5 sm:p-6 shadow-card">
                 <div className="flex items-center gap-3 mb-6 pb-4 border-b border-slate-100">
-                  <div className="w-9 h-9 rounded-md bg-slate-50 text-slate-700 border border-slate-200 flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-xl bg-slate-50 text-slate-700 border border-slate-200 flex items-center justify-center shadow-2xs">
                     <Database size={18} />
                   </div>
                   <div>
-                    <h3 className="text-base font-extrabold text-slate-900">Backup & Restore Engine</h3>
+                    <h3 className="text-base font-black text-slate-900">Backup & Restore Engine</h3>
                     <p className="text-xs text-slate-400 font-medium">Export full table spreadsheets or raw snapshot backups</p>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
-                  <div className="p-4 rounded-lg border border-slate-200 bg-slate-50/70 flex flex-col justify-between">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="p-4 rounded-2xl border border-slate-200/90 bg-slate-50/70 flex flex-col justify-between shadow-2xs">
                     <div>
-                      <div className="w-8 h-8 rounded-md bg-indigo-50 text-indigo-600 flex items-center justify-center mb-3">
+                      <div className="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center mb-3 shadow-2xs">
                         <Download size={16} />
                       </div>
-                      <h4 className="font-extrabold text-xs text-slate-900">Export JSON Snapshot</h4>
+                      <h4 className="font-black text-xs text-slate-900">Export JSON Snapshot</h4>
                       <p className="text-[10px] text-slate-400 mt-0.5 mb-3">Raw full-fidelity state file</p>
                     </div>
-                    <button onClick={handleExportData} className="w-full py-2 bg-white hover:bg-indigo-50 hover:text-indigo-600 border border-slate-200 rounded-md text-xs font-extrabold transition-all">
+                    <button onClick={handleExportData} className="w-full py-2.5 bg-white hover:bg-indigo-50 hover:text-indigo-600 border border-slate-200 rounded-xl text-xs font-black transition-all shadow-2xs active:scale-95">
                       Download JSON
                     </button>
                   </div>
 
-                  <div className="p-4 rounded-lg border border-slate-200 bg-slate-50/70 flex flex-col justify-between">
+                  <div className="p-4 rounded-2xl border border-slate-200/90 bg-slate-50/70 flex flex-col justify-between shadow-2xs">
                     <div>
-                      <div className="w-8 h-8 rounded-md bg-emerald-50 text-emerald-600 flex items-center justify-center mb-3">
+                      <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-3 shadow-2xs">
                         <FileSpreadsheet size={16} />
                       </div>
-                      <h4 className="font-extrabold text-xs text-slate-900">Export Excel Sheets</h4>
+                      <h4 className="font-black text-xs text-slate-900">Export Excel Sheets</h4>
                       <p className="text-[10px] text-slate-400 mt-0.5 mb-3">Multi-sheet .xlsx workbook</p>
                     </div>
                     <button
@@ -454,18 +454,18 @@ const Settings: React.FC = () => {
                         exportToExcel({ products, sales, rentals, customers, suppliers, stockLogs });
                         showNotification('Excel backup downloaded.', 'success');
                       }}
-                      className="w-full py-2 bg-white hover:bg-emerald-50 hover:text-emerald-700 border border-slate-200 rounded-md text-xs font-extrabold transition-all"
+                      className="w-full py-2.5 bg-white hover:bg-emerald-50 hover:text-emerald-700 border border-slate-200 rounded-xl text-xs font-black transition-all shadow-2xs active:scale-95"
                     >
                       Download Excel
                     </button>
                   </div>
 
-                  <div className="p-4 rounded-lg border border-slate-200 bg-slate-50/70 flex flex-col justify-between">
+                  <div className="p-4 rounded-2xl border border-slate-200/90 bg-slate-50/70 flex flex-col justify-between shadow-2xs">
                     <div>
-                      <div className="w-8 h-8 rounded-md bg-violet-50 text-violet-600 flex items-center justify-center mb-3">
+                      <div className="w-9 h-9 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center mb-3 shadow-2xs">
                         <Upload size={16} />
                       </div>
-                      <h4 className="font-extrabold text-xs text-slate-900">Restore Backup</h4>
+                      <h4 className="font-black text-xs text-slate-900">Restore Backup</h4>
                       <p className="text-[10px] text-slate-400 mt-0.5 mb-3">Import JSON data snapshot</p>
                     </div>
                     <input
@@ -475,7 +475,7 @@ const Settings: React.FC = () => {
                       accept=".json"
                       onChange={handleFileChange}
                     />
-                    <button onClick={handleImportClick} className="w-full py-2 bg-white hover:bg-violet-50 hover:text-violet-700 border border-slate-200 rounded-md text-xs font-extrabold transition-all">
+                    <button onClick={handleImportClick} className="w-full py-2.5 bg-white hover:bg-violet-50 hover:text-violet-700 border border-slate-200 rounded-xl text-xs font-black transition-all shadow-2xs active:scale-95">
                       Import Backup
                     </button>
                   </div>
@@ -483,15 +483,15 @@ const Settings: React.FC = () => {
               </div>
 
               {/* Danger Zone */}
-              <div className="bg-rose-50/50 rounded-lg border border-rose-200 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="bg-rose-50/50 rounded-2xl border border-rose-200 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-card">
                 <div>
-                  <h4 className="text-xs font-extrabold text-rose-700 flex items-center gap-1.5 uppercase tracking-wider">
+                  <h4 className="text-xs font-black text-rose-700 flex items-center gap-1.5 uppercase tracking-wider">
                     <AlertOctagon size={15} />
                     <span>Danger Zone • Factory Reset</span>
                   </h4>
                   <p className="text-[11px] text-rose-600/80 mt-0.5 font-medium">Irreversible action. Permanently wipe all store records and reset to factory defaults.</p>
                 </div>
-                <button onClick={handleReset} className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-md text-xs font-extrabold uppercase tracking-wider shadow-xs transition-all shrink-0">
+                <button onClick={handleReset} className="px-4 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-black uppercase tracking-wider shadow-xs transition-all shrink-0 active:scale-95">
                   Reset System Data
                 </button>
               </div>

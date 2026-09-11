@@ -1,4 +1,4 @@
-import React, { useState, useRef, useMemo } from 'react';
+import React, { useState, useRef, useMemo, useEffect } from 'react';
 import { differenceInDays, parseISO, addDays, format } from 'date-fns';
 import {
   AlertCircle,
@@ -13,20 +13,35 @@ import {
   Tag,
   RotateCcw,
   CheckCircle,
-  Clock
+  Clock,
+  CalendarCheck
 } from 'lucide-react';
 import { Modal } from '../Shared';
 import { useApp } from '../../store/AppContext';
 import { formatCurrency } from '../../utils/helpers';
-import { PaymentStatus } from '../../types';
+import { PaymentStatus, RentalStatus } from '../../types';
 
 interface NewRentalModalProps {
   isOpen: boolean;
   onClose: () => void;
+  initialProductId?: string;
+  initialStartDate?: string;
+  initialExpectedReturnDate?: string;
+  initialMode?: 'IMMEDIATE' | 'RESERVATION';
 }
 
-export const NewRentalModal: React.FC<NewRentalModalProps> = ({ isOpen, onClose }) => {
+export const NewRentalModal: React.FC<NewRentalModalProps> = ({
+  isOpen,
+  onClose,
+  initialProductId,
+  initialStartDate,
+  initialExpectedReturnDate,
+  initialMode
+}) => {
   const { products, customers, addCustomer, addRental } = useApp();
+
+  // Mode switcher: Immediate rental vs Advance reservation
+  const [bookingType, setBookingType] = useState<'IMMEDIATE' | 'RESERVATION'>('IMMEDIATE');
 
   // Custom quick customer creation states
   const [selectedCustomerId, setSelectedCustomerId] = useState<string>('');
@@ -49,6 +64,16 @@ export const NewRentalModal: React.FC<NewRentalModalProps> = ({ isOpen, onClose 
   const [expectedReturnDate, setExpectedReturnDate] = useState<string>(defaultReturnStr);
   const [securityDeposit, setSecurityDeposit] = useState<string>('');
   const [customRentalAmount, setCustomRentalAmount] = useState<string>('');
+
+  // Synchronize when modal opens with prefilled data
+  useEffect(() => {
+    if (isOpen) {
+      if (initialMode) setBookingType(initialMode);
+      if (initialProductId) setSelectedProductId(initialProductId);
+      if (initialStartDate) setStartDate(initialStartDate);
+      if (initialExpectedReturnDate) setExpectedReturnDate(initialExpectedReturnDate);
+    }
+  }, [isOpen, initialMode, initialProductId, initialStartDate, initialExpectedReturnDate]);
 
   // Selected product & calculated breakdown
   const selectedProduct = useMemo(() => {
@@ -176,6 +201,7 @@ export const NewRentalModal: React.FC<NewRentalModalProps> = ({ isOpen, onClose 
         totalRentAmount: effectiveRentalAmount,
         paidAmount: numericDeposit, // Deposit collected upfront
         paymentStatus: numericDeposit >= effectiveRentalAmount ? PaymentStatus.PAID : PaymentStatus.PARTIAL,
+        status: bookingType === 'RESERVATION' ? RentalStatus.RESERVED : RentalStatus.ACTIVE,
         images: rentalImages,
       }, selectedFiles);
 
@@ -199,13 +225,40 @@ export const NewRentalModal: React.FC<NewRentalModalProps> = ({ isOpen, onClose 
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={handleResetAndClose} title="Create New Rental">
+    <Modal
+      isOpen={isOpen}
+      onClose={handleResetAndClose}
+      title={bookingType === 'RESERVATION' ? 'Advance Reservation Booking' : 'Create New Rental'}
+    >
       <form onSubmit={handleCreateRental} className="space-y-3">
+        {/* Booking Mode Switcher */}
+        <div className="flex bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs font-bold gap-1">
+          <button
+            type="button"
+            onClick={() => setBookingType('IMMEDIATE')}
+            className={bookingType === 'IMMEDIATE' ? 'flex-1 py-1.5 px-2 rounded-lg transition-all flex items-center justify-center gap-1.5 bg-white text-slate-900 shadow-xs' : 'flex-1 py-1.5 px-2 rounded-lg transition-all flex items-center justify-center gap-1.5 text-slate-500 hover:text-slate-800'}
+          >
+            <span>⚡ Instant Rental</span>
+            <span className="text-[9px] font-normal text-slate-400 hidden sm:inline">(Handover today)</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setBookingType('RESERVATION')}
+            className={bookingType === 'RESERVATION' ? 'flex-1 py-1.5 px-2 rounded-lg transition-all flex items-center justify-center gap-1.5 bg-[#fe569f] text-white shadow-xs' : 'flex-1 py-1.5 px-2 rounded-lg transition-all flex items-center justify-center gap-1.5 text-slate-500 hover:text-slate-800'}
+          >
+            <CalendarCheck size={13} className={bookingType === 'RESERVATION' ? 'text-white' : 'text-slate-400'} />
+            <span>Advance Reservation</span>
+            <span className={bookingType === 'RESERVATION' ? 'text-[9px] font-normal text-pink-100 hidden sm:inline' : 'text-[9px] font-normal text-slate-400 hidden sm:inline'}>(Future event)</span>
+          </button>
+        </div>
+
         {/* Top Stock Notice */}
-        <div className="px-3 py-2 bg-[#fe569f]/10 rounded-md border border-[#fe569f]/20 flex items-center gap-2">
-          <AlertCircle size={14} className="text-[#fe569f] shrink-0" strokeWidth={2.2} />
+        <div className={bookingType === 'RESERVATION' ? 'px-3 py-2 rounded-md border flex items-center gap-2 bg-amber-50 border-amber-200' : 'px-3 py-2 rounded-md border flex items-center gap-2 bg-[#fe569f]/10 border-[#fe569f]/20'}>
+          <AlertCircle size={14} className={bookingType === 'RESERVATION' ? 'text-amber-600 shrink-0' : 'text-[#fe569f] shrink-0'} strokeWidth={2.2} />
           <p className="text-[10px] font-bold text-slate-700 leading-tight">
-            Stock deducted from <span className="text-[#fe569f] font-extrabold">Rental Pool</span>. Net Refundable = Deposit - Rent.
+            {bookingType === 'RESERVATION'
+              ? 'Advance booking: Garment stock is reserved on the rack for upcoming function date. Handover is recorded when customer collects.'
+              : 'Stock deducted from Rental Pool. Net Refundable = Deposit - Rent.'}
           </p>
         </div>
 
@@ -471,7 +524,7 @@ export const NewRentalModal: React.FC<NewRentalModalProps> = ({ isOpen, onClose 
             type="submit"
             className="flex-1 py-2 rounded-md font-extrabold uppercase tracking-wider text-[10px] bg-[#fe569f] hover:bg-[#eb4890] text-white shadow-xs transition-all active:scale-95"
           >
-            Issue Rental Booking
+            {bookingType === 'RESERVATION' ? 'Confirm Advance Reservation' : 'Issue Rental Booking'}
           </button>
         </div>
       </form>

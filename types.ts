@@ -2,7 +2,9 @@
 export enum RentalStatus {
   ACTIVE = 'ACTIVE',
   RETURNED = 'RETURNED',
-  OVERDUE = 'OVERDUE'
+  OVERDUE = 'OVERDUE',
+  RESERVED = 'RESERVED',
+  CANCELLED = 'CANCELLED'
 }
 
 export enum PaymentStatus {
@@ -16,7 +18,14 @@ export enum PaymentMethod {
   CASH = 'CASH',
   UPI = 'UPI',
   CARD = 'CARD',
-  BANK_TRANSFER = 'BANK_TRANSFER'
+  BANK_TRANSFER = 'BANK_TRANSFER',
+  SPLIT = 'SPLIT'
+}
+
+export interface PaymentSplit {
+  method: PaymentMethod;
+  amount: number;
+  notes?: string;
 }
 
 export enum SalesChannel {
@@ -167,9 +176,14 @@ export interface Sale {
   paidAmount: number;
   paymentStatus: PaymentStatus;
   paymentMethod: PaymentMethod;
+  splitPayments?: PaymentSplit[];
+  cashTendered?: number;
+  changeDue?: number;
   orderStatus: OrderStatus;
   date: string;
 }
+
+export type LaundryStatus = 'NOT_REQUIRED' | 'IN_LAUNDRY' | 'CLEANED';
 
 export interface Rental {
   id: string;
@@ -190,6 +204,11 @@ export interface Rental {
   images?: string[]; // Array of base64 strings for condition photos/ID proofs
   returnImages?: string[]; // Array of base64 strings for return condition photos
   date: string;
+  laundryStatus?: LaundryStatus;
+  laundryNotes?: string;
+  laundryPartner?: string;
+  laundrySentDate?: string;
+  laundryReadyDate?: string;
 }
 
 export interface StockLog {

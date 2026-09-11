@@ -688,7 +688,7 @@ const Suppliers: React.FC = () => {
 
         <button
           onClick={() => { setEditingSupplier(null); setIsAddModalOpen(true); }}
-          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[#fe569f] hover:bg-[#eb4890] text-white text-xs font-extrabold uppercase tracking-wider rounded-md shadow-xs transition-all active:scale-95"
+          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[#fe569f] hover:bg-[#eb4890] text-white text-xs font-black uppercase tracking-wider rounded-xl shadow-xs transition-all active:scale-95"
         >
           <Plus size={16} strokeWidth={2.5} />
           <span>New Supplier</span>
@@ -696,57 +696,57 @@ const Suppliers: React.FC = () => {
       </div>
 
       {/* ── Relevant KPI Cards with Info Icons ── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-3.5">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {/* Card 1: Registered Vendors */}
-        <div className="bg-white hover:bg-slate-50/60 p-4 sm:p-4.5 rounded-xl border border-slate-200/90 hover:border-[#fe569f]/40 shadow-2xs transition-all space-y-2">
+        <div className="bg-white hover:bg-slate-50/60 p-4 sm:p-5 rounded-2xl border border-slate-200/90 hover:border-[#fe569f]/40 shadow-card transition-all space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-black uppercase tracking-wider text-slate-500 flex items-center gap-1">
+            <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-slate-500 flex items-center gap-1">
               <span>Active Vendors</span>
               <span className="text-slate-400 hover:text-slate-600 cursor-help" title="Total registered wholesale suppliers, distributors, and manufacturers in your store.">
                 <Info size={12} strokeWidth={2.2} />
               </span>
             </span>
-            <div className="w-8 h-8 rounded-lg bg-[#fe569f]/10 text-[#fe569f] flex items-center justify-center font-black text-xs shrink-0">
+            <div className="w-8 h-8 rounded-xl bg-[#fe569f]/10 text-[#fe569f] flex items-center justify-center font-black text-xs shrink-0 shadow-2xs">
               <Building2 size={16} />
             </div>
           </div>
           <div>
             <h3 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight leading-none">{safeSuppliers.length}</h3>
-            <p className="text-[11px] font-extrabold text-[#fe569f] mt-1.5 flex items-center gap-1">
+            <p className="text-[10px] sm:text-xs font-extrabold text-[#fe569f] mt-1.5 flex items-center gap-1">
               <span>Procurement partners</span>
             </p>
           </div>
         </div>
 
         {/* Card 2: Recorded Purchase Bills */}
-        <div className="bg-white hover:bg-slate-50/60 p-4 sm:p-4.5 rounded-xl border border-slate-200/90 hover:border-[#01a9fb]/40 shadow-2xs transition-all space-y-2">
+        <div className="bg-white hover:bg-slate-50/60 p-4 sm:p-5 rounded-2xl border border-slate-200/90 hover:border-[#01a9fb]/40 shadow-card transition-all space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-black uppercase tracking-wider text-slate-500 flex items-center gap-1">
+            <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-slate-500 flex items-center gap-1">
               <span>Purchase Bills</span>
               <span className="text-slate-400 hover:text-slate-600 cursor-help" title="Total count of inward vendor purchase bills & GST invoices entered into your store ledger.">
                 <Info size={12} strokeWidth={2.2} />
               </span>
             </span>
-            <div className="w-8 h-8 rounded-lg bg-[#01a9fb]/10 text-[#01a9fb] flex items-center justify-center font-black text-xs shrink-0">
+            <div className="w-8 h-8 rounded-xl bg-[#01a9fb]/10 text-[#01a9fb] flex items-center justify-center font-black text-xs shrink-0 shadow-2xs">
               <FileText size={16} />
             </div>
           </div>
           <div>
             <h3 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight leading-none">{safeSupplierBills.length}</h3>
-            <p className="text-[11px] font-extrabold text-[#01a9fb] mt-1.5">Inward vendor invoices</p>
+            <p className="text-[10px] sm:text-xs font-extrabold text-[#01a9fb] mt-1.5">Inward vendor invoices</p>
           </div>
         </div>
 
         {/* Card 3: Total Outstanding Vendor Due */}
-        <div className="bg-white hover:bg-slate-50/60 p-4 sm:p-4.5 rounded-xl border border-slate-200/90 hover:border-rose-300 shadow-2xs transition-all space-y-2">
+        <div className="bg-white hover:bg-slate-50/60 p-4 sm:p-5 rounded-2xl border border-slate-200/90 hover:border-rose-300 shadow-card transition-all space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-black uppercase tracking-wider text-slate-500 flex items-center gap-1">
+            <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-slate-500 flex items-center gap-1">
               <span>Outstanding Due</span>
               <span className="text-slate-400 hover:text-slate-600 cursor-help" title="Total unpaid balance amount owed by your store across all pending vendor bills.">
                 <Info size={12} strokeWidth={2.2} />
               </span>
             </span>
-            <div className="w-8 h-8 rounded-lg bg-rose-50 text-rose-600 border border-rose-200 flex items-center justify-center font-black text-xs shrink-0">
+            <div className="w-8 h-8 rounded-xl bg-rose-50 text-rose-600 border border-rose-200 flex items-center justify-center font-black text-xs shrink-0 shadow-2xs">
               <CreditCard size={16} />
             </div>
           </div>
@@ -754,28 +754,28 @@ const Suppliers: React.FC = () => {
             <h3 className={`text-2xl sm:text-3xl font-black tracking-tight leading-none font-mono ${totalVendorDue > 0 ? 'text-rose-600' : 'text-emerald-600'}`}>
               {formatCurrency(totalVendorDue)}
             </h3>
-            <p className="text-[11px] font-extrabold text-rose-500 mt-1.5">
+            <p className="text-[10px] sm:text-xs font-extrabold text-rose-500 mt-1.5">
               {pendingBillsCount} {pendingBillsCount === 1 ? 'bill pending payment' : 'bills pending payment'}
             </p>
           </div>
         </div>
 
         {/* Card 4: Total Procurement Spend */}
-        <div className="bg-white hover:bg-slate-50/60 p-4 sm:p-4.5 rounded-xl border border-slate-200/90 hover:border-emerald-300 shadow-2xs transition-all space-y-2">
+        <div className="bg-white hover:bg-slate-50/60 p-4 sm:p-5 rounded-2xl border border-slate-200/90 hover:border-emerald-300 shadow-card transition-all space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-black uppercase tracking-wider text-slate-500 flex items-center gap-1">
+            <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-slate-500 flex items-center gap-1">
               <span>Total Sourced Spend</span>
               <span className="text-slate-400 hover:text-slate-600 cursor-help" title="Total monetary value spent on inventory stock and goods purchased from vendors.">
                 <Info size={12} strokeWidth={2.2} />
               </span>
             </span>
-            <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center justify-center font-black text-xs shrink-0">
+            <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center justify-center font-black text-xs shrink-0 shadow-2xs">
               <Boxes size={16} />
             </div>
           </div>
           <div>
             <h3 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight leading-none font-mono">{formatCurrency(totalProcurementSpend)}</h3>
-            <p className="text-[11px] font-extrabold text-emerald-600 mt-1.5">Total stock purchase spend</p>
+            <p className="text-[10px] sm:text-xs font-extrabold text-emerald-600 mt-1.5">Total stock purchase spend</p>
           </div>
         </div>
       </div>
@@ -786,7 +786,7 @@ const Suppliers: React.FC = () => {
         <input
           type="text"
           placeholder="Search suppliers by name or contact person..."
-          className="w-full pl-10 pr-3.5 py-2.5 bg-white border border-slate-200/80 rounded-md text-xs font-bold text-slate-900 outline-none focus:border-[#fe569f] focus:ring-2 focus:ring-[#fe569f]/10 transition-all shadow-xs placeholder:text-slate-400"
+          className="w-full pl-10 pr-3.5 py-2.5 bg-white border border-slate-200/90 rounded-xl text-xs font-bold text-slate-900 outline-none focus:border-[#fe569f] focus:ring-2 focus:ring-[#fe569f]/10 transition-all shadow-xs placeholder:text-slate-400"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
@@ -802,7 +802,7 @@ const Suppliers: React.FC = () => {
             <div
               key={supplier.id}
               onClick={() => openLedger(supplier)}
-              className="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-2xs hover:shadow-md hover:border-slate-300 transition-all duration-200 flex flex-col justify-between group cursor-pointer space-y-3"
+              className="bg-white rounded-2xl border border-slate-200/90 p-4 sm:p-5 shadow-card hover:shadow-card-hover hover:border-slate-300 transition-all duration-200 flex flex-col justify-between group cursor-pointer space-y-3"
             >
               <div className="space-y-2.5">
                 {/* Header: Initial Avatar, Supplier Name, Category Badge & Action Icons */}
@@ -903,8 +903,8 @@ const Suppliers: React.FC = () => {
       </div>
 
       {filteredSuppliers.length === 0 && (
-        <div className="py-14 text-center bg-white rounded-[6px] border border-slate-200/80 shadow-xs">
-          <div className="w-12 h-12 bg-slate-50 border border-slate-200 rounded-[6px] flex items-center justify-center text-slate-400 mx-auto mb-3">
+        <div className="py-14 text-center bg-white rounded-2xl border border-slate-200/90 shadow-card">
+          <div className="w-12 h-12 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-center text-slate-400 mx-auto mb-3">
             <Building2 size={22} strokeWidth={2} />
           </div>
           <p className="text-slate-700 text-sm font-extrabold">No suppliers found</p>

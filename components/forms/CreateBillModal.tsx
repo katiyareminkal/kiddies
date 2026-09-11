@@ -374,7 +374,7 @@ export const CreateBillModal: React.FC<CreateBillModalProps> = ({ isOpen, onClos
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 15 }}
           transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-          className="fixed inset-0 z-[99] md:left-64 md:top-16 bg-[#F8FAFC] flex flex-col p-1 sm:p-3"
+          className="fixed inset-0 z-[99] md:left-64 md:top-16 bg-[#F8FAFC] flex flex-col p-1 sm:p-3 overflow-hidden"
         >
           {/* Success Feedback Overlay */}
           {successMessage && (
@@ -403,27 +403,27 @@ export const CreateBillModal: React.FC<CreateBillModalProps> = ({ isOpen, onClos
                 <button
                   type="button"
                   onClick={onClose}
-                  className="p-2 bg-white border border-slate-200/80 hover:border-slate-300 rounded-md text-slate-500 hover:text-slate-900 transition-colors shadow-xs"
+                  className="p-2 bg-white border border-slate-200/80 hover:border-slate-300 rounded-md text-slate-500 hover:text-slate-900 transition-colors shadow-xs shrink-0"
                 >
                   <X size={16} strokeWidth={2.5} />
                 </button>
-                <div>
-                  <h1 className="text-base sm:text-lg font-black text-slate-900 tracking-tight leading-none">Checkout Terminal</h1>
-                  <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">Quick Sale Entry</p>
+                <div className="min-w-0">
+                  <h1 className="text-base sm:text-lg font-black text-slate-900 tracking-tight leading-none truncate">Checkout Terminal</h1>
+                  <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mt-0.5 truncate">Quick Sale Entry</p>
                 </div>
               </div>
             </div>
 
-            <div className="flex items-center gap-2 bg-white p-1.5 sm:p-2 border border-slate-200/80 shadow-xs rounded-md justify-between sm:justify-end">
+            <div className="flex items-center gap-2 bg-white p-1.5 sm:p-2 border border-slate-200/80 shadow-xs rounded-md justify-between sm:justify-end min-w-0">
               {/* Sale Date Box */}
-              <div className="flex flex-col items-start pr-2.5 border-r border-slate-200/70">
+              <div className="flex flex-col items-start pr-2.5 border-r border-slate-200/70 shrink-0">
                 <span className="text-[8px] font-extrabold text-slate-400 uppercase tracking-wider whitespace-nowrap">Sale Date</span>
                 <input 
                   type="date"
                   value={transactionDate}
                   onChange={(e) => setTransactionDate(e.target.value)}
                   max={new Date().toISOString().split('T')[0]}
-                  className="bg-transparent text-[11px] sm:text-xs font-black text-slate-900 border-none outline-none cursor-pointer focus:ring-0 p-0 min-w-[115px] sm:min-w-[125px]"
+                  className="bg-transparent text-[11px] sm:text-xs font-black text-slate-900 border-none outline-none cursor-pointer focus:ring-0 p-0 min-w-[110px] sm:min-w-[125px]"
                 />
               </div>
               
@@ -520,30 +520,31 @@ export const CreateBillModal: React.FC<CreateBillModalProps> = ({ isOpen, onClos
                       alert('Failed to add customer');
                     }
                   }}
-                  className="w-full py-1.5 bg-[#01a9fb] text-white rounded-md text-[9px] font-bold uppercase tracking-wider hover:bg-[#0098e6] transition-colors flex items-center justify-center gap-1 shadow-xs"
+                  className="w-full py-1.5 px-3 bg-[#01a9fb] text-white rounded-md text-[9px] font-bold uppercase tracking-wider hover:bg-[#0098e6] transition-colors flex items-center justify-center gap-1 shadow-xs whitespace-nowrap active:scale-95"
                 >
-                  <UserPlus size={11} /> Save & Select Customer
+                  <UserPlus size={11} className="shrink-0" />
+                  <span className="whitespace-nowrap">Save & Select Customer</span>
                 </button>
               </div>
             )}
 
           {/* Mobile Tab Switcher */}
-          <div className="flex lg:hidden bg-slate-100 p-1 rounded-md border border-slate-200/70 mb-2 gap-1" style={{ flexShrink: 0 }}>
+          <div className="flex lg:hidden bg-slate-100 p-1 rounded-md border border-slate-200/70 mb-2 gap-1 shrink-0">
             <button
               onClick={() => setTerminalTab('PRODUCTS')}
               type="button"
-              className={`flex-1 py-2 text-center rounded text-[10px] font-extrabold uppercase tracking-wider transition-all ${terminalTab === 'PRODUCTS' ? 'bg-[#01a9fb] text-white shadow-xs' : 'text-slate-500 font-bold'}`}
+              className={`flex-1 py-2 text-center rounded text-[10px] font-extrabold uppercase tracking-wider transition-all whitespace-nowrap ${terminalTab === 'PRODUCTS' ? 'bg-[#01a9fb] text-white shadow-xs' : 'text-slate-500 font-bold'}`}
             >
               Products
             </button>
             <button
               onClick={() => setTerminalTab('BASKET')}
               type="button"
-              className={`flex-1 py-2 text-center rounded text-[10px] font-extrabold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 ${terminalTab === 'BASKET' ? 'bg-[#01a9fb] text-white shadow-xs' : 'text-slate-500 font-bold'}`}
+              className={`flex-1 py-2 text-center rounded text-[10px] font-extrabold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 whitespace-nowrap ${terminalTab === 'BASKET' ? 'bg-[#01a9fb] text-white shadow-xs' : 'text-slate-500 font-bold'}`}
             >
-              Basket
+              <span className="whitespace-nowrap">Basket</span>
               {cartItems.length > 0 && (
-                <span className="bg-white text-[#01a9fb] font-mono text-[9px] font-extrabold px-1.5 py-0.2 rounded leading-none">
+                <span className="bg-white text-[#01a9fb] font-mono text-[9px] font-extrabold px-1.5 py-0.2 rounded leading-none shrink-0">
                   {cartItems.reduce((acc, item) => acc + item.quantity, 0)}
                 </span>
               )}
@@ -556,13 +557,13 @@ export const CreateBillModal: React.FC<CreateBillModalProps> = ({ isOpen, onClos
             <div className={`${terminalTab === 'PRODUCTS' ? 'flex' : 'hidden lg:flex'} flex-col gap-2.5`} style={{ flex: 2.5, minWidth: 0, minHeight: 0 }}>
               {/* Search & Categories */}
               <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                <div className="flex gap-2">
-                  <div className="relative group flex-1">
-                    <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#01a9fb] transition-colors" size={14} strokeWidth={2.2} />
+                <div className="flex gap-2 min-w-0">
+                  <div className="relative group flex-1 min-w-[100px]">
+                    <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#01a9fb] transition-colors shrink-0" size={14} strokeWidth={2.2} />
                     <input
                       type="text"
                       placeholder="Search name or SKU..."
-                      className="w-full bg-white border border-slate-200/80 rounded-md py-2.5 pl-10 pr-3 text-xs font-bold text-slate-900 placeholder:text-slate-400 outline-none focus:border-[#01a9fb] transition-all shadow-xs"
+                      className="w-full bg-white border border-slate-200/80 rounded-md py-2 pl-9 pr-3 text-xs font-bold text-slate-900 placeholder:text-slate-400 outline-none focus:border-[#01a9fb] transition-all shadow-xs"
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
                     />
@@ -571,31 +572,34 @@ export const CreateBillModal: React.FC<CreateBillModalProps> = ({ isOpen, onClos
                     <button
                       type="button"
                       onClick={() => setProductViewMode('grid')}
-                      className={`w-7 h-7 rounded flex items-center justify-center transition-all ${productViewMode === 'grid' ? 'bg-[#01a9fb] text-white' : 'text-slate-400 hover:text-slate-600'}`}
+                      className={`w-7 h-7 rounded flex items-center justify-center transition-all shrink-0 ${productViewMode === 'grid' ? 'bg-[#01a9fb] text-white' : 'text-slate-400 hover:text-slate-600'}`}
+                      title="Grid"
                     >
                       <LayoutGrid size={13} strokeWidth={2.2} />
                     </button>
                     <button
                       type="button"
                       onClick={() => setProductViewMode('list')}
-                      className={`w-7 h-7 rounded flex items-center justify-center transition-all ${productViewMode === 'list' ? 'bg-[#01a9fb] text-white' : 'text-slate-400 hover:text-slate-600'}`}
+                      className={`w-7 h-7 rounded flex items-center justify-center transition-all shrink-0 ${productViewMode === 'list' ? 'bg-[#01a9fb] text-white' : 'text-slate-400 hover:text-slate-600'}`}
+                      title="List"
                     >
                       <List size={13} strokeWidth={2.2} />
                     </button>
                   </div>
                   <button
                     onClick={() => setIsScannerOpen(true)}
-                    className="bg-slate-900 text-white px-3.5 py-2.5 rounded-md font-extrabold text-xs hover:bg-slate-800 transition-all shrink-0 flex items-center justify-center group"
+                    className="bg-slate-900 text-white px-3 py-2 rounded-md font-extrabold text-xs hover:bg-slate-800 transition-all shrink-0 flex items-center justify-center group active:scale-95"
+                    title="Scan Barcode"
                   >
-                    <ScanLine size={16} className="group-hover:scale-110 transition-transform" />
+                    <ScanLine size={15} className="group-hover:scale-110 transition-transform" />
                   </button>
                   <button
                     type="button"
                     onClick={() => setIsCustomFormOpen(true)}
-                    className="bg-white border border-slate-200/80 hover:border-[#01a9fb] text-slate-900 px-3 py-2.5 rounded-md font-extrabold text-xs shadow-xs transition-all shrink-0 flex items-center justify-center gap-1"
+                    className="bg-white border border-slate-200/80 hover:border-[#01a9fb] text-slate-900 px-3 py-2 rounded-md font-extrabold text-xs shadow-xs transition-all shrink-0 flex items-center justify-center gap-1.5 whitespace-nowrap active:scale-95"
                   >
-                    <Plus size={13} strokeWidth={2.5} />
-                    <span className="hidden sm:inline">Manual</span>
+                    <Plus size={13} strokeWidth={2.5} className="shrink-0" />
+                    <span className="whitespace-nowrap">Manual</span>
                   </button>
                 </div>
               </div>
@@ -706,21 +710,21 @@ export const CreateBillModal: React.FC<CreateBillModalProps> = ({ isOpen, onClos
 
               {/* Floating review bar on mobile */}
               {terminalTab === 'PRODUCTS' && cartItems.length > 0 && (
-                <div className="lg:hidden" style={{ flexShrink: 0, paddingTop: '4px' }}>
+                <div className="lg:hidden shrink-0 pt-1">
                   <button
                     onClick={() => setTerminalTab('BASKET')}
                     type="button"
-                    className="w-full bg-slate-900 border border-slate-800 text-white rounded-xl p-3 shadow-2xl flex items-center justify-between hover:bg-slate-800 active:scale-[0.98] transition-all text-xs font-bold uppercase tracking-wider"
+                    className="w-full bg-slate-900 border border-slate-800 text-white rounded-xl p-3 shadow-2xl flex items-center justify-between hover:bg-slate-800 active:scale-[0.98] transition-all text-xs font-bold uppercase tracking-wider whitespace-nowrap"
                   >
-                    <div className="flex items-center gap-2">
-                      <span className="w-5 h-5 rounded-lg bg-highlight text-gray-900 flex items-center justify-center text-[10px] font-bold leading-none">
+                    <div className="flex items-center gap-2 shrink-0">
+                      <span className="w-5 h-5 rounded-lg bg-[#01a9fb] text-white flex items-center justify-center text-[10px] font-bold leading-none shrink-0">
                         {cartItems.reduce((acc, item) => acc + item.quantity, 0)}
                       </span>
-                      <span>Review Basket</span>
+                      <span className="whitespace-nowrap">Review Basket</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-highlight font-mono font-bold">{formatCurrency(total)}</span>
-                      <ArrowUpRight size={14} strokeWidth={3} className="text-highlight" />
+                    <div className="flex items-center gap-2 shrink-0">
+                      <span className="text-[#01a9fb] font-mono font-bold whitespace-nowrap">{formatCurrency(total)}</span>
+                      <ArrowUpRight size={14} strokeWidth={3} className="text-[#01a9fb] shrink-0" />
                     </div>
                   </button>
                 </div>
@@ -728,14 +732,15 @@ export const CreateBillModal: React.FC<CreateBillModalProps> = ({ isOpen, onClos
             </div>
 
             {/* Cart/Basket Column */}
-            <div className={`${terminalTab === 'BASKET' ? 'flex' : 'hidden lg:flex'} flex-col`} style={{ flex: 2, minWidth: '340px', background: 'white', borderRadius: '8px', border: '1px solid #E2E8F0', overflow: 'hidden' }}>
+            <div className={`${terminalTab === 'BASKET' ? 'flex' : 'hidden lg:flex'} flex-col w-full lg:w-80 xl:w-96 shrink-0 bg-white rounded-lg border border-slate-200/90 overflow-hidden shadow-xs`}>
               {/* Basket Header */}
-              <div style={{ padding: '12px 16px', borderBottom: '1px solid #F8FAFC', flexShrink: 0 }}>
+              <div className="px-3.5 py-2.5 border-b border-slate-100 shrink-0">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-xs font-bold text-gray-900 uppercase tracking-tight flex items-center gap-2">
-                    <ShoppingBag size={14} className="text-highlight" /> Basket
+                  <h3 className="text-xs font-extrabold text-slate-900 uppercase tracking-tight flex items-center gap-1.5 whitespace-nowrap">
+                    <ShoppingBag size={14} className="text-[#01a9fb] shrink-0" />
+                    <span>Basket</span>
                   </h3>
-                  <span className="text-[8px] font-bold bg-gray-50 text-gray-400 px-2 py-0.5 rounded-md uppercase">{cartItems.length} items</span>
+                  <span className="text-[9px] font-extrabold bg-slate-100 text-slate-500 px-2 py-0.5 rounded-md uppercase whitespace-nowrap shrink-0">{cartItems.length} items</span>
                 </div>
               </div>
 
@@ -879,25 +884,25 @@ export const CreateBillModal: React.FC<CreateBillModalProps> = ({ isOpen, onClos
                 {/* Payment Method Selector */}
                 <div className="mt-2 space-y-1.5 border-t border-gray-200/60 pt-2">
                   <label className="text-[8px] font-bold uppercase text-gray-400 tracking-widest block">Payment Method</label>
-                  <div className="grid grid-cols-4 gap-1">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-1">
                     {[
-                      { id: PaymentMethod.CASH, label: 'Cash', icon: <Wallet size={11} /> },
-                      { id: PaymentMethod.UPI, label: 'UPI', icon: <Smartphone size={11} /> },
-                      { id: PaymentMethod.CARD, label: 'Card', icon: <CreditCard size={11} /> },
-                      { id: PaymentMethod.BANK_TRANSFER, label: 'Bank', icon: <Landmark size={11} /> },
+                      { id: PaymentMethod.CASH, label: 'Cash', icon: <Wallet size={11} className="shrink-0" /> },
+                      { id: PaymentMethod.UPI, label: 'UPI', icon: <Smartphone size={11} className="shrink-0" /> },
+                      { id: PaymentMethod.CARD, label: 'Card', icon: <CreditCard size={11} className="shrink-0" /> },
+                      { id: PaymentMethod.BANK_TRANSFER, label: 'Bank', icon: <Landmark size={11} className="shrink-0" /> },
                     ].map(pm => (
                       <button
                         key={pm.id}
                         type="button"
                         onClick={() => setSelectedPaymentMethod(pm.id)}
-                        className={`py-1.5 px-1 rounded-lg text-[8px] font-bold uppercase tracking-wider flex items-center justify-center gap-1 transition-all border ${
+                        className={`py-1.5 px-1 rounded-lg text-[9px] font-extrabold uppercase tracking-wider flex items-center justify-center gap-1 transition-all border whitespace-nowrap active:scale-95 ${
                           selectedPaymentMethod === pm.id
                             ? 'bg-slate-900 text-white border-slate-900 shadow-sm'
-                            : 'bg-gray-50 text-gray-500 border-gray-200/60 hover:bg-gray-100'
+                            : 'bg-gray-50 text-gray-600 border-gray-200/60 hover:bg-gray-100'
                         }`}
                       >
                         {pm.icon}
-                        <span>{pm.label}</span>
+                        <span className="whitespace-nowrap">{pm.label}</span>
                       </button>
                     ))}
                   </div>
@@ -905,16 +910,16 @@ export const CreateBillModal: React.FC<CreateBillModalProps> = ({ isOpen, onClos
 
                 {/* Payment Type: Full vs Partial */}
                 <div className="mt-2 space-y-1.5">
-                  <div className="flex items-center justify-between">
-                    <label className="text-[8px] font-bold uppercase text-gray-400 tracking-widest">Payment Amount</label>
-                    <div className="flex bg-gray-100 rounded-lg p-0.5">
+                  <div className="flex items-center justify-between gap-2">
+                    <label className="text-[8px] font-bold uppercase text-gray-400 tracking-widest whitespace-nowrap">Payment Amount</label>
+                    <div className="flex bg-gray-100 rounded-lg p-0.5 shrink-0">
                       <button
                         type="button"
                         onClick={() => {
                           setIsPartialPayment(false);
                           setPartialPaidAmountInput('');
                         }}
-                        className={`px-2 py-0.5 text-[8px] font-bold uppercase rounded-md transition-all ${!isPartialPayment ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}
+                        className={`px-2 py-0.5 text-[8px] font-bold uppercase rounded-md transition-all whitespace-nowrap shrink-0 ${!isPartialPayment ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}
                       >
                         Full Paid
                       </button>
@@ -926,7 +931,7 @@ export const CreateBillModal: React.FC<CreateBillModalProps> = ({ isOpen, onClos
                             setPartialPaidAmountInput((finalAmountToPay / 2).toString());
                           }
                         }}
-                        className={`px-2 py-0.5 text-[8px] font-bold uppercase rounded-md transition-all ${isPartialPayment ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}
+                        className={`px-2 py-0.5 text-[8px] font-bold uppercase rounded-md transition-all whitespace-nowrap shrink-0 ${isPartialPayment ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}
                       >
                         Partial Pay
                       </button>
@@ -936,26 +941,26 @@ export const CreateBillModal: React.FC<CreateBillModalProps> = ({ isOpen, onClos
                   {isPartialPayment && (
                     <div className="p-2 bg-amber-50/70 border border-amber-100 rounded-xl space-y-1.5 animate-nano">
                       <div className="flex items-center gap-2">
-                        <span className="text-[8.5px] font-bold uppercase text-gray-600 tracking-wider">Received (₹):</span>
+                        <span className="text-[8.5px] font-bold uppercase text-gray-600 tracking-wider whitespace-nowrap">Received (₹):</span>
                         <input
                           type="number"
                           placeholder="Amount received..."
                           value={partialPaidAmountInput}
                           onChange={(e) => setPartialPaidAmountInput(e.target.value)}
-                          className="flex-1 bg-white border border-amber-200 rounded-lg px-2 py-1 text-[10px] font-mono font-bold text-gray-900 outline-none focus:border-[#8B5CF6]"
+                          className="flex-1 bg-white border border-amber-200 rounded-lg px-2 py-1 text-[10px] font-mono font-bold text-gray-900 outline-none focus:border-[#8B5CF6] min-w-0"
                         />
                       </div>
                       <div className="flex justify-between items-center text-[9px] pt-1 border-t border-amber-200/50">
-                        <span className="font-bold text-gray-500">Paid: <strong className="text-emerald-600 font-mono">{formatCurrency(actualPaidAmount)}</strong></span>
-                        <span className="font-bold text-gray-500">Due: <strong className="text-rose-600 font-mono font-bold">{formatCurrency(remainingDue)}</strong></span>
+                        <span className="font-bold text-gray-500 whitespace-nowrap">Paid: <strong className="text-emerald-600 font-mono">{formatCurrency(actualPaidAmount)}</strong></span>
+                        <span className="font-bold text-gray-500 whitespace-nowrap">Due: <strong className="text-rose-600 font-mono font-bold">{formatCurrency(remainingDue)}</strong></span>
                       </div>
                     </div>
                   )}
                 </div>
 
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '2px dashed #E2E8F0', marginTop: '8px', paddingTop: '6px' }}>
-                  <span style={{ fontSize: '10px', fontWeight: 900, color: '#1E293B', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{isPartialPayment ? 'Paid / Due' : (useCredit ? 'Final Due' : 'Total')}</span>
-                  <span style={{ fontSize: '20px', fontWeight: 900, color: isPartialPayment ? '#D97706' : '#01a9fb', fontFamily: 'monospace', letterSpacing: '-0.02em', lineHeight: 1 }}>
+                  <span style={{ fontSize: '10px', fontWeight: 900, color: '#1E293B', textTransform: 'uppercase', letterSpacing: '0.1em' }} className="whitespace-nowrap">{isPartialPayment ? 'Paid / Due' : (useCredit ? 'Final Due' : 'Total')}</span>
+                  <span style={{ fontSize: '20px', fontWeight: 900, color: isPartialPayment ? '#D97706' : '#01a9fb', fontFamily: 'monospace', letterSpacing: '-0.02em', lineHeight: 1 }} className="whitespace-nowrap shrink-0">
                     {isPartialPayment ? formatCurrency(actualPaidAmount) : formatCurrency(useCredit ? finalAmountToPay : total)}
                   </span>
                 </div>
@@ -964,15 +969,18 @@ export const CreateBillModal: React.FC<CreateBillModalProps> = ({ isOpen, onClos
                   <button
                     onClick={() => { setCart([]); onClose(); }}
                     style={{ width: '40px', height: '40px', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'white', border: '1px solid #E2E8F0', color: '#94A3B8', cursor: 'pointer', flexShrink: 0 }}
+                    title="Cancel & Clear"
                   >
                     <X size={16} strokeWidth={2.5} />
                   </button>
                   <button
                     onClick={handleCheckout}
                     disabled={cartItems.length === 0}
-                    style={{ flex: 1, height: '40px', background: cartItems.length === 0 ? '#94A3B8' : '#01a9fb', color: 'white', borderRadius: '6px', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', border: 'none', cursor: cartItems.length === 0 ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', opacity: cartItems.length === 0 ? 0.5 : 1 }}
+                    style={{ flex: 1, height: '40px', background: cartItems.length === 0 ? '#94A3B8' : '#01a9fb', color: 'white', borderRadius: '6px', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', border: 'none', cursor: cartItems.length === 0 ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', opacity: cartItems.length === 0 ? 0.5 : 1, whiteSpace: 'nowrap', overflow: 'hidden' }}
+                    className="active:scale-[0.98] transition-all"
                   >
-                    <CheckCircle size={14} strokeWidth={2.5} /> {isPartialPayment ? `Pay ${formatCurrency(actualPaidAmount)}` : 'Pay Now'}
+                    <CheckCircle size={14} strokeWidth={2.5} className="shrink-0" />
+                    <span className="whitespace-nowrap truncate">{isPartialPayment ? `Pay ${formatCurrency(actualPaidAmount)}` : 'Pay Now'}</span>
                   </button>
                 </div>
               </div>
@@ -1054,16 +1062,16 @@ export const CreateBillModal: React.FC<CreateBillModalProps> = ({ isOpen, onClos
                   <div className="space-y-1">
                     <label className="text-[8px] font-bold uppercase text-gray-400 tracking-widest flex items-center justify-between">
                       <span>Discount - Optional</span>
-                      <div className="flex bg-slate-200 rounded p-0.5">
+                      <div className="flex bg-slate-200 rounded p-0.5 shrink-0">
                         <button
                           type="button"
                           onClick={() => setCustomDiscountType('PERCENT')}
-                          className={`px-2 py-0.5 text-[8px] rounded-sm transition-colors ${customDiscountType === 'PERCENT' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}
+                          className={`px-2 py-0.5 text-[8px] rounded-sm transition-colors whitespace-nowrap shrink-0 ${customDiscountType === 'PERCENT' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}
                         >%</button>
                         <button
                           type="button"
                           onClick={() => setCustomDiscountType('FIXED')}
-                          className={`px-2 py-0.5 text-[8px] rounded-sm transition-colors ${customDiscountType === 'FIXED' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}
+                          className={`px-2 py-0.5 text-[8px] rounded-sm transition-colors whitespace-nowrap shrink-0 ${customDiscountType === 'FIXED' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}
                         >₹</button>
                       </div>
                     </label>
@@ -1081,16 +1089,17 @@ export const CreateBillModal: React.FC<CreateBillModalProps> = ({ isOpen, onClos
                         type="checkbox" 
                         checked={saveToInventory}
                         onChange={(e) => setSaveToInventory(e.target.checked)}
-                        className="rounded border-slate-300 text-highlight focus:ring-highlight w-4 h-4"
+                        className="rounded border-slate-300 text-highlight focus:ring-highlight w-4 h-4 shrink-0"
                       />
                       <span className="text-[9px] font-bold text-gray-600 uppercase tracking-widest">Save to Inventory for future sales</span>
                     </label>
                   )}
                   <button
                     type="submit"
-                    className="banana-btn w-full py-3 text-[9px]"
+                    className="w-full py-2.5 px-3 bg-[#01a9fb] hover:bg-[#0098e6] text-white rounded-md text-xs font-bold uppercase tracking-wider shadow-xs transition-all flex items-center justify-center gap-1.5 whitespace-nowrap active:scale-95"
                   >
-                    Add to Cart
+                    <Plus size={14} strokeWidth={2.5} className="shrink-0" />
+                    <span className="whitespace-nowrap">Add to Cart</span>
                   </button>
                 </form>
               </div>

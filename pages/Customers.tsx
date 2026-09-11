@@ -220,11 +220,11 @@ const Customers: React.FC = () => {
   if (selectedCustomer) {
     return (
       <div className="space-y-5 animate-nano pb-20 max-w-[1600px] mx-auto">
-        <div className="bg-white border border-slate-200/80 rounded-lg p-4 sm:p-5 shadow-xs flex items-center justify-between gap-3">
+        <div className="bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-5 shadow-card flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setSelectedCustomerId(null)}
-              className="p-2.5 bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-md transition-all border border-slate-200 active:scale-95 shadow-xs"
+              className="p-2.5 bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-xl transition-all border border-slate-200 active:scale-95 shadow-xs"
               title="Back to Customer Directory"
             >
               <ArrowLeft size={16} strokeWidth={2.5} />
@@ -247,7 +247,7 @@ const Customers: React.FC = () => {
                   setSelectedCustomerId(null);
                 }
               }}
-              className="px-3 py-2 text-rose-600 bg-rose-50 border border-rose-200 hover:bg-rose-100 rounded-md transition-colors text-xs font-extrabold uppercase tracking-wider flex items-center gap-1.5"
+              className="px-3.5 py-2 text-rose-600 bg-rose-50 border border-rose-200 hover:bg-rose-100 rounded-xl transition-colors text-xs font-black uppercase tracking-wider flex items-center gap-1.5 active:scale-95"
               title="Delete Customer Profile"
             >
               <Trash2 size={14} strokeWidth={2.2} />
@@ -257,11 +257,11 @@ const Customers: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-          <div className="bg-white rounded-lg border border-slate-200/80 p-5 shadow-xs lg:col-span-4 space-y-4">
-            <h3 className="text-xs font-extrabold text-slate-400 uppercase tracking-wider">Contact Profile</h3>
+          <div className="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-card lg:col-span-4 space-y-4">
+            <h3 className="text-xs font-black text-slate-400 uppercase tracking-wider">Contact Profile</h3>
             <div className="space-y-3 text-xs">
-              <div className="flex items-center gap-3 p-2.5 rounded-md bg-slate-50 border border-slate-100">
-                <div className="w-8 h-8 rounded bg-white flex items-center justify-center text-slate-700 shadow-xs border border-slate-200">
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
+                <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center text-slate-700 shadow-2xs border border-slate-200">
                   <Phone size={14} strokeWidth={2.5} />
                 </div>
                 <div>
@@ -270,8 +270,8 @@ const Customers: React.FC = () => {
                 </div>
               </div>
 
-              <div className="flex items-center gap-3 p-2.5 rounded-md bg-slate-50 border border-slate-100">
-                <div className="w-8 h-8 rounded bg-white flex items-center justify-center text-slate-700 shadow-xs border border-slate-200">
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
+                <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center text-slate-700 shadow-2xs border border-slate-200">
                   <Mail size={14} strokeWidth={2.5} />
                 </div>
                 <div>
@@ -280,8 +280,8 @@ const Customers: React.FC = () => {
                 </div>
               </div>
 
-              <div className="flex items-center gap-3 p-2.5 rounded-md bg-slate-50 border border-slate-100">
-                <div className="w-8 h-8 rounded bg-white flex items-center justify-center text-slate-700 shadow-xs border border-slate-200">
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
+                <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center text-slate-700 shadow-2xs border border-slate-200">
                   <MapPin size={14} strokeWidth={2.5} />
                 </div>
                 <div>
@@ -293,42 +293,42 @@ const Customers: React.FC = () => {
               {selectedCustomer.gstin && (
                 <div className="pt-2 border-t border-slate-100">
                   <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">GSTIN / Tax ID</p>
-                  <p className="font-mono text-xs font-extrabold text-slate-900 mt-1 bg-slate-50 px-2.5 py-1 rounded border border-slate-200 inline-block">{selectedCustomer.gstin}</p>
+                  <p className="font-mono text-xs font-extrabold text-slate-900 mt-1 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-200 inline-block">{selectedCustomer.gstin}</p>
                 </div>
               )}
             </div>
           </div>
 
-          <div className="lg:col-span-8 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3.5">
-            <div className="bg-slate-900 text-white rounded-lg p-5 shadow-xs relative overflow-hidden flex flex-col justify-between">
+          <div className="lg:col-span-8 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3.5 sm:gap-4">
+            <div className="bg-slate-900 text-white rounded-2xl p-5 shadow-card relative overflow-hidden flex flex-col justify-between">
               <div>
                 <div className="flex items-center gap-2 mb-3 text-slate-400">
                   <TrendingUp size={15} strokeWidth={2.5} />
-                  <span className="text-[10px] font-bold uppercase tracking-wider">Lifetime Value</span>
+                  <span className="text-[10px] font-black uppercase tracking-wider">Lifetime Value</span>
                 </div>
-                <p className="text-2xl font-extrabold font-mono tracking-tight">{formatCurrency(customerHistory.stats.totalSpent)}</p>
+                <p className="text-2xl font-black font-mono tracking-tight">{formatCurrency(customerHistory.stats.totalSpent)}</p>
               </div>
               <p className="text-[10px] text-slate-400 mt-3 pt-3 border-t border-slate-800">Total gross purchases & rentals</p>
             </div>
 
-            <div className="bg-emerald-900 text-white rounded-lg p-5 shadow-xs relative overflow-hidden flex flex-col justify-between">
+            <div className="bg-emerald-900 text-white rounded-2xl p-5 shadow-card relative overflow-hidden flex flex-col justify-between">
               <div>
                 <div className="flex items-center gap-2 mb-3 text-emerald-300">
                   <Banknote size={15} strokeWidth={2.5} />
-                  <span className="text-[10px] font-bold uppercase tracking-wider">Store Credit</span>
+                  <span className="text-[10px] font-black uppercase tracking-wider">Store Credit</span>
                 </div>
-                <p className="text-2xl font-extrabold font-mono text-emerald-300 tracking-tight">{formatCurrency(availableCredit)}</p>
+                <p className="text-2xl font-black font-mono text-emerald-300 tracking-tight">{formatCurrency(availableCredit)}</p>
                 <div className="flex gap-2 mt-3">
                   <button
                     onClick={() => setIsIssueCreditModalOpen(true)}
-                    className="px-2.5 py-1 bg-emerald-700 hover:bg-emerald-600 text-white rounded text-[10px] font-extrabold uppercase tracking-wider transition-all"
+                    className="px-2.5 py-1 bg-emerald-700 hover:bg-emerald-600 text-white rounded-lg text-[10px] font-black uppercase tracking-wider transition-all"
                   >
                     + Issue
                   </button>
                   {availableCredit > 0 && (
                     <button
                       onClick={() => setIsCashOutModalOpen(true)}
-                      className="px-2.5 py-1 bg-rose-700 hover:bg-rose-600 text-white rounded text-[10px] font-extrabold uppercase tracking-wider transition-all"
+                      className="px-2.5 py-1 bg-rose-700 hover:bg-rose-600 text-white rounded-lg text-[10px] font-black uppercase tracking-wider transition-all"
                     >
                       Cash Out
                     </button>
@@ -340,39 +340,39 @@ const Customers: React.FC = () => {
               </p>
             </div>
 
-            <div className="bg-white rounded-lg border border-slate-200/80 p-5 shadow-xs flex flex-col justify-between">
+            <div className="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-card flex flex-col justify-between">
               <div>
                 <div className="flex items-center gap-2 mb-3 text-slate-500">
                   <RefreshCcw size={15} strokeWidth={2.5} />
-                  <span className="text-[10px] font-bold uppercase tracking-wider">Active Rentals</span>
+                  <span className="text-[10px] font-black uppercase tracking-wider">Active Rentals</span>
                 </div>
-                <p className="text-2xl font-extrabold text-slate-900 tracking-tight">{customerHistory.stats.activeRentals}</p>
+                <p className="text-2xl font-black text-slate-900 tracking-tight">{customerHistory.stats.activeRentals}</p>
               </div>
               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-3 pt-3 border-t border-slate-100">Out on lease</p>
             </div>
 
-            <div className="bg-white rounded-lg border border-slate-200/80 p-5 shadow-xs flex flex-col justify-between">
+            <div className="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-card flex flex-col justify-between">
               <div>
                 <div className="flex items-center gap-2 mb-3 text-slate-500">
                   <ShoppingBag size={15} strokeWidth={2.5} />
-                  <span className="text-[10px] font-bold uppercase tracking-wider">Total Orders</span>
+                  <span className="text-[10px] font-black uppercase tracking-wider">Total Orders</span>
                 </div>
-                <p className="text-2xl font-extrabold text-slate-900 tracking-tight">{customerHistory.stats.totalOrders}</p>
+                <p className="text-2xl font-black text-slate-900 tracking-tight">{customerHistory.stats.totalOrders}</p>
               </div>
               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-3 pt-3 border-t border-slate-100">Historical orders</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-lg border border-slate-200/80 shadow-xs overflow-hidden">
+        <div className="bg-white rounded-2xl border border-slate-200/90 shadow-card overflow-hidden">
           <div className="p-4 sm:p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-900">Transaction Statement Ledger</h3>
-            <div className="inline-flex bg-slate-100 p-1 rounded-md border border-slate-200/70 shrink-0">
+            <h3 className="text-xs font-black uppercase tracking-wider text-slate-900">Transaction Statement Ledger</h3>
+            <div className="inline-flex bg-slate-100 p-1 rounded-xl border border-slate-200/70 shrink-0 gap-0.5">
               {(['ALL', 'SALE', 'RENTAL', 'CREDIT_NOTE'] as const).map(filter => (
                 <button
                   key={filter}
                   onClick={() => setTransactionFilter(filter)}
-                  className={`px-3 py-1 rounded text-xs font-bold transition-all ${transactionFilter === filter
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${transactionFilter === filter
                     ? 'bg-white text-slate-900 shadow-xs font-extrabold'
                     : 'text-slate-500 hover:text-slate-800'
                     }`}
@@ -708,15 +708,15 @@ const Customers: React.FC = () => {
 
   return (
     <div className="space-y-5 animate-nano pb-20 max-w-[1600px] mx-auto">
-      <div className="bg-white border border-slate-200/80 rounded-md p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-5 shadow-card flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-md bg-[#01a9fb] text-white flex items-center justify-center shadow-xs shrink-0">
+          <div className="w-10 h-10 rounded-xl bg-[#01a9fb] text-white flex items-center justify-center shadow-xs shrink-0">
             <Users size={20} strokeWidth={2.2} />
           </div>
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-lg sm:text-xl font-extrabold text-slate-900 tracking-tight">Customer CRM</h1>
-              <span className="text-[10px] font-extrabold text-[#01a9fb] bg-[#01a9fb]/10 border border-[#01a9fb]/30 px-2 py-0.5 rounded-md">
+              <span className="text-[10px] font-extrabold text-[#01a9fb] bg-[#01a9fb]/10 border border-[#01a9fb]/30 px-2 py-0.5 rounded-lg">
                 {filteredCustomers.length} Registered Profiles
               </span>
             </div>
@@ -726,7 +726,7 @@ const Customers: React.FC = () => {
 
         <button
           onClick={() => setIsAddModalOpen(true)}
-          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[#01a9fb] hover:bg-[#0098e6] text-white text-xs font-extrabold uppercase tracking-wider rounded-md shadow-xs transition-all active:scale-95"
+          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[#01a9fb] hover:bg-[#0098e6] text-white text-xs font-black uppercase tracking-wider rounded-xl shadow-xs transition-all active:scale-95"
         >
           <Plus size={16} strokeWidth={2.5} />
           <span>New Customer Profile</span>
@@ -738,27 +738,27 @@ const Customers: React.FC = () => {
         <input
           type="text"
           placeholder="Search by customer name or phone number..."
-          className="w-full pl-10 pr-3.5 py-2.5 bg-white border border-slate-200/80 rounded-md text-xs font-bold text-slate-900 outline-none focus:border-[#01a9fb] focus:ring-2 focus:ring-[#01a9fb]/10 transition-all shadow-xs placeholder:text-slate-400"
+          className="w-full pl-10 pr-3.5 py-2.5 bg-white border border-slate-200/90 rounded-xl text-xs font-bold text-slate-900 outline-none focus:border-[#01a9fb] focus:ring-2 focus:ring-[#01a9fb]/10 transition-all shadow-xs placeholder:text-slate-400"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-2.5 sm:gap-3.5">
+      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
         {filteredCustomers.map(customer => (
           <div
             key={customer.id}
             onClick={() => setSelectedCustomerId(customer.id)}
-            className="bg-white rounded-md border border-slate-200/90 p-2.5 sm:p-3.5 transition-all duration-200 flex flex-col justify-between group cursor-pointer hover:border-[#01a9fb]/60"
+            className="bg-white rounded-2xl border border-slate-200/90 p-4 sm:p-4.5 transition-all duration-200 flex flex-col justify-between group cursor-pointer shadow-card hover:shadow-card-hover hover:border-[#01a9fb]/60"
           >
             <div>
-              <div className="flex items-start gap-2 mb-2">
-                <div className="w-8 h-8 sm:w-9 sm:h-9 bg-[#01a9fb] text-white rounded-md flex items-center justify-center font-black text-xs shrink-0 group-hover:scale-105 transition-transform">
+              <div className="flex items-start gap-2.5 mb-2.5">
+                <div className="w-9 h-9 bg-[#01a9fb] text-white rounded-xl flex items-center justify-center font-black text-xs shrink-0 group-hover:scale-105 transition-transform shadow-2xs">
                   {(customer.name || 'C').charAt(0).toUpperCase()}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-1">
-                    <h4 className="text-xs font-black text-slate-900 truncate group-hover:text-[#01a9fb] transition-colors leading-tight">
+                    <h4 className="text-xs sm:text-sm font-black text-slate-900 truncate group-hover:text-[#01a9fb] transition-colors leading-tight">
                       {customer.name}
                     </h4>
                     {settings?.enableDeleteCustomers && (
@@ -770,7 +770,7 @@ const Customers: React.FC = () => {
                             await deleteCustomer(customer.id);
                           }
                         }}
-                        className="p-1 text-slate-300 hover:text-rose-600 hover:bg-rose-50 rounded transition-colors shrink-0"
+                        className="p-1 text-slate-300 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors shrink-0"
                         title="Delete Customer"
                       >
                         <Trash2 size={12} strokeWidth={2.2} />
@@ -787,7 +787,7 @@ const Customers: React.FC = () => {
               {getVipBadge(customer.totalSpent)}
             </div>
 
-            <div className="grid grid-cols-3 gap-1 pt-2 border-t border-slate-100 mt-2 text-[9px] sm:text-[10px]">
+            <div className="grid grid-cols-3 gap-1 pt-2.5 border-t border-slate-100 mt-2 text-[9px] sm:text-[10px]">
               <div>
                 <p className="font-extrabold text-slate-400 uppercase tracking-wider text-[8px]">Spent</p>
                 <p className="font-black text-slate-900 font-mono truncate">{formatCurrency(customer.totalSpent)}</p>
@@ -810,8 +810,8 @@ const Customers: React.FC = () => {
       </div>
 
       {filteredCustomers.length === 0 && (
-        <div className="py-14 text-center bg-white rounded-lg border border-slate-200/80 shadow-xs">
-          <div className="w-12 h-12 bg-slate-50 border border-slate-200 rounded-lg flex items-center justify-center text-slate-400 mx-auto mb-3">
+        <div className="py-14 text-center bg-white rounded-2xl border border-slate-200/90 shadow-card">
+          <div className="w-12 h-12 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-center text-slate-400 mx-auto mb-3">
             <User size={22} strokeWidth={2} />
           </div>
           <p className="text-slate-700 text-sm font-extrabold">No customers found</p>

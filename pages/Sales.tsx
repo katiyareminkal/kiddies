@@ -193,20 +193,21 @@ const Sales: React.FC = () => {
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
           {/* Export Dropdown */}
-          <div className="relative" ref={exportMenuRef}>
+          <div className="relative shrink-0" ref={exportMenuRef}>
             <div className="flex items-center bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-md overflow-hidden shadow-xs">
               <button
                 onClick={() => handleExportTimeframe(activeDatePreset === 'ALL' ? 'all' : (activeDatePreset.toLowerCase() as DatePresetTimeframe), exportFormat)}
-                className="px-3 py-2 text-slate-700 font-bold text-xs flex items-center gap-1.5 border-r border-slate-200 transition-colors"
+                className="px-3 py-2 text-slate-700 font-bold text-xs flex items-center gap-1.5 border-r border-slate-200 transition-colors whitespace-nowrap shrink-0"
               >
-                <Download size={14} className="text-[#01a9fb]" />
-                <span>Export {exportFormat.toUpperCase()}</span>
+                <Download size={14} className="text-[#01a9fb] shrink-0" />
+                <span className="whitespace-nowrap">Export {exportFormat.toUpperCase()}</span>
               </button>
               <button
                 onClick={() => setShowExportMenu(!showExportMenu)}
-                className="px-2 py-2 text-slate-500 hover:text-slate-900 transition-colors"
+                className="px-2 py-2 text-slate-500 hover:text-slate-900 transition-colors shrink-0"
+                title="Export Options"
               >
                 <ChevronDown size={14} className={`transition-transform ${showExportMenu ? 'rotate-180' : ''}`} />
               </button>
@@ -218,7 +219,7 @@ const Sales: React.FC = () => {
                 <div className="grid grid-cols-2 gap-1.5">
                   <button
                     onClick={() => setExportFormat('excel')}
-                    className={`py-1.5 rounded-md text-center text-xs font-bold transition-all border ${exportFormat === 'excel'
+                    className={`py-1.5 px-2 rounded-md text-center text-xs font-bold transition-all border whitespace-nowrap truncate ${exportFormat === 'excel'
                       ? 'bg-[#01a9fb] text-white border-[#01a9fb] shadow-xs'
                       : 'bg-slate-50 text-slate-600 border-slate-200'
                       }`}
@@ -227,7 +228,7 @@ const Sales: React.FC = () => {
                   </button>
                   <button
                     onClick={() => setExportFormat('csv')}
-                    className={`py-1.5 rounded-md text-center text-xs font-bold transition-all border ${exportFormat === 'csv'
+                    className={`py-1.5 px-2 rounded-md text-center text-xs font-bold transition-all border whitespace-nowrap truncate ${exportFormat === 'csv'
                       ? 'bg-slate-900 text-white border-slate-900 shadow-xs'
                       : 'bg-slate-50 text-slate-600 border-slate-200'
                       }`}
@@ -251,10 +252,10 @@ const Sales: React.FC = () => {
                         handleExportTimeframe(opt.id as DatePresetTimeframe, exportFormat);
                         setShowExportMenu(false);
                       }}
-                      className="w-full text-left px-2.5 py-1.5 rounded-md hover:bg-[#01a9fb]/10 hover:text-[#01a9fb] text-slate-700 font-bold text-xs transition-colors flex items-center justify-between"
+                      className="w-full text-left px-2.5 py-1.5 rounded-md hover:bg-[#01a9fb]/10 hover:text-[#01a9fb] text-slate-700 font-bold text-xs transition-colors flex items-center justify-between whitespace-nowrap"
                     >
-                      <span>{opt.title}</span>
-                      <span className="text-[10px] text-slate-400 font-mono">↓</span>
+                      <span className="whitespace-nowrap">{opt.title}</span>
+                      <span className="text-[10px] text-slate-400 font-mono shrink-0">↓</span>
                     </button>
                   ))}
                 </div>
@@ -264,80 +265,80 @@ const Sales: React.FC = () => {
 
           <button
             onClick={() => setIsAddingSale(true)}
-            className="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-[#01a9fb] hover:bg-[#0098e6] text-white text-xs font-extrabold uppercase tracking-wider rounded-md shadow-xs transition-all active:scale-95"
+            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[#01a9fb] hover:bg-[#0098e6] text-white text-xs font-black uppercase tracking-wider rounded-xl shadow-xs transition-all active:scale-95 whitespace-nowrap shrink-0"
           >
-            <Plus size={16} strokeWidth={2.5} />
-            <span>+ Create Bill</span>
+            <Plus size={16} strokeWidth={2.5} className="shrink-0" />
+            <span className="whitespace-nowrap">Create Bill</span>
           </button>
         </div>
       </div>
 
       {/* ── KPI Metric Cards (4 Distinct Cards) ── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3.5">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {/* Card 1: Today's Sales */}
         <div 
           onClick={() => applyDatePreset('TODAY')}
-          className={`p-3 sm:p-4 rounded-xl border transition-all duration-200 cursor-pointer text-left ${
+          className={`p-3.5 sm:p-5 rounded-2xl border transition-all duration-200 cursor-pointer text-left ${
             activeDatePreset === 'TODAY'
-              ? 'bg-[#01a9fb]/5 border-[#01a9fb] ring-2 ring-[#01a9fb]/20 shadow-xs'
-              : 'bg-white hover:bg-slate-50/70 border-slate-200/90 hover:border-[#01a9fb]/50'
+              ? 'bg-[#01a9fb]/5 border-[#01a9fb] ring-2 ring-[#01a9fb]/20 shadow-card'
+              : 'bg-white hover:bg-slate-50/70 border-slate-200/90 shadow-card hover:border-[#01a9fb]/50'
           }`}
           title="Click to view today's transactions"
         >
           <div className="flex items-center justify-between mb-2">
-            <span className="text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider text-slate-500 truncate">Today's Sales</span>
-            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-[#01a9fb]/10 text-[#01a9fb] flex items-center justify-center font-black text-xs shrink-0 shadow-2xs">
-              <IndianRupee size={14} strokeWidth={2.5} />
+            <span className="text-[10px] sm:text-xs font-extrabold uppercase tracking-wider text-slate-500 truncate">Today's Sales</span>
+            <div className="w-8 h-8 rounded-xl bg-[#01a9fb]/10 text-[#01a9fb] flex items-center justify-center font-black text-xs shrink-0 shadow-2xs">
+              <IndianRupee size={15} strokeWidth={2.5} />
             </div>
           </div>
-          <h3 className="text-lg sm:text-2xl font-black text-slate-900 tracking-tight leading-none font-mono truncate">
+          <h3 className="text-lg sm:text-xl xl:text-2xl font-black text-slate-900 tracking-tight leading-none font-mono truncate">
             {formatCurrency(todaySales)}
           </h3>
-          <p className="text-[10px] sm:text-[11px] font-extrabold text-[#01a9fb] mt-2 truncate flex items-center gap-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#01a9fb]"></span>
-            <span>{todayBillsCount} bills today</span>
+          <p className="text-xs font-extrabold text-[#01a9fb] mt-2.5 truncate flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#01a9fb] shrink-0"></span>
+            <span className="truncate">{todayBillsCount} bills today</span>
           </p>
         </div>
 
         {/* Card 2: Total Revenue */}
         <div 
           onClick={() => applyDatePreset('ALL')}
-          className={`p-3 sm:p-4 rounded-xl border transition-all duration-200 cursor-pointer text-left ${
+          className={`p-3.5 sm:p-5 rounded-2xl border transition-all duration-200 cursor-pointer text-left ${
             activeDatePreset === 'ALL'
-              ? 'bg-emerald-50/40 border-emerald-400 ring-2 ring-emerald-400/20 shadow-xs'
-              : 'bg-white hover:bg-slate-50/70 border-slate-200/90 hover:border-emerald-300'
+              ? 'bg-emerald-50/40 border-emerald-400 ring-2 ring-emerald-400/20 shadow-card'
+              : 'bg-white hover:bg-slate-50/70 border-slate-200/90 shadow-card hover:border-emerald-300'
           }`}
           title="Click to view all-time transactions"
         >
           <div className="flex items-center justify-between mb-2">
-            <span className="text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider text-slate-500 truncate">Total Revenue</span>
-            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center font-black text-xs shrink-0 shadow-2xs">
-              <TrendingUp size={14} strokeWidth={2.5} />
+            <span className="text-[10px] sm:text-xs font-extrabold uppercase tracking-wider text-slate-500 truncate">Total Revenue</span>
+            <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-black text-xs shrink-0 shadow-2xs">
+              <TrendingUp size={15} strokeWidth={2.5} />
             </div>
           </div>
-          <h3 className="text-lg sm:text-2xl font-black text-slate-900 tracking-tight leading-none font-mono truncate">
+          <h3 className="text-lg sm:text-xl xl:text-2xl font-black text-slate-900 tracking-tight leading-none font-mono truncate">
             {formatCurrency(totalSalesRevenue)}
           </h3>
-          <p className="text-[10px] sm:text-[11px] font-extrabold text-emerald-600 mt-2 truncate flex items-center gap-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-            <span>All-time earnings</span>
+          <p className="text-xs font-extrabold text-emerald-600 mt-2.5 truncate flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"></span>
+            <span className="truncate">All-time earnings</span>
           </p>
         </div>
 
         {/* Card 3: Total Invoices Count */}
-        <div className="bg-white hover:bg-slate-50/70 p-3 sm:p-4 rounded-xl border border-slate-200/90 hover:border-[#fe569f]/50 transition-all text-left">
+        <div className="bg-white hover:bg-slate-50/70 p-3.5 sm:p-5 rounded-2xl border border-slate-200/90 shadow-card hover:border-[#fe569f]/50 transition-all text-left">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider text-slate-500 truncate">Total Bills</span>
-            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-[#fe569f]/10 text-[#fe569f] flex items-center justify-center font-black text-xs shrink-0 shadow-2xs">
-              <Receipt size={14} strokeWidth={2.5} />
+            <span className="text-[10px] sm:text-xs font-extrabold uppercase tracking-wider text-slate-500 truncate">Total Bills</span>
+            <div className="w-8 h-8 rounded-xl bg-[#fe569f]/10 text-[#fe569f] flex items-center justify-center font-black text-xs shrink-0 shadow-2xs">
+              <Receipt size={15} strokeWidth={2.5} />
             </div>
           </div>
-          <h3 className="text-lg sm:text-2xl font-black text-slate-900 tracking-tight leading-none font-mono truncate">
+          <h3 className="text-lg sm:text-xl xl:text-2xl font-black text-slate-900 tracking-tight leading-none font-mono truncate">
             {sales.length}
           </h3>
-          <p className="text-[10px] sm:text-[11px] font-extrabold text-[#fe569f] mt-2 truncate flex items-center gap-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#fe569f]"></span>
-            <span>Invoices generated</span>
+          <p className="text-xs font-extrabold text-[#fe569f] mt-2.5 truncate flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#fe569f] shrink-0"></span>
+            <span className="truncate">Invoices generated</span>
           </p>
         </div>
 
@@ -346,29 +347,29 @@ const Sales: React.FC = () => {
           onClick={() => {
             setFilterStatus(filterStatus === 'DUE' ? 'ALL' : 'DUE');
           }}
-          className={`p-3 sm:p-4 rounded-xl border transition-all duration-200 cursor-pointer text-left ${
+          className={`p-3.5 sm:p-5 rounded-2xl border transition-all duration-200 cursor-pointer text-left ${
             filterStatus === 'DUE'
-              ? 'bg-rose-50/60 border-rose-400 ring-2 ring-rose-400/20 shadow-xs'
+              ? 'bg-rose-50/60 border-rose-400 ring-2 ring-rose-400/20 shadow-card'
               : totalPendingPayments > 0
-              ? 'bg-rose-50/20 hover:bg-rose-50/40 border-rose-200/80 hover:border-rose-300'
-              : 'bg-white hover:bg-slate-50/70 border-slate-200/90 hover:border-slate-300'
+              ? 'bg-rose-50/20 hover:bg-rose-50/40 border-rose-200/80 shadow-card hover:border-rose-300'
+              : 'bg-white hover:bg-slate-50/70 border-slate-200/90 shadow-card hover:border-slate-300'
           }`}
           title="Click to filter bills with pending balance"
         >
           <div className="flex items-center justify-between mb-2">
-            <span className={`text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider truncate ${totalPendingPayments > 0 ? 'text-rose-700' : 'text-slate-500'}`}>
+            <span className={`text-[10px] sm:text-xs font-extrabold uppercase tracking-wider truncate ${totalPendingPayments > 0 ? 'text-rose-700' : 'text-slate-500'}`}>
               Due Amount
             </span>
-            <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center font-black text-xs shrink-0 shadow-2xs ${totalPendingPayments > 0 ? 'bg-rose-100 text-rose-600' : 'bg-slate-100 text-slate-400'}`}>
-              <CreditCard size={14} strokeWidth={2.5} />
+            <div className={`w-8 h-8 rounded-xl flex items-center justify-center font-black text-xs shrink-0 shadow-2xs ${totalPendingPayments > 0 ? 'bg-rose-100 text-rose-600' : 'bg-slate-100 text-slate-400'}`}>
+              <CreditCard size={15} strokeWidth={2.5} />
             </div>
           </div>
-          <h3 className={`text-lg sm:text-2xl font-black tracking-tight leading-none font-mono truncate ${totalPendingPayments > 0 ? 'text-rose-600' : 'text-slate-900'}`}>
+          <h3 className={`text-lg sm:text-xl xl:text-2xl font-black tracking-tight leading-none font-mono truncate ${totalPendingPayments > 0 ? 'text-rose-600' : 'text-slate-900'}`}>
             {formatCurrency(totalPendingPayments)}
           </h3>
-          <p className={`text-[10px] sm:text-[11px] font-extrabold mt-2 truncate flex items-center gap-1 ${totalPendingPayments > 0 ? 'text-rose-600' : 'text-slate-400'}`}>
-            <span className={`w-1.5 h-1.5 rounded-full ${totalPendingPayments > 0 ? 'bg-rose-500' : 'bg-slate-300'}`}></span>
-            <span>{totalPendingPayments > 0 ? 'Uncollected balance' : 'All bills paid'}</span>
+          <p className={`text-xs font-extrabold mt-2.5 truncate flex items-center gap-1.5 ${totalPendingPayments > 0 ? 'text-rose-600' : 'text-slate-400'}`}>
+            <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${totalPendingPayments > 0 ? 'bg-rose-500' : 'bg-slate-300'}`}></span>
+            <span className="truncate">{totalPendingPayments > 0 ? 'Uncollected balance' : 'All bills paid'}</span>
           </p>
         </div>
       </div>
@@ -376,7 +377,7 @@ const Sales: React.FC = () => {
       {/* ── Toolbar: Quick Date Pills + Search + View Switcher + Filter Toggle ── */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
         {/* Date Segmented Pills */}
-        <div className="inline-flex bg-slate-100 p-1 rounded-md border border-slate-200/70 shrink-0 overflow-x-auto">
+        <div className="inline-flex bg-slate-100 p-1 rounded-xl border border-slate-200/70 shrink-0 overflow-x-auto gap-1 max-w-full">
           {[
             { id: 'ALL', label: 'All Time' },
             { id: 'TODAY', label: 'Today' },
@@ -387,60 +388,60 @@ const Sales: React.FC = () => {
             <button
               key={p.id}
               onClick={() => applyDatePreset(p.id as any)}
-              className={`px-3 py-1 text-xs font-extrabold rounded whitespace-nowrap transition-all ${activeDatePreset === p.id
+              className={`px-3 py-1.5 text-xs font-extrabold rounded-lg whitespace-nowrap shrink-0 transition-all ${activeDatePreset === p.id
                 ? 'bg-[#01a9fb] text-white shadow-xs'
-                : 'text-slate-500 hover:text-slate-900'
+                : 'text-slate-600 hover:text-slate-900'
                 }`}
             >
-              {p.label}
+              <span className="whitespace-nowrap">{p.label}</span>
             </button>
           ))}
         </div>
 
         {/* Search & Actions */}
-        <div className="flex items-center gap-2 flex-1 md:justify-end">
-          <div className="relative flex-1 max-w-sm">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
+        <div className="flex items-center gap-2 flex-1 md:justify-end flex-wrap sm:flex-nowrap">
+          <div className="relative flex-1 min-w-[140px] max-w-sm">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 shrink-0" size={15} />
             <input
               type="text"
-              placeholder="Search invoice #, customer name, channel..."
-              className="w-full bg-white border border-slate-200/80 rounded-md py-2 pl-9 pr-7 text-xs font-bold text-slate-900 placeholder:text-slate-400 outline-none focus:border-[#01a9fb] shadow-xs"
+              placeholder="Search invoice #, customer name..."
+              className="w-full bg-white border border-slate-200/90 rounded-xl py-2 pl-10 pr-8 text-xs font-bold text-slate-900 placeholder:text-slate-400 outline-none focus:border-[#01a9fb] shadow-xs"
               value={historySearchTerm}
               onChange={(e) => setHistorySearchTerm(e.target.value)}
             />
             {historySearchTerm && (
-              <button onClick={() => setHistorySearchTerm('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
-                <X size={13} />
+              <button onClick={() => setHistorySearchTerm('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 shrink-0">
+                <X size={14} />
               </button>
             )}
           </div>
 
           {/* View Switcher */}
-          <div className="flex items-center p-1 bg-white border border-slate-200/80 rounded-md shadow-xs shrink-0">
+          <div className="flex items-center p-1 bg-white border border-slate-200/90 rounded-xl shadow-xs shrink-0 gap-0.5">
             <button
               onClick={() => setViewMode('grid')}
-              className={`p-1.5 rounded transition-all ${viewMode === 'grid' ? 'bg-[#01a9fb] text-white shadow-xs' : 'text-slate-400 hover:text-slate-700'}`}
+              className={`p-1.5 rounded-lg transition-all shrink-0 ${viewMode === 'grid' ? 'bg-[#01a9fb] text-white shadow-xs' : 'text-slate-400 hover:text-slate-700'}`}
               title="Grid Cards View"
             >
-              <LayoutGrid size={14} />
+              <LayoutGrid size={15} />
             </button>
             <button
               onClick={() => setViewMode('list')}
-              className={`p-1.5 rounded transition-all ${viewMode === 'list' ? 'bg-[#01a9fb] text-white shadow-xs' : 'text-slate-400 hover:text-slate-700'}`}
+              className={`p-1.5 rounded-lg transition-all shrink-0 ${viewMode === 'list' ? 'bg-[#01a9fb] text-white shadow-xs' : 'text-slate-400 hover:text-slate-700'}`}
               title="Table List View"
             >
-              <List size={14} />
+              <List size={15} />
             </button>
           </div>
 
           {/* Filter Toggle */}
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className={`px-3 py-2 rounded-md border transition-all flex items-center gap-1.5 text-xs font-bold shrink-0 ${showFilters ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-600 border-slate-200/80 hover:bg-slate-50'
+            className={`px-3.5 py-2 rounded-xl border transition-all flex items-center gap-1.5 text-xs font-extrabold shrink-0 shadow-xs whitespace-nowrap ${showFilters ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-700 border-slate-200/90 hover:bg-slate-50'
               }`}
           >
-            <Filter size={13} />
-            <span>Filters</span>
+            <Filter size={14} className="shrink-0" />
+            <span className="whitespace-nowrap">Filters</span>
           </button>
         </div>
       </div>
@@ -506,9 +507,10 @@ const Sales: React.FC = () => {
                   setHistorySearchTerm('');
                   setActiveDatePreset('ALL');
                 }}
-                className="px-3 py-1 text-xs font-bold text-rose-600 hover:bg-rose-50 rounded-md transition-colors flex items-center gap-1"
+                className="px-3 py-1.5 text-xs font-bold text-rose-600 hover:bg-rose-50 rounded-md transition-colors flex items-center gap-1 whitespace-nowrap shrink-0"
               >
-                <XCircle size={13} /> Reset All Filters
+                <XCircle size={13} className="shrink-0" />
+                <span className="whitespace-nowrap">Reset All Filters</span>
               </button>
             </div>
           )}
@@ -517,7 +519,7 @@ const Sales: React.FC = () => {
 
       {/* ── Content View: Table List vs Grid Cards ── */}
       {viewMode === 'list' ? (
-        <div className="bg-white rounded-lg border border-slate-200/80 shadow-xs overflow-hidden">
+        <div className="bg-white rounded-2xl border border-slate-200/90 shadow-card overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead>
@@ -551,16 +553,16 @@ const Sales: React.FC = () => {
                       onClick={() => setSelectedSaleId(sale.id)}
                       className="hover:bg-slate-50/70 transition-colors cursor-pointer group"
                     >
-                      <td className="px-5 py-3.5 font-mono font-extrabold text-violet-600">
+                      <td className="px-5 py-3.5 font-mono font-extrabold text-[#01a9fb]">
                         {sale.invoiceNumber}
                       </td>
                       <td className="px-4 py-3.5">
-                        <p className="font-extrabold text-slate-900 group-hover:text-violet-600 transition-colors">
+                        <p className="font-extrabold text-slate-900 group-hover:text-[#01a9fb] transition-colors">
                           {customer?.name || 'Walk-in Customer'}
                         </p>
                         {customer?.phone && (
                           <p className="text-[10px] text-slate-400 font-mono mt-0.5 flex items-center gap-1">
-                            <Phone size={9} /> {customer.phone}
+                            <Phone size={10} /> {customer.phone}
                           </p>
                         )}
                       </td>
@@ -579,28 +581,28 @@ const Sales: React.FC = () => {
                           {(sale.items || []).slice(0, 2).map((item, i) => (
                             <span
                               key={i}
-                              className="text-[10px] font-bold px-2 py-0.5 rounded text-left flex items-center gap-1 text-slate-700 bg-slate-100"
+                              className="text-[10px] font-bold px-2 py-0.5 rounded-md text-left flex items-center gap-1 text-slate-700 bg-slate-100"
                             >
                               <Package size={10} className="text-slate-400" />
                               <span>{item.quantity}x {item.name}</span>
                             </span>
                           ))}
                           {(sale.items || []).length > 2 && (
-                            <span className="text-[10px] font-bold text-slate-400 bg-slate-50 px-1.5 py-0.5 rounded">
+                            <span className="text-[10px] font-bold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded-md">
                               +{(sale.items || []).length - 2}
                             </span>
                           )}
                         </div>
                       </td>
                       <td className="px-4 py-3.5 text-center">
-                        <span className="inline-flex items-center gap-1 bg-slate-50 border border-slate-200 px-2 py-0.5 rounded-md text-[10px] font-bold text-slate-600">
+                        <span className="inline-flex items-center gap-1 bg-slate-50 border border-slate-200 px-2 py-0.5 rounded-lg text-[10px] font-bold text-slate-600">
                           {channelIcon}
                           <span>{sale.channel || 'IN_STORE'}</span>
                         </span>
                       </td>
                       <td className="px-4 py-3.5 text-center">
                         <div className="flex flex-col items-center gap-0.5">
-                          <span className={`inline-block text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-md border ${sale.paymentStatus === PaymentStatus.PAID ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
+                          <span className={`inline-block text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-lg border ${sale.paymentStatus === PaymentStatus.PAID ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
                             sale.paymentStatus === PaymentStatus.PARTIAL ? 'bg-amber-50 text-amber-700 border-amber-200' :
                               sale.paymentStatus === PaymentStatus.REFUNDED ? 'bg-slate-50 text-slate-500 border-slate-200' :
                                 'bg-rose-50 text-rose-700 border-rose-200'
@@ -627,7 +629,7 @@ const Sales: React.FC = () => {
                                 deleteSale(sale.id);
                               }
                             }}
-                            className="p-1.5 text-slate-300 hover:text-rose-600 hover:bg-rose-50 rounded transition-colors"
+                            className="p-1.5 text-slate-300 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
                             title="Delete Invoice Record"
                           >
                             <Trash2 size={14} />
@@ -643,7 +645,7 @@ const Sales: React.FC = () => {
         </div>
       ) : (
         /* Grid Cards View: 2 columns on mobile, 3 on tablet/laptop, 4 on desktop */
-        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-3.5">
+        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-2.5 sm:gap-4">
           {filteredSales.map(sale => {
             const customer = customers.find(c => c.id === sale.customerId);
             const dueAmount = Math.max(0, (sale.totalAmount || 0) - (sale.paidAmount || 0));
@@ -655,12 +657,12 @@ const Sales: React.FC = () => {
               <div
                 key={sale.id}
                 onClick={() => setSelectedSaleId(sale.id)}
-                className="bg-white rounded-lg border border-slate-200/90 p-2.5 sm:p-3 hover:border-[#01a9fb]/60 hover:shadow-xs transition-all duration-200 cursor-pointer flex flex-col justify-between group active:scale-[0.98] text-left"
+                className="bg-white rounded-2xl border border-slate-200/90 p-3 sm:p-4 hover:border-[#01a9fb]/60 hover:shadow-card transition-all duration-200 cursor-pointer flex flex-col justify-between group active:scale-[0.98] text-left shadow-2xs"
               >
-                <div className="space-y-2">
+                <div className="space-y-2.5">
                   {/* Top Header: Customer Info */}
-                  <div className="flex items-center gap-2 pb-1.5 border-b border-slate-100">
-                    <div className="w-6 h-6 sm:w-7 sm:h-7 rounded bg-[#01a9fb]/10 text-[#01a9fb] group-hover:bg-[#01a9fb] group-hover:text-white transition-colors flex items-center justify-center font-black text-[11px] sm:text-xs shrink-0">
+                  <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
+                    <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-[#01a9fb]/10 text-[#01a9fb] group-hover:bg-[#01a9fb] group-hover:text-white transition-colors flex items-center justify-center font-black text-xs shrink-0 shadow-2xs">
                       {(customer?.name || 'W').charAt(0).toUpperCase()}
                     </div>
                     <div className="min-w-0 flex-1">
@@ -672,11 +674,11 @@ const Sales: React.FC = () => {
                   </div>
 
                   {/* Price & Status Strip */}
-                  <div className="flex items-center justify-between gap-1 bg-slate-50/90 px-2 py-1.5 rounded-md border border-slate-100">
-                    <span className="text-xs sm:text-sm font-black text-slate-900 font-mono">
+                  <div className="flex items-center justify-between gap-1.5 bg-slate-50/90 px-2.5 py-1.5 rounded-xl border border-slate-100 min-w-0">
+                    <span className="text-xs sm:text-sm font-black text-slate-900 font-mono shrink-0 whitespace-nowrap">
                       {formatCurrency(sale.totalAmount)}
                     </span>
-                    <span className={`inline-flex items-center gap-1 text-[8px] sm:text-[9px] font-black uppercase px-1.5 py-0.5 rounded border ${
+                    <span className={`inline-flex items-center gap-1 text-[9px] font-black uppercase px-2 py-0.5 rounded-md border whitespace-nowrap shrink-0 ${
                       isPaid
                         ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
                         : isPartial
@@ -685,26 +687,26 @@ const Sales: React.FC = () => {
                         ? 'bg-slate-50 text-slate-600 border-slate-200'
                         : 'bg-rose-50 text-rose-700 border-rose-200'
                     }`}>
-                      <span className={`w-1.5 h-1.5 rounded-full ${
+                      <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${
                         isPaid ? 'bg-emerald-500' : isPartial ? 'bg-amber-500' : isRefunded ? 'bg-slate-400' : 'bg-rose-500'
                       }`}></span>
-                      <span>{isPaid ? 'Paid' : (dueAmount > 0 ? `Due ₹${dueAmount}` : sale.paymentStatus)}</span>
+                      <span className="whitespace-nowrap">{isPaid ? 'Paid' : (dueAmount > 0 ? `Due ₹${dueAmount}` : sale.paymentStatus)}</span>
                     </span>
                   </div>
 
                   {/* Items summary */}
-                  <div className="flex flex-wrap gap-1">
+                  <div className="flex flex-wrap gap-1 min-w-0">
                     {(sale.items || []).slice(0, 1).map((item, i) => (
                       <span
                         key={i}
-                        className="text-[9px] sm:text-[10px] font-bold px-1.5 py-0.5 rounded truncate max-w-full flex items-center gap-1 text-slate-700 bg-slate-100/90"
+                        className="text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-md truncate max-w-full flex items-center gap-1 text-slate-700 bg-slate-100/90"
                       >
                         <Package size={11} className="shrink-0 text-slate-400" />
                         <span className="truncate">{item.quantity}x {item.name}</span>
                       </span>
                     ))}
                     {(sale.items || []).length > 1 && (
-                      <span className="text-[9px] sm:text-[10px] font-extrabold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">
+                      <span className="text-[9px] sm:text-[10px] font-extrabold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded-md shrink-0 whitespace-nowrap">
                         +{(sale.items || []).length - 1} more
                       </span>
                     )}
@@ -712,8 +714,8 @@ const Sales: React.FC = () => {
                 </div>
 
                 {/* Card Bottom: Date & Delete */}
-                <div className="flex items-center justify-between pt-2 mt-2 border-t border-slate-100 text-[9px] sm:text-[10px] text-slate-400 font-bold">
-                  <span>{format(parseISO(sale.date), 'dd MMM yyyy, hh:mm a')}</span>
+                <div className="flex items-center justify-between pt-2.5 mt-2.5 border-t border-slate-100 text-[9px] sm:text-[10px] text-slate-400 font-bold min-w-0">
+                  <span className="truncate whitespace-nowrap">{format(parseISO(sale.date), 'dd MMM yyyy, hh:mm a')}</span>
 
                   {settings?.enableDeleteTransactions && (
                     <button
@@ -724,7 +726,7 @@ const Sales: React.FC = () => {
                           deleteSale(sale.id);
                         }
                       }}
-                      className="p-1 text-slate-300 hover:text-rose-600 hover:bg-rose-50 rounded transition-colors"
+                      className="p-1 text-slate-300 hover:text-rose-600 hover:bg-rose-50 rounded-md transition-colors shrink-0 ml-1"
                       title="Delete Invoice"
                     >
                       <Trash2 size={13} />
@@ -770,11 +772,11 @@ const Sales: React.FC = () => {
         <div className="fixed bottom-20 md:bottom-8 right-4 md:right-8 z-50 pointer-events-none">
           <button
             onClick={() => setIsAddingSale(true)}
-            className="pointer-events-auto bg-slate-900 hover:bg-slate-800 text-white p-3.5 md:px-5 md:py-2.5 rounded-md shadow-lg flex items-center gap-2 transition-all active:scale-95 border border-slate-700"
+            className="pointer-events-auto bg-slate-900 hover:bg-slate-800 text-white p-3.5 md:px-5 md:py-3 rounded-2xl shadow-xl flex items-center gap-2 transition-all active:scale-95 border border-slate-700/80 shadow-card"
             title="Create New Bill"
           >
             <Plus size={16} strokeWidth={2.5} />
-            <span className="hidden md:inline text-xs font-extrabold uppercase tracking-wider">New Bill</span>
+            <span className="hidden md:inline text-xs font-black uppercase tracking-wider">New Bill</span>
           </button>
         </div>,
         document.body
@@ -856,7 +858,7 @@ const ReturnExchangeModal: React.FC<{
             <h3 className="text-sm font-extrabold text-slate-900">Return or Exchange Item</h3>
             <p className="text-xs text-slate-400 font-medium mt-0.5">{item.name}</p>
           </div>
-          <button type="button" onClick={onClose} className="p-1.5 bg-white text-slate-400 hover:text-slate-600 rounded-md shadow-xs transition-colors">
+          <button type="button" onClick={onClose} className="p-1.5 bg-white text-slate-400 hover:text-slate-600 rounded-md shadow-xs transition-colors shrink-0">
             <X size={16} />
           </button>
         </div>
@@ -877,13 +879,13 @@ const ReturnExchangeModal: React.FC<{
           <div className="flex gap-2 p-1 bg-slate-100 rounded-md">
             <button
               onClick={() => setIsExchange(false)}
-              className={`flex-1 py-2 text-xs font-extrabold rounded transition-all ${!isExchange ? 'bg-white shadow-xs text-slate-900' : 'text-slate-500 hover:text-slate-800'}`}
+              className={`flex-1 py-2 px-2 text-xs font-extrabold rounded transition-all whitespace-nowrap truncate ${!isExchange ? 'bg-white shadow-xs text-slate-900' : 'text-slate-500 hover:text-slate-800'}`}
             >
               Refund / Return
             </button>
             <button
               onClick={() => setIsExchange(true)}
-              className={`flex-1 py-2 text-xs font-extrabold rounded transition-all ${isExchange ? 'bg-white shadow-xs text-slate-900' : 'text-slate-500 hover:text-slate-800'}`}
+              className={`flex-1 py-2 px-2 text-xs font-extrabold rounded transition-all whitespace-nowrap truncate ${isExchange ? 'bg-white shadow-xs text-slate-900' : 'text-slate-500 hover:text-slate-800'}`}
             >
               Exchange Replacement
             </button>
@@ -894,7 +896,7 @@ const ReturnExchangeModal: React.FC<{
               <div className="space-y-1">
                 <label className="text-[10px] font-bold uppercase text-slate-400 tracking-wider">Find Replacement SKU</label>
                 <div className="relative">
-                  <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 shrink-0" />
                   <input
                     type="text"
                     placeholder="Search by product name or SKU..."
@@ -919,13 +921,13 @@ const ReturnExchangeModal: React.FC<{
                             setExchangeProductId(p.id);
                             setExchangeSearchTerm(p.name);
                           }}
-                          className="w-full text-left p-2 hover:bg-slate-50 rounded flex justify-between items-center text-xs"
+                          className="w-full text-left p-2 hover:bg-slate-50 rounded flex justify-between items-center text-xs gap-2"
                         >
-                          <div>
+                          <div className="min-w-0 flex-1">
                             <p className="font-extrabold text-slate-900 truncate">{p.name}</p>
-                            <p className="text-[10px] text-slate-400 font-mono">{p.sku} • Stock: {p.saleStock}</p>
+                            <p className="text-[10px] text-slate-400 font-mono truncate">{p.sku} • Stock: {p.saleStock}</p>
                           </div>
-                          <span className="font-mono font-extrabold text-violet-600">{formatCurrency(p.sellingPrice)}</span>
+                          <span className="font-mono font-extrabold text-violet-600 shrink-0 whitespace-nowrap">{formatCurrency(p.sellingPrice)}</span>
                         </button>
                       ))}
                   </div>
@@ -952,17 +954,17 @@ const ReturnExchangeModal: React.FC<{
           <div className="p-3.5 bg-slate-900 rounded-md text-white space-y-1.5">
             <div className="flex justify-between text-xs font-bold text-slate-400">
               <span>Return Credit Value:</span>
-              <span className="text-white font-mono">{formatCurrency(refundAmount)}</span>
+              <span className="text-white font-mono shrink-0">{formatCurrency(refundAmount)}</span>
             </div>
             {isExchange && (
               <div className="flex justify-between text-xs font-bold text-slate-400">
                 <span>Replacement Item Price:</span>
-                <span className="text-white font-mono">{formatCurrency(newChargeAmount)}</span>
+                <span className="text-white font-mono shrink-0">{formatCurrency(newChargeAmount)}</span>
               </div>
             )}
             <div className="pt-2 border-t border-slate-700 flex justify-between text-xs font-extrabold uppercase tracking-wider">
-              <span>{netDifference > 0 ? 'Customer Pays Due:' : netDifference < 0 ? 'Store Refunds Customer:' : 'Even Exchange:'}</span>
-              <span className={`font-mono ${netDifference > 0 ? 'text-amber-400' : netDifference < 0 ? 'text-emerald-400' : 'text-white'}`}>
+              <span className="truncate">{netDifference > 0 ? 'Customer Pays Due:' : netDifference < 0 ? 'Store Refunds Customer:' : 'Even Exchange:'}</span>
+              <span className={`font-mono shrink-0 ml-2 ${netDifference > 0 ? 'text-amber-400' : netDifference < 0 ? 'text-emerald-400' : 'text-white'}`}>
                 {formatCurrency(Math.abs(netDifference))}
               </span>
             </div>
@@ -971,9 +973,9 @@ const ReturnExchangeModal: React.FC<{
           <button
             onClick={handleSubmit}
             disabled={isProcessing}
-            className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-md text-xs font-extrabold uppercase tracking-wider shadow-sm transition-all"
+            className="w-full py-2.5 px-3 bg-slate-900 hover:bg-slate-800 text-white rounded-md text-xs font-extrabold uppercase tracking-wider shadow-sm transition-all whitespace-nowrap flex items-center justify-center gap-1.5 active:scale-95 disabled:opacity-50"
           >
-            {isProcessing ? 'Processing...' : 'Confirm Return / Exchange'}
+            <span className="whitespace-nowrap">{isProcessing ? 'Processing...' : 'Confirm Return / Exchange'}</span>
           </button>
         </div>
       </div>
@@ -1137,12 +1139,12 @@ const SaleDetailsModal: React.FC<{ saleId: string; onClose: () => void }> = ({ s
               </div>
             </div>
 
-            <div className="pt-2 border-t border-slate-200 flex items-center justify-between text-xs">
+            <div className="pt-2 border-t border-slate-200 flex items-center justify-between text-xs gap-2 flex-wrap sm:flex-nowrap">
               <div className="flex items-center gap-3">
-                <span className="text-slate-500 font-bold">Paid: <strong className="text-emerald-700 font-mono">{formatCurrency(sale.paidAmount || 0)}</strong></span>
-                <span className="text-slate-500 font-bold">Due: <strong className={`font-mono ${Math.max(0, (sale.totalAmount || 0) - (sale.paidAmount || 0)) > 0 ? 'text-rose-600' : 'text-slate-700'}`}>{formatCurrency(Math.max(0, (sale.totalAmount || 0) - (sale.paidAmount || 0)))}</strong></span>
+                <span className="text-slate-500 font-bold whitespace-nowrap">Paid: <strong className="text-emerald-700 font-mono">{formatCurrency(sale.paidAmount || 0)}</strong></span>
+                <span className="text-slate-500 font-bold whitespace-nowrap">Due: <strong className={`font-mono ${Math.max(0, (sale.totalAmount || 0) - (sale.paidAmount || 0)) > 0 ? 'text-rose-600' : 'text-slate-700'}`}>{formatCurrency(Math.max(0, (sale.totalAmount || 0) - (sale.paidAmount || 0)))}</strong></span>
               </div>
-              <span className={`text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-md border ${sale.paymentStatus === PaymentStatus.PAID ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
+              <span className={`text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-md border whitespace-nowrap shrink-0 ${sale.paymentStatus === PaymentStatus.PAID ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
                 sale.paymentStatus === PaymentStatus.PARTIAL ? 'bg-amber-50 text-amber-700 border-amber-200' :
                   sale.paymentStatus === PaymentStatus.REFUNDED ? 'bg-slate-50 text-slate-500 border-slate-200' :
                     'bg-rose-50 text-rose-700 border-rose-200'
@@ -1159,7 +1161,7 @@ const SaleDetailsModal: React.FC<{ saleId: string; onClose: () => void }> = ({ s
                   placeholder="Enter paid amount..."
                   value={paymentInput}
                   onChange={(e) => setPaymentInput(e.target.value)}
-                  className="flex-1 bg-white border border-slate-200 rounded-md px-3 py-1.5 text-xs font-mono font-bold text-slate-900 outline-none focus:border-indigo-500"
+                  className="flex-1 min-w-0 bg-white border border-slate-200 rounded-md px-3 py-1.5 text-xs font-mono font-bold text-slate-900 outline-none focus:border-indigo-500"
                 />
                 <button
                   type="button"
@@ -1173,9 +1175,10 @@ const SaleDetailsModal: React.FC<{ saleId: string; onClose: () => void }> = ({ s
                       alert('Failed to record payment');
                     }
                   }}
-                  className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-md text-xs font-extrabold uppercase tracking-wider transition-colors flex items-center gap-1"
+                  className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-md text-xs font-extrabold uppercase tracking-wider transition-colors flex items-center gap-1.5 shrink-0 whitespace-nowrap shadow-xs active:scale-95"
                 >
-                  <CreditCard size={13} /> Record Payment
+                  <CreditCard size={13} className="shrink-0" />
+                  <span className="whitespace-nowrap">Record Payment</span>
                 </button>
               </div>
             )}
@@ -1307,9 +1310,10 @@ const SaleDetailsModal: React.FC<{ saleId: string; onClose: () => void }> = ({ s
                       <div className="mt-2 pt-2 border-t border-slate-100 flex justify-end">
                         <button
                           onClick={() => setReturnModalState({ isOpen: true, itemIndex: idx, item })}
-                          className="text-[10px] font-extrabold uppercase text-rose-600 bg-rose-50 hover:bg-rose-100 px-2.5 py-1 rounded transition-colors flex items-center gap-1"
+                          className="text-[10px] font-extrabold uppercase text-rose-600 bg-rose-50 hover:bg-rose-100 px-2.5 py-1 rounded transition-colors flex items-center gap-1 shrink-0 whitespace-nowrap active:scale-95"
                         >
-                          <Undo2 size={11} /> Return / Exchange
+                          <Undo2 size={11} className="shrink-0" />
+                          <span className="whitespace-nowrap">Return / Exchange</span>
                         </button>
                       </div>
                     )}
@@ -1324,12 +1328,14 @@ const SaleDetailsModal: React.FC<{ saleId: string; onClose: () => void }> = ({ s
 
           {/* Action Buttons */}
           <div className="space-y-2 pt-2 border-t border-slate-100">
-            <div className="flex gap-2">
-              <button onClick={handlePrintReceipt} className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 font-extrabold text-xs uppercase tracking-wider rounded-md transition-colors flex items-center justify-center gap-1.5">
-                <Printer size={14} /> Print Receipt
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <button onClick={handlePrintReceipt} className="w-full py-2.5 px-3 bg-slate-100 hover:bg-slate-200 text-slate-800 font-extrabold text-xs uppercase tracking-wider rounded-md transition-colors flex items-center justify-center gap-1.5 whitespace-nowrap active:scale-95">
+                <Printer size={14} className="shrink-0" />
+                <span className="whitespace-nowrap">Print Receipt</span>
               </button>
-              <button onClick={handleWhatsAppShare} className="flex-1 py-2.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-extrabold text-xs uppercase tracking-wider rounded-md transition-colors flex items-center justify-center gap-1.5">
-                <MessageCircle size={14} /> Share WhatsApp
+              <button onClick={handleWhatsAppShare} className="w-full py-2.5 px-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-extrabold text-xs uppercase tracking-wider rounded-md transition-colors flex items-center justify-center gap-1.5 whitespace-nowrap active:scale-95">
+                <MessageCircle size={14} className="shrink-0" />
+                <span className="whitespace-nowrap">Share WhatsApp</span>
               </button>
             </div>
 
@@ -1337,9 +1343,10 @@ const SaleDetailsModal: React.FC<{ saleId: string; onClose: () => void }> = ({ s
               <button
                 onClick={handleReturn}
                 disabled={isProcessingReturn}
-                className="w-full py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-600 font-extrabold text-xs uppercase tracking-wider rounded-md transition-colors flex items-center justify-center gap-1.5"
+                className="w-full py-2.5 px-3 bg-rose-50 hover:bg-rose-100 text-rose-600 font-extrabold text-xs uppercase tracking-wider rounded-md transition-colors flex items-center justify-center gap-1.5 whitespace-nowrap active:scale-95 disabled:opacity-50"
               >
-                <Undo2 size={14} /> {isProcessingReturn ? 'Processing...' : 'Process Full Return & Restock'}
+                <Undo2 size={14} className="shrink-0" />
+                <span className="whitespace-nowrap truncate">{isProcessingReturn ? 'Processing...' : 'Process Full Return & Restock'}</span>
               </button>
             )}
           </div>

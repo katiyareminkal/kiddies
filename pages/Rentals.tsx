@@ -40,12 +40,13 @@ import { NewRentalModal } from '../components/forms/NewRentalModal';
 import { ReturnRentalModal } from '../components/forms/ReturnRentalModal';
 import { EditRentalModal } from '../components/forms/EditRentalModal';
 import { ProductDetailsModal } from '../components/forms/ProductDetailsModal';
+import { AvailabilityCalendar } from '../components/rentals/AvailabilityCalendar';
 
 const Rentals: React.FC = () => {
-  const { rentals, products, customers, updateRental, deleteRental, settings } = useApp();
+  const { rentals, products, customers, updateRental, deleteRental, cancelReservation, settings } = useApp();
 
-  // View mode state (card vs list)
-  const [viewMode, setViewMode] = useState<'card' | 'list'>('card');
+  // View mode state (card vs list vs calendar)
+  const [viewMode, setViewMode] = useState<'card' | 'list' | 'calendar'>('card');
 
   // Modals
   const [isNewRentalModalOpen, setIsNewRentalModalOpen] = useState(false);
@@ -53,6 +54,14 @@ const Rentals: React.FC = () => {
   const [isExtendModalOpen, setIsExtendModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [viewingProduct, setViewingProduct] = useState<any | null>(null);
+
+  // Reservation initial data for prefill
+  const [reservationInitialData, setReservationInitialData] = useState<{
+    productId?: string;
+    startDate?: string;
+    returnDate?: string;
+    mode?: 'IMMEDIATE' | 'RESERVATION';
+  }>({ mode: 'IMMEDIATE' });
 
   // Selection
   const [selectedRental, setSelectedRental] = useState<Rental | null>(null);
@@ -63,7 +72,7 @@ const Rentals: React.FC = () => {
 
   // Filters
   const [searchTerm, setSearchTerm] = useState('');
-  const [activeTab, setActiveTab] = useState<'ALL' | 'ACTIVE' | 'DUE_TODAY' | 'OVERDUE' | 'RETURNED'>('ALL');
+  const [activeTab, setActiveTab] = useState<'ALL' | 'ACTIVE' | 'RESERVED' | 'DUE_TODAY' | 'OVERDUE' | 'RETURNED'>('ALL');
   const [showFilters, setShowFilters] = useState(false);
   const [filterStartDate, setFilterStartDate] = useState('');
   const [filterEndDate, setFilterEndDate] = useState('');
@@ -72,6 +81,37 @@ const Rentals: React.FC = () => {
   const [filterCustomerId, setFilterCustomerId] = useState<string>('ALL');
 
   // --- Handlers ---
+  const handleOpenReservationBooking = (productId?: string, startDate?: string, returnDate?: string) => {
+    setReservationInitialData({
+      productId,
+      startDate,
+      returnDate,
+      mode: 'RESERVATION'
+    });
+    setIsNewRentalModalOpen(true);
+  };
+
+  const handleOpenStandardBooking = () => {
+    setReservationInitialData({ mode: 'IMMEDIATE' });
+    setIsNewRentalModalOpen(true);
+  };
+
+  const handleHandoverReservation = (rental: Rental) => {
+    const cust = customers.find(c => c.id === rental.customerId);
+    const prod = products.find(p => p.id === rental.productId);
+    if (window.confirm(`Issue outfit handover to ${cust?.name || 'customer'} for ${prod?.name || 'garment'}? This activates the rental period.`)) {
+      updateRental(rental.id, {
+        status: RentalStatus.ACTIVE
+      });
+    }
+  };
+
+  const handleCancelReservation = (rental: Rental) => {
+    if (window.confirm(`Cancel reservation #${rental.invoiceNumber}? Reserved garment stock will be restored to shelf inventory.`)) {
+      cancelReservation(rental.id);
+    }
+  };
+
   const openExtend = (rental: Rental) => {
     setSelectedRental(rental);
     setExtendDays(1);
@@ -127,6 +167,7 @@ const Rentals: React.FC = () => {
       // Tab Filtering
       let matchesTab = true;
       if (activeTab === 'ACTIVE') matchesTab = isActive;
+      else if (activeTab === 'RESERVED') matchesTab = r.status === RentalStatus.RESERVED;
       else if (activeTab === 'DUE_TODAY') matchesTab = isDueToday;
       else if (activeTab === 'OVERDUE') matchesTab = isOverdue;
       else if (activeTab === 'RETURNED') matchesTab = r.status === 'RETURNED';
@@ -158,6 +199,7 @@ const Rentals: React.FC = () => {
   today.setHours(0, 0, 0, 0);
 
   const allCount = rentals.length;
+  const reservedCount = rentals.filter(r => r.status === RentalStatus.RESERVED).length;
   const activeCount = rentals.filter(r => {
     const d = parseISO(r.expectedReturnDate);
     d.setHours(0, 0, 0, 0);
@@ -196,99 +238,122 @@ const Rentals: React.FC = () => {
               <span className="text-[10px] font-extrabold text-[#fe569f] bg-[#fe569f]/10 border border-[#fe569f]/30 px-2 py-0.5 rounded-md">
                 {activeCount + dueTodayCount} Active Leases
               </span>
+              {reservedCount > 0 && (
+                <span className="text-[10px] font-extrabold text-amber-800 bg-amber-100 border border-amber-300 px-2 py-0.5 rounded-md">
+                  {reservedCount} Reserved
+                </span>
+              )}
             </div>
             <p className="text-xs text-slate-500 font-medium mt-0.5">Manage garment rentals, return schedules, and security deposits</p>
           </div>
         </div>
 
         <button
-          onClick={() => setIsNewRentalModalOpen(true)}
-          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[#fe569f] hover:bg-[#eb4890] text-white text-xs font-extrabold uppercase tracking-wider rounded-md shadow-xs transition-all active:scale-95"
+          onClick={() => handleOpenStandardBooking()}
+          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[#fe569f] hover:bg-[#eb4890] text-white text-xs font-black uppercase tracking-wider rounded-xl shadow-xs transition-all active:scale-95 shrink-0"
         >
           <Plus size={16} strokeWidth={2.5} />
-          <span>New Rental Booking</span>
+          <span>New / Advance Booking</span>
         </button>
       </div>
 
-      {/* ── KPI Cards (4 Cards) ── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3.5">
+      {/* ── KPI Cards (5 Cards) ── */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
         <div
           onClick={() => setActiveTab('ACTIVE')}
-          className={`p-3 sm:p-4 rounded-md border transition-all duration-200 cursor-pointer ${activeTab === 'ACTIVE'
-            ? 'bg-[#fe569f]/10 border-[#fe569f]/50'
-            : 'bg-white hover:bg-slate-50/60 border-slate-200/80 hover:border-[#fe569f]/30'
+          className={`p-4 sm:p-5 rounded-2xl border transition-all duration-200 cursor-pointer ${activeTab === 'ACTIVE'
+            ? 'bg-[#fe569f]/10 border-[#fe569f]/50 shadow-card'
+            : 'bg-white hover:bg-slate-50/60 border-slate-200/90 shadow-card hover:border-[#fe569f]/30'
             }`}
         >
-          <div className="flex items-center justify-between mb-1.5">
-            <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-500 whitespace-nowrap">Active (Upcoming)</span>
-            <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-md bg-[#fe569f]/10 text-[#fe569f] flex items-center justify-center font-bold text-xs shrink-0">
-              <Calendar size={13} />
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[10px] sm:text-xs font-extrabold uppercase tracking-wider text-slate-500 whitespace-nowrap">Active (Upcoming)</span>
+            <div className="w-8 h-8 rounded-xl bg-[#fe569f]/10 text-[#fe569f] flex items-center justify-center font-bold text-xs shrink-0 shadow-2xs">
+              <Calendar size={15} />
             </div>
           </div>
-          <h3 className="text-lg sm:text-2xl font-black text-slate-900 tracking-tight leading-none whitespace-nowrap truncate">{activeCount}</h3>
-          <p className="text-[10px] sm:text-[11px] font-bold text-[#fe569f] mt-1.5 whitespace-nowrap truncate">On schedule</p>
+          <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-none whitespace-nowrap truncate">{activeCount}</h3>
+          <p className="text-xs font-extrabold text-[#fe569f] mt-2 whitespace-nowrap truncate">On schedule</p>
+        </div>
+
+        <div
+          onClick={() => setActiveTab('RESERVED')}
+          className={`p-4 sm:p-5 rounded-2xl border transition-all duration-200 cursor-pointer ${activeTab === 'RESERVED'
+            ? 'bg-amber-100/60 border-amber-400 shadow-card'
+            : 'bg-white hover:bg-amber-50/40 border-slate-200/90 shadow-card hover:border-amber-300'
+            }`}
+        >
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[10px] sm:text-xs font-extrabold uppercase tracking-wider text-amber-800 whitespace-nowrap">Advance Booked</span>
+            <div className="w-8 h-8 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center font-bold text-xs shrink-0 shadow-2xs">
+              <CalendarDays size={15} />
+            </div>
+          </div>
+          <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-none whitespace-nowrap truncate">{reservedCount}</h3>
+          <p className="text-xs font-extrabold text-amber-700 mt-2 whitespace-nowrap truncate">Future functions</p>
         </div>
 
         <div
           onClick={() => setActiveTab('DUE_TODAY')}
-          className={`p-3 sm:p-4 rounded-md border transition-all duration-200 cursor-pointer ${activeTab === 'DUE_TODAY'
-            ? 'bg-amber-50 border-amber-300'
+          className={`p-4 sm:p-5 rounded-2xl border transition-all duration-200 cursor-pointer ${activeTab === 'DUE_TODAY'
+            ? 'bg-amber-50 border-amber-300 shadow-card'
             : dueTodayCount > 0
-              ? 'bg-amber-50/40 border-amber-200 hover:border-amber-300'
-              : 'bg-white hover:bg-slate-50/60 border-slate-200/80 hover:border-amber-200'
+              ? 'bg-amber-50/40 border-amber-200 shadow-card hover:border-amber-300'
+              : 'bg-white hover:bg-slate-50/60 border-slate-200/90 shadow-card hover:border-amber-200'
             }`}
         >
-          <div className="flex items-center justify-between mb-1.5">
-            <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-amber-700 whitespace-nowrap">Due Today</span>
-            <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-md bg-amber-100 text-amber-800 flex items-center justify-center font-bold text-xs shrink-0">
-              <Clock size={13} />
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[10px] sm:text-xs font-extrabold uppercase tracking-wider text-amber-700 whitespace-nowrap">Due Today</span>
+            <div className="w-8 h-8 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center font-bold text-xs shrink-0 shadow-2xs">
+              <Clock size={15} />
             </div>
           </div>
-          <h3 className="text-lg sm:text-2xl font-black text-slate-900 tracking-tight leading-none whitespace-nowrap truncate">{dueTodayCount}</h3>
-          <p className="text-[10px] sm:text-[11px] font-bold text-amber-700 mt-1.5 whitespace-nowrap truncate">Expected return today</p>
+          <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-none whitespace-nowrap truncate">{dueTodayCount}</h3>
+          <p className="text-xs font-extrabold text-amber-700 mt-2 whitespace-nowrap truncate">Expected return today</p>
         </div>
 
         <div
           onClick={() => setActiveTab('OVERDUE')}
-          className={`p-3 sm:p-4 rounded-md border transition-all duration-200 cursor-pointer ${activeTab === 'OVERDUE'
-            ? 'bg-rose-50/70 border-rose-300'
+          className={`p-4 sm:p-5 rounded-2xl border transition-all duration-200 cursor-pointer ${activeTab === 'OVERDUE'
+            ? 'bg-rose-50/70 border-rose-300 shadow-card'
             : overdueCount > 0
-              ? 'bg-rose-50/30 border-rose-200/80 hover:border-rose-300'
-              : 'bg-white hover:bg-slate-50/60 border-slate-200/80 hover:border-rose-200'
+              ? 'bg-rose-50/30 border-rose-200/80 shadow-card hover:border-rose-300'
+              : 'bg-white hover:bg-slate-50/60 border-slate-200/90 shadow-card hover:border-rose-200'
             }`}
         >
-          <div className="flex items-center justify-between mb-1.5">
-            <span className={`text-[10px] sm:text-[11px] font-bold uppercase tracking-wider whitespace-nowrap ${overdueCount > 0 ? 'text-rose-600' : 'text-slate-500'}`}>Overdue</span>
-            <div className={`w-6 h-6 sm:w-7 sm:h-7 rounded-md flex items-center justify-center font-bold text-xs shrink-0 ${overdueCount > 0 ? 'bg-rose-100 text-rose-600' : 'bg-slate-100 text-slate-400'}`}>
-              <AlertTriangle size={13} />
+          <div className="flex items-center justify-between mb-2">
+            <span className={`text-[10px] sm:text-xs font-extrabold uppercase tracking-wider whitespace-nowrap ${overdueCount > 0 ? 'text-rose-600' : 'text-slate-500'}`}>Overdue</span>
+            <div className={`w-8 h-8 rounded-xl flex items-center justify-center font-bold text-xs shrink-0 shadow-2xs ${overdueCount > 0 ? 'bg-rose-100 text-rose-600' : 'bg-slate-100 text-slate-400'}`}>
+              <AlertTriangle size={15} />
             </div>
           </div>
-          <h3 className={`text-lg sm:text-2xl font-black tracking-tight leading-none whitespace-nowrap truncate ${overdueCount > 0 ? 'text-rose-600' : 'text-slate-900'}`}>{overdueCount}</h3>
-          <p className={`text-[10px] sm:text-[11px] font-bold mt-1.5 whitespace-nowrap truncate ${overdueCount > 0 ? 'text-rose-600' : 'text-slate-400'}`}>
+          <h3 className={`text-xl sm:text-2xl font-black tracking-tight leading-none whitespace-nowrap truncate ${overdueCount > 0 ? 'text-rose-600' : 'text-slate-900'}`}>{overdueCount}</h3>
+          <p className={`text-xs font-extrabold mt-2 whitespace-nowrap truncate ${overdueCount > 0 ? 'text-rose-600' : 'text-slate-400'}`}>
             {overdueCount > 0 ? 'Late / Action required' : 'No overdue items'}
           </p>
         </div>
 
-        <div className="bg-white hover:bg-slate-50/60 p-3 sm:p-4 rounded-md border border-slate-200/80 hover:border-[#01a9fb]/50 transition-all">
-          <div className="flex items-center justify-between mb-1.5">
-            <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-500 whitespace-nowrap">Security Held</span>
-            <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-md bg-[#01a9fb]/10 text-[#01a9fb] flex items-center justify-center font-bold text-xs shrink-0">
-              <IndianRupee size={13} />
+        <div className="bg-white hover:bg-slate-50/60 p-4 sm:p-5 rounded-2xl border border-slate-200/90 shadow-card hover:border-[#01a9fb]/50 transition-all">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[10px] sm:text-xs font-extrabold uppercase tracking-wider text-slate-500 whitespace-nowrap">Security Held</span>
+            <div className="w-8 h-8 rounded-xl bg-[#01a9fb]/10 text-[#01a9fb] flex items-center justify-center font-bold text-xs shrink-0 shadow-2xs">
+              <IndianRupee size={15} />
             </div>
           </div>
-          <h3 className="text-lg sm:text-2xl font-black text-[#01a9fb] tracking-tight leading-none whitespace-nowrap truncate">{formatCurrency(activeDeposits)}</h3>
-          <p className="text-[10px] sm:text-[11px] font-bold text-[#01a9fb] mt-1.5 whitespace-nowrap truncate">Refundable on return</p>
+          <h3 className="text-xl sm:text-2xl font-black text-[#01a9fb] tracking-tight leading-none whitespace-nowrap truncate">{formatCurrency(activeDeposits)}</h3>
+          <p className="text-xs font-extrabold text-[#01a9fb] mt-2 whitespace-nowrap truncate">Refundable on return</p>
         </div>
       </div>
 
       {/* ── Toolbar: Status Tabs + Search + Filters + View Toggle ── */}
       <div className="flex flex-col gap-3">
         <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
-          {/* Status Tabs: ALL, ACTIVE, DUE TODAY, OVERDUE, RETURNED */}
-          <div className="grid grid-cols-5 sm:inline-flex bg-slate-100/90 p-1 rounded-lg border border-slate-200/70 shrink-0 gap-0.5 sm:gap-1">
+          {/* Status Tabs: ALL, ACTIVE, RESERVED, DUE TODAY, OVERDUE, RETURNED */}
+          <div className="flex flex-wrap bg-slate-100/90 p-1 rounded-xl border border-slate-200/70 shrink-0 gap-1">
             {[
               { id: 'ALL' as const, label: 'All', count: allCount },
               { id: 'ACTIVE' as const, label: 'Active', count: activeCount },
+              { id: 'RESERVED' as const, label: 'Reserved', shortLabel: 'Res.', count: reservedCount },
               { id: 'DUE_TODAY' as const, label: 'Due Today', shortLabel: 'Due', count: dueTodayCount },
               { id: 'OVERDUE' as const, label: 'Overdue', count: overdueCount },
               { id: 'RETURNED' as const, label: 'Returned', shortLabel: 'Done', count: returnedCount },
@@ -319,11 +384,11 @@ const Rentals: React.FC = () => {
           <div className="flex items-center gap-2 flex-1 md:justify-end">
             {/* Search Input */}
             <div className="relative group flex-1 max-w-md">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-600 transition-colors" size={15} strokeWidth={2.5} />
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#fe569f] transition-colors" size={15} strokeWidth={2.5} />
               <input
                 type="text"
                 placeholder="Search invoice, customer, product..."
-                className="w-full pl-10 pr-3.5 py-2 bg-white border border-slate-200/80 rounded-md text-xs font-bold text-slate-900 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all shadow-xs placeholder:text-slate-400"
+                className="w-full pl-10 pr-3.5 py-2 bg-white border border-slate-200/90 rounded-xl text-xs font-bold text-slate-900 outline-none focus:border-[#fe569f] focus:ring-2 focus:ring-[#fe569f]/10 transition-all shadow-xs placeholder:text-slate-400"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -332,27 +397,35 @@ const Rentals: React.FC = () => {
             {/* Filter Toggle Button */}
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className={`p-2 rounded-md border transition-all flex items-center justify-center shrink-0 ${showFilters ? 'bg-slate-900 text-white border-slate-900 shadow-xs' : 'bg-white text-slate-600 border-slate-200/80 hover:border-slate-300 shadow-xs'}`}
+              className={`p-2 rounded-xl border transition-all flex items-center justify-center shrink-0 ${showFilters ? 'bg-slate-900 text-white border-slate-900 shadow-xs' : 'bg-white text-slate-600 border-slate-200/90 hover:border-slate-300 shadow-xs'}`}
               title="Advanced Filters"
             >
               <Filter size={15} strokeWidth={showFilters ? 3 : 2.5} />
             </button>
 
-            {/* Card vs List View Toggle */}
-            <div className="inline-flex bg-slate-100 p-1 rounded-md border border-slate-200/70 shrink-0">
+            {/* Card vs List vs Calendar View Toggle */}
+            <div className="inline-flex bg-white p-1 rounded-xl border border-slate-200/90 shadow-xs shrink-0 gap-0.5">
               <button
                 onClick={() => setViewMode('card')}
-                className={`p-1.5 rounded transition-all ${viewMode === 'card' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-400 hover:text-slate-700'}`}
+                className={`p-1.5 rounded-lg transition-all ${viewMode === 'card' ? 'bg-[#fe569f] text-white shadow-xs' : 'text-slate-400 hover:text-slate-700'}`}
                 title="Card View"
               >
                 <LayoutGrid size={15} strokeWidth={2.5} />
               </button>
               <button
                 onClick={() => setViewMode('list')}
-                className={`p-1.5 rounded transition-all ${viewMode === 'list' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-400 hover:text-slate-700'}`}
+                className={`p-1.5 rounded-lg transition-all ${viewMode === 'list' ? 'bg-[#fe569f] text-white shadow-xs' : 'text-slate-400 hover:text-slate-700'}`}
                 title="List View"
               >
                 <List size={15} strokeWidth={2.5} />
+              </button>
+              <button
+                onClick={() => setViewMode('calendar')}
+                className={`p-1.5 px-2 rounded-lg transition-all flex items-center gap-1.5 text-xs font-black uppercase tracking-wider ${viewMode === 'calendar' ? 'bg-[#fe569f] text-white shadow-xs' : 'text-slate-500 hover:text-slate-800'}`}
+                title="Advance Availability Calendar"
+              >
+                <CalendarDays size={15} strokeWidth={2.5} />
+                <span className="hidden sm:inline text-[10px]">Calendar</span>
               </button>
             </div>
           </div>
@@ -445,8 +518,17 @@ const Rentals: React.FC = () => {
           </div>
         )}
 
-        {/* ── View Mode 1: CARD VIEW (2 columns on mobile, 3 on tablet, 4 on desktop) ── */}
-        {viewMode === 'card' ? (
+        {/* ── View Mode: CALENDAR / CARD / LIST ── */}
+        {viewMode === 'calendar' ? (
+          <AvailabilityCalendar
+            onBookReservation={(productId, startDate, returnDate) => {
+              handleOpenReservationBooking(productId, startDate, returnDate);
+            }}
+            onViewRentalDetails={(rental) => {
+              setSelectedRental(rental);
+            }}
+          />
+        ) : viewMode === 'card' ? (
           <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-3.5">
             {filteredRentals.map(rental => {
               const customer = customers.find(c => c.id === rental.customerId);
@@ -462,45 +544,55 @@ const Rentals: React.FC = () => {
               return (
                 <div
                   key={rental.id}
-                  className={`bg-white rounded-xl border p-2.5 sm:p-3.5 transition-all duration-200 flex flex-col justify-between group hover:border-[#fe569f]/50 hover:shadow-md relative overflow-hidden ${
-                    isItemLate ? 'border-rose-300' : isItemDueToday ? 'border-amber-300' : 'border-slate-200/90'
+                  className={`bg-white rounded-2xl border p-3 sm:p-4 transition-all duration-200 flex flex-col justify-between group hover:border-[#fe569f]/50 shadow-card relative overflow-hidden ${
+                    rental.status === RentalStatus.RESERVED
+                      ? 'border-amber-300 bg-amber-50/10'
+                      : isItemLate
+                        ? 'border-rose-300'
+                        : isItemDueToday
+                          ? 'border-amber-300'
+                          : 'border-slate-200/90'
                   }`}
                 >
                   {/* Floating Top-Right Status Badge */}
-                  <div className="absolute top-1.5 right-1.5 z-10">
-                    <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[7px] sm:text-[8px] font-black uppercase tracking-tight shadow-xs ${
+                  <div className="absolute top-2 right-2 z-10">
+                    <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[8px] sm:text-[9px] font-black uppercase tracking-tight shadow-xs ${
                       rental.status === 'RETURNED'
                         ? 'bg-emerald-500 text-white shadow-emerald-500/20'
-                        : isItemLate
-                          ? 'bg-rose-500 text-white shadow-rose-500/20 animate-pulse'
-                          : isItemDueToday
-                            ? 'bg-amber-500 text-white shadow-amber-500/20'
-                            : 'bg-[#fe569f] text-white shadow-pink-500/20'
+                        : rental.status === RentalStatus.RESERVED
+                          ? 'bg-amber-500 text-white shadow-amber-500/20'
+                          : isItemLate
+                            ? 'bg-rose-500 text-white shadow-rose-500/20 animate-pulse'
+                            : isItemDueToday
+                              ? 'bg-amber-500 text-white shadow-amber-500/20'
+                              : 'bg-[#fe569f] text-white shadow-pink-500/20'
                     }`}>
-                      <span className="w-1 h-1 rounded-full bg-white"></span>
+                      <span className="w-1.5 h-1.5 rounded-full bg-white"></span>
                       <span>
                         {rental.status === 'RETURNED' 
                           ? 'Returned' 
-                          : isItemLate 
-                            ? 'Overdue' 
-                            : isItemDueToday 
-                              ? 'Due Today' 
-                              : 'Active'}
+                          : rental.status === RentalStatus.RESERVED
+                            ? 'Reserved'
+                            : isItemLate 
+                              ? 'Overdue' 
+                              : isItemDueToday 
+                                ? 'Due Today' 
+                                : 'Active'}
                       </span>
                     </span>
                   </div>
 
-                  <div className="space-y-2">
+                  <div className="space-y-2.5">
                     {/* Top Row: Customer Info with right clearance for badge */}
-                    <div className="flex items-center gap-1.5 pr-14 sm:pr-16 pb-1.5 border-b border-slate-100">
-                      <div className="w-5 h-5 sm:w-6 sm:h-6 rounded bg-[#fe569f]/10 text-[#fe569f] font-black text-[10px] sm:text-[11px] flex items-center justify-center shrink-0">
+                    <div className="flex items-center gap-2 pr-16 sm:pr-20 pb-2 border-b border-slate-100">
+                      <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-[#fe569f]/10 text-[#fe569f] font-black text-xs flex items-center justify-center shrink-0">
                         {(customer?.name || 'C').charAt(0).toUpperCase()}
                       </div>
                       <div className="min-w-0 flex-1">
-                        <h4 className="font-extrabold text-[11px] sm:text-xs text-slate-900 leading-tight truncate">
+                        <h4 className="font-extrabold text-xs sm:text-[13px] text-slate-900 leading-tight truncate">
                           {customer?.name || 'Customer'}
                         </h4>
-                        <p className="text-[8px] sm:text-[9px] text-slate-400 font-mono leading-none mt-0.5">{rental.invoiceNumber}</p>
+                        <p className="text-[9px] text-slate-400 font-mono leading-none mt-0.5">{rental.invoiceNumber}</p>
                       </div>
                     </div>
 
@@ -533,39 +625,39 @@ const Rentals: React.FC = () => {
                         };
                         setViewingProduct(effectiveProd);
                       }}
-                      className="bg-slate-50/90 px-1.5 sm:px-2.5 py-1 rounded-lg border border-slate-100 transition-all hover:bg-[#01a9fb]/10 hover:border-[#01a9fb]/30 cursor-pointer group/item"
+                      className="bg-slate-50/90 px-2 sm:px-3 py-1.5 rounded-xl border border-slate-100 transition-all hover:bg-[#fe569f]/5 hover:border-[#fe569f]/30 cursor-pointer group/item"
                       title="Click to view product details"
                     >
                       <div className="flex items-center justify-between gap-1">
-                        <span className="text-[10px] sm:text-[11px] font-bold text-slate-800 truncate flex-1 leading-tight group-hover/item:text-[#01a9fb] flex items-center gap-1">
-                          <Package size={11} className="shrink-0 text-slate-400 group-hover/item:text-[#01a9fb]" />
+                        <span className="text-[10px] sm:text-[11px] font-bold text-slate-800 truncate flex-1 leading-tight group-hover/item:text-[#fe569f] flex items-center gap-1">
+                          <Package size={12} className="shrink-0 text-slate-400 group-hover/item:text-[#fe569f]" />
                           <span className="truncate">{product?.name || 'Garment Item'}</span>
                         </span>
-                        <span className="text-[11px] sm:text-xs font-black text-slate-900 font-mono whitespace-nowrap shrink-0">
+                        <span className="text-xs sm:text-sm font-black text-slate-900 font-mono whitespace-nowrap shrink-0">
                           {formatCurrency(rental.totalRentAmount)}
                         </span>
                       </div>
                     </div>
 
                     {/* Due Date & Deposit Section */}
-                    <div className="space-y-1 bg-slate-50/70 p-1.5 sm:p-2.5 rounded-lg border border-slate-100/90 text-[9px] sm:text-[10px]">
+                    <div className="space-y-1.5 bg-slate-50/70 p-2 sm:p-3 rounded-xl border border-slate-100/90 text-[10px]">
                       <div className="flex items-center justify-between gap-1">
-                        <span className="text-slate-400 uppercase tracking-wider text-[8px] sm:text-[9px] font-bold shrink-0">Due</span>
-                        <span className={`font-mono font-extrabold whitespace-nowrap text-[9px] sm:text-[10px] ${isItemLate ? 'text-rose-600' : isItemDueToday ? 'text-amber-700' : 'text-slate-800'}`}>
-                          {format(parseISO(rental.expectedReturnDate), 'dd MMM')}
+                        <span className="text-slate-400 uppercase tracking-wider text-[9px] font-bold shrink-0">Due Date</span>
+                        <span className={`font-mono font-black whitespace-nowrap text-[10px] sm:text-xs ${isItemLate ? 'text-rose-600' : isItemDueToday ? 'text-amber-700' : 'text-slate-800'}`}>
+                          {format(parseISO(rental.expectedReturnDate), 'dd MMM yyyy')}
                         </span>
                       </div>
 
                       <div className="flex items-center justify-between gap-1">
-                        <span className="text-slate-400 uppercase tracking-wider text-[8px] sm:text-[9px] font-bold shrink-0">Dep</span>
-                        <span className="font-mono font-extrabold text-slate-700 whitespace-nowrap text-[9px] sm:text-[10px]">
+                        <span className="text-slate-400 uppercase tracking-wider text-[9px] font-bold shrink-0">Deposit Held</span>
+                        <span className="font-mono font-bold text-slate-700 whitespace-nowrap text-[10px]">
                           {formatCurrency(rental.securityDeposit)}
                         </span>
                       </div>
 
                       {/* Progress Bar */}
-                      <div className="pt-0.5">
-                        <div className="w-full h-1 bg-slate-200 rounded-full overflow-hidden">
+                      <div className="pt-1">
+                        <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
                           <div
                             className={`h-full rounded-full transition-all duration-500 ${
                               rental.status === 'RETURNED'
@@ -584,26 +676,37 @@ const Rentals: React.FC = () => {
                   </div>
 
                   {/* Card Footer Actions */}
-                  <div className="flex items-center justify-between gap-1 pt-2 mt-1.5 border-t border-slate-100">
-                    <div className="flex items-center gap-0.5 shrink-0">
+                  <div className="flex items-center justify-between gap-1 pt-2.5 mt-2 border-t border-slate-100">
+                    <div className="flex items-center gap-1 shrink-0">
                       {rental.status === 'ACTIVE' && (
                         <button
                           type="button"
                           onClick={() => openExtend(rental)}
-                          className="p-1 text-slate-500 hover:text-[#01a9fb] hover:bg-[#01a9fb]/10 rounded transition-colors"
+                          className="p-1.5 text-slate-500 hover:text-[#01a9fb] hover:bg-[#01a9fb]/10 rounded-lg transition-colors"
                           title="Extend Lease"
                         >
-                          <CalendarDays size={13} strokeWidth={2.2} />
+                          <CalendarDays size={14} strokeWidth={2.2} />
+                        </button>
+                      )}
+
+                      {rental.status === RentalStatus.RESERVED && (
+                        <button
+                          type="button"
+                          onClick={() => handleCancelReservation(rental)}
+                          className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                          title="Cancel Reservation"
+                        >
+                          <XCircle size={14} strokeWidth={2.2} />
                         </button>
                       )}
 
                       <button
                         type="button"
                         onClick={() => openEdit(rental)}
-                        className="p-1 text-slate-500 hover:text-[#fe569f] hover:bg-[#fe569f]/10 rounded transition-colors"
+                        className="p-1.5 text-slate-500 hover:text-[#fe569f] hover:bg-[#fe569f]/10 rounded-lg transition-colors"
                         title="Edit Booking"
                       >
-                        <Pencil size={13} strokeWidth={2.2} />
+                        <Pencil size={14} strokeWidth={2.2} />
                       </button>
 
                       {(settings?.enableDeleteRentals || settings?.enableDeleteTransactions) && (
@@ -614,10 +717,10 @@ const Rentals: React.FC = () => {
                               deleteRental(rental.id);
                             }
                           }}
-                          className="p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded transition-colors"
+                          className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
                           title="Delete Booking"
                         >
-                          <Trash2 size={13} strokeWidth={2.2} />
+                          <Trash2 size={14} strokeWidth={2.2} />
                         </button>
                       )}
                     </div>
@@ -626,9 +729,21 @@ const Rentals: React.FC = () => {
                       <button
                         type="button"
                         onClick={() => { setSelectedRental(rental); setIsCheckInModalOpen(true); }}
-                        className="px-2 py-0.5 sm:px-3 sm:py-1 bg-[#fe569f] hover:bg-[#eb4890] active:scale-95 text-white rounded text-[9px] sm:text-[10px] font-black uppercase tracking-tight transition-all shadow-xs shrink-0 flex items-center justify-center"
+                        className="px-2.5 py-1 sm:px-3 sm:py-1 bg-[#fe569f] hover:bg-[#eb4890] active:scale-95 text-white rounded-lg text-[10px] font-black uppercase tracking-tight transition-all shadow-xs shrink-0 flex items-center justify-center"
                       >
                         Return
+                      </button>
+                    )}
+
+                    {rental.status === RentalStatus.RESERVED && (
+                      <button
+                        type="button"
+                        onClick={() => handleHandoverReservation(rental)}
+                        className="px-2.5 py-1 sm:px-3 sm:py-1 bg-amber-500 hover:bg-amber-600 active:scale-95 text-white rounded-lg text-[10px] font-black uppercase tracking-tight transition-all shadow-xs shrink-0 flex items-center gap-1"
+                        title="Issue outfit handover to customer"
+                      >
+                        <Check size={12} strokeWidth={2.5} />
+                        <span>Handover</span>
                       </button>
                     )}
                   </div>
@@ -638,7 +753,7 @@ const Rentals: React.FC = () => {
           </div>
         ) : (
           /* ── View Mode 2: LIST / TABLE VIEW ── */
-          <div className="bg-white rounded-lg border border-slate-200/80 shadow-xs overflow-hidden">
+          <div className="bg-white rounded-2xl border border-slate-200/90 shadow-card overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-left">
                 <thead>
@@ -665,18 +780,18 @@ const Rentals: React.FC = () => {
                     return (
                       <tr key={rental.id} className="hover:bg-slate-50/70 transition-colors group">
                         <td className="px-5 py-3.5">
-                          <p className="font-extrabold text-slate-900">{rental.invoiceNumber}</p>
-                          <p className="text-[11px] text-slate-500 font-semibold mt-0.5">{customer?.name || 'Customer'}</p>
+                          <p className="font-extrabold text-[#fe569f] font-mono">{rental.invoiceNumber}</p>
+                          <p className="text-[11px] text-slate-800 font-bold mt-0.5">{customer?.name || 'Customer'}</p>
                         </td>
                         <td className="px-4 py-3.5">
                           <button
                             type="button"
                             onClick={() => product && setViewingProduct(product)}
-                            className={`text-left ${product ? 'hover:text-[#01a9fb] group-hover:underline cursor-pointer' : ''}`}
+                            className={`text-left ${product ? 'hover:text-[#fe569f] group-hover:underline cursor-pointer' : ''}`}
                             title={product ? 'Click to view product' : ''}
                           >
-                            <p className="font-bold text-slate-800 flex items-center gap-1">
-                              <Package size={12} className="text-slate-400" />
+                            <p className="font-bold text-slate-800 flex items-center gap-1.5">
+                              <Package size={13} className="text-slate-400" />
                               <span>{product?.name || 'Item'}</span>
                             </p>
                             <p className="text-[10px] text-slate-400 font-bold">Qty: {rental.quantity}</p>
@@ -697,35 +812,41 @@ const Rentals: React.FC = () => {
                           <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[10px] font-extrabold uppercase tracking-wider ${
                             rental.status === 'RETURNED'
                               ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                              : isItemLate
-                                ? 'bg-rose-50 text-rose-700 border border-rose-200'
-                                : isItemDueToday
-                                  ? 'bg-amber-50 text-amber-700 border border-amber-300'
-                                  : 'bg-indigo-50 text-indigo-700 border border-indigo-200'
+                              : rental.status === RentalStatus.RESERVED
+                                ? 'bg-amber-50 text-amber-800 border border-amber-300'
+                                : isItemLate
+                                  ? 'bg-rose-50 text-rose-700 border border-rose-200'
+                                  : isItemDueToday
+                                    ? 'bg-amber-50 text-amber-700 border border-amber-300'
+                                    : 'bg-pink-50 text-[#fe569f] border border-pink-200'
                           }`}>
                             <span className={`w-1.5 h-1.5 rounded-full ${
                               rental.status === 'RETURNED' 
                                 ? 'bg-emerald-500' 
-                                : isItemLate 
-                                  ? 'bg-rose-500' 
-                                  : isItemDueToday 
-                                    ? 'bg-amber-500' 
-                                    : 'bg-indigo-500'
+                                : rental.status === RentalStatus.RESERVED
+                                  ? 'bg-amber-500'
+                                  : isItemLate 
+                                    ? 'bg-rose-500' 
+                                    : isItemDueToday 
+                                      ? 'bg-amber-500' 
+                                      : 'bg-[#fe569f]'
                             }`}></span>
                             {rental.status === 'RETURNED' 
                               ? 'Returned' 
-                              : isItemLate 
-                                ? 'Overdue' 
-                                : isItemDueToday 
-                                  ? 'Due Today' 
-                                  : 'Active'}
+                              : rental.status === RentalStatus.RESERVED
+                                ? 'Reserved'
+                                : isItemLate 
+                                  ? 'Overdue' 
+                                  : isItemDueToday 
+                                    ? 'Due Today' 
+                                    : 'Active'}
                           </span>
                         </td>
                         <td className="px-5 py-3.5 text-right">
                           <div className="flex items-center justify-end gap-1.5">
                             <button
                               onClick={() => openEdit(rental)}
-                              className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-md transition-colors"
+                              className="p-1.5 text-slate-400 hover:text-[#fe569f] hover:bg-pink-50 rounded-lg transition-colors"
                               title="Edit Booking"
                             >
                               <Pencil size={15} strokeWidth={2.2} />
@@ -745,18 +866,38 @@ const Rentals: React.FC = () => {
                               </button>
                             )}
 
+                            {rental.status === RentalStatus.RESERVED && (
+                              <>
+                                <button
+                                  onClick={() => handleCancelReservation(rental)}
+                                  className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-md transition-colors"
+                                  title="Cancel Reservation"
+                                >
+                                  <XCircle size={15} strokeWidth={2.2} />
+                                </button>
+                                <button
+                                  onClick={() => handleHandoverReservation(rental)}
+                                  className="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-[10px] font-black uppercase tracking-tight transition-all active:scale-95 shadow-xs flex items-center gap-1"
+                                  title="Customer collecting dress - start active rental"
+                                >
+                                  <Check size={12} strokeWidth={2.5} />
+                                  <span>Handover</span>
+                                </button>
+                              </>
+                            )}
+
                             {rental.status === 'ACTIVE' && (
                               <>
                                 <button
                                   onClick={() => openExtend(rental)}
-                                  className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-md transition-colors"
+                                  className="p-1.5 text-slate-400 hover:text-[#01a9fb] hover:bg-[#01a9fb]/10 rounded-lg transition-colors"
                                   title="Extend Duration"
                                 >
                                   <CalendarDays size={15} strokeWidth={2.2} />
                                 </button>
                                 <button
                                   onClick={() => { setSelectedRental(rental); setIsCheckInModalOpen(true); }}
-                                  className="px-3 py-1.5 bg-slate-900 hover:bg-indigo-600 text-white rounded-md text-[10px] font-extrabold transition-all"
+                                  className="px-3 py-1.5 bg-[#fe569f] hover:bg-[#eb4890] text-white rounded-lg text-[10px] font-black uppercase tracking-tight transition-all active:scale-95 shadow-xs"
                                 >
                                   Check In
                                 </button>
@@ -774,19 +915,29 @@ const Rentals: React.FC = () => {
         )}
 
         {/* Empty State */}
-        {filteredRentals.length === 0 && (
-          <div className="py-14 text-center bg-white rounded-lg border border-slate-200/80 shadow-xs">
-            <div className="w-12 h-12 bg-slate-50 border border-slate-200 rounded-lg flex items-center justify-center text-slate-400 mx-auto mb-3">
-              <Calendar size={22} strokeWidth={2} />
+        {viewMode !== 'calendar' && filteredRentals.length === 0 && (
+          <div className="py-16 text-center bg-white rounded-2xl border border-slate-200/90 shadow-card">
+            <div className="w-14 h-14 bg-pink-50 border border-pink-100 rounded-2xl flex items-center justify-center text-[#fe569f] mx-auto mb-3 shadow-2xs">
+              <Calendar size={24} strokeWidth={2} />
             </div>
-            <p className="text-slate-700 text-sm font-extrabold">No {activeTab.toLowerCase()} rentals found</p>
-            <p className="text-slate-400 text-xs mt-0.5">Try clearing filters or create a new rental booking</p>
+            <p className="text-slate-800 text-sm font-black">No {activeTab.toLowerCase()} rentals found</p>
+            <p className="text-slate-400 text-xs mt-1">Try clearing filters or create a new rental booking</p>
           </div>
         )}
       </div>
 
       {/* ── Modals ── */}
-      <NewRentalModal isOpen={isNewRentalModalOpen} onClose={() => setIsNewRentalModalOpen(false)} />
+      <NewRentalModal 
+        isOpen={isNewRentalModalOpen} 
+        onClose={() => { 
+          setIsNewRentalModalOpen(false); 
+          setReservationInitialData({ mode: 'IMMEDIATE' }); 
+        }} 
+        initialProductId={reservationInitialData.productId}
+        initialStartDate={reservationInitialData.startDate}
+        initialExpectedReturnDate={reservationInitialData.returnDate}
+        initialMode={reservationInitialData.mode}
+      />
       <ReturnRentalModal isOpen={isCheckInModalOpen} onClose={() => { setIsCheckInModalOpen(false); setSelectedRental(null); }} rental={selectedRental} />
       <EditRentalModal isOpen={isEditModalOpen} onClose={() => { setIsEditModalOpen(false); setEditingRental(null); }} rental={editingRental} />
 
@@ -794,41 +945,41 @@ const Rentals: React.FC = () => {
       <Modal isOpen={isExtendModalOpen} onClose={() => setIsExtendModalOpen(false)} title="Extend Rental Booking">
         {selectedRental && (
           <div className="space-y-4">
-            <div className="p-3.5 bg-slate-50 rounded-md border border-slate-200 space-y-1">
+            <div className="p-4 bg-slate-50/80 rounded-xl border border-slate-200/80 space-y-1">
               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Current Expected Return</p>
-              <p className="text-sm font-extrabold text-slate-900 font-mono">{format(parseISO(selectedRental.expectedReturnDate), 'dd MMMM yyyy')}</p>
+              <p className="text-sm font-black text-slate-900 font-mono">{format(parseISO(selectedRental.expectedReturnDate), 'dd MMMM yyyy')}</p>
             </div>
 
-            <div className="space-y-1">
-              <label className="text-[10px] font-bold uppercase text-slate-500 tracking-wider">Extend By (Days)</label>
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold uppercase text-slate-600 tracking-wider">Extend By (Days)</label>
               <input
                 type="number"
                 min="1"
                 value={extendDays}
                 onChange={e => setExtendDays(Math.max(1, Number(e.target.value)))}
-                className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 focus:bg-white focus:border-indigo-500 rounded-md outline-none font-extrabold text-xs text-slate-900"
+                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200/90 focus:bg-white focus:border-[#fe569f] focus:ring-2 focus:ring-pink-100 rounded-xl outline-none font-black text-sm text-slate-900 transition-all"
               />
             </div>
 
-            <div className="p-3.5 bg-indigo-50/70 border border-indigo-200 rounded-md flex justify-between items-center text-xs">
-              <span className="font-extrabold text-indigo-950 uppercase text-[10px]">Additional Rental Cost</span>
-              <span className="font-extrabold text-indigo-700 font-mono text-base">
+            <div className="p-4 bg-pink-50/60 border border-pink-200/80 rounded-xl flex justify-between items-center text-xs">
+              <span className="font-black text-pink-950 uppercase text-[10px] tracking-wider">Additional Rental Cost</span>
+              <span className="font-black text-[#fe569f] font-mono text-base">
                 +{formatCurrency(extendDays * (selectedRental.dailyRate || 0) * (selectedRental.quantity || 1))}
               </span>
             </div>
 
-            <div className="flex gap-2 pt-2">
+            <div className="flex gap-2.5 pt-2">
               <button
                 type="button"
                 onClick={() => setIsExtendModalOpen(false)}
-                className="flex-1 py-2.5 rounded-md font-extrabold uppercase tracking-wider text-xs text-slate-600 hover:bg-slate-100 border border-slate-200 transition-all"
+                className="flex-1 py-2.5 rounded-xl font-bold text-xs text-slate-600 hover:bg-slate-100 border border-slate-200/90 transition-all"
               >
                 Cancel
               </button>
               <button
                 type="button"
                 onClick={handleConfirmExtend}
-                className="flex-1 py-2.5 rounded-md font-extrabold uppercase tracking-wider text-xs bg-indigo-600 hover:bg-indigo-700 text-white shadow-xs transition-all"
+                className="flex-1 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider bg-[#fe569f] hover:bg-[#eb4890] text-white shadow-xs transition-all active:scale-95"
               >
                 Confirm Extension
               </button>
