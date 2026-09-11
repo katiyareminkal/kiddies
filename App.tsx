@@ -856,65 +856,9 @@ const ResetPasswordScreen: React.FC = () => {
   );
 };
 
-const AppLaunchSplash: React.FC<{ isVisible: boolean }> = ({ isVisible }) => {
-  return (
-    <AnimatePresence>
-      {isVisible && (
-        <motion.div
-          key="app-launch-splash-screen"
-          initial={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-          className="fixed inset-0 z-[99999] flex items-center justify-center bg-white select-none pointer-events-none"
-        >
-          <motion.div
-            initial={{ scale: 0.92, opacity: 0, y: 8 }}
-            animate={{ scale: 1, opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-            className="flex flex-col items-center gap-6 px-4"
-          >
-            <motion.img
-              src="/icon.png"
-              alt="Kiddies Logo"
-              className="h-24 sm:h-28 w-auto max-w-[65vw] object-contain drop-shadow-xl"
-              animate={{ y: [0, -4, 0] }}
-              transition={{ duration: 2.8, repeat: Infinity, ease: 'easeInOut' }}
-            />
-            <div className="flex flex-col items-center gap-1.5 text-center">
-              <span className="text-sm sm:text-base font-black uppercase tracking-[0.14em] text-slate-900">
-                Stock & Rentals
-              </span>
-              <span className="text-[10px] sm:text-[11px] font-extrabold uppercase tracking-[0.2em] text-[#01a9fb]">
-                Management Suite
-              </span>
-            </div>
-            <div className="w-36 h-1 bg-slate-100 rounded-full overflow-hidden mt-1">
-              <div
-                className="h-full bg-gradient-to-r from-[#01a9fb] via-[#fe569f] to-[#FACC15] rounded-full"
-                style={{ animation: 'brandProgressBar 1.6s ease-in-out infinite' }}
-              />
-            </div>
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
-  );
-};
-
 const AppContent: React.FC = () => {
   const { currentUser, isAuthReady, isPasswordRecovery } = useApp();
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [isLaunchSplashVisible, setIsLaunchSplashVisible] = useState(true);
-
-  // Guarantee launch splash displays for 1.2s on app boot
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLaunchSplashVisible(false);
-    }, 1200);
-    return () => clearTimeout(timer);
-  }, []);
-
-  const showSplash = !isAuthReady || isLaunchSplashVisible;
 
   // List of authorized modules for the current user
   const allowedTabs = useMemo(() => {
@@ -959,22 +903,33 @@ const AppContent: React.FC = () => {
     }
   }, [activeTab]);
 
-  if (isPasswordRecovery) {
+  // While Supabase auth is initialising, render the loading screen
+  // so React never blanks #root and causes a white flash
+  if (!isAuthReady) {
     return (
-      <>
-        <AppLaunchSplash isVisible={showSplash} />
-        <ResetPasswordScreen />
-      </>
+      <div style={{ height: '100vh', width: '100vw', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#F9FAFB' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
+          <img src="/icon.png" alt="Logo" style={{ height: '100px', width: 'auto', objectFit: 'contain', filter: 'drop-shadow(0 6px 16px rgba(0,0,0,0.08))' }} />
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
+            <span style={{ fontSize: '14px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#0f172a' }}>Stock & Rentals</span>
+            <span style={{ fontSize: '10px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.15em', color: '#01a9fb' }}>Management Suite</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
+            <div className="dot-pulse" style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#01a9fb', animationDelay: '0s' }} />
+            <div className="dot-pulse" style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#fe569f', animationDelay: '0.2s' }} />
+            <div className="dot-pulse" style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#FACC15', animationDelay: '0.4s' }} />
+          </div>
+        </div>
+      </div>
     );
   }
 
+  if (isPasswordRecovery) {
+    return <ResetPasswordScreen />;
+  }
+
   if (!currentUser) {
-    return (
-      <>
-        <AppLaunchSplash isVisible={showSplash} />
-        <Login />
-      </>
-    );
+    return <Login />;
   }
 
   const renderContent = () => {
@@ -1023,11 +978,9 @@ const AppContent: React.FC = () => {
   };
 
   return (
-    <>
-      <AppLaunchSplash isVisible={showSplash} />
-      <div className="flex flex-col h-screen bg-gray-50 font-sans text-gray-900 overflow-hidden">
-        {/* Full-Width Clean Light Header (100% viewport width) */}
-        <TopBar activeTab={activeTab} onTabChange={setActiveTab} />
+    <div className="flex flex-col h-screen bg-gray-50 font-sans text-gray-900 overflow-hidden">
+      {/* Full-Width Clean Light Header (100% viewport width) */}
+      <TopBar activeTab={activeTab} onTabChange={setActiveTab} />
       
       {/* Body Area: Sidebar + Main Content */}
       <div className="flex-1 flex overflow-hidden">
@@ -1039,8 +992,7 @@ const AppContent: React.FC = () => {
 
       <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
     </div>
-  </>
-);
+  );
 };
 
 const App: React.FC = () => {

@@ -18,7 +18,6 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="apple-touch-icon" sizes="192x192" href="/icon-192.png">
     <link rel="apple-touch-icon" sizes="512x512" href="/icon-512.png">
-    <link rel="apple-touch-startup-image" href="/apple-touch-startup-image.png">
     <link rel="manifest" href="/manifest.webmanifest">
     <link rel="preload" as="image" href="/icon.png">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
@@ -356,15 +355,17 @@
 
 <body class="bg-gray-50 text-gray-900">
     <div id="root">
-        <div class="brand-splash-container">
-            <div class="brand-splash-content">
-                <img src="/icon.png" alt="Logo" class="brand-splash-logo" />
+        <div style="height: 100vh; width: 100vw; display: flex; align-items: center; justify-content: center; background-color: #F9FAFB;">
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 16px;">
+                <img src="/icon.png" alt="Logo" style="height: 100px; width: auto; object-fit: contain; filter: drop-shadow(0 6px 16px rgba(0,0,0,0.08));" />
                 <div style="display: flex; flex-direction: column; align-items: center; gap: 2px;">
-                    <span style="font-size: 14px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.12em; color: #0f172a;">Stock & Rentals</span>
-                    <span style="font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.16em; color: #01a9fb;">Management Suite</span>
+                    <span style="font-size: 14px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; color: #0f172a;">Stock & Rentals</span>
+                    <span style="font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.15em; color: #01a9fb;">Management Suite</span>
                 </div>
-                <div class="brand-progress-track">
-                    <div class="brand-progress-fill"></div>
+                <div style="display: flex; align-items: center; gap: 8px; margin-top: 4px;">
+                    <div class="dot-pulse" style="width: 8px; height: 8px; border-radius: 50%; background-color: #01a9fb; animation-delay: 0s;"></div>
+                    <div class="dot-pulse" style="width: 8px; height: 8px; border-radius: 50%; background-color: #fe569f; animation-delay: 0.2s;"></div>
+                    <div class="dot-pulse" style="width: 8px; height: 8px; border-radius: 50%; background-color: #FACC15; animation-delay: 0.4s;"></div>
                 </div>
             </div>
         </div>
