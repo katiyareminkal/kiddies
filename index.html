@@ -307,65 +307,90 @@
             }
         }
 
-        .brand-splash-container {
-            height: 100vh;
+        /* ── Kiddies Pristine Preloader (Matches exact PWA launch design) ── */
+        .kiddies-preloader-bg {
+            position: fixed;
+            inset: 0;
             width: 100vw;
+            height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             background-color: #ffffff;
+            z-index: 99999;
             user-select: none;
             overflow: hidden;
         }
-
-        .brand-splash-content {
+        .kiddies-preloader-content {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 24px;
-            animation: brandSplashEntrance 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            text-align: center;
         }
-
-        .brand-splash-logo {
-            height: 110px;
-            width: auto;
-            max-width: 60vw;
+        .kiddies-preloader-logo {
+            width: 130px;
+            height: 130px;
             object-fit: contain;
-            filter: drop-shadow(0 8px 24px rgba(1, 169, 251, 0.16));
-            animation: brandLogoFloat 2.8s ease-in-out infinite 0.6s;
+            border-radius: 28px;
+            filter: drop-shadow(0 12px 28px rgba(1, 169, 251, 0.22));
         }
-
-        .brand-progress-track {
-            width: 140px;
-            height: 3px;
-            background: #f1f5f9;
-            border-radius: 9999px;
-            overflow: hidden;
-            position: relative;
+        .kiddies-preloader-title {
+            font-size: 15px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.16em;
+            color: #0f172a;
+            margin-top: 24px;
+            line-height: 1.2;
         }
-
-        .brand-progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #01a9fb, #fe569f, #FACC15);
-            border-radius: 9999px;
-            animation: brandProgressBar 1.6s ease-in-out infinite;
+        .kiddies-preloader-subtitle {
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.22em;
+            color: #01a9fb;
+            margin-top: 5px;
+            line-height: 1.2;
+        }
+        .kiddies-preloader-dots {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 28px;
+        }
+        .kiddies-preloader-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            animation: dotPulse 1.4s infinite ease-in-out both;
+        }
+        .kiddies-dot-1 {
+            background-color: #38bdf8;
+            animation-delay: 0s;
+        }
+        .kiddies-dot-2 {
+            background-color: #f472b6;
+            animation-delay: 0.2s;
+        }
+        .kiddies-dot-3 {
+            background-color: #facc15;
+            animation-delay: 0.4s;
         }
     </style>
 </head>
 
 <body class="bg-gray-50 text-gray-900">
     <div id="root">
-        <div style="height: 100vh; width: 100vw; display: flex; align-items: center; justify-content: center; background-color: #F9FAFB;">
-            <div style="display: flex; flex-direction: column; align-items: center; gap: 16px;">
-                <img src="/icon.png" alt="Logo" style="height: 100px; width: auto; object-fit: contain; filter: drop-shadow(0 6px 16px rgba(0,0,0,0.08));" />
-                <div style="display: flex; flex-direction: column; align-items: center; gap: 2px;">
-                    <span style="font-size: 14px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; color: #0f172a;">Stock & Rentals</span>
-                    <span style="font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.15em; color: #01a9fb;">Management Suite</span>
-                </div>
-                <div style="display: flex; align-items: center; gap: 8px; margin-top: 4px;">
-                    <div class="dot-pulse" style="width: 8px; height: 8px; border-radius: 50%; background-color: #01a9fb; animation-delay: 0s;"></div>
-                    <div class="dot-pulse" style="width: 8px; height: 8px; border-radius: 50%; background-color: #fe569f; animation-delay: 0.2s;"></div>
-                    <div class="dot-pulse" style="width: 8px; height: 8px; border-radius: 50%; background-color: #FACC15; animation-delay: 0.4s;"></div>
+        <div class="kiddies-preloader-bg">
+            <div class="kiddies-preloader-content">
+                <img src="/icon.png" alt="Kiddies Logo" class="kiddies-preloader-logo" />
+                <span class="kiddies-preloader-title">Stock & Rentals</span>
+                <span class="kiddies-preloader-subtitle">Management Suite</span>
+                <div class="kiddies-preloader-dots">
+                    <div class="kiddies-preloader-dot kiddies-dot-1"></div>
+                    <div class="kiddies-preloader-dot kiddies-dot-2"></div>
+                    <div class="kiddies-preloader-dot kiddies-dot-3"></div>
                 </div>
             </div>
         </div>

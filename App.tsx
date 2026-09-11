@@ -856,9 +856,63 @@ const ResetPasswordScreen: React.FC = () => {
   );
 };
 
+const Preloader: React.FC<{ fading?: boolean }> = ({ fading = false }) => {
+  return (
+    <div
+      className={`fixed inset-0 z-[99999] flex items-center justify-center bg-white select-none overflow-hidden transition-opacity duration-300 ease-out ${
+        fading ? 'opacity-0 pointer-events-none' : 'opacity-100'
+      }`}
+    >
+      <div className="flex flex-col items-center text-center">
+        <img
+          src="/icon.png"
+          alt="Kiddies Logo"
+          className="w-[130px] h-[130px] object-contain rounded-[28px] drop-shadow-[0_12px_28px_rgba(1,169,251,0.22)]"
+        />
+        <span className="text-[15px] font-black uppercase tracking-[0.16em] text-slate-900 mt-6 leading-tight">
+          Stock & Rentals
+        </span>
+        <span className="text-[11px] font-extrabold uppercase tracking-[0.22em] text-[#01a9fb] mt-1.5 leading-tight">
+          Management Suite
+        </span>
+        <div className="flex items-center justify-center gap-3 mt-7">
+          <div
+            className="w-[7px] h-[7px] rounded-full bg-[#38bdf8] dot-pulse"
+            style={{ animationDelay: '0s' }}
+          />
+          <div
+            className="w-[7px] h-[7px] rounded-full bg-[#f472b6] dot-pulse"
+            style={{ animationDelay: '0.2s' }}
+          />
+          <div
+            className="w-[7px] h-[7px] rounded-full bg-[#facc15] dot-pulse"
+            style={{ animationDelay: '0.4s' }}
+          />
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const AppContent: React.FC = () => {
   const { currentUser, isAuthReady, isPasswordRecovery } = useApp();
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [isPreloaderVisible, setIsPreloaderVisible] = useState(true);
+  const [isPreloaderFading, setIsPreloaderFading] = useState(false);
+
+  // Keep preloader visible until auth & dashboard are ready, then smoothly fade out
+  useEffect(() => {
+    if (isAuthReady) {
+      const holdTimer = setTimeout(() => {
+        setIsPreloaderFading(true);
+        const removeTimer = setTimeout(() => {
+          setIsPreloaderVisible(false);
+        }, 320);
+        return () => clearTimeout(removeTimer);
+      }, 650);
+      return () => clearTimeout(holdTimer);
+    }
+  }, [isAuthReady]);
 
   // List of authorized modules for the current user
   const allowedTabs = useMemo(() => {
@@ -903,33 +957,22 @@ const AppContent: React.FC = () => {
     }
   }, [activeTab]);
 
-  // While Supabase auth is initialising, render the loading screen
-  // so React never blanks #root and causes a white flash
-  if (!isAuthReady) {
+  if (isPasswordRecovery) {
     return (
-      <div style={{ height: '100vh', width: '100vw', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#F9FAFB' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
-          <img src="/icon.png" alt="Logo" style={{ height: '100px', width: 'auto', objectFit: 'contain', filter: 'drop-shadow(0 6px 16px rgba(0,0,0,0.08))' }} />
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}>
-            <span style={{ fontSize: '14px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#0f172a' }}>Stock & Rentals</span>
-            <span style={{ fontSize: '10px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.15em', color: '#01a9fb' }}>Management Suite</span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
-            <div className="dot-pulse" style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#01a9fb', animationDelay: '0s' }} />
-            <div className="dot-pulse" style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#fe569f', animationDelay: '0.2s' }} />
-            <div className="dot-pulse" style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#FACC15', animationDelay: '0.4s' }} />
-          </div>
-        </div>
-      </div>
+      <>
+        {isPreloaderVisible && <Preloader fading={isPreloaderFading} />}
+        <ResetPasswordScreen />
+      </>
     );
   }
 
-  if (isPasswordRecovery) {
-    return <ResetPasswordScreen />;
-  }
-
   if (!currentUser) {
-    return <Login />;
+    return (
+      <>
+        {isPreloaderVisible && <Preloader fading={isPreloaderFading} />}
+        <Login />
+      </>
+    );
   }
 
   const renderContent = () => {
@@ -978,20 +1021,23 @@ const AppContent: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-gray-50 font-sans text-gray-900 overflow-hidden">
-      {/* Full-Width Clean Light Header (100% viewport width) */}
-      <TopBar activeTab={activeTab} onTabChange={setActiveTab} />
-      
-      {/* Body Area: Sidebar + Main Content */}
-      <div className="flex-1 flex overflow-hidden">
-        <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
-        <main className="flex-1 overflow-y-auto px-3 sm:px-6 pt-3 sm:pt-4 pb-24 md:pb-6 custom-scrollbar relative">
-          {renderContent()}
-        </main>
-      </div>
+    <>
+      {isPreloaderVisible && <Preloader fading={isPreloaderFading} />}
+      <div className="flex flex-col h-screen bg-gray-50 font-sans text-gray-900 overflow-hidden">
+        {/* Full-Width Clean Light Header (100% viewport width) */}
+        <TopBar activeTab={activeTab} onTabChange={setActiveTab} />
+        
+        {/* Body Area: Sidebar + Main Content */}
+        <div className="flex-1 flex overflow-hidden">
+          <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
+          <main className="flex-1 overflow-y-auto px-3 sm:px-6 pt-3 sm:pt-4 pb-24 md:pb-6 custom-scrollbar relative">
+            {renderContent()}
+          </main>
+        </div>
 
-      <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
-    </div>
+        <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
+      </div>
+    </>
   );
 };
 
