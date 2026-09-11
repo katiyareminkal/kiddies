@@ -72,7 +72,19 @@ export default defineConfig(({ mode }) => {
       aistudioMediaPlugin(),
       VitePWA({
         registerType: 'autoUpdate',
-        includeAssets: ['favicon.ico', 'favicon.png', 'apple-touch-icon.png', 'icon.png', 'icon-192.png', 'icon-512.png', 'pwa-192x192.png', 'pwa-512x512.png'],
+        includeAssets: [
+          'favicon.ico',
+          'favicon.png',
+          'apple-touch-icon.png',
+          'apple-touch-startup-image.png',
+          'icon.png',
+          'icon-192.png',
+          'icon-512.png',
+          'pwa-192x192.png',
+          'pwa-512x512.png',
+          'maskable-icon-192.png',
+          'maskable-icon-512.png'
+        ],
         devOptions: {
           enabled: true
         },
@@ -80,12 +92,16 @@ export default defineConfig(({ mode }) => {
           maximumFileSizeToCacheInBytes: 5242880 // 5 MB
         },
         manifest: {
+          id: '/',
           name: 'Kiddies | Stock & Rental Management Suite',
           short_name: 'Kiddies',
           description: 'Stock & Rental Management Suite for Kids Wear',
+          start_url: '/',
+          scope: '/',
+          display: 'standalone',
+          orientation: 'portrait',
           theme_color: '#ffffff',
           background_color: '#ffffff',
-          display: 'standalone',
           icons: [
             {
               src: '/icon-192.png',
@@ -100,13 +116,13 @@ export default defineConfig(({ mode }) => {
               purpose: 'any'
             },
             {
-              src: '/icon-192.png',
+              src: '/maskable-icon-192.png',
               sizes: '192x192',
               type: 'image/png',
               purpose: 'maskable'
             },
             {
-              src: '/icon-512.png',
+              src: '/maskable-icon-512.png',
               sizes: '512x512',
               type: 'image/png',
               purpose: 'maskable'
