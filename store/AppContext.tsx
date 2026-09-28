@@ -457,7 +457,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
     try {
       const [
-        usersRes,
+        usersTableRes,
+        profilesTableRes,
         productsRes,
         customersRes,
         suppliersRes,
@@ -471,6 +472,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         creditNotesRes,
         expensesRes
       ] = await Promise.all([
+        supabase.from('users').select('*'),
         supabase.from('profiles').select('*'),
         supabase.from('products').select('*'),
         supabase.from('customers').select('*'),
@@ -489,7 +491,14 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       const { data: saleItems } = await supabase.from('sale_items').select('*');
       const { data: supplierBillItems } = await supabase.from('supplier_bill_items').select('*');
 
-      const users = usersRes.data;
+      // Aggregate all database users from both 'users' and 'profiles' tables
+      const rawUsersList: any[] = [];
+      if (usersTableRes.data && Array.isArray(usersTableRes.data)) {
+        rawUsersList.push(...usersTableRes.data);
+      }
+      if (profilesTableRes.data && Array.isArray(profilesTableRes.data)) {
+        rawUsersList.push(...profilesTableRes.data);
+      }
       const products = productsRes.data;
       const customers = customersRes.data;
       const suppliers = suppliersRes.data;
@@ -549,29 +558,89 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         }
       } catch (e) {}
 
-      const remoteUsers = (users || [])
-        .filter(u => !deletedUserIds.has(u.id) && !deletedUserIds.has((u.email || '').toLowerCase()))
-        .map(u => ({
-          id: u.id,
-          name: u.name || '',
-          email: u.email || '',
-          role: u.role || UserRole.STAFF,
-          permissions: u.permissions || [],
-          createdAt: u.created_at
-        }));
+      const remoteUsers: User[] = rawUsersList
+        .filter(u => u && !deletedUserIds.has(u.id) && !deletedUserIds.has((u.email || '').toLowerCase()))
+        .map(u => {
+          let role = UserRole.STAFF;
+          const rawRole = (u.role || u.user_role || '').toString().toUpperCase();
+          if (rawRole === 'ADMIN' || rawRole === 'STORE_ADMIN' || rawRole === 'SUPERADMIN') {
+            role = UserRole.ADMIN;
+          }
 
-      const userMap = new Map<string, User>();
-      INITIAL_DATA.users.forEach(u => {
-        if (!deletedUserIds.has(u.id) && !deletedUserIds.has((u.email || '').toLowerCase())) {
-          userMap.set(u.id, u);
+          let permissions: string[] = [];
+          if (role === UserRole.ADMIN) {
+            permissions = [];
+          } else if (Array.isArray(u.permissions)) {
+            permissions = u.permissions;
+          } else if (typeof u.permissions === 'string') {
+            try {
+              const parsed = JSON.parse(u.permissions);
+              if (Array.isArray(parsed)) permissions = parsed;
+              else permissions = ['sales', 'inventory', 'dashboard'];
+            } catch {
+              permissions = ['sales', 'inventory', 'dashboard'];
+            }
+          } else {
+            permissions = ['sales', 'inventory', 'dashboard'];
+          }
+
+          return {
+            id: u.id ? String(u.id) : generateID(),
+            name: u.name || u.full_name || u.username || u.display_name || (u.email ? u.email.split('@')[0] : 'Staff User'),
+            email: (u.email || '').trim(),
+            password: u.password || u.pin || '',
+            role,
+            permissions,
+            createdAt: u.created_at || u.createdAt || new Date().toISOString()
+          };
+        });
+
+      // Build consolidated users list, prioritizing real database records
+      const finalUsers: User[] = [];
+      const seenUserKeys = new Set<string>();
+
+      // 1. Remote users from Supabase take top precedence
+      for (const u of remoteUsers) {
+        const idKey = u.id ? u.id.toLowerCase() : '';
+        const emailKey = u.email ? u.email.toLowerCase() : '';
+        const key = emailKey || idKey;
+        if (key && !seenUserKeys.has(key)) {
+          seenUserKeys.add(key);
+          if (idKey) seenUserKeys.add(idKey);
+          if (emailKey) seenUserKeys.add(emailKey);
+          finalUsers.push(u);
         }
-      });
-      remoteUsers.forEach(u => userMap.set(u.id, u));
-      customOfflineUsers.forEach(u => userMap.set(u.id, u));
+      }
+
+      // 2. Custom offline users (if not already represented)
+      for (const u of customOfflineUsers) {
+        const idKey = u.id ? u.id.toLowerCase() : '';
+        const emailKey = u.email ? u.email.toLowerCase() : '';
+        const key = emailKey || idKey;
+        if (key && !seenUserKeys.has(key)) {
+          seenUserKeys.add(key);
+          if (idKey) seenUserKeys.add(idKey);
+          if (emailKey) seenUserKeys.add(emailKey);
+          finalUsers.push(u);
+        }
+      }
+
+      // 3. Fallback initial users only if no matching account exists
+      for (const u of INITIAL_DATA.users) {
+        const idKey = u.id.toLowerCase();
+        const emailKey = u.email ? u.email.toLowerCase() : '';
+        if (!deletedUserIds.has(u.id) && (!emailKey || !deletedUserIds.has(emailKey))) {
+          if (!seenUserKeys.has(idKey) && (!emailKey || !seenUserKeys.has(emailKey))) {
+            seenUserKeys.add(idKey);
+            if (emailKey) seenUserKeys.add(emailKey);
+            finalUsers.push(u);
+          }
+        }
+      }
 
       setState(prev => ({
         ...prev,
-        users: usersRes.error ? prev.users : Array.from(userMap.values()),
+        users: (usersTableRes.error && profilesTableRes.error && remoteUsers.length === 0) ? prev.users : finalUsers,
         products: (() => {
           if (productsRes.error && products === null) {
             return prev.products;
@@ -1192,19 +1261,29 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       }
     }
 
-    // 4. Also check profiles from Supabase database (filtering out deleted users)
+    // 4. Also check users / profiles from Supabase database (filtering out deleted users)
     try {
       const deletedUserIds = getDeletedUserIds();
       if (!deletedUserIds.has(cleanEmail)) {
-        const { data: dbProfile } = await supabase.from('profiles').select('*').eq('email', cleanEmail).maybeSingle();
-        if (dbProfile && !deletedUserIds.has(dbProfile.id)) {
+        let dbUser: any = null;
+        const { data: userRow } = await supabase.from('users').select('*').eq('email', cleanEmail).maybeSingle();
+        if (userRow) {
+          dbUser = userRow;
+        } else {
+          const { data: profileRow } = await supabase.from('profiles').select('*').eq('email', cleanEmail).maybeSingle();
+          if (profileRow) dbUser = profileRow;
+        }
+
+        if (dbUser && !deletedUserIds.has(dbUser.id)) {
+          const rawRole = (dbUser.role || dbUser.user_role || '').toString().toUpperCase();
+          const role = (rawRole === 'ADMIN' || rawRole === 'STORE_ADMIN' || rawRole === 'SUPERADMIN') ? UserRole.ADMIN : UserRole.STAFF;
           const matchedProfileUser: User = {
-            id: dbProfile.id,
-            name: dbProfile.name || 'Staff User',
-            email: dbProfile.email,
-            role: (dbProfile.role as any) || UserRole.STAFF,
-            permissions: dbProfile.permissions || [],
-            createdAt: dbProfile.created_at || new Date().toISOString()
+            id: dbUser.id,
+            name: dbUser.name || dbUser.full_name || dbUser.username || 'Staff User',
+            email: dbUser.email,
+            role,
+            permissions: Array.isArray(dbUser.permissions) ? dbUser.permissions : [],
+            createdAt: dbUser.created_at || new Date().toISOString()
           };
           setState(prev => ({ ...prev, currentUser: matchedProfileUser }));
           localStorage.setItem('kiddies_current_user', JSON.stringify(matchedProfileUser));
@@ -1270,21 +1349,39 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       localStorage.setItem('kiddies_custom_users', JSON.stringify([...filtered, newUser]));
     } catch (e) {}
 
-    // 3. Persist to Supabase
+    // 3. Persist to Supabase (write to both 'users' and 'profiles' tables)
     try {
-      const { error } = await supabase.from('profiles').insert({
+      const userPayload: any = {
         id,
         name: u.name,
         email: u.email,
         role: u.role,
-        permissions: u.role === UserRole.ADMIN ? [] : (u.permissions || [])
-      });
-      if (error) {
-        console.warn('Supabase profile insert note:', error.message || error);
+        permissions: u.role === UserRole.ADMIN ? [] : (u.permissions || []),
+        password: u.password || undefined,
+        created_at: createdAt
+      };
+
+      const [usersInsert, profilesInsert] = await Promise.allSettled([
+        supabase.from('users').upsert(userPayload),
+        supabase.from('profiles').upsert({
+          id,
+          name: u.name,
+          email: u.email,
+          role: u.role,
+          permissions: u.role === UserRole.ADMIN ? [] : (u.permissions || [])
+        })
+      ]);
+
+      if (usersInsert.status === 'rejected') {
+        console.warn('Supabase users insert notice:', usersInsert.reason);
       }
+      if (profilesInsert.status === 'rejected') {
+        console.warn('Supabase profiles insert notice:', profilesInsert.reason);
+      }
+
       await fetchAllData();
     } catch (error) {
-      console.warn('Error adding user profile to Supabase:', error);
+      console.warn('Error adding user to Supabase:', error);
     }
   };
 
@@ -1319,21 +1416,28 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       }
     } catch (e) {}
 
-    // 3. Persist to Supabase
+    // 3. Persist to Supabase (update in both 'users' and 'profiles' tables)
     try {
       const dbUpdates: any = {};
       if (updates.name !== undefined) dbUpdates.name = updates.name;
       if (updates.email !== undefined) dbUpdates.email = updates.email;
       if (updates.role !== undefined) dbUpdates.role = updates.role;
       if (updates.permissions !== undefined) dbUpdates.permissions = updates.permissions;
+      if (updates.password !== undefined) dbUpdates.password = updates.password;
 
-      const { error } = await supabase.from('profiles').update(dbUpdates).eq('id', id);
-      if (error) {
-        console.warn('Supabase update profile note:', error.message || error);
-      }
+      await Promise.allSettled([
+        supabase.from('users').update(dbUpdates).eq('id', id),
+        supabase.from('profiles').update({
+          name: updates.name,
+          email: updates.email,
+          role: updates.role,
+          permissions: updates.permissions
+        }).eq('id', id)
+      ]);
+
       await fetchAllData();
     } catch (error) {
-      console.warn('Error updating profile in Supabase:', error);
+      console.warn('Error updating user in Supabase:', error);
     }
   };
 
@@ -1363,12 +1467,12 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       }
     } catch (e) {}
 
-    // 4. Delete from Supabase
+    // 4. Delete from Supabase (delete from both 'users' and 'profiles' tables)
     try {
-      const { error } = await supabase.from('profiles').delete().eq('id', id);
-      if (error) {
-        console.warn('Supabase delete profile note:', error.message || error);
-      }
+      await Promise.allSettled([
+        supabase.from('users').delete().eq('id', id),
+        supabase.from('profiles').delete().eq('id', id)
+      ]);
     } catch (error) {
       console.warn('Error deleting user from Supabase:', error);
     }
@@ -3691,6 +3795,33 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
           used_at: cn.usedAt || null
         });
         counts.creditNotes++;
+      }
+
+      // 10. Users
+      counts.users = 0;
+      for (const u of state.users) {
+        try {
+          await supabase.from('users').upsert({
+            id: u.id,
+            name: u.name,
+            email: u.email,
+            role: u.role,
+            permissions: u.role === UserRole.ADMIN ? [] : (u.permissions || []),
+            password: u.password || undefined,
+            created_at: u.createdAt || new Date().toISOString()
+          });
+          counts.users++;
+        } catch (e) {}
+
+        try {
+          await supabase.from('profiles').upsert({
+            id: u.id,
+            name: u.name,
+            email: u.email,
+            role: u.role,
+            permissions: u.role === UserRole.ADMIN ? [] : (u.permissions || [])
+          });
+        } catch (e) {}
       }
 
       await fetchAllData();

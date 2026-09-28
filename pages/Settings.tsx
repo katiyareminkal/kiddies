@@ -738,14 +738,40 @@ CREATE TABLE IF NOT EXISTS public.settings (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 11. ENABLE RLS AND CREATE SAFE PUBLIC ACCESS POLICIES
+-- 11. USERS & PROFILES TABLE
+CREATE TABLE IF NOT EXISTS public.users (
+  id TEXT PRIMARY KEY,
+  name TEXT,
+  email TEXT,
+  role TEXT DEFAULT 'STAFF',
+  permissions TEXT[] DEFAULT '{}',
+  password TEXT,
+  pin TEXT,
+  phone TEXT,
+  is_active BOOLEAN DEFAULT true,
+  avatar TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS public.profiles (
+  id TEXT PRIMARY KEY,
+  name TEXT,
+  email TEXT,
+  role TEXT DEFAULT 'STAFF',
+  permissions TEXT[] DEFAULT '{}',
+  avatar TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 12. ENABLE RLS AND CREATE SAFE PUBLIC ACCESS POLICIES
 DO $$ 
 DECLARE
   t text;
   tables text[] := ARRAY[
     'products', 'customers', 'sales', 'sale_items', 'rentals',
     'suppliers', 'supplier_bills', 'expenses', 'credit_notes',
-    'stock_logs', 'store_profile', 'settings', 'users'
+    'stock_logs', 'store_profile', 'settings', 'users', 'profiles'
   ];
 BEGIN
   FOREACH t IN ARRAY tables LOOP

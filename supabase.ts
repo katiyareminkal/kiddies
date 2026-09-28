@@ -187,6 +187,8 @@ export async function testSupabaseConnection(): Promise<SupabaseConnectionStatus
   }
 
   const tablesToProbe = [
+    'users',
+    'profiles',
     'products',
     'customers',
     'sales',

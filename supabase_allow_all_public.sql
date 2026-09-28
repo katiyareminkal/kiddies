@@ -160,3 +160,24 @@ DROP POLICY IF EXISTS "Allow users to update own profile" ON public.profiles;
 DROP POLICY IF EXISTS "Allow inserts during signup" ON public.profiles;
 DROP POLICY IF EXISTS "Allow all on profiles" ON public.profiles;
 CREATE POLICY "Allow all on profiles" ON public.profiles FOR ALL USING (true) WITH CHECK (true);
+
+-- Users (Staff & Store Accounts)
+CREATE TABLE IF NOT EXISTS public.users (
+  id TEXT PRIMARY KEY,
+  name TEXT,
+  email TEXT,
+  role TEXT DEFAULT 'STAFF',
+  permissions TEXT[] DEFAULT '{}',
+  password TEXT,
+  pin TEXT,
+  phone TEXT,
+  is_active BOOLEAN DEFAULT true,
+  avatar TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Allow all on users" ON public.users;
+DROP POLICY IF EXISTS "Allow all public access on users" ON public.users;
+CREATE POLICY "Allow all on users" ON public.users FOR ALL USING (true) WITH CHECK (true);
+

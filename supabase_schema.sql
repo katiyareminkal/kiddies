@@ -11,7 +11,22 @@ CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 -- 1. TABLES DEFINITION (CREATE IF NOT EXISTS)
 -- =========================================================================
 
--- A. Profiles (extending Auth Users)
+-- A. Users & Profiles (Store Users & Staff Accounts)
+CREATE TABLE IF NOT EXISTS public.users (
+  id TEXT PRIMARY KEY,
+  name TEXT,
+  email TEXT,
+  role TEXT DEFAULT 'STAFF',
+  permissions TEXT[] DEFAULT '{}',
+  password TEXT,
+  pin TEXT,
+  phone TEXT,
+  is_active BOOLEAN DEFAULT true,
+  avatar TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 CREATE TABLE IF NOT EXISTS public.profiles (
   id TEXT PRIMARY KEY,
   name TEXT,
@@ -401,13 +416,18 @@ DROP POLICY IF EXISTS "Allow public all access on settings" ON public.settings;
 DROP POLICY IF EXISTS "Allow all on settings" ON public.settings;
 CREATE POLICY "Allow all on settings" ON public.settings FOR ALL USING (true) WITH CHECK (true);
 
--- Profiles
+-- Profiles & Users
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Allow public read access to profiles" ON public.profiles;
 DROP POLICY IF EXISTS "Allow users to update own profile" ON public.profiles;
 DROP POLICY IF EXISTS "Allow inserts during signup" ON public.profiles;
 DROP POLICY IF EXISTS "Allow all on profiles" ON public.profiles;
 CREATE POLICY "Allow all on profiles" ON public.profiles FOR ALL USING (true) WITH CHECK (true);
+
+ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Allow all on users" ON public.users;
+DROP POLICY IF EXISTS "Allow all public access on users" ON public.users;
+CREATE POLICY "Allow all on users" ON public.users FOR ALL USING (true) WITH CHECK (true);
 
 -- =========================================================================
 -- 4. INSERT CONFIG DEFAULTS (IF NOT ALREADY PRESENT)
