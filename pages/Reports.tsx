@@ -15,7 +15,8 @@ import {
   ShoppingBag,
   Coins,
   IndianRupee,
-  Layers
+  Layers,
+  Trash2
 } from 'lucide-react';
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -25,8 +26,23 @@ import { subDays, isAfter, format, parseISO } from 'date-fns';
 import { OrderStatus } from '../types';
 
 const Reports: React.FC = () => {
-  const { sales, rentals, products, expenses } = useApp();
+  const { sales, rentals, products, expenses, deleteExpense, currentUser, settings } = useApp();
   const [timeRange, setTimeRange] = useState<'7D' | '30D' | 'ALL'>('30D');
+  const [deletingExpenseId, setDeletingExpenseId] = useState<string | null>(null);
+
+  const canDeleteExpense = currentUser?.role === 'ADMIN' || settings?.enableDeleteTransactions;
+
+  const handleDeleteExpense = async (id: string, reason: string) => {
+    if (!window.confirm(`Are you sure you want to delete this expense record: "${reason}"?`)) return;
+    try {
+      setDeletingExpenseId(id);
+      await deleteExpense(id);
+    } catch (err) {
+      console.error('Failed to delete expense:', err);
+    } finally {
+      setDeletingExpenseId(null);
+    }
+  };
 
   // Filter Data based on Time Range
   const filteredData = useMemo(() => {
@@ -426,6 +442,7 @@ const Reports: React.FC = () => {
                 <th className="px-4 py-3">Paid To / Recipient</th>
                 <th className="px-4 py-3">Reason / Description</th>
                 <th className="px-4 py-3 text-right">Amount</th>
+                {canDeleteExpense && <th className="px-4 py-3 text-right">Action</th>}
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
@@ -449,12 +466,25 @@ const Reports: React.FC = () => {
                     <td className="px-4 py-3 font-bold text-slate-800">{exp.paidTo || '-'}</td>
                     <td className="px-4 py-3 text-slate-600">{exp.reason}</td>
                     <td className="px-4 py-3 text-right font-mono font-extrabold text-rose-600">-{formatCurrency(exp.amount)}</td>
+                    {canDeleteExpense && (
+                      <td className="px-4 py-3 text-right">
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteExpense(exp.id, exp.reason)}
+                          disabled={deletingExpenseId === exp.id}
+                          className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors disabled:opacity-50"
+                          title="Delete expense record"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </td>
+                    )}
                   </tr>
                 );
               })}
               {filteredData.expenses.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="py-8 text-center text-slate-400 font-bold">No expense records logged in this timeframe</td>
+                  <td colSpan={canDeleteExpense ? 7 : 6} className="py-8 text-center text-slate-400 font-bold">No expense records logged in this timeframe</td>
                 </tr>
               )}
             </tbody>

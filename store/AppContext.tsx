@@ -57,6 +57,7 @@ interface AppContextType extends AppState {
   addCreditNote: (customerId: string, amount: number, reason: string) => Promise<void>;
   consumeStoreCredit: (customerId: string, amountToConsume: number, invoiceNumber: string) => Promise<void>;
   addExpense: (expense: Omit<Expense, 'id' | 'date'> & { date?: string }) => Promise<void>;
+  deleteExpense: (id: string) => Promise<void>;
   updateOrderStatus: (saleId: string, status: OrderStatus) => Promise<void>;
   updateSale: (id: string, updates: Partial<Sale>) => Promise<void>;
   addPaymentToSale: (saleId: string, amount: number) => Promise<void>;
@@ -597,6 +598,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
             purpose: p.purpose || 'SALE',
             minStockAlert: Number(p.min_stock_alert || 0),
             supplierId: p.supplier_id || '',
+            supplierName: p.supplier_name || '',
+            billNumber: p.bill_number || '',
+            billDate: p.bill_date || '',
             description: p.description || '',
             imageUrl: (() => {
               if (p.image_url && p.image_url.startsWith('[')) {
@@ -653,6 +657,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
             email: c.email || '',
             address: c.address || '',
             gstin: c.gstin || '',
+            storeCredit: Number(c.store_credit || 0),
             createdAt: c.created_at
           }));
           try {
@@ -831,6 +836,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
             paymentStatus: r.payment_status || PaymentStatus.UNPAID,
             images: r.images || [],
             returnImages: r.return_images || [],
+            laundryStatus: r.laundry_status || 'NOT_REQUIRED',
+            laundryNotes: r.laundry_notes || undefined,
+            laundryPartner: r.laundry_partner || undefined,
+            laundrySentDate: r.laundry_sent_date || undefined,
+            laundryReadyDate: r.laundry_ready_date || undefined,
             date: r.date || r.start_date
           }));
 
@@ -1433,6 +1443,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       if (p.gender) insertPayload.gender = p.gender;
       if (p.clothingType) insertPayload.clothing_type = p.clothingType;
       if (p.supplierId) insertPayload.supplier_id = p.supplierId;
+      if (p.supplierName) insertPayload.supplier_name = p.supplierName;
+      if (p.billNumber) insertPayload.bill_number = p.billNumber;
+      if (p.billDate) insertPayload.bill_date = p.billDate;
 
       const { error } = await supabase.from('products').insert(insertPayload);
 
@@ -1532,6 +1545,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       if (updates.purpose !== undefined) dbUpdates.purpose = updates.purpose;
       if (updates.minStockAlert !== undefined) dbUpdates.min_stock_alert = updates.minStockAlert;
       if (updates.supplierId !== undefined) dbUpdates.supplier_id = updates.supplierId;
+      if (updates.supplierName !== undefined) dbUpdates.supplier_name = updates.supplierName;
+      if (updates.billNumber !== undefined) dbUpdates.bill_number = updates.billNumber;
+      if (updates.billDate !== undefined) dbUpdates.bill_date = updates.billDate;
       if (updates.description !== undefined) dbUpdates.description = updates.description;
       dbUpdates.image_url = serializedImages;
 
@@ -1661,7 +1677,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       if (updates.gstin !== undefined) dbUpdates.gstin = updates.gstin;
       if (updates.storeCredit !== undefined) dbUpdates.store_credit = updates.storeCredit;
 
-      if (isValidUUID(id)) {
+      if (id && Object.keys(dbUpdates).length > 0) {
         const { error } = await supabase.from('customers').update(dbUpdates).eq('id', id);
         if (error) console.warn('Supabase updateCustomer error:', error);
       }
@@ -1683,6 +1699,12 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
           customers: nextCustomers
         };
       });
+
+      // Unlink or delete customer's credit notes to maintain database integrity
+      try {
+        await supabase.from('credit_notes').delete().eq('customer_id', id);
+      } catch (e) {}
+
       const { error } = await supabase.from('customers').delete().eq('id', id);
       if (error) console.warn('Supabase deleteCustomer error:', error);
       fetchAllData().catch(() => {});
@@ -1761,7 +1783,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       if (updates.location !== undefined) dbUpdates.location = updates.location;
       if (updates.category !== undefined) dbUpdates.category = updates.category;
 
-      if (isValidUUID(id)) {
+      if (id && Object.keys(dbUpdates).length > 0) {
         const { error } = await supabase.from('suppliers').update(dbUpdates).eq('id', id);
         if (error) console.warn('Supabase updateSupplier error:', error);
       }
@@ -1797,8 +1819,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         const billsToDelete = state.supplierBills.filter(b => b.supplierId === id).map(b => b.id);
         if (billsToDelete.length > 0) {
           await supabase.from('supplier_bill_items').delete().in('bill_id', billsToDelete);
-          await supabase.from('supplier_bills').delete().in('id', billsToDelete);
         }
+        await supabase.from('supplier_bills').delete().eq('supplier_id', id);
       } catch (e) {}
 
       // 3. Delete the supplier record directly
@@ -1862,7 +1884,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     });
 
     try {
-      const supplierIdToSend = isValidUUID(bill.supplierId) ? bill.supplierId : undefined;
+      const supplierIdToSend = bill.supplierId || undefined;
       const insertData: any = {
         id: newBillId,
         bill_number: bill.billNumber,
@@ -1996,7 +2018,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
       if (isLegacyId) {
         // Insert clean record with activeDbId
-        const supplierIdToSend = (bill.supplierId && isValidUUID(bill.supplierId)) ? bill.supplierId : undefined;
+        const supplierIdToSend = bill.supplierId || undefined;
         const insertData = {
           ...updateData,
           id: activeDbId,
@@ -2486,6 +2508,26 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       }
     } catch (error) {
       console.warn('Network sync notice for expense (saved locally):', error);
+    }
+  };
+
+  const deleteExpense = async (id: string) => {
+    setState(prev => {
+      const nextExpenses = prev.expenses.filter(e => e.id !== id);
+      try {
+        localStorage.setItem('kiddies_offline_expenses', JSON.stringify(nextExpenses));
+      } catch (err) {}
+      return { ...prev, expenses: nextExpenses };
+    });
+
+    try {
+      if (isSupabaseConfigured()) {
+        const { error } = await supabase.from('expenses').delete().eq('id', id);
+        if (error) console.warn('Supabase delete expense notice:', error);
+        fetchAllData().catch(() => {});
+      }
+    } catch (error) {
+      console.warn('Notice deleting expense remotely, removed locally:', error);
     }
   };
   const updateOrderStatus = async (saleId: string, orderStatus: OrderStatus) => {
@@ -3137,7 +3179,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       if (newSettings.enableDeleteSuppliers !== undefined) payload.enable_delete_suppliers = newSettings.enableDeleteSuppliers;
       if (newSettings.enableDeleteUsers !== undefined) payload.enable_delete_users = newSettings.enableDeleteUsers;
 
-      const { error } = await supabase.from('settings').update(payload).eq('id', 'default');
+      const { error } = await supabase.from('settings').upsert({ id: 'default', ...payload });
       if (error) {
         console.warn('Supabase settings update note:', error.message || error);
       }
@@ -3467,7 +3509,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
           phone: c.phone || '',
           email: c.email || '',
           address: c.address || '',
-          gstin: c.gstin || ''
+          gstin: c.gstin || '',
+          store_credit: c.storeCredit || 0
         });
         counts.customers++;
       }
@@ -3491,7 +3534,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       for (const b of state.supplierBills) {
         await supabase.from('supplier_bills').upsert({
           id: b.id,
-          supplier_id: b.supplierId,
+          supplier_id: b.supplierId || null,
           bill_number: b.billNumber || '',
           date: b.date,
           subtotal: b.subtotal || 0,
@@ -3546,6 +3589,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
           purpose: p.purpose || 'SALE',
           min_stock_alert: p.minStockAlert || 0,
           supplier_id: p.supplierId || null,
+          supplier_name: p.supplierName || null,
+          bill_number: p.billNumber || null,
+          bill_date: p.billDate || null,
           description: p.description || '',
           image_url: p.imageUrl || ''
         });
@@ -3608,6 +3654,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
           payment_status: r.paymentStatus,
           images: r.images || [],
           return_images: r.returnImages || [],
+          laundry_status: r.laundryStatus || 'NOT_REQUIRED',
+          laundry_notes: r.laundryNotes || null,
+          laundry_partner: r.laundryPartner || null,
+          laundry_sent_date: r.laundrySentDate || null,
+          laundry_ready_date: r.laundryReadyDate || null,
           date: r.date || r.startDate
         });
         counts.rentals++;
@@ -3679,6 +3730,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       addCreditNote,
       consumeStoreCredit,
       addExpense,
+      deleteExpense,
       syncAllOfflineDataToSupabase,
       refreshData
     }}>

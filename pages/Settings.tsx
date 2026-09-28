@@ -492,36 +492,277 @@ const Settings: React.FC = () => {
   };
 
   const handleCopySql = () => {
-    const sql = `-- Quick fix for public read/write access:
-ALTER TABLE public.products ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Allow all on products" ON public.products FOR ALL USING (true) WITH CHECK (true);
-ALTER TABLE public.customers ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Allow all on customers" ON public.customers FOR ALL USING (true) WITH CHECK (true);
-ALTER TABLE public.sales ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Allow all on sales" ON public.sales FOR ALL USING (true) WITH CHECK (true);
-ALTER TABLE public.sale_items ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Allow all on sale_items" ON public.sale_items FOR ALL USING (true) WITH CHECK (true);
-ALTER TABLE public.rentals ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Allow all on rentals" ON public.rentals FOR ALL USING (true) WITH CHECK (true);
-ALTER TABLE public.suppliers ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Allow all on suppliers" ON public.suppliers FOR ALL USING (true) WITH CHECK (true);
-ALTER TABLE public.supplier_bills ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Allow all on supplier_bills" ON public.supplier_bills FOR ALL USING (true) WITH CHECK (true);
-ALTER TABLE public.expenses ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Allow all on expenses" ON public.expenses FOR ALL USING (true) WITH CHECK (true);
-ALTER TABLE public.credit_notes ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Allow all on credit_notes" ON public.credit_notes FOR ALL USING (true) WITH CHECK (true);
-ALTER TABLE public.stock_logs ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Allow all on stock_logs" ON public.stock_logs FOR ALL USING (true) WITH CHECK (true);
-ALTER TABLE public.store_profile ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Allow all on store_profile" ON public.store_profile FOR ALL USING (true) WITH CHECK (true);
-ALTER TABLE public.settings ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Allow all on settings" ON public.settings FOR ALL USING (true) WITH CHECK (true);`;
+    const sql = `-- =========================================================================
+-- RUN THIS SCRIPT IN YOUR SUPABASE SQL EDITOR (PROJECT -> SQL EDITOR)
+-- Fixes all tables, adds missing columns, and enables full read/write RLS
+-- Safe to run on existing databases (Idempotent)
+-- =========================================================================
+
+-- 1. Ensure required extensions
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+-- 2. PRODUCTS TABLE
+CREATE TABLE IF NOT EXISTS public.products (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  sku TEXT,
+  category TEXT DEFAULT 'Clothing',
+  sub_category TEXT,
+  gender TEXT,
+  clothing_type TEXT,
+  description TEXT,
+  barcode TEXT,
+  purchase_price NUMERIC(10,2) DEFAULT 0,
+  selling_price NUMERIC(10,2) DEFAULT 0,
+  rental_price NUMERIC(10,2) DEFAULT 0,
+  security_deposit NUMERIC(10,2) DEFAULT 0,
+  stock INTEGER DEFAULT 0,
+  rental_stock INTEGER DEFAULT 0,
+  min_stock_alert INTEGER DEFAULT 5,
+  supplier_id TEXT,
+  supplier_name TEXT,
+  bill_number TEXT,
+  bill_date TEXT,
+  images TEXT[] DEFAULT '{}',
+  variants JSONB DEFAULT '[]'::jsonb,
+  is_active BOOLEAN DEFAULT true,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+ALTER TABLE public.products ADD COLUMN IF NOT EXISTS sub_category TEXT;
+ALTER TABLE public.products ADD COLUMN IF NOT EXISTS gender TEXT;
+ALTER TABLE public.products ADD COLUMN IF NOT EXISTS clothing_type TEXT;
+ALTER TABLE public.products ADD COLUMN IF NOT EXISTS supplier_id TEXT;
+ALTER TABLE public.products ADD COLUMN IF NOT EXISTS supplier_name TEXT;
+ALTER TABLE public.products ADD COLUMN IF NOT EXISTS bill_number TEXT;
+ALTER TABLE public.products ADD COLUMN IF NOT EXISTS bill_date TEXT;
+ALTER TABLE public.products ADD COLUMN IF NOT EXISTS variants JSONB DEFAULT '[]'::jsonb;
+ALTER TABLE public.products ADD COLUMN IF NOT EXISTS images TEXT[] DEFAULT '{}';
+
+-- 3. CUSTOMERS TABLE
+CREATE TABLE IF NOT EXISTS public.customers (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  phone TEXT,
+  email TEXT,
+  address TEXT,
+  gstin TEXT,
+  notes TEXT,
+  store_credit NUMERIC(10,2) DEFAULT 0,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+ALTER TABLE public.customers ADD COLUMN IF NOT EXISTS store_credit NUMERIC(10,2) DEFAULT 0;
+ALTER TABLE public.customers ADD COLUMN IF NOT EXISTS address TEXT;
+ALTER TABLE public.customers ADD COLUMN IF NOT EXISTS gstin TEXT;
+
+-- 4. SUPPLIERS TABLE
+CREATE TABLE IF NOT EXISTS public.suppliers (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  contact_person TEXT,
+  phone TEXT,
+  email TEXT,
+  address TEXT,
+  gstin TEXT,
+  notes TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 5. SUPPLIER BILLS TABLE
+CREATE TABLE IF NOT EXISTS public.supplier_bills (
+  id TEXT PRIMARY KEY,
+  bill_number TEXT NOT NULL,
+  supplier_id TEXT,
+  supplier_name TEXT NOT NULL,
+  bill_date TEXT NOT NULL,
+  due_date TEXT,
+  total_amount NUMERIC(12,2) DEFAULT 0,
+  paid_amount NUMERIC(12,2) DEFAULT 0,
+  balance_due NUMERIC(12,2) DEFAULT 0,
+  payment_status TEXT DEFAULT 'UNPAID',
+  notes TEXT,
+  items JSONB DEFAULT '[]'::jsonb,
+  payments JSONB DEFAULT '[]'::jsonb,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+ALTER TABLE public.supplier_bills ADD COLUMN IF NOT EXISTS items JSONB DEFAULT '[]'::jsonb;
+ALTER TABLE public.supplier_bills ADD COLUMN IF NOT EXISTS payments JSONB DEFAULT '[]'::jsonb;
+
+-- 6. SALES & SALE ITEMS TABLES
+CREATE TABLE IF NOT EXISTS public.sales (
+  id TEXT PRIMARY KEY,
+  invoice_number TEXT NOT NULL,
+  customer_id TEXT,
+  customer_name TEXT,
+  customer_phone TEXT,
+  items JSONB DEFAULT '[]'::jsonb,
+  subtotal NUMERIC(10,2) DEFAULT 0,
+  discount NUMERIC(10,2) DEFAULT 0,
+  tax NUMERIC(10,2) DEFAULT 0,
+  total_amount NUMERIC(10,2) DEFAULT 0,
+  paid_amount NUMERIC(10,2) DEFAULT 0,
+  change_due NUMERIC(10,2) DEFAULT 0,
+  cash_tendered NUMERIC(10,2) DEFAULT 0,
+  payment_method TEXT DEFAULT 'CASH',
+  split_payments JSONB,
+  order_status TEXT DEFAULT 'COMPLETED',
+  notes TEXT,
+  date TIMESTAMPTZ DEFAULT NOW(),
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+ALTER TABLE public.sales ADD COLUMN IF NOT EXISTS items JSONB DEFAULT '[]'::jsonb;
+ALTER TABLE public.sales ADD COLUMN IF NOT EXISTS split_payments JSONB;
+ALTER TABLE public.sales ADD COLUMN IF NOT EXISTS cash_tendered NUMERIC(10,2) DEFAULT 0;
+ALTER TABLE public.sales ADD COLUMN IF NOT EXISTS change_due NUMERIC(10,2) DEFAULT 0;
+
+CREATE TABLE IF NOT EXISTS public.sale_items (
+  id TEXT PRIMARY KEY,
+  sale_id TEXT REFERENCES public.sales(id) ON DELETE CASCADE,
+  product_id TEXT,
+  product_name TEXT NOT NULL,
+  quantity INTEGER NOT NULL,
+  returned_quantity INTEGER DEFAULT 0,
+  unit_price NUMERIC(10,2) NOT NULL,
+  total_price NUMERIC(10,2) NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+ALTER TABLE public.sale_items ADD COLUMN IF NOT EXISTS returned_quantity INTEGER DEFAULT 0;
+
+-- 7. RENTALS TABLE
+CREATE TABLE IF NOT EXISTS public.rentals (
+  id TEXT PRIMARY KEY,
+  invoice_number TEXT NOT NULL,
+  customer_id TEXT,
+  customer_name TEXT NOT NULL,
+  customer_phone TEXT NOT NULL,
+  product_id TEXT,
+  product_name TEXT NOT NULL,
+  product_sku TEXT,
+  product_image TEXT,
+  rental_price NUMERIC(10,2) NOT NULL,
+  security_deposit NUMERIC(10,2) NOT NULL,
+  start_date TEXT NOT NULL,
+  end_date TEXT NOT NULL,
+  return_date TEXT,
+  status TEXT DEFAULT 'ACTIVE',
+  deposit_refunded BOOLEAN DEFAULT false,
+  notes TEXT,
+  images TEXT[] DEFAULT '{}',
+  return_images TEXT[] DEFAULT '{}',
+  laundry_status TEXT DEFAULT 'NOT_REQUIRED',
+  laundry_notes TEXT,
+  laundry_partner TEXT,
+  laundry_cost NUMERIC(10,2) DEFAULT 0,
+  date TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+ALTER TABLE public.rentals ADD COLUMN IF NOT EXISTS images TEXT[] DEFAULT '{}';
+ALTER TABLE public.rentals ADD COLUMN IF NOT EXISTS return_images TEXT[] DEFAULT '{}';
+ALTER TABLE public.rentals ADD COLUMN IF NOT EXISTS laundry_status TEXT DEFAULT 'NOT_REQUIRED';
+ALTER TABLE public.rentals ADD COLUMN IF NOT EXISTS laundry_notes TEXT;
+ALTER TABLE public.rentals ADD COLUMN IF NOT EXISTS laundry_partner TEXT;
+ALTER TABLE public.rentals ADD COLUMN IF NOT EXISTS laundry_cost NUMERIC(10,2) DEFAULT 0;
+
+-- 8. EXPENSES TABLE
+CREATE TABLE IF NOT EXISTS public.expenses (
+  id TEXT PRIMARY KEY,
+  date TEXT NOT NULL,
+  type TEXT NOT NULL,
+  category TEXT DEFAULT 'General',
+  amount NUMERIC(10,2) NOT NULL,
+  description TEXT,
+  reason TEXT NOT NULL,
+  paid_to TEXT,
+  product_id TEXT,
+  quantity INTEGER,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 9. CREDIT NOTES & STOCK LOGS
+CREATE TABLE IF NOT EXISTS public.credit_notes (
+  id TEXT PRIMARY KEY,
+  customer_id TEXT NOT NULL,
+  amount NUMERIC(10,2) NOT NULL,
+  reason TEXT,
+  date TIMESTAMPTZ DEFAULT NOW(),
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS public.stock_logs (
+  id TEXT PRIMARY KEY,
+  product_id TEXT,
+  product_name TEXT NOT NULL,
+  change_type TEXT NOT NULL,
+  quantity_changed INTEGER NOT NULL,
+  previous_stock INTEGER NOT NULL,
+  new_stock INTEGER NOT NULL,
+  reason TEXT,
+  date TIMESTAMPTZ DEFAULT NOW(),
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 10. STORE PROFILE & SETTINGS
+CREATE TABLE IF NOT EXISTS public.store_profile (
+  id TEXT PRIMARY KEY DEFAULT 'default',
+  store_name TEXT NOT NULL,
+  tagline TEXT,
+  phone TEXT,
+  email TEXT,
+  address TEXT,
+  gstin TEXT,
+  website TEXT,
+  logo_url TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS public.settings (
+  id TEXT PRIMARY KEY DEFAULT 'default',
+  default_tax_rate NUMERIC(5,2) DEFAULT 0,
+  low_stock_threshold INTEGER DEFAULT 5,
+  enable_low_stock_alerts BOOLEAN DEFAULT true,
+  sales_invoice_prefix TEXT DEFAULT 'INV',
+  rental_invoice_prefix TEXT DEFAULT 'RNT',
+  enable_delete_inventory BOOLEAN DEFAULT true,
+  enable_delete_customers BOOLEAN DEFAULT true,
+  enable_delete_transactions BOOLEAN DEFAULT true,
+  enable_delete_rentals BOOLEAN DEFAULT true,
+  enable_delete_suppliers BOOLEAN DEFAULT true,
+  enable_delete_users BOOLEAN DEFAULT true,
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 11. ENABLE RLS AND CREATE SAFE PUBLIC ACCESS POLICIES
+DO $$ 
+DECLARE
+  t text;
+  tables text[] := ARRAY[
+    'products', 'customers', 'sales', 'sale_items', 'rentals',
+    'suppliers', 'supplier_bills', 'expenses', 'credit_notes',
+    'stock_logs', 'store_profile', 'settings', 'users'
+  ];
+BEGIN
+  FOREACH t IN ARRAY tables LOOP
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = t) THEN
+      EXECUTE format('ALTER TABLE public.%I ENABLE ROW LEVEL SECURITY;', t);
+      EXECUTE format('DROP POLICY IF EXISTS "Allow all public access on %I" ON public.%I;', t, t);
+      EXECUTE format('DROP POLICY IF EXISTS "Allow all on %I" ON public.%I;', t, t);
+      EXECUTE format('DROP POLICY IF EXISTS "Public access on %I" ON public.%I;', t, t);
+      EXECUTE format('CREATE POLICY "Allow all public access on %I" ON public.%I FOR ALL USING (true) WITH CHECK (true);', t, t);
+    END IF;
+  END LOOP;
+END $$;`;
 
     navigator.clipboard.writeText(sql);
     setIsCopiedSql(true);
     setTimeout(() => setIsCopiedSql(false), 2500);
-    showNotification('RLS bypass SQL copied to clipboard!', 'success');
+    showNotification('Complete Schema & RLS SQL copied to clipboard!', 'success');
   };
 
   const tabs = [

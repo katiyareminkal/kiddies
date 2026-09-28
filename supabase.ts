@@ -190,11 +190,17 @@ export async function testSupabaseConnection(): Promise<SupabaseConnectionStatus
     'products',
     'customers',
     'sales',
+    'sale_items',
     'rentals',
     'suppliers',
     'supplier_bills',
+    'supplier_bill_items',
     'expenses',
-    'store_profile'
+    'credit_notes',
+    'stock_logs',
+    'notifications',
+    'store_profile',
+    'settings'
   ];
 
   const startTime = performance.now();
