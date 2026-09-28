@@ -1,0 +1,139 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: users
+    // Fields: id, name, email, role, permissions, avatar, createdAt
+    //
+    // Collection: products
+    // Fields: id, name, sku, barcode, category, purchasePrice, sellingPrice, rentalPrice, taxPercent, saleStock, rentalStock, minStockAlert, supplierId, description, imageUrl, createdAt
+    //
+    // Collection: customers
+    // Fields: id, name, phone, email, address, gstin, createdAt
+    //
+    // Collection: suppliers
+    // Fields: id, name, contactPerson, phone, email, address, createdAt
+    //
+    // Collection: sales
+    // Fields: id, invoiceNumber, externalOrderId, channel, customerId, items, totalAmount, marketplaceFees, netPayout, taxTotal, discount, paidAmount, paymentStatus, paymentMethod, orderStatus, date
+    //
+    // Collection: rentals
+    // Fields: id, invoiceNumber, customerId, productId, quantity, startDate, expectedReturnDate, actualReturnDate, dailyRate, securityDeposit, totalRentAmount, lateFee, paidAmount, status, paymentStatus, images, date
+    //
+    // Collection: stockLogs
+    // Fields: id, productId, pool, type, quantity, reason, date
+    //
+    // Collection: notifications
+    // Fields: id, type, category, title, message, timestamp, isRead, linkTo
+    //
+    // Collection: config
+    // Documents: storeProfile, settings
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    function isAdmin() {
+      return isAuthenticated() && 
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'ADMIN' ||
+         request.auth.token.email == "katiyareminkal@gmail.com");
+    }
+    
+    function isValidEmail(email) {
+      return email is string && email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+    }
+
+    function hasOnlyAllowedFields(fields) {
+      return request.resource.data.keys().hasOnly(fields);
+    }
+
+    function hasRequiredFields(fields) {
+      return request.resource.data.keys().hasAll(fields);
+    }
+
+    // ===============================================================
+    // Domain Validators
+    // ===============================================================
+
+    function isValidUser(data) {
+      return hasRequiredFields(['id', 'name', 'email', 'role', 'permissions', 'createdAt']) &&
+             data.name is string && data.name.size() > 0 && data.name.size() < 100 &&
+             isValidEmail(data.email) &&
+             data.role in ['ADMIN', 'STAFF'] &&
+             data.permissions is list &&
+             data.createdAt is string;
+    }
+
+    function isValidProduct(data) {
+      return hasRequiredFields(['id', 'name', 'sku', 'purchasePrice', 'sellingPrice', 'rentalPrice', 'saleStock', 'rentalStock', 'createdAt']) &&
+             data.name is string && data.name.size() > 0 && data.name.size() < 200 &&
+             data.sku is string && data.sku.size() > 0 &&
+             data.purchasePrice is number && data.purchasePrice >= 0 &&
+             data.sellingPrice is number && data.sellingPrice >= 0 &&
+             data.rentalPrice is number && data.rentalPrice >= 0 &&
+             data.saleStock is number && data.rentalStock is number &&
+             data.createdAt is string;
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && isValidUser(request.resource.data) && 
+                    (isOwner(userId) || isAdmin());
+      allow update: if isAuthenticated() && isValidUser(request.resource.data) && 
+                    (isAdmin() || (isOwner(userId) && request.resource.data.role == resource.data.role));
+      allow delete: if isAdmin();
+    }
+
+    match /products/{productId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    match /customers/{customerId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /suppliers/{supplierId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /sales/{saleId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /rentals/{rentalId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /stockLogs/{logId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /notifications/{notificationId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /config/{configId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+  }
+}
