@@ -399,15 +399,15 @@ const TopBar: React.FC<{ activeTab: string; onTabChange: (id: string) => void }>
         >
           <img
             src="/icon.png"
-            alt="Stock & Rentals"
-            className="h-8 sm:h-9 w-auto object-contain transition-transform duration-200 group-hover:scale-105 active:scale-95 shrink-0"
+            alt="Kiddies"
+            className="h-8 sm:h-9 w-auto object-contain rounded-xl drop-shadow-2xs transition-transform duration-200 group-hover:scale-105 active:scale-95 shrink-0"
           />
           <div className="flex flex-col text-left leading-tight">
-            <span className="text-xs sm:text-[13.5px] font-black uppercase tracking-wider text-slate-900 whitespace-nowrap">
-              Stock & Rentals
+            <span className="text-xs sm:text-[14px] font-black uppercase tracking-wider text-slate-900 whitespace-nowrap">
+              Kiddies
             </span>
-            <span className="text-[8px] sm:text-[9.5px] font-extrabold text-[#01a9fb] uppercase tracking-widest whitespace-nowrap">
-              Management Suite
+            <span className="text-[8px] sm:text-[9.5px] font-extrabold text-[#0072f5] uppercase tracking-widest whitespace-nowrap">
+              Store & Rental Suite
             </span>
           </div>
         </div>
@@ -863,29 +863,31 @@ const Preloader: React.FC<{ fading?: boolean }> = ({ fading = false }) => {
         fading ? 'opacity-0 pointer-events-none' : 'opacity-100'
       }`}
     >
-      <div className="flex flex-col items-center text-center">
-        <img
-          src="/icon.png"
-          alt="Kiddies Logo"
-          className="w-[130px] h-[130px] object-contain rounded-[28px] drop-shadow-[0_12px_28px_rgba(1,169,251,0.22)]"
-        />
-        <span className="text-[15px] font-black uppercase tracking-[0.16em] text-slate-900 mt-6 leading-tight">
-          Stock & Rentals
+      <div className="flex flex-col items-center text-center animate-nano px-4">
+        <div className="relative group">
+          <img
+            src="/icon.png"
+            alt="Kiddies Logo"
+            className="w-[140px] h-[140px] sm:w-[150px] sm:h-[150px] object-contain rounded-[32px] drop-shadow-[0_16px_36px_rgba(0,114,245,0.30)] transition-transform duration-300 hover:scale-105"
+          />
+        </div>
+        <span className="text-xl sm:text-2xl font-black uppercase tracking-[0.18em] text-slate-900 mt-6 leading-tight">
+          Kiddies
         </span>
-        <span className="text-[11px] font-extrabold uppercase tracking-[0.22em] text-[#01a9fb] mt-1.5 leading-tight">
-          Management Suite
+        <span className="text-[11px] sm:text-xs font-black uppercase tracking-[0.24em] text-[#0072f5] mt-1.5 leading-tight">
+          Kids Wear & Rental Boutique
         </span>
-        <div className="flex items-center justify-center gap-3 mt-7">
+        <div className="flex items-center justify-center gap-2.5 mt-7">
           <div
-            className="w-[7px] h-[7px] rounded-full bg-[#38bdf8] dot-pulse"
+            className="w-2 h-2 rounded-full bg-[#00d2ff] dot-pulse"
             style={{ animationDelay: '0s' }}
           />
           <div
-            className="w-[7px] h-[7px] rounded-full bg-[#f472b6] dot-pulse"
+            className="w-2 h-2 rounded-full bg-[#ff0f7b] dot-pulse"
             style={{ animationDelay: '0.2s' }}
           />
           <div
-            className="w-[7px] h-[7px] rounded-full bg-[#facc15] dot-pulse"
+            className="w-2 h-2 rounded-full bg-[#ffd500] dot-pulse"
             style={{ animationDelay: '0.4s' }}
           />
         </div>

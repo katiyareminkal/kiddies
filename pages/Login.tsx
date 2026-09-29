@@ -131,14 +131,17 @@ const Login: React.FC = () => {
         <div className="text-center mb-6 flex flex-col items-center">
           <img
             src={storeProfile?.logo || '/icon.png'}
-            alt="Stock & Rentals Logo"
+            alt="Kiddies Logo"
             referrerPolicy="no-referrer"
-            className="h-24 sm:h-28 w-auto object-contain mb-3 drop-shadow-md transition-transform hover:scale-105 duration-200"
+            className="w-24 h-24 sm:w-28 sm:h-28 object-contain rounded-[28px] mb-3 drop-shadow-[0_12px_28px_rgba(0,114,245,0.28)] transition-transform hover:scale-105 duration-200"
           />
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-white border border-slate-200/90 rounded-full shadow-2xs mb-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#01a9fb]" />
+          <h2 className="text-xl sm:text-2xl font-black uppercase tracking-[0.16em] text-slate-900 leading-tight">
+            Kiddies
+          </h2>
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-white border border-slate-200/90 rounded-full shadow-2xs mt-2 mb-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#0072f5]" />
             <span className="text-[11px] font-black text-slate-800 uppercase tracking-wider">
-              Stock & Rental Management
+              Store & Rental Management
             </span>
           </div>
           <p className="text-xs text-slate-500 font-medium">
