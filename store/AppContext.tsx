@@ -491,12 +491,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       const { data: saleItems } = await supabase.from('sale_items').select('*');
       const { data: supplierBillItems } = await supabase.from('supplier_bill_items').select('*');
 
-      // Aggregate all database users from both 'users' and 'profiles' tables
+      // Select database users: prefer 'users' table; if empty or missing, fallback to 'profiles' table
       const rawUsersList: any[] = [];
-      if (usersTableRes.data && Array.isArray(usersTableRes.data)) {
+      if (usersTableRes.data && Array.isArray(usersTableRes.data) && usersTableRes.data.length > 0) {
         rawUsersList.push(...usersTableRes.data);
-      }
-      if (profilesTableRes.data && Array.isArray(profilesTableRes.data)) {
+      } else if (profilesTableRes.data && Array.isArray(profilesTableRes.data) && profilesTableRes.data.length > 0) {
         rawUsersList.push(...profilesTableRes.data);
       }
       const products = productsRes.data;
@@ -597,42 +596,54 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
       // Build consolidated users list, prioritizing real database records
       const finalUsers: User[] = [];
-      const seenUserKeys = new Set<string>();
+      const seenIds = new Set<string>();
+      const seenEmails = new Set<string>();
+      const seenNames = new Set<string>();
 
-      // 1. Remote users from Supabase take top precedence
+      // 1. Remote users from Supabase take top precedence (Exact database match)
       for (const u of remoteUsers) {
-        const idKey = u.id ? u.id.toLowerCase() : '';
-        const emailKey = u.email ? u.email.toLowerCase() : '';
-        const key = emailKey || idKey;
-        if (key && !seenUserKeys.has(key)) {
-          seenUserKeys.add(key);
-          if (idKey) seenUserKeys.add(idKey);
-          if (emailKey) seenUserKeys.add(emailKey);
+        const idKey = (u.id || '').trim().toLowerCase();
+        const emailKey = (u.email || '').trim().toLowerCase();
+        const nameKey = (u.name || '').trim().toLowerCase();
+
+        const isDuplicate =
+          (idKey && seenIds.has(idKey)) ||
+          (emailKey && seenEmails.has(emailKey)) ||
+          (!emailKey && nameKey && seenNames.has(nameKey));
+
+        if (!isDuplicate) {
+          if (idKey) seenIds.add(idKey);
+          if (emailKey) seenEmails.add(emailKey);
+          if (nameKey) seenNames.add(nameKey);
           finalUsers.push(u);
         }
       }
 
-      // 2. Custom offline users (if not already represented)
+      // 2. Only add offline custom users if they are not already in the database
       for (const u of customOfflineUsers) {
-        const idKey = u.id ? u.id.toLowerCase() : '';
-        const emailKey = u.email ? u.email.toLowerCase() : '';
-        const key = emailKey || idKey;
-        if (key && !seenUserKeys.has(key)) {
-          seenUserKeys.add(key);
-          if (idKey) seenUserKeys.add(idKey);
-          if (emailKey) seenUserKeys.add(emailKey);
+        const idKey = (u.id || '').trim().toLowerCase();
+        const emailKey = (u.email || '').trim().toLowerCase();
+        const nameKey = (u.name || '').trim().toLowerCase();
+
+        const isDuplicate =
+          (idKey && seenIds.has(idKey)) ||
+          (emailKey && seenEmails.has(emailKey)) ||
+          (nameKey && seenNames.has(nameKey));
+
+        if (!isDuplicate) {
+          if (idKey) seenIds.add(idKey);
+          if (emailKey) seenEmails.add(emailKey);
+          if (nameKey) seenNames.add(nameKey);
           finalUsers.push(u);
         }
       }
 
-      // 3. Fallback initial users only if no matching account exists
-      for (const u of INITIAL_DATA.users) {
-        const idKey = u.id.toLowerCase();
-        const emailKey = u.email ? u.email.toLowerCase() : '';
-        if (!deletedUserIds.has(u.id) && (!emailKey || !deletedUserIds.has(emailKey))) {
-          if (!seenUserKeys.has(idKey) && (!emailKey || !seenUserKeys.has(emailKey))) {
-            seenUserKeys.add(idKey);
-            if (emailKey) seenUserKeys.add(emailKey);
+      // 3. Fallback to initial mock users ONLY if no users exist in database or storage
+      if (finalUsers.length === 0) {
+        for (const u of INITIAL_DATA.users) {
+          const idKey = u.id.toLowerCase();
+          const emailKey = (u.email || '').trim().toLowerCase();
+          if (!deletedUserIds.has(u.id) && (!emailKey || !deletedUserIds.has(emailKey))) {
             finalUsers.push(u);
           }
         }
